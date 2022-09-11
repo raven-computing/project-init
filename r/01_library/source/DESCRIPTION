@@ -1,0 +1,22 @@
+Package: ${{VAR_R_LIBRARY_PACKAGE_NAME}}
+Title: ${{VAR_PROJECT_DESCRIPTION}}
+Version: 0.0.1
+Authors@R: c(
+    person(given = "CHANGE ME",
+           family = "CHANGE ME",
+           role = c("aut", "cre"),
+           email = "${{VAR_PROJECT_ORGANISATION_EMAIL}}"),
+    person("${{VAR_PROJECT_ORGANISATION_NAME}}", role = "cph"))
+Description: ${{VAR_PROJECT_DESCRIPTION}}
+License: ${{VAR_DESCRIPTION_LICENSE}}
+URL: ${{VAR_PROJECT_ORGANISATION_URL}}
+Encoding: UTF-8
+Depends: R (>= ${{VAR_R_VERSION}})
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Maintainer: FIRSTNAME SURNAME <${{VAR_PROJECT_ORGANISATION_EMAIL}}>
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+

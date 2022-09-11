@@ -1,0 +1,23 @@
+name: 'Test'
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - 'v*'
+
+  workflow_call:
+
+jobs:
+  test-system-compat:
+    name: 'System Compatibility'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v3
+
+      - name: 'Test System Compatibility'
+        env:
+          TERMINAL_NO_USE_CNTRL_CHARS: '1'
+        run: ./test.sh
+

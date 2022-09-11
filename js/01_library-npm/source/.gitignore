@@ -1,0 +1,11 @@
+node_modules/
+jspm_packages/
+pids
+*.tgz
+*.pid
+*.seed
+*.pid.lock
+.npm
+.eslintcache
+.node_repl_history
+.env

@@ -1,0 +1,2 @@
+Welcome to your customized Project Init system. This is a customized description
+which can be adjusted by your addon to fit your needs.

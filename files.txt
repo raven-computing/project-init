@@ -1,0 +1,24 @@
+# The files specified here will be considered by the system for
+# variable substitution in project source template files.
+# Use either complete file names or file extensions with wildcards (e.g. '*.txt')
+# Each file or file pattern must be declared on a separate line.
+*.c
+*.cmake
+*.cpp
+*.css
+*.fxml
+*.h
+*.java
+*.js
+*.md
+*.py
+*.pyx
+*.R
+*.sh
+*.xml
+CMakeLists.txt
+DESCRIPTION
+LICENSE
+Makefile
+package.json
+requirements.txt

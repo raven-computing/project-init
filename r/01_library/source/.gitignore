@@ -1,0 +1,8 @@
+bin/
+build/
+/build/
+.settings/
+.project
+.Rhistory
+.Rproj.user
+

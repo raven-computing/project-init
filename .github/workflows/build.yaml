@@ -1,0 +1,32 @@
+name: 'Build'
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - 'v*'
+
+  workflow_call:
+
+jobs:
+  build-api-docs:
+    name: 'API Docs'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v3
+
+      - name: 'Setup Python'
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+
+      - name: 'Build API Docs'
+        run: python docs/generate_api_docs.py
+
+      - name: 'Upload API Docs'
+        uses: actions/upload-artifact@v3
+        with:
+          name: api_docs.md
+          path: docs/api_docs.md
+

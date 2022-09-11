@@ -1,0 +1,3 @@
+# This file can be used to add more files and file patterns to the
+# list of files which will be considered by the system for variable
+# substitution in project source template files.

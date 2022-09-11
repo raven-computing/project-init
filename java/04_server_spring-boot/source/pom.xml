@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>${{VAR_PROJECT_GROUP_ID}}</groupId>
+  <artifactId>${{VAR_PROJECT_ARTIFACT_ID}}</artifactId>
+  <version>0.0.1</version>
+  <name>${{VAR_PROJECT_NAME}}</name>
+  <description>${{VAR_PROJECT_DESCRIPTION}}</description>
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.5.6</version>
+    <relativePath/>
+  </parent>
+  <properties>
+    <java.version>${{VAR_JAVA_VERSION_POM}}</java.version>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+${{VAR_SPRING_DEPENDENCY_SECURITY}}
+${{VAR_SPRING_DEPENDENCY_DATA_JPA}}
+${{VAR_SPRING_DEPENDENCY_DATA_DRIVER_MYSQL}}
+${{VAR_SPRING_DEPENDENCY_DATA_DRIVER_MARIADB}}
+${{VAR_SPRING_DEPENDENCY_DATA_DRIVER_POSTGRESQL}}
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+${{VAR_SPRING_DEPENDENCY_SECURITY_TEST}}
+  </dependencies>
+  <build>
+    <directory>build</directory>
+    <finalName>${project.artifactId}-${project.version}</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+</project>

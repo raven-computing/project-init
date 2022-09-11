@@ -1,0 +1,6 @@
+My New License
+
+Copyright (C) ${{VAR_COPYRIGHT_YEAR}} ${{VAR_COPYRIGHT_HOLDER}}
+
+This is the license text.
+

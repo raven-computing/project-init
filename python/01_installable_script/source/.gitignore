@@ -1,0 +1,32 @@
+bin/
+build/
+/build/
+.settings/
+.project
+.vscode
+
+# Byte code
+__pycache__/
+**/__pycache__
+*.pyc
+
+# Packaging
+build/
+develop-eggs/
+dist/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Environments
+.env
+.venv
+env/
+venv/

@@ -1,0 +1,6 @@
+# Unidirectional mapping for source file extensions.
+# Each entry in this file instructs the system to instead use a different
+# license header.* file when inserting copyright headers in a source file with
+# the specified file extension.
+# An entry must be constructed according to the pattern "<sourceExt> => <targetExt>"
+

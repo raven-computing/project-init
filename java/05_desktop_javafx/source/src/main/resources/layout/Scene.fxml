@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+${{VAR_COPYRIGHT_HEADER}}
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:id="AnchorPane"
+            minWidth="-Infinity"
+            maxWidth="-Infinity"
+            prefWidth="600.0"
+            minHeight="-Infinity"
+            maxHeight="-Infinity" 
+            prefHeight="400.0"
+            fx:controller="${{VAR_NAMESPACE_DECLARATION}}.Controller">
+  <children>
+    <BorderPane AnchorPane.bottomAnchor="0.0"
+                AnchorPane.leftAnchor="0.0"
+                AnchorPane.rightAnchor="0.0"
+                AnchorPane.topAnchor="0.0">
+      <center>
+        <VBox alignment="CENTER"
+              BorderPane.alignment="CENTER">
+          <children>
+            <CheckBox fx:id="checkboxLog"
+                      mnemonicParsing="false"
+                      selected="true"
+                      text="Log in Console?"/>
+            <Button fx:id="btnClick"
+                    onAction="#onButtonClick"
+                    prefWidth="110.0"
+                    text="Click Me!">
+              <VBox.margin>
+                <Insets bottom="20.0"
+                        top="20.0"/>
+              </VBox.margin>
+              <cursor>
+                <Cursor fx:constant="HAND"/>
+              </cursor>
+            </Button>
+              <Label fx:id="labelTxt"
+                     minHeight="20.0"
+                     minWidth="100.0"/>
+            <Label fx:id="labelTxtCounter">
+              <VBox.margin>
+                <Insets top="8.0"/>
+              </VBox.margin>
+            </Label>
+          </children>
+        </VBox>
+      </center>
+      <top>
+        <Label text="Click the button below."
+               BorderPane.alignment="CENTER">
+          <BorderPane.margin>
+            <Insets top="16.0"/>
+          </BorderPane.margin>
+        </Label>
+      </top>
+      <bottom>
+        <VBox alignment="CENTER"
+              BorderPane.alignment="CENTER">
+          <children>
+            <Label fx:id="labelVersionJava">
+              <VBox.margin>
+                <Insets/>
+              </VBox.margin>
+            </Label>
+            <Label fx:id="labelVersionJFX">
+              <VBox.margin>
+                <Insets bottom="5.0"
+                        top="5.0"/>
+              </VBox.margin>
+            </Label>
+          </children>
+        </VBox>
+      </bottom>
+    </BorderPane>
+  </children>
+</AnchorPane>

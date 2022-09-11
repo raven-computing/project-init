@@ -1,0 +1,12 @@
+^build$
+^build\.sh$
+^\.Rproj\.user$
+^.global\.sh$
+^LICENSE\.md$
+^LICENSE$
+^README\.Rmd$
+^README.md$
+^tests$
+^test\.sh$
+^cran-comments\.md$
+^CRAN-RELEASE$

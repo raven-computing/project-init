@@ -1,0 +1,4 @@
+    --lint)
+    ARG_LINT=true;
+    shift
+    ;;

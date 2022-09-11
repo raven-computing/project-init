@@ -1,0 +1,7 @@
+Line A
+Line B
+Line C ${{VAR_TEST_123_KEY}}_Data
+Line D
+${{VAR_TEST_123_KEY}} VAR_SHOULD_BE_IGNORED
+Line E
+Line F

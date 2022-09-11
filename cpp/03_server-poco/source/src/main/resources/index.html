@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset=UTF-8 content="text/html">
+    <title>WebSocket Example</title>
+    <style>
+      .input-header {
+        margin-left: 30px;
+      }
+
+      .input-fields-border {
+        width: 820px;
+        background-color: rgb(146, 170, 243);
+        margin-left: 30px;
+        border-style: solid;
+        border-color: rgb(58, 58, 80);
+        border-radius: 8px;
+      }
+
+      .input-fields {
+        padding: 20px 20px 40px 20px;
+      }
+
+      .input-fields .long-input {
+        width: 400px;
+      }
+
+      .input-fields .short-input {
+        width: 80px;
+      }
+
+      .input-fields-text label {
+        display: block;
+        margin-top: 10px;
+      }
+
+      .btn-submit {
+        margin-top: 30px;
+      }
+
+    </style>
+
+    <script type="text/javascript">
+      var serverAddress = "127.0.0.1";
+      var serverPort = "8080";
+      var ws = null;
+      var wsConnected = false;
+      var inMsg = null;
+      var btnLaunch = null;
+      var btnCancel = null;
+      var btnSend = null;
+      var lblStatus = null;
+      var lblResp = null;
+
+      function onStart(){
+        inMsg = document.getElementById("inInput");
+        inPort = document.getElementById("inServerPort");
+        btnLaunch = document.getElementById("btn-launch");
+        btnCancel = document.getElementById("btn-cancel");
+        btnSend = document.getElementById("btn-send");
+        lblStatus = document.getElementById("lblStatus");
+        lblResp = document.getElementById("lblResp");
+        btnCancel.disabled = true;
+        btnSend.disabled = true;
+      }
+
+      function closeSession(){
+        if(ws != null){
+          lblStatus.innerHTML = "Cancelling...";
+          cancelled = true;
+          btnCancel.disabled = true;
+          btnSend.disabled = true;
+          btnLaunch.disabled = true;
+          ws.close();
+        }
+      }
+
+      function openSession(){
+        if("WebSocket" in window){
+          btnLaunch.disabled = true;
+          let serverPort = inPort.value;
+          ws = new WebSocket("ws://" + serverAddress + ":" + serverPort + "/myws");
+
+          ws.onopen = function(){
+              wsConnected = true;
+              btnCancel.disabled = false;
+              btnSend.disabled = false;
+              lblStatus.innerHTML = "Connection opened";
+          };
+          ws.onmessage = function(evt){
+              lblStatus.innerHTML = "Response received";
+              var text = evt.data;
+              var msg = text;
+              lblResp.innerHTML = msg;
+          };
+          ws.onclose = function(){
+              if(wsConnected){
+                lblStatus.innerHTML = "Connection closed";
+              }else{
+                lblStatus.innerHTML = "Connection refused";
+              }
+              wsConnected = false;
+              ws = null;
+              btnCancel.disabled = true;
+              btnSend.disabled = true;
+          };
+        }else{
+          lblStatus.innerHTML = "Not supported";
+          alert("This browser does not support WebSockets.");
+        }
+      }
+
+      function sendMessage(){
+        let msg = inMsg.value;
+        if(msg === ""){
+            lblStatus.innerHTML = "Please specify a message";
+            return;
+        }
+        lblStatus.innerHTML = "Sending message... ";
+        ws.send(msg);
+        lblStatus.innerHTML = "Message sent '" + msg + "'";
+      }
+    </script>
+  </head>
+  <body onload="onStart()">
+    <div class="input-header">
+      <h2>WebSocket Example</h2>
+      <h3>Use the text field to send a message to the server via a WebSocket connection.</h3>
+    </div>
+    <div class="input-fields-border">
+      <div class="input-fields">
+        <div class="input-fields-text">
+          <span>Connect to <i>localhost</i> on port: </span>
+          <input id="inServerPort"
+                name="inServerPort"
+                class="short-input"
+                type="number"
+                step="1"
+                min="1"
+                max="65535"
+                value="8080"
+                placeholder="port"/>
+          <label for="inInput">Enter your Message here:</label>
+          <input id="inInput"
+                name="inInput"
+                class="long-input"
+                type="text"
+                placeholder="Your message..."/>
+        </div>
+        <button id="btn-launch"
+                class="btn-submit"
+                onclick="openSession()">
+                Open Session
+        </button>
+        <button id="btn-cancel"
+                class="btn-cancel"
+                onclick="closeSession()">
+                Close Session
+        </button>
+        <button id="btn-send"
+                class="btn-send"
+                onclick="sendMessage()">
+                Send
+        </button>
+        <br/>
+        <div class="input-fields-text">
+          <label><b>Status:</b></label>
+          <label id="lblStatus">[Ready]</label>
+          <label><b>Server Response:</b></label>
+          <label id="lblResp"></label>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

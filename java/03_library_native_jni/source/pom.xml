@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>${{VAR_PROJECT_GROUP_ID}}</groupId>
+  <artifactId>${{VAR_PROJECT_ARTIFACT_ID}}</artifactId>
+  <version>0.0.1</version>
+  <name>${{VAR_PROJECT_NAME}}</name>
+  <description>${{VAR_PROJECT_DESCRIPTION}}</description>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.target>${{VAR_JAVA_VERSION_POM}}</maven.compiler.target>
+    <maven.compiler.source>${{VAR_JAVA_VERSION_POM}}</maven.compiler.source>
+  </properties>
+  <organization>
+    <name>${{VAR_PROJECT_ORGANISATION_NAME}}</name>
+    <url>${{VAR_PROJECT_ORGANISATION_URL}}</url>
+  </organization>
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.13.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <directory>build</directory>
+    <finalName>${project.artifactId}-${project.version}</finalName>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.10.1</version>
+        <configuration>
+          <compilerArgs>
+            <arg>-h</arg>
+            <arg>${project.build.directory}/jni-headers</arg>
+          </compilerArgs>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.4</version>
+        <executions>
+          <execution>
+            <id>default-jar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>cmake-build</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target if="buildNativeLibs">
+                <echo message="Configuring native JNI library using CMake"
+                      level="info"/>
+                <exec executable="cmake"
+                      dir="${project.build.directory}"
+                      failonerror="true">
+                  <arg line="-DCMAKE_BUILD_TYPE=Release .."/>
+                </exec>
+                <echo message="Building native JNI library using CMake"
+                      level="info"/>
+                <exec executable="cmake"
+                      dir="${project.build.directory}"
+                      failonerror="true">
+                  <arg line="--build . --config Release"/>
+                </exec>
+              </target>
+            </configuration>
+          </execution>
+          <execution>
+            <id>cmake-ctest</id>
+            <phase>test</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target if="testNativeLibs">
+                <echo message="Testing native JNI library using CTest"
+                      level="info"/>
+                <exec executable="ctest"
+                      failonerror="true"
+                      dir="${project.build.directory}">
+                  <arg value="--output-on-failure"/>
+                  <env key="GTEST_COLOR"
+                       value="1"/>
+                </exec>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>3.0.1</version>
+        <configuration>
+          <includePom>false</includePom>
+        </configuration>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.0.1</version>
+        <configuration>
+          <charset>UTF-8</charset>
+          <failOnError>true</failOnError>
+          <failOnWarnings>false</failOnWarnings>
+          <quiet>true</quiet>
+        </configuration>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.2</version>
+        <configuration>
+          <argLine>
+          -Djava.library.path=${project.build.directory} 
+          -DnativeLibsAvailable=${buildNativeLibs}
+          </argLine>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>1.6</version>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

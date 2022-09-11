@@ -1,0 +1,17 @@
+{
+  "name": "${{VAR_PROJECT_NAME_LOWER}}",
+  "description": "${{VAR_PROJECT_DESCRIPTION}}",
+  "version": "0.0.1",
+  "author": "${{VAR_PROJECT_ORGANISATION_NAME}} <${{VAR_PROJECT_ORGANISATION_EMAIL}}>",
+  "homepage": "${{VAR_PROJECT_ORGANISATION_URL}}",
+  "license": "${{VAR_PROJECT_LICENSE}}",
+  "private": true,
+  "scripts": {
+    "start": "node ./app.js"
+  },
+  "dependencies": {
+    "express": ">=4.18.1",
+    "cookie-parser": ">=1.4.6",
+    "morgan": ">=1.10.0"
+  }
+}
