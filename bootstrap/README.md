@@ -1,4 +1,4 @@
-## Bootstrap and Installation
+# Bootstrap and Installation
 
 This directory contains the scripts to bootstrap and install the Project Init system. There are multiple ways you can use Project Init. You may choose the one that best fits your preferences. The scripts in this directory are provided for your convenience.
 
