@@ -1820,6 +1820,12 @@ function _check_unreplaced_vars() {
     for subvar in "${found_subvars[@]}"; do
       local subvar_id="${subvar:3:-2}";
       logW "Substitution variable not replaced: '$subvar_id'";
+      # Check for copyright header substitution variable
+      if [[ "$subvar_id" == "VAR_COPYRIGHT_HEADER" ]]; then
+        logW "Possible cause:";
+        logW "Have you specified all file extensions in the call ";
+        logW "to the project_init_license() function?";
+      fi
       # Replace with an empty string
       replace_var "$subvar_id" "";
     done
