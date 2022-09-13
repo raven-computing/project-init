@@ -196,6 +196,8 @@ function main() {
     exit 1;
   fi
   local cmd_exit_status=0;
+  # Save the CWD and restore it before starting initmain
+  local _USER_CWD="$PWD";
   cd "$PROJECT_INIT_CACHE_LOCATION";
   cmd_exit_status=$?;
   if (( $cmd_exit_status != 0 )); then
@@ -211,9 +213,12 @@ function main() {
     export PROJECT_INIT_BOOTSTRAP="1";
     if [ -r "$PROJECT_INIT_SCRIPT_MAIN" ]; then
       if [ -x "$PROJECT_INIT_SCRIPT_MAIN" ]; then
+        # Correct working paths
+        local CACHE_LOCATION_BASE="$PWD";
+        cd "${_USER_CWD}";
 
         # Run the Project Init main script
-        bash "$PROJECT_INIT_SCRIPT_MAIN" "$@";
+        bash "${CACHE_LOCATION_BASE}/${PROJECT_INIT_SCRIPT_MAIN}" "$@";
 
         exit_status=$?;
       else
