@@ -51,7 +51,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: 'Create Release'
-        run: gh release create $RELEASE_VERSION --title $RELEASE_VERSION --notes "Release $RELEASE_VERSION"
+        run: gh release create $RELEASE_VERSION --title $RELEASE_VERSION --notes "#### Release notes:"
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           RELEASE_VERSION: ${{github.ref_name}}
