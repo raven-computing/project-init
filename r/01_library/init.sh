@@ -35,6 +35,10 @@ function process_files_lvl_2() {
     replace_var "DESCRIPTION_LICENSE" "Apache License (== 2)";
   elif [[ "$var_project_license" == "MIT License" ]]; then
     replace_var "DESCRIPTION_LICENSE" "MIT";
+  elif [[ "$var_project_license" == "GNU General Public License 2.0" ]]; then
+    replace_var "DESCRIPTION_LICENSE" "GPL-2";
+  elif [[ "$var_project_license" == "Boost Software License 1.0" ]]; then
+    replace_var "DESCRIPTION_LICENSE" "BSL-1.0";
   else
     replace_var "DESCRIPTION_LICENSE" "None";
   fi
