@@ -28,6 +28,7 @@ EOS
 readonly GIT_TAG_LATEST_SUFFIX="latest";
 readonly GIT_ORIGIN="origin";
 readonly VERSION_SUFFIX_DEV="dev";
+readonly FILE_CHECK_CHANGELOG="CHANGELOG.md";
 
 # Arg flags
 ARG_NO_BUMP=false;
@@ -117,6 +118,20 @@ version_release_array=( ${version_release//./ } );
 version_release_major="${version_release_array[0]}";
 version_release_minor="${version_release_array[1]}";
 version_release_patch="${version_release_array[2]}";
+
+# Warn if the changelog is not up-to-date
+if [ -r "$FILE_CHECK_CHANGELOG" ]; then
+  changelog_top=$(head -n 1 $FILE_CHECK_CHANGELOG);
+  if [[ "$changelog_top" != "#### ${version_release}" ]]; then
+    logW "No log entry found for the new version at the top of the changelog.";
+    logW "Missing entry for version $version_release";
+    logW "Please check file '$FILE_CHECK_CHANGELOG'";
+    exit $EXIT_FAILURE;
+  fi
+else
+  logW "Could not validate changelog file";
+  logW "File not found: '$FILE_CHECK_CHANGELOG'";
+fi
 
 _vc="${COLOR_CYAN}${version_release}${COLOR_NC}";
 logI "";
