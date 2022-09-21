@@ -805,9 +805,10 @@ function _read_dependencies() {
     logE "Programming error: No file specified in call to _read_dependencies()";
     return 2;
   fi
-  local line_num=0;
   if [ -r "$dependencies_file" ]; then
-    while read -r line; do
+    local line_num=0;
+    local line="";
+    while read -r line || [ -n "$line" ]; do
       line_num=$((line_num+1));
       # Ignore comments and blank lines
       if [[ ! -z "$line" && "$line" != \#* ]]; then
