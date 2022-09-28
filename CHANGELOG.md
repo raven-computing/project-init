@@ -1,3 +1,7 @@
+#### 1.0.3
+* Improved reading of text files.
+* Improved documentation.
+
 #### 1.0.2
 * Added missing license processing for GPL-2 and BSL-1 in R library project type.
 * Fixed minor typos in project.properties file.
