@@ -751,7 +751,8 @@ function _print_text_from_file() {
     # Set the IFS to an empty string
     IFS="";
     # Read the text file and show
-    while read -r line; do
+    local line="";
+    while read -r line || [ -n "$line" ]; do
       logI "$line";
     done < "$file_path"
     # Reset the original IFS value
@@ -1221,7 +1222,8 @@ function _read_properties() {
   if [ -r "$properties_file" ]; then
     local p_key="";
     local p_val="";
-    while read -r line; do
+    local line="";
+    while read -r line || [ -n "$line" ]; do
       line_num=$((line_num+1));
       # ignore comments and blank lines
       if [[ ! -z "$line" && "$line" != \#* ]]; then
@@ -1449,7 +1451,8 @@ function _run_addon_after_init_hook() {
 function _fill_files_list_from() {
   local fpath="$1";
   if [ -r "$fpath" ]; then
-    while read -r line; do
+    local line="";
+    while read -r line || [ -n "$line" ]; do
       # Ignore comments and blank lines
       if [[ ! -z "$line" && "$line" != \#* ]]; then
         # Trim surrounding whitespaces
@@ -1864,7 +1867,8 @@ function _read_license_extension_map() {
   if [ -r "$ext_path" ]; then
     local ext_key="";
     local ext_val="";
-    while read -r line; do
+    local line="";
+    while read -r line || [ -n "$line" ]; do
       # Ignore comments and blank lines
       if [[ ! -z "$line" && "$line" != \#* ]]; then
         # Check that the line is a key-value pair
