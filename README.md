@@ -10,7 +10,7 @@ This repository also contains the content for the base project source templates.
 
 There are multiple ways you can use the Project Init system whenever you want to initialize a new softwre project. The easiest way is to [install](#install) the *run.sh* script on your system. This makes the **project-init** command available for your convenience. If you don't want to install anything or just try it out once, simply [bootstrap](#bootstrap) the system temporarily by running the *run.sh* script with the provided commands. You may also [clone](#clone) this entire repository to a location of your choice.
 
-We recommend that you first read the [compatibility](#compatibility) section.
+We recommend that you first read the [Compatibility](#compatibility) section.
 
 ### Bootstrap
 
@@ -42,17 +42,17 @@ with ```curl```:
 bash <(curl -sL https://github.com/raven-computing/project-init/raw/v1-latest/bootstrap/install.sh)
 ```
 
-This will install the *run.sh* script in a non-temporary directory. After installation you can initialize a new software project by simply invoking the command:
+This will install the *run.sh* script in a non-temporary directory. After installation you can initialize a new software project simply by invoking the command:
 
 ```bash
 project-init
 ```
 
-For more information about bootstrapping and installing the system please see the [bootstrap README](bootstrap/README.md).
+For more information about bootstrapping and installing the system please see the [Bootstrap README](bootstrap/README.md).
 
 ### Clone
 
-Alternatively, you can of course clone this repository and then simply run the **initmain.sh** script to setup a new project. This is essentially what the bootstrap scripts do for you, while ensuring that you always use the latest stable version. If you use the **initmain.sh** script directly from a cloned repository, you have to remember to manually checkout the latest version.
+Alternatively, you can of course clone this repository and then simply run the **initmain.sh** script to set up a new project. This is essentially what the bootstrap scripts do for you, while ensuring that you always use the latest stable version. If you use the **initmain.sh** script directly from a cloned repository, you have to remember to manually checkout the latest version.
 
 
 ## Compatibility

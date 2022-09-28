@@ -59,7 +59,7 @@ project-init
 ```
 
 The directory where Project Init will be installed depends on the user that executes the command. If you run the *install.sh* script as a regular user, then Project Init is installed in the user's private bin directory "$HOME/.local/bin". That directory should automatically be added to the $PATH environment variable for the underlying user on supported systems.  
-If you run the *install.sh* script as root, then Project Init is installed in the system's bin directory "usr/local/bin". This will make the ```project-init``` command available to all users on the system. You might find it more convenient to install Project Init system-wide if managing a multi-user system. Otherwise, if you used on your own personal workstation, we recommend to install it as a regular user.
+If you run the *install.sh* script as root, then Project Init is installed in the system's bin directory "usr/local/bin". This will make the ```project-init``` command available to all users on the system. You might find it more convenient to install Project Init system-wide if managing a multi-user system. Otherwise, if you want to use it on your own personal workstation, we recommend to install it as a regular user.
 
 ### Disable Confirmation Prompt
 
