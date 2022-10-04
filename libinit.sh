@@ -258,6 +258,11 @@ SELECTED_NEXT_LEVEL_DIR_NAME="";
 # and get_boolean_property() functions.
 PROPERTY_VALUE="";
 
+# [API Global]
+# Holds the value computed and set by the make_hyperlink() function.
+# The string value might contain terminal escape codes.
+HYPERLINK_VALUE="";
+
 # An array for holding all supported language version
 # numbers/identifiers
 SUPPORTED_LANG_VERSIONS_IDS=();
@@ -507,6 +512,57 @@ function failure() {
   fi
 
   exit $EXIT_FAILURE;
+}
+
+# [API function]
+# Creates a hyperlink from the specified URL.
+#
+# This function can be used to create a clickable hyperlink leading
+# to a web resource. The hyperlink might be embedded in a series of
+# terminal escape codes if this is an activated feature, in which case
+# the specified label is used as the display string for the created hyperlink.
+# If the corresponding feature is disabled, the provided URL might be used
+# as is in the computed value. Please note that this function does not check
+# whether the underlying terminal emulator in use supports displaying
+# clickable labeled hyperlinks.
+# The result of this function is not printed directly but instead stored
+# in the $HYPERLINK_VALUE global variable.
+#
+# Args:
+# $1 - The URL of the hyperlink. This is a mandatory argument.
+# $2 - The label of the hyperlink. This argument is optional.
+#
+# Globals:
+# HYPERLINK_VALUE - Holds the string value of the created hyperlink.
+#                   Is set by this function.
+#
+# Returns:
+# 0 - If the hypelink was successfully created.
+# 1 - If an error occurred.
+#
+# Examples:
+# make_hyperlink "http://www.example.com" "Example Link";
+# logI "Please see this $HYPERLINK_VALUE";
+#
+function make_hyperlink() {
+  local _hl_url="$1";
+  local _hl_label="$2";
+  if [ -z "${_hl_url}" ]; then
+    logE "Programming error: No URL specified in call to make_hyperlink()";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    HYPERLINK_VALUE="";
+    return 1;
+  fi
+  if [ -z "${_hl_label}" ]; then
+    _hl_label="${_hl_url}";
+  fi
+  get_boolean_property "sys.output.hyperlinks.escape" "true";
+  if [[ "$PROPERTY_VALUE" == "true" ]]; then
+    HYPERLINK_VALUE="\e]8;;${_hl_url}\e\\${_hl_label}\e]8;;\e\\";
+  else
+    HYPERLINK_VALUE="${_hl_url}";
+  fi
+  return 0;
 }
 
 # Loads the version information for the Project Init base system.
