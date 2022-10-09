@@ -45,6 +45,7 @@ function process_files_lvl_1() {
 #                       Is set by this function.
 #
 function form_c_version() {
+  FORM_QUESTION_ID="c.version";
   logI "";
   logI "Specify the C standard to be used by the project:";
   read_user_input_selection "${SUPPORTED_LANG_VERSIONS_LABELS[@]}";
@@ -61,6 +62,7 @@ function form_c_version() {
 #                            Is set by this function.
 #
 function form_c_binary_name() {
+  FORM_QUESTION_ID="c.binary.name";
   logI "";
   logI "Enter the name of the binary file that this project produces:";
   logI "(Defaults to '$var_project_name_lower')";

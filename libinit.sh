@@ -303,6 +303,12 @@ _FLAG_CONFIGURATION_LOADED=false;
 # The message to print when a project is successfully initialized.
 _STR_SUCCESS_MESSAGE="Project has been initialized";
 
+# The path to the directory where the test output files are placed in
+# This is only applicable when the test mode is active.
+readonly _TESTS_OUTPUT_DIR="${RES_CACHE_LOCATION}/pi_tests_generated";
+# The properties config file to be loaded when in test mode.
+readonly _TESTS_PROPERTIES="tests/resources/project.properties";
+
 # Terminal color flag may be set as env var
 if [[ "$TERMINAL_USE_ANSI_COLORS" == "0" ]]; then
   readonly TERMINAL_USE_ANSI_COLORS=false;
@@ -1188,15 +1194,21 @@ function _get_script_path() {
 }
 
 # Reads the specified .properties formatted file and populates
-# the $PROPERTIES global variable with the corresponding key-value pairs.
+# the specified associative array global variable with the corresponding
+# key-value pairs.
 #
 # This function can be called multiple times for different files.
 # The previously populated key-value pairs are not lost. However, in the
 # case of an already existent key in any subsequent call, the value for
 # that key is overwritten with the new value.
+# The specified file to be read must be properties-formatted. The second
+# argument is optional. When omitted, all read properties are saved in
+# the $PROPERTIES global variable.
 #
 # Args:
-# $1 - The properties file to read.
+# $1 - The properties file to read. This is a mandatory argument.
+# $2 - The name of the associative array global variable to populate.
+#      This is an optional argument.
 #
 # Returns:
 # 0 - If the specified properties file was successfully read.
@@ -1204,14 +1216,21 @@ function _get_script_path() {
 # 2 - If the specified file could not be read.
 #
 # Globals:
-# PROPERTIES - The variable to which the read key-value pairs are written to.
+# PROPERTIES - The variable to which the read key-value pairs are written to
+#              if the $2 argument is not provided.
 #              Must be an already declared associative array.
 #
 # Examples:
 # _read_properties "project.properties";
+# declare -g -A MY_A_VARIABLE;
+# _read_properties "myfile.properties" MY_A_VARIABLE;
 #
 function _read_properties() {
   local properties_file="$1";
+  local container="$2";
+  if [ -z "$container" ]; then
+    container="PROPERTIES";
+  fi
   local invalid_format=false;
   local invalid_line=0;
   if [[ -z "$properties_file" ]]; then
@@ -1243,7 +1262,7 @@ function _read_properties() {
             invalid_format=true;
             invalid_line=$line_num;
           else
-            PROPERTIES["$p_key"]="$p_val";
+            declare -g $container["$p_key"]="$p_val";
           fi
         else
           invalid_format=true;
@@ -1468,12 +1487,49 @@ function _fill_files_list_from() {
   fi
 }
 
+# Loads the configuration files used in test mode and stores the
+# data in the corresponding global variables.
+#
+# The caller should check the relevant PROJECT_INIT_TESTS_ACTIVE
+# and PROJECT_INIT_TESTS_RUN_CONFIG environment variables before
+# calling this function.
+#
+# Globals:
+# _FORM_ANSWERS - The configured form answers from the test run file.
+#                 Is declared and initialized by this function.
+#
+function _load_test_configuration() {
+  declare -g -A _FORM_ANSWERS;
+  if ! _read_properties "$PROJECT_INIT_TESTS_RUN_CONFIG" _FORM_ANSWERS; then
+    logE "The configuration file for the test run has errors:";
+    logE "at: '$PROJECT_INIT_TESTS_RUN_CONFIG'";
+    failure "Failed to execute test run";
+  fi
+  # Adjust path if in test mode
+  FORM_QUESTION_ID="project.dir";
+  if _get_form_answer; then
+    if [[ "$FORM_QUESTION_ANSWER" != "${_TESTS_OUTPUT_DIR}"/* ]]; then
+      local test_path="${_TESTS_OUTPUT_DIR}/${FORM_QUESTION_ANSWER}";
+      _FORM_ANSWERS["project.dir"]="$test_path";
+    fi
+  else
+    logE "No project directory specified for test run.";
+    logE "Add a 'project.dir' entry in the test run properties file:";
+    logE "at: '$PROJECT_INIT_TESTS_RUN_CONFIG'";
+    failure "Failed to execute test run";
+  fi
+  _read_properties "${_TESTS_PROPERTIES}";
+}
+
 # Loads the base system configuration files and stores the
 # data in the corresponding global variables.
 #
 # The counterpart configuration files from the addons resource
 # are also loaded by this function if applicable. This depends
 # on the status of the $PROJECT_INIT_ADDONS_DIR global variable.
+#
+# This function also checks whether the test mode is activated and
+# conditionally calls the _load_test_configuration() function if needed.
 #
 # Globals:
 # PROPERTIES                 - The system properties. Is declared and initialized
@@ -1522,6 +1578,17 @@ function _load_configuration() {
       _fill_files_list_from "$PROJECT_INIT_ADDONS_DIR/files.txt";
     fi
   fi
+
+  # Check test configs
+  if [[ "$PROJECT_INIT_TESTS_ACTIVE" == "1" ]]; then
+    if [ -z "$PROJECT_INIT_TESTS_RUN_CONFIG" ]; then
+      logE "Environment variable 'PROJECT_INIT_TESTS_ACTIVE' is set";
+      logE "but 'PROJECT_INIT_TESTS_RUN_CONFIG' is missing";
+      failure "Failed to execute test run";
+    fi
+    _load_test_configuration;
+  fi
+
   _FLAG_CONFIGURATION_LOADED=true;
 }
 
@@ -1986,6 +2053,44 @@ function _check_is_valid_project_dir() {
   return 0;
 }
 
+# Queries the answer for the form question with the currently set question ID.
+#
+# The currently used question ID is taken from the value of
+# the $FORM_QUESTION_ID global variable. It is reset by this function
+# to an empty string. The queried form answer is stored in
+# the $FORM_QUESTION_ANSWER global variable.
+#
+# Globals:
+# FORM_QUESTION_ID     - The variable holding the question ID to use.
+# FORM_QUESTION_ANSWER - The variable where the queried answer will be stored.
+# _FORM_ANSWERS        - The associative array variable which is queried.
+#                        Must be set before this function is called.
+#
+# Returns:
+# 0 - If an answer is found and successfully set.
+# 1 - If no answer is found for the underlying question ID.
+# 2 - If no question ID was set.
+#
+function _get_form_answer() {
+  # logW "FORM_QUESTION_ID=$FORM_QUESTION_ID";
+  if [ -z "$FORM_QUESTION_ID" ]; then
+    FORM_QUESTION_ANSWER="";
+    return 2;
+  fi
+  # Check if the map contains the specified key
+  if [[ "${_FORM_ANSWERS[$FORM_QUESTION_ID]+1}" == "1" ]]; then
+    # Set the value associated with the key
+    FORM_QUESTION_ANSWER="${_FORM_ANSWERS[${FORM_QUESTION_ID}]}";
+    FORM_QUESTION_ID="";
+    return 0;
+  else
+    # Set to empty string
+    FORM_QUESTION_ANSWER="";
+    FORM_QUESTION_ID="";
+    return 1;
+  fi
+}
+
 # [API function]
 # Shows the specified strings as numbered selection items and lets
 # the user select one of them.
@@ -2036,17 +2141,23 @@ function read_user_input_selection() {
   fi
   echo "";
   # Print all selectable options
-  for (( i=0; i<${length}; i++ )); do
+  local number=0;
+  for (( i=0; i<${length}; ++i )); do
     number=$((i+1));
     echo "[$number] ${selection_names[$i]}";
   done
   echo "";
 
-  # Read user input
-  if [[ $TERMINAL_USE_ANSI_COLORS == true ]]; then
-    read -p "$(echo -e [${COLOR_CYAN}INPUT${COLOR_NC}]) " selected_item;
+  local prompt_input=$(echo -e "[${COLOR_CYAN}INPUT${COLOR_NC}] ");
+  local selected_item="";
+  if [[ "$PROJECT_INIT_TESTS_ACTIVE" == "1" ]]; then
+    # In test mode. Print the configured answer
+    _get_form_answer;
+    selected_item="$FORM_QUESTION_ANSWER";
+    echo -e "${prompt_input}${selected_item}";
   else
-    read -p "[INPUT] " selected_item;
+    # Read user input
+    read -p "$prompt_input" selected_item;
   fi
 
   # Check special case for "None" option
@@ -2061,9 +2172,21 @@ function read_user_input_selection() {
 
   # Validate user input
   local re="^[0-9]+$";
-  if ! [[ $selected_item =~ $re ]] ; then
-    logE "Invalid input";
-    failure "Please enter a valid number";
+  if ! [[ $selected_item =~ $re ]]; then
+    # Input is not a number.
+    # Check if it matches one of the selection items
+    local is_valid=false;
+    for (( i=0; i<${length}; ++i )); do
+      if [[ "$selected_item" == "${selection_names[$i]}" ]]; then
+        selected_item=$((i+1));
+        is_valid=true;
+        break;
+      fi
+    done
+    if [[ $is_valid == false ]]; then
+      logE "Invalid input";
+      failure "Please enter a valid number";
+    fi
   fi
   if ((selected_item < 1 || selected_item > $length)); then
     logE "Invalid number entered";
@@ -2110,10 +2233,15 @@ function read_user_input_selection() {
 # logI "Hi ${name}! Nice to meet you.";
 #
 function read_user_input_text() {
-  if [[ $TERMINAL_USE_ANSI_COLORS == true ]]; then
-    read -p "$(echo -e [${COLOR_CYAN}INPUT${COLOR_NC}]) " entered_text;
+  local entered_text="";
+  local prompt_input=$(echo -e "[${COLOR_CYAN}INPUT${COLOR_NC}] ");
+  local entered_text="";
+  if [[ "$PROJECT_INIT_TESTS_ACTIVE" == "1" ]]; then
+    _get_form_answer;
+    entered_text="$FORM_QUESTION_ANSWER";
+    echo -e "${prompt_input}${entered_text}";
   else
-    read -p "[INPUT] " entered_text;
+    read -p "$prompt_input" entered_text;
   fi
   USER_INPUT_ENTERED_TEXT="$entered_text";
   return 0;
@@ -2168,10 +2296,14 @@ function read_user_input_text() {
 #
 function read_user_input_yes_no() {
   local default_value=$1;
-  if [[ $TERMINAL_USE_ANSI_COLORS == true ]]; then
-    read -p "$(echo -e [${COLOR_CYAN}INPUT${COLOR_NC}]) " entered_yes_no;
+  local prompt_input=$(echo -e "[${COLOR_CYAN}INPUT${COLOR_NC}] ");
+  local entered_yes_no=="";
+  if [[ "$PROJECT_INIT_TESTS_ACTIVE" == "1" ]]; then
+    _get_form_answer;
+    entered_yes_no="$FORM_QUESTION_ANSWER";
+    echo -e "${prompt_input}${entered_yes_no}";
   else
-    read -p "[INPUT] " entered_yes_no;
+    read -p "$prompt_input" entered_yes_no;
   fi
   # Validate user input
   if [ -z "$entered_yes_no" ]; then
@@ -2941,6 +3073,7 @@ function select_project_type() {
   # Either prompt for a selection or automatically pick the
   # only available project type
   if (( $n_ptypes > 1 )); then
+    FORM_QUESTION_ID="project.type";
     logI "Select the type of $lang_name project to be created:";
     read_user_input_selection "${project_type_names[@]}";
     local selected_name=${project_type_names[USER_INPUT_ENTERED_INDEX]};

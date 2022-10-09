@@ -53,6 +53,7 @@ FORM_MAIN_NEXT_DIR="";
 # Shows and runs through the main Project Init form.
 function show_project_init_main_form() {
   logI "";
+  FORM_QUESTION_ID="project.name";
   logI "Enter the name of the project:";
   read_user_input_text;
   local entered_project_name="$USER_INPUT_ENTERED_TEXT";
@@ -77,6 +78,7 @@ function show_project_init_main_form() {
             "Command 'tr' returned non-zero exit status";
   fi
 
+  FORM_QUESTION_ID="project.description";
   logI "";
   logI "Enter a short description of the project:";
   read_user_input_text;
@@ -162,6 +164,7 @@ function show_project_init_main_form() {
   project_licenses_dirs+=("NONE");
   project_licenses_names+=("None");
 
+  FORM_QUESTION_ID="project.license";
   logI "";
   logI "Choose a license for the project:";
   read_user_input_selection "${project_licenses_names[@]}";
@@ -218,6 +221,7 @@ function show_project_init_main_form() {
     fi
   fi
 
+  FORM_QUESTION_ID="project.dir";
   logI "";
   logI "Enter the path to the project directory:";
   if [ -n "$var_project_dir" ]; then
@@ -331,6 +335,7 @@ function show_project_init_main_form() {
   # Either let the user select a language out of the list of available ones,
   # or automatically pick the lang if there is only one available
   if (( $total_number_of_langs > 1 )); then
+    FORM_QUESTION_ID="project.language";
     logI "Select the language to be used:";
     read_user_input_selection "${project_lang_names[@]}";
     local selected_name="${project_lang_names[USER_INPUT_ENTERED_INDEX]}";
