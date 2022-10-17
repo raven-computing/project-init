@@ -274,6 +274,10 @@ SYS_DEPENDENCIES=();
 # Use the warning() function to add a new message.
 _WARNING_LOG=();
 
+# Holds the number of issued warnings. This corresponds to
+# the number of occurred warning-level log statements.
+_N_WARNINGS=0;
+
 # The list of all entries in 'files.txt' files.
 LIST_FILES_TXT=();
 
@@ -367,6 +371,7 @@ function logW() {
   else
     echo "[WARN] $*";
   fi
+  ((++_N_WARNINGS));
 }
 
 # [API function]
@@ -1670,7 +1675,7 @@ function finish_project_init() {
   _run_addon_after_init_hook;
   # Finish and shut down
   _log_success;
-  exit $EXIT_SUCCESS;
+  return $EXIT_SUCCESS;
 }
 
 # Sorts the given file paths according to the file names.

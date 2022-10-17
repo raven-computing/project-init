@@ -26,21 +26,64 @@ TESTPATH="";
 
 function execute_test_run() {
   local config_file="$1";
+  local title=$(head -n 1 "resources/$config_file");
+  if [[ "$title" == "# @NAME: "* ]]; then
+    title="${title:9:39}";
+  else
+    title="with $config_file";
+  fi
   export PROJECT_INIT_TESTS_RUN_CONFIG="$TESTPATH/resources/$config_file";
+  printt "echo" "       Testing $title " "$label_run";
+  local output_stdout="";
+  local output_stderr="";
+  local test_status=0;
+  local exit_status=0;
+  local f_out_stderr="${_TESTS_OUTPUT_DIR}/run_stderr";
+  output_stdout=$(bash "functionality_test_driver.sh" 2>"$f_out_stderr");
+  exit_status=$?;
 
-  local test_run_time=$(date --utc +%FT%TZ);
-  logI "";
-  logI "Testing with $config_file";
-  logI "";
-  logI "***************************************************************";
-  logI "*                                                             *";
-  logI "*          Test run started at ${test_run_time}           *";
-  logI "*                                                             *";
-  logI "***************************************************************";
-  logI "";
+  if [ -r "$f_out_stderr" ]; then
+    output_stderr=$(cat "$f_out_stderr");
+  fi
 
-  bash ../initmain.sh
-  return $?;
+  if (( $exit_status != 0 )); then
+    test_status=1;
+  fi
+
+  if [[ "$output_stderr" != "" ]]; then
+    test_status=2;
+  fi
+
+  if [ -z "$TERMINAL_NO_USE_CNTRL_CHARS" ]; then
+    _erasechars "$label_run";
+  fi
+
+  if (( $test_status != 0 )); then
+    echo -e "${label_failed}\n";
+    logE "Functionality test run exited with exit status $exit_status";
+    if [[ "$output_stderr" != "" ]]; then
+      logE "There was output captured from stderr (see below)";
+    fi
+    logE "";
+    logE "Captured output (stdout):";
+    printt "sep";
+    echo "$output_stdout";
+    printt "sep";
+    if [[ "$output_stderr" != "" ]]; then
+      logE "";
+      logE "Captured output (stderr):";
+      printt "sep";
+      local line="";
+      while read -r line; do
+        echo "        $line";
+      done <<< "$output_stderr";
+      printt "sep";
+    fi
+    logE "";
+  else
+    echo -e "${label_passed}\n";
+  fi
+  return $test_status;
 }
 
 function main() {
@@ -54,22 +97,57 @@ function main() {
     logE "Test resource directory not found";
     return 1;
   fi
-  if ! [ -r "../initmain.sh" ]; then
-    logE "Init main not found";
+  if ! [ -r "functionality_test_driver.sh" ]; then
+    logE "Functionality test driver script not found";
     return 1;
   fi
+  if ! source "utils.sh"; then
+    logE "Test utilities could not be loaded";
+    return 1;
+  fi
+
+  if [ -d "${_TESTS_OUTPUT_DIR}" ]; then
+    logI "Clearing previously created test output directory";
+    if ! rm -rf "${_TESTS_OUTPUT_DIR}"; then
+      logW "Failed to clear test output directory: '${_TESTS_OUTPUT_DIR}'";
+      return 1;
+    fi
+  fi
+
+  if ! [ -d "${_TESTS_OUTPUT_DIR}" ]; then
+    mkdir -p "${_TESTS_OUTPUT_DIR}";
+    if (( $? != 0 )); then
+      logE "Failed to create test output directory '${_TESTS_OUTPUT_DIR}'";
+      return 1;
+    fi
+  fi
+
+  # local test_run_time=$(date --utc +%FT%TZ);
+  logI "Testing functionality of Project Init";
+  echo "";
+
   export PROJECT_INIT_TESTS_ACTIVE="1";
+  local exit_status=0;
   # Find all applicable test run configuration files
   for testfile in $(ls "$TESTPATH/resources"); do
     if [[ "$testfile" == test_run_*.properties ]]; then
       execute_test_run "$testfile";
-      if (( $? != 0 )); then
-        return 1;
+      exit_status=$?;
+      if (( $exit_status != 0 )); then
+        break;
       fi
     fi
   done
 
-  return 0;
+  if (( $exit_status != 0 )); then
+    logE "Testing of functionality has not completed";
+    logE "An error has occurred during a functionality test";
+  else
+    logI "Testing of functionality has completed";
+    printt "ok_funct";
+  fi
+
+  return $exit_status;
 }
 
 main "$@";
