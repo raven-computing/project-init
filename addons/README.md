@@ -13,7 +13,7 @@ Contains init code and resources showing how to add another programming language
 
 Contains init code and resources showing how to add another project type via an addon for a programming language which is already supported by the base system. The example is emblematic for any supported language, but does only contain a small project type in Java for illustrative purposes.
 
-## licenses
+### licenses
 
 Contains resources showing how to add another license via an addon. The example license is imaginary without any real use.
 
