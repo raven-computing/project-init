@@ -628,7 +628,7 @@ function _parse_args() {
       ARG_VERSION_STR=true;
       shift;
       ;;
-      -?|--help)
+      -\?|--help)
       ARG_HELP=true;
       shift;
       ;;
