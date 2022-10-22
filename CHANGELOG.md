@@ -1,3 +1,7 @@
+#### 1.0.4
+* Fixed handling of short form help argument.
+* Improved project and source documentation.
+
 #### 1.0.3
 * Improved reading of text files.
 * Improved documentation.
