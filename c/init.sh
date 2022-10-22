@@ -39,6 +39,10 @@ function process_files_lvl_1() {
 # [API function]
 # Prompts the user to enter the C version to use for the project.
 #
+# The provided answer can be queried in source template files via the
+# VAR_C_VERSION_LABEL and VAR_C_VERSION substitution variables.
+# The associated shell global variables are set by this function.
+#
 # Globals:
 # var_c_version       - The C version string. Is set by this function.
 # var_c_version_label - The C version label string.
@@ -55,6 +59,10 @@ function form_c_version() {
 # [API function]
 # Prompts the user to enter the name of the produced binary file name
 # (without possible platform-dependent file extension).
+#
+# The provided answer can be queried in source template files via the
+# VAR_ARTIFACT_BINARY_NAME substitution variable.
+# The associated shell global variable is set by this function.
 #
 # Globals:
 # var_artifact_binary_name - The name of the binary artifact.

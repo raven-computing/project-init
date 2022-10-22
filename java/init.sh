@@ -107,6 +107,14 @@ function process_files_lvl_1() {
 # [API function]
 # Prompts the user to enter the Java version to use for the project.
 #
+# The provided answer can be queried in source template files via the
+# VAR_JAVA_VERSION and VAR_JAVA_VERSION_LABEL substitution variables.
+# Additionally, since the version identifier might differ when used
+# inside a Maven POM, the VAR_JAVA_VERSION_POM substitution variable is
+# also set. It should be used instead when setting the used Java
+# version inside a POM. The associated shell global variables are
+# set by this function.
+#
 # Globals:
 # var_java_version       - The Java version string. Is set by this function.
 # var_java_version_label - The Java version label string. Is set by this function.
@@ -124,6 +132,11 @@ function form_java_version() {
 
 # [API function]
 # Prompts the user to enter the namespace that is used by the project code.
+#
+# The provided answer can be queried in source template files via the
+# VAR_NAMESPACE_DECLARATION substitution variable. The namespace value will
+# be in dot notation. The associated shell global variable is
+# set by this function.
 #
 # Globals:
 # var_namespace              - The entire namespace in dot notation.

@@ -46,6 +46,10 @@ function process_files_lvl_2() {
 
 # Prompts the user to enter the name of the R package.
 #
+# The provided answer can be queried in source template files via the
+# VAR_R_LIBRARY_PACKAGE_NAME substitution variable.
+# The associated shell global variable is set by this function.
+#
 # Globals:
 # var_r_library_package_name - The name of the R library package.
 #                              Is set by this function.

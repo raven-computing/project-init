@@ -35,6 +35,10 @@ function process_files_lvl_1() {
 # [API function]
 # Prompts the user to enter the R version to use for the project.
 #
+# The provided answer can be queried in source template files via the
+# VAR_R_VERSION and VAR_R_VERSION_LABEL substitution variables.
+# The associated shell global variables are set by this function.
+#
 # Globals:
 # var_r_version       - The R version string. Is set by this function.
 # var_r_version_label - The R version label string.

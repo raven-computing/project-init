@@ -125,6 +125,10 @@ function process_files_lvl_1() {
 # [API function]
 # Prompts the user to enter the C++ version to use for the project.
 #
+# The provided answer can be queried in source template files via the
+# VAR_CPP_VERSION_LABEL and VAR_CPP_VERSION substitution variables.
+# The associated shell global variables are set by this function.
+#
 # Globals:
 # var_cpp_version       - The C++ version string. Is set by this function.
 # var_cpp_version_label - The C++ version label string.
@@ -141,6 +145,10 @@ function form_cpp_version() {
 # [API function]
 # Prompts the user to enter the name of the produced binary file name
 # (without possible platform-dependent file extension).
+#
+# The provided answer can be queried in source template files via the
+# VAR_ARTIFACT_BINARY_NAME substitution variable.
+# The associated shell global variable is set by this function.
 #
 # Globals:
 # var_artifact_binary_name - The name of the binary artifact.
@@ -160,6 +168,15 @@ function form_cpp_binary_name() {
 
 # [API function]
 # Prompts the user to enter the namespace that is used by the project code.
+#
+# The provided answer can be queried in source template files via the
+# VAR_NAMESPACE substitution variable. The namespace value will be in
+# dot notation. Additionally, there are more substitution variables defined
+# as a result of using a namespace. For example, header include guards and
+# the C++ source code namespace declaration have their own substitution
+# variable. Those can be used to further involve an application namespace into
+# the project's source files. The associated shell global variables are
+# set by this function.
 #
 # Globals:
 # var_namespace              - The entire namespace in dot notation.

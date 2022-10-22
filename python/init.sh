@@ -159,6 +159,10 @@ function process_files_lvl_1() {
 # [API function]
 # Prompts the user to enter the Python version to use for the project.
 #
+# The provided answer can be queried in source template files via the
+# VAR_PYTHON_VERSION substitution variable.
+# The associated shell global variable is set by this function.
+#
 # Globals:
 # var_python_version - The Python version string. Is set by this function.
 #
@@ -194,6 +198,10 @@ function form_python_version() {
 # Prompts the user to enter the name of the virtual environment
 # to be used by the project.
 #
+# The provided answer can be queried in source template files via the
+# VAR_PROJECT_VIRTENV_NAME substitution variable.
+# The associated shell global variable is set by this function.
+#
 # Globals:
 # var_project_virtenv_name - The name of the virtual environment.
 #                            Is set by this function.
@@ -221,6 +229,14 @@ function form_python_virtenv_name() {
 # [API function]
 # Prompts the user to enter the name of the main package, potentially including
 # any namespace packages, that is used by the project.
+#
+# The provided answer can be queried in source template files via the
+# VAR_NAMESPACE_DECLARATION substitution variable. The namespace value will
+# be in dot notation. Additionally, there are more substitution variables
+# defined for specific aspects of package declarations. For example, the first
+# package name in a series of namespace package declarations (dot notation) can
+# be accessed by the VAR_NAMESPACE_DECLARATION_0 substitution variable.
+# The associated shell global variables are set by this function.
 #
 # Globals:
 # var_namespace      - The entire namespace in dot notation. Is set by this function.
