@@ -22,57 +22,57 @@
 
 # Used term width
 readonly TWIDTH=90;
-label_passed="[${COLOR_GREEN}PASSED${COLOR_NC}]";
-label_failed="[${COLOR_RED}FAILED${COLOR_NC}]";
-label_run="";
+# Printed labels
+readonly LABEL_PASSED="[${COLOR_GREEN}PASSED${COLOR_NC}]";
+readonly LABEL_FAILED="[${COLOR_RED}FAILED${COLOR_NC}]";
 if [ -z "$TERMINAL_NO_USE_CNTRL_CHARS" ]; then
-  label_run="[RUNNING]";
+  readonly LABEL_RUN="[RUNNING]";
+else
+  readonly LABEL_RUN="";
 fi
 
 
 function printt() {
   local i;
-  if [[ "$1" == "fail" ]]; then
-    local padd=$(( ${TWIDTH}-15 ));
-    local s="";
+  local out=$($1 "$2");
+  local padd=$(( ${TWIDTH}-${#out} ));
+  echo -ne "$out";
+  if (( $padd > 0 )); then
     for (( i=0; i<${padd}; ++i )); do
-        s="${s}-";
-    done
-    logE "$s [${COLOR_RED}TEST FAILURE${COLOR_NC}]";
-  elif [[ "$1" == "sep" ]]; then
-    local padd=${TWIDTH};
-    local s="";
-    for (( i=0; i<${padd}; ++i )); do
-        s="${s}-";
-    done
-    logE "$s";
-  elif [[ "$1" == "ok_compat" ]]; then
-    local padd=$(( ${TWIDTH}-42 ));
-    local s="All compatibility tests have passed:";
-    for (( i=0; i<${padd}; ++i )); do
-        s="${s} ";
-    done
-    logI "$s [${COLOR_GREEN}OK${COLOR_NC}]";
-  elif [[ "$1" == "ok_funct" ]]; then
-    local padd=$(( ${TWIDTH}-42 ));
-    local s="All functionality tests have passed:";
-    for (( i=0; i<${padd}; ++i )); do
-        s="${s} ";
-    done
-    logI "$s [${COLOR_GREEN}OK${COLOR_NC}]";
-  else
-    local out=$($1 "$2");
-    local padd=$(( ${TWIDTH}-${#out} ));
-    echo -ne "$out";
-    if (( $padd > 0 )); then
-      for (( i=0; i<${padd}; ++i )); do
-        echo -n " ";
-      done
-    else
       echo -n " ";
-    fi
-    echo -ne "$3";
+    done
+  else
+    echo -n " ";
   fi
+  echo -ne "$3";
+}
+
+function printt_sep() {
+  local padd=${TWIDTH};
+  local s="";
+  for (( i=0; i<${padd}; ++i )); do
+      s="${s}-";
+  done
+  logE "$s";
+}
+
+function printt_fail() {
+  local padd=$(( ${TWIDTH}-15 ));
+  local s="";
+  for (( i=0; i<${padd}; ++i )); do
+      s="${s}-";
+  done
+  logE "$s [${COLOR_RED}TEST FAILURE${COLOR_NC}]";
+}
+
+function printt_ok() {
+  local s="$1";
+  local padd=$(( ${TWIDTH}-6-${#s} ));
+  local i;
+  for (( i=0; i<${padd}; ++i )); do
+      s="${s} ";
+  done
+  logI "$s [${COLOR_GREEN}OK${COLOR_NC}]";
 }
 
 function _erasechars() {

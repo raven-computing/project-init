@@ -33,7 +33,7 @@ function execute_test_run() {
     title="with $config_file";
   fi
   export PROJECT_INIT_TESTS_RUN_CONFIG="$TESTPATH/resources/$config_file";
-  printt "echo" "       Testing $title " "$label_run";
+  printt "echo" "       Testing $title " "$LABEL_RUN";
   local output_stdout="";
   local output_stderr="";
   local test_status=0;
@@ -55,33 +55,33 @@ function execute_test_run() {
   fi
 
   if [ -z "$TERMINAL_NO_USE_CNTRL_CHARS" ]; then
-    _erasechars "$label_run";
+    _erasechars "$LABEL_RUN";
   fi
 
   if (( $test_status != 0 )); then
-    echo -e "${label_failed}\n";
+    echo -e "${LABEL_FAILED}\n";
     logE "Functionality test run exited with exit status $exit_status";
     if [[ "$output_stderr" != "" ]]; then
       logE "There was output captured from stderr (see below)";
     fi
     logE "";
     logE "Captured output (stdout):";
-    printt "sep";
+    printt_sep;
     echo "$output_stdout";
-    printt "sep";
+    printt_sep;
     if [[ "$output_stderr" != "" ]]; then
       logE "";
       logE "Captured output (stderr):";
-      printt "sep";
+      printt_sep;
       local line="";
       while read -r line; do
         echo "        $line";
       done <<< "$output_stderr";
-      printt "sep";
+      printt_sep;
     fi
     logE "";
   else
-    echo -e "${label_passed}\n";
+    echo -e "${LABEL_PASSED}\n";
   fi
   return $test_status;
 }
@@ -144,7 +144,7 @@ function main() {
     logE "An error has occurred during a functionality test";
   else
     logI "Testing of functionality has completed";
-    printt "ok_funct";
+    printt_ok "All functionality tests have passed:";
   fi
 
   return $exit_status;

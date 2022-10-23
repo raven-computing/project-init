@@ -30,82 +30,6 @@ n_failed_cmds=0;
 # The total number of commands tested
 n_cmds=0;
 
-# Used term width
-readonly TWIDTH=90;
-
-
-function printt() {
-  local i;
-  if [[ "$1" == "fail" ]]; then
-    local padd=$(( ${TWIDTH}-15 ));
-    local s="";
-    for (( i=0; i<${padd}; ++i )); do
-        s="${s}-";
-    done
-    logE "$s [${COLOR_RED}TEST FAILURE${COLOR_NC}]";
-  elif [[ "$1" == "sep" ]]; then
-    local padd=${TWIDTH};
-    local s="";
-    for (( i=0; i<${padd}; ++i )); do
-        s="${s}-";
-    done
-    logE "$s";
-  elif [[ "$1" == "ok" ]]; then
-    local padd=$(( ${TWIDTH}-42 ));
-    local s="All compatibility tests have passed:";
-    for (( i=0; i<${padd}; ++i )); do
-        s="${s} ";
-    done
-    logI "$s [${COLOR_GREEN}OK${COLOR_NC}]";
-  else
-    local out=$($1 "$2");
-    local padd=$(( ${TWIDTH}-${#out} ));
-    echo -ne "$out";
-    if (( $padd > 0 )); then
-      for (( i=0; i<${padd}; ++i )); do
-        echo -n " ";
-      done
-    else
-      echo -n " ";
-    fi
-    echo -ne "$3";
-  fi
-}
-
-function _erasechars() {
-  local chars="$1";
-  local len=${#chars};
-  local i;
-  for (( i=0; i<${len}; ++i )); do
-    echo -ne "\b";
-  done
-  for (( i=0; i<${len}; ++i )); do
-    echo -ne " ";
-  done
-  for (( i=0; i<${len}; ++i )); do
-    echo -ne "\b";
-  done
-}
-
-function assert_equal() {
-  local expected="$1";
-  local actual="$2";
-  local cmd_exit_status="$3";  # Optional arg
-  if [[ "$expected" == "$actual" ]]; then
-    return 0;
-  else
-    echo "";
-    echo "----- Expected: -----";
-    echo "$expected";
-    echo "-----  Actual:  -----";
-    echo "$actual";
-    if [ -n "$cmd_exit_status" ] && (( $cmd_exit_status != 0 )); then
-      return $cmd_exit_status;
-    else
-      return 1;
-    fi
-  fi
-}
 
 function run_failed_test_file() {
   local testfile="$1";
@@ -153,7 +77,7 @@ function run_failed_test_file() {
     tested_func_exitstatus=$?;
     # Only show details for test functions that have failed
     if (( $tested_func_exitstatus != 0 )); then
-      printt "fail";
+      printt_fail;
       logE "in file:      $testfile";
       logE "in function:  $tested_func_name()  (line $tested_func_line)";
       logE "";
@@ -173,22 +97,16 @@ function run_failed_test_file() {
       echo "";
     fi
   done
-  printt "sep";
+  printt_sep;
   echo "";
 }
 
 function run_test_file() {
   local testfile="$1";
   local tested_cmd="${testfile:12:-3}";
-  local label_passed="[${COLOR_GREEN}PASSED${COLOR_NC}]";
-  local label_failed="[${COLOR_RED}FAILED${COLOR_NC}]";
-  local label_run="";
   local cmd_is_available=false;
   local test_status=1;
-  if [ -z "$TERMINAL_NO_USE_CNTRL_CHARS" ]; then
-    label_run="[RUNNING]";
-  fi
-  printt "echo -n" "       Testing compatibility of command:  $tested_cmd" "$label_run";
+  printt "echo -n" "       Testing compatibility of command:  $tested_cmd" "$LABEL_RUN";
   if _command_dependency "$tested_cmd"; then
     cmd_is_available=true;
     # Run tests
@@ -197,21 +115,21 @@ function run_test_file() {
   fi
 
   if [ -z "$TERMINAL_NO_USE_CNTRL_CHARS" ]; then
-    _erasechars "$label_run";
+    _erasechars "$LABEL_RUN";
   fi
 
   if (( $test_status == 0 )); then
     # Tests passed
-    echo -e "${label_passed}\n";
+    echo -e "${LABEL_PASSED}\n";
   else
     # Tests failed
     failed_cmds+=("$tested_cmd");
     (( n_failed_cmds+=1 ));
-    echo -e "${label_failed}\n";
+    echo -e "${LABEL_FAILED}\n";
     if [[ $cmd_is_available == true ]]; then
       run_failed_test_file "$testfile";
     else
-      printt "echo" "       Command not found:  '$tested_cmd'" "${label_failed}\n\n";
+      printt "echo" "       Command not found:  '$tested_cmd'" "${LABEL_FAILED}\n\n";
     fi
   fi
 }
@@ -234,7 +152,7 @@ function show_test_results() {
     logE "";
   else
     # No errors. Everything has passed
-    printt "ok";
+    printt_ok "All compatibility tests have passed:";
   fi
 }
 
@@ -243,6 +161,10 @@ function main() {
   cd "$TESTPATH";
   if ! source "../libinit.sh"; then
     echo "ERROR: Could not source libinit.sh library"
+    return 1;
+  fi
+  if ! source "utils.sh"; then
+    logE "Test utilities could not be loaded";
     return 1;
   fi
   # Make assert function available to test code
