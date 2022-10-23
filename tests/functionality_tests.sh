@@ -25,6 +25,19 @@ TESTPATH="";
 
 
 function execute_test_run() {
+  local testfile="$1";
+  unset -f test_functionality;
+  source "$testfile";
+  if [[ $(type -t "test_functionality") == function ]]; then
+    test_functionality;
+    return $?;
+  else
+    logE "Test file '$testfile' does not define function 'test_functionality()'";
+    return 3;
+  fi
+}
+
+function test_functionality_with() {
   local config_file="$1";
   local title=$(head -n 1 "resources/$config_file");
   if [[ "$title" == "# @NAME: "* ]]; then
@@ -128,9 +141,9 @@ function main() {
 
   export PROJECT_INIT_TESTS_ACTIVE="1";
   local exit_status=0;
-  # Find all applicable test run configuration files
-  for testfile in $(ls "$TESTPATH/resources"); do
-    if [[ "$testfile" == test_run_*.properties ]]; then
+  # Find all applicable test run script files
+  for testfile in $(ls "$TESTPATH"); do
+    if [[ "$testfile" == test_func_*.sh ]]; then
       execute_test_run "$testfile";
       exit_status=$?;
       if (( $exit_status != 0 )); then

@@ -109,3 +109,15 @@ function assert_equal() {
     fi
   fi
 }
+
+function assert_files_exist() {
+  local check_files=("$@")
+  for file in "${check_files[@]}"; do
+    if ! [ -f "${_TESTS_OUTPUT_DIR}/c/01_executable/$file" ]; then
+      echo "Missing file: '$file'";
+      return 1;
+    fi
+  done
+  return 0;
+}
+
