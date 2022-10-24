@@ -31,6 +31,8 @@ else
   readonly LABEL_RUN="";
 fi
 
+ASSERT_FAIL_MISSING_FILES=();
+
 
 function printt() {
   local i;
@@ -111,13 +113,14 @@ function assert_equal() {
 }
 
 function assert_files_exist() {
-  local check_files=("$@")
+  local check_files=("$@");
+  local assertion_status=0;
   for file in "${check_files[@]}"; do
     if ! [ -f "${_TESTS_OUTPUT_DIR}/c/01_executable/$file" ]; then
-      echo "Missing file: '$file'";
-      return 1;
+      ASSERT_FAIL_MISSING_FILES+=("$file");
+      assertion_status=1;
     fi
   done
-  return 0;
+  return $assertion_status;
 }
 

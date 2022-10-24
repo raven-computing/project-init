@@ -26,15 +26,18 @@ TESTPATH="";
 
 function execute_test_run() {
   local testfile="$1";
-  unset -f test_functionality;
+  local test_run_status=0;
   source "$testfile";
   if [[ $(type -t "test_functionality") == function ]]; then
     test_functionality;
-    return $?;
+    test_run_status=$?;
   else
     logE "Test file '$testfile' does not define function 'test_functionality()'";
-    return 3;
+    test_run_status=3;
   fi
+  unset -f test_functionality;
+  unset -f test_functionality_result;
+  return $test_run_status;
 }
 
 function test_functionality_with() {
@@ -71,11 +74,24 @@ function test_functionality_with() {
     _erasechars "$LABEL_RUN";
   fi
 
+  if (( $test_status == 0 )); then
+    if [[ $(type -t "test_functionality_result") == function ]]; then
+      test_functionality_result;
+      if (( $? != 0 )); then
+        test_status=3;
+      fi
+    fi
+  fi
+
   if (( $test_status != 0 )); then
     echo -e "${LABEL_FAILED}\n";
     logE "Functionality test run exited with exit status $exit_status";
     if [[ "$output_stderr" != "" ]]; then
       logE "There was output captured from stderr (see below)";
+    fi
+    if (( $test_status == 3 )); then
+      logE "The test run itself seems to have finished without critical failures,";
+      logE "but there are missing project files in the generated output (see below)";
     fi
     logE "";
     logE "Captured output (stdout):";
@@ -90,6 +106,15 @@ function test_functionality_with() {
       while read -r line; do
         echo "        $line";
       done <<< "$output_stderr";
+      printt_sep;
+    fi
+    if (( ${#ASSERT_FAIL_MISSING_FILES[@]} > 0 )); then
+      logE "The generated project has missing files";
+      logE "";
+      local _f="";
+      for _f in "${ASSERT_FAIL_MISSING_FILES[@]}"; do
+        logE "Missing file: '${_f}'";
+      done
       printt_sep;
     fi
     logE "";
@@ -135,7 +160,6 @@ function main() {
     fi
   fi
 
-  # local test_run_time=$(date --utc +%FT%TZ);
   logI "Testing functionality of Project Init";
   echo "";
 

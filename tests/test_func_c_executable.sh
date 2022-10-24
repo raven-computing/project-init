@@ -21,6 +21,11 @@
 
 
 function test_functionality() {
+  test_functionality_with "test_run_c_executable.properties";
+  return $?;
+}
+
+function test_functionality_result() {
   local check_files=();
   check_files+=("README.md");
   check_files+=("LICENSE");
@@ -30,20 +35,6 @@ function test_functionality() {
   check_files+=("src/main/tests/CMakeLists.txt");
   check_files+=("src/main/tests/c/test_application.c");
 
-  local test_status=0;
-  test_functionality_with "test_run_c_executable.properties";
-  test_status=$?;
-
-  if (( $test_status == 0 )); then
-    assert_files_exist "${check_files[@]}";
-    test_status=$?;
-  fi
-
-  return $test_status;
+  assert_files_exist "${check_files[@]}";
+  return $?;
 }
-
-# Do not run tests when this file is sourced
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-  test_functionality "$@";
-fi
-
