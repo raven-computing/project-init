@@ -116,7 +116,7 @@ function assert_files_exist() {
   local check_files=("$@");
   local assertion_status=0;
   for file in "${check_files[@]}"; do
-    if ! [ -f "${_TESTS_OUTPUT_DIR}/c/01_executable/$file" ]; then
+    if ! [ -f "${_TESTS_OUTPUT_DIR}/$file" ]; then
       ASSERT_FAIL_MISSING_FILES+=("$file");
       assertion_status=1;
     fi

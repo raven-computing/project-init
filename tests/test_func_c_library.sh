@@ -15,25 +15,22 @@
 
 # #***************************************************************************#
 # *                                                                           *
-# *         ***   Functionality Test for C Executables Projects   ***         *
+# *           ***   Functionality Test for C Library Projects   ***           *
 # *                                                                           *
 # #***************************************************************************#
 
 
 function test_functionality() {
-  test_functionality_with "test_run_c_executable.properties";
+  test_functionality_with "test_run_c_library.properties";
   return $?;
 }
 
 function test_functionality_result() {
   local check_files=();
-  check_files+=("c/01_executable/README.md");
-  check_files+=("c/01_executable/LICENSE");
-  check_files+=("c/01_executable/cmake/DependencyUtil.cmake");
-  check_files+=("c/01_executable/src/main/CMakeLists.txt");
-  check_files+=("c/01_executable/src/main/c/main.c");
-  check_files+=("c/01_executable/src/main/tests/CMakeLists.txt");
-  check_files+=("c/01_executable/src/main/tests/c/test_application.c");
+  check_files+=("c/02_library/README.md");
+  check_files+=("c/02_library/LICENSE");
+  check_files+=("c/02_library/cmake/DependencyUtil.cmake");
+  check_files+=("c/02_library/src/main/CMakeLists.txt");
 
   assert_files_exist "${check_files[@]}";
   return $?;
