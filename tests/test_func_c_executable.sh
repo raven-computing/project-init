@@ -21,20 +21,20 @@
 
 
 function test_functionality() {
-  test_functionality_with "test_run_c_executable.properties";
+  test_functionality_with "test_c_executable.properties";
   return $?;
 }
 
 function test_functionality_result() {
-  local check_files=();
-  check_files+=("c/01_executable/README.md");
-  check_files+=("c/01_executable/LICENSE");
-  check_files+=("c/01_executable/cmake/DependencyUtil.cmake");
-  check_files+=("c/01_executable/src/main/CMakeLists.txt");
-  check_files+=("c/01_executable/src/main/c/main.c");
-  check_files+=("c/01_executable/src/main/tests/CMakeLists.txt");
-  check_files+=("c/01_executable/src/main/tests/c/test_application.c");
+  local files=();
+  files+=("README.md");
+  files+=("LICENSE");
+  files+=("cmake/DependencyUtil.cmake");
+  files+=("src/main/CMakeLists.txt");
+  files+=("src/main/c/main.c");
+  files+=("src/main/tests/CMakeLists.txt");
+  files+=("src/main/tests/c/test_application.c");
 
-  assert_files_exist "${check_files[@]}";
+  assert_files_exist "${files[@]}";
   return $?;
 }

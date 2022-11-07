@@ -46,7 +46,11 @@ function main() {
 
   local n_warnings=${#_WARNING_LOG[@]};
   if (( ${n_warnings} > 0 || ${_N_WARNINGS} > 0 )); then
-    logW "Test run exited with warnings";
+    logW "";
+    logW " o----------------- W A R N I N G -----------------o";
+    logW " |          Test run exited with warnings          |";
+    logW " o-------------------------------------------------o";
+    logW "";
     exit $EXIT_FAILURE;
   fi
   exit $EXIT_SUCCESS;

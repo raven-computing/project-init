@@ -115,8 +115,12 @@ function assert_equal() {
 function assert_files_exist() {
   local check_files=("$@");
   local assertion_status=0;
+  local f_path_prefix="";
+  if [ -n "$ASSERT_FILE_PATH_PREFIX" ]; then
+    f_path_prefix="/$ASSERT_FILE_PATH_PREFIX";
+  fi
   for file in "${check_files[@]}"; do
-    if ! [ -f "${_TESTS_OUTPUT_DIR}/$file" ]; then
+    if ! [ -f "${_TESTS_OUTPUT_DIR}${f_path_prefix}/$file" ]; then
       ASSERT_FAIL_MISSING_FILES+=("$file");
       assertion_status=1;
     fi

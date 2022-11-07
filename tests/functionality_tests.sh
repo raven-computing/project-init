@@ -48,6 +48,17 @@ function test_functionality_with() {
   else
     title="with $config_file";
   fi
+  declare -g -A TEST_FORM_ANSWERS;
+  if ! _read_properties "resources/$config_file" TEST_FORM_ANSWERS; then
+    logE "Test run configuration file is invalid";
+    return 90;
+  fi
+
+  ASSERT_FILE_PATH_PREFIX="";
+  if [[ "${TEST_FORM_ANSWERS[project.dir]+1}" == "1" ]]; then
+    ASSERT_FILE_PATH_PREFIX="${TEST_FORM_ANSWERS[project.dir]}";
+  fi
+
   export PROJECT_INIT_TESTS_RUN_CONFIG="$TESTPATH/resources/$config_file";
   printt "echo" "       Testing $title " "$LABEL_RUN";
   local output_stdout="";

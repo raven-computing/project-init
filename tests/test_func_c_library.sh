@@ -21,17 +21,17 @@
 
 
 function test_functionality() {
-  test_functionality_with "test_run_c_library.properties";
+  test_functionality_with "test_c_library.properties";
   return $?;
 }
 
 function test_functionality_result() {
-  local check_files=();
-  check_files+=("c/02_library/README.md");
-  check_files+=("c/02_library/LICENSE");
-  check_files+=("c/02_library/cmake/DependencyUtil.cmake");
-  check_files+=("c/02_library/src/main/CMakeLists.txt");
+  local files=();
+  files+=("README.md");
+  files+=("LICENSE");
+  files+=("cmake/DependencyUtil.cmake");
+  files+=("src/main/CMakeLists.txt");
 
-  assert_files_exist "${check_files[@]}";
+  assert_files_exist "${files[@]}";
   return $?;
 }
