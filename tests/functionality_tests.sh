@@ -119,13 +119,41 @@ function test_functionality_with() {
       done <<< "$output_stderr";
       printt_sep;
     fi
+    local has_assert_fails=false;
+    local _f="";
     if (( ${#ASSERT_FAIL_MISSING_FILES[@]} > 0 )); then
+      has_assert_fails=true;
       logE "The generated project has missing files";
       logE "";
-      local _f="";
       for _f in "${ASSERT_FAIL_MISSING_FILES[@]}"; do
         logE "Missing file: '${_f}'";
       done
+    fi
+    if (( ${#ASSERT_FAIL_MISSING_DIRS[@]} > 0 )); then
+      has_assert_fails=true;
+      logE "The generated project has missing directories";
+      logE "";
+      for _f in "${ASSERT_FAIL_MISSING_DIRS[@]}"; do
+        logE "Missing directory: '${_f}'";
+      done
+    fi
+    if (( ${#ASSERT_FAIL_ADVERSE_FILES[@]} > 0 )); then
+      has_assert_fails=true;
+      logE "The generated project has adverse files";
+      logE "";
+      for _f in "${ASSERT_FAIL_ADVERSE_FILES[@]}"; do
+        logE "Adverse file: '${_f}'";
+      done
+    fi
+    if (( ${#ASSERT_FAIL_ADVERSE_DIRS[@]} > 0 )); then
+      has_assert_fails=true;
+      logE "The generated project has adverse directories";
+      logE "";
+      for _f in "${ASSERT_FAIL_ADVERSE_DIRS[@]}"; do
+        logE "Adverse directory: '${_f}'";
+      done
+    fi
+    if [[ $has_assert_fails == true ]]; then
       printt_sep;
     fi
     logE "";

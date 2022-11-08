@@ -15,30 +15,30 @@
 
 # #***************************************************************************#
 # *                                                                           *
-# *           ***   Functionality Test for C Library Projects   ***           *
+# *     ***   Functionality Test for C Linux kernel module Projects   ***     *
 # *                                                                           *
 # #***************************************************************************#
 
 
 function test_functionality() {
-  test_functionality_with "test_c_library.properties";
+  test_functionality_with "test_c_linux_kernel_module.properties";
   return $?;
 }
 
 function test_functionality_result() {
   local files=();
   files+=("README.md");
-  files+=("LICENSE");
   files+=(".gitignore");
-  files+=("CMakeLists.txt");
-  files+=("Dependencies.cmake");
-  files+=("cmake/DependencyUtil.cmake");
-  files+=("src/main/CMakeLists.txt");
-  files+=("src/main/c/example.c");
-  files+=("src/main/include/example.h");
-  files+=("src/main/tests/CMakeLists.txt");
-  files+=("src/main/tests/c/test_example.c");
+  files+=("Makefile");
+  files+=("build.sh");
+  files+=("src/Makefile");
+  files+=("src/testmodule.c");
 
-  assert_files_exist "${files[@]}";
+  local not_files=();
+  not_files+=("LICENSE");
+  not_files+=("src/module.c");
+
+  assert_files_exist "${files[@]}"          &&
+  assert_files_not_exist "${not_files[@]}";
   return $?;
 }

@@ -47,7 +47,8 @@ function main() {
   local n_warnings=${#_WARNING_LOG[@]};
   if (( ${n_warnings} > 0 || ${_N_WARNINGS} > 0 )); then
     logW "";
-    logW " o----------------- W A R N I N G -----------------o";
+    local warningtitle=" ${COLOR_ORANGE}W A R N I N G${COLOR_NC} ";
+    logW " o-----------------${warningtitle}-----------------o";
     logW " |          Test run exited with warnings          |";
     logW " o-------------------------------------------------o";
     logW "";

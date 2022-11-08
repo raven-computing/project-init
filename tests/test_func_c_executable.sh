@@ -29,6 +29,9 @@ function test_functionality_result() {
   local files=();
   files+=("README.md");
   files+=("LICENSE");
+  files+=(".gitignore");
+  files+=("CMakeLists.txt");
+  files+=("Dependencies.cmake");
   files+=("cmake/DependencyUtil.cmake");
   files+=("src/main/CMakeLists.txt");
   files+=("src/main/c/main.c");
