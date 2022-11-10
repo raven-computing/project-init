@@ -164,6 +164,10 @@ function test_functionality_with() {
 }
 
 function main() {
+  local arg_keep_output=false;
+  if [[ "$1" == "--keep-output" ]]; then
+    arg_keep_output=true;
+  fi
   TESTPATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)";
   cd "$TESTPATH";
   if ! source "../libinit.sh"; then
@@ -221,6 +225,14 @@ function main() {
   else
     logI "Testing of functionality has completed";
     printt_ok "All functionality tests have passed:";
+  fi
+
+  if [[ $arg_keep_output == false ]]; then
+    if ! rm -rf "${_TESTS_OUTPUT_DIR}"; then
+      logW "Failed to clear test output directory: '${_TESTS_OUTPUT_DIR}'";
+    fi
+  else
+    logI "Generated output can be found at: '${_TESTS_OUTPUT_DIR}'";
   fi
 
   return $exit_status;
