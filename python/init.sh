@@ -179,7 +179,7 @@ function form_python_version() {
     logI "The minimum Python version will be set to 3.5";
     var_python_version="3.5";
   else
-    local re="^3\.+[0-9]$";
+    local re="^3\.[0-9]+$";
     if ! [[ $var_python_version =~ $re ]]; then
       logE "Invalid input";
       if [[ $var_python_version =~ ^([0-2]|[4-9])\.? ]]; then
