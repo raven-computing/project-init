@@ -58,4 +58,4 @@ function main() {
 
 }
 
-main "$@";
+main $@;

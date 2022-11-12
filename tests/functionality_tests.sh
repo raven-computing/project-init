@@ -165,9 +165,36 @@ function test_functionality_with() {
 
 function main() {
   local arg_keep_output=false;
-  if [[ "$1" == "--keep-output" ]]; then
-    arg_keep_output=true;
-  fi
+  local arg_filter_runs="";
+  local filter_runs=();
+  for arg in "$@"; do
+    case $arg in
+      --keep-output)
+      arg_keep_output=true;
+      shift
+      ;;
+      --filter=*)
+      arg_filter_runs="${arg:9}";
+      # Count the number of delimiters
+      ncommas="${arg_filter_runs//[^,]}";
+      ncommas=${#ncommas};
+      ((++ncommas));
+      local i;
+      local test_run_name="";
+      for (( i=1; i<=${ncommas}; ++i )); do
+        test_run_name="$(echo "$arg_filter_runs" |cut -d, -f${i})";
+        filter_runs+=( "$test_run_name" );
+      done
+      shift
+      ;;
+      *)
+      # Unknown arg
+      echo "Internal error";
+      echo "Unknown argument for functionality_tests.sh script: '$arg'";
+      exit 1;
+      ;;
+    esac
+  done
   TESTPATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)";
   cd "$TESTPATH";
   if ! source "../libinit.sh"; then
@@ -208,16 +235,35 @@ function main() {
 
   export PROJECT_INIT_TESTS_ACTIVE="1";
   local exit_status=0;
-  # Find all applicable test run script files
-  for testfile in $(ls "$TESTPATH"); do
-    if [[ "$testfile" == test_func_*.sh ]]; then
-      execute_test_run "$testfile";
-      exit_status=$?;
+  local n_filter_runs=${#filter_runs[@]};
+  if (( $n_filter_runs > 0 )); then
+    # Only run specified test runs
+    local testname="";
+    for testname in ${filter_runs[@]}; do
+      if [ -r "test_func_${testname}.sh" ]; then
+        execute_test_run "test_func_${testname}.sh";
+        exit_status=$?;
+      else
+        logE "Invalid name for functionality test run: '$testname'";
+        logE "No such file: '${PWD}/test_func_${testname}.sh'";
+        exit_status=1;
+      fi
       if (( $exit_status != 0 )); then
         break;
       fi
-    fi
-  done
+    done
+  else
+    # Find all applicable test run script files
+    for testfile in $(ls "$TESTPATH"); do
+      if [[ "$testfile" == test_func_*.sh ]]; then
+        execute_test_run "$testfile";
+        exit_status=$?;
+        if (( $exit_status != 0 )); then
+          break;
+        fi
+      fi
+    done
+  fi
 
   if (( $exit_status != 0 )); then
     logE "Testing of functionality has not completed";
@@ -228,8 +274,10 @@ function main() {
   fi
 
   if [[ $arg_keep_output == false ]]; then
-    if ! rm -rf "${_TESTS_OUTPUT_DIR}"; then
-      logW "Failed to clear test output directory: '${_TESTS_OUTPUT_DIR}'";
+    if [ -d "${_TESTS_OUTPUT_DIR}" ]; then
+      if ! rm -rf "${_TESTS_OUTPUT_DIR}"; then
+        logW "Failed to clear test output directory: '${_TESTS_OUTPUT_DIR}'";
+      fi
     fi
   else
     logI "Generated output can be found at: '${_TESTS_OUTPUT_DIR}'";
@@ -238,4 +286,4 @@ function main() {
   return $exit_status;
 }
 
-main "$@";
+main $@;
