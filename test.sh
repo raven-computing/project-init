@@ -99,7 +99,7 @@ run_funct=true;
 
 if [[ $ARG_CHECK_BASH == true ]]; then
   if [[ $ARG_TEST_COMPAT == true || $ARG_TEST_FUNCT == true ]]; then
-    echo "Argument '-b' cannot be used with '-c' or '-f'";
+    echo "Argument '--check-bash' cannot be used with '-c' or '-f'";
     exit 1;
   fi
   run_compat=false;
@@ -142,7 +142,7 @@ if [[ $run_funct == true ]]; then
     if [[ $ARG_TEST_FUNCT_ARG != "" ]]; then
       ftest_args="${ftest_args} --filter=${ARG_TEST_FUNCT_ARG}";
     fi
-    bash "tests/functionality_tests.sh" "$ftest_args";
+    bash "tests/functionality_tests.sh" $ftest_args;
     test_result=$?;
   fi
 fi

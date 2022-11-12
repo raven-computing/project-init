@@ -286,4 +286,4 @@ function main() {
   return $exit_status;
 }
 
-main $@;
+main "$@";
