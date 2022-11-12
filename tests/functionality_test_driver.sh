@@ -44,6 +44,16 @@ function main() {
 
   finish_project_init;
 
+  if (( ${_N_ERRORS} > 0 )); then
+    logE "";
+    local errtitle=" ${COLOR_RED}E R R O R${COLOR_NC} ";
+    logE " o-------------------${errtitle}-------------------o";
+    logE " |           Test run exited with errors           |";
+    logE " o-------------------------------------------------o";
+    logE "";
+    exit $EXIT_FAILURE;
+  fi
+
   local n_warnings=${#_WARNING_LOG[@]};
   if (( ${n_warnings} > 0 || ${_N_WARNINGS} > 0 )); then
     logW "";

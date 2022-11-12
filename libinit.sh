@@ -278,6 +278,10 @@ _WARNING_LOG=();
 # the number of occurred warning-level log statements.
 _N_WARNINGS=0;
 
+# Holds the number of issued errors. This corresponds to
+# the number of occurred error-level log statements.
+_N_ERRORS=0;
+
 # The list of all entries in 'files.txt' files.
 LIST_FILES_TXT=();
 
@@ -391,6 +395,7 @@ function logE() {
   else
     echo "[ERROR] $*";
   fi
+  ((++_N_ERRORS));
 }
 
 # [API function]
