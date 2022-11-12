@@ -40,14 +40,14 @@ function test_functionality_result() {
   files+=("raven/mylib/comparator.py");
   files+=("raven/mylib/string_comparator.py");
   files+=("raven/mylib/__init__.py");
-  # files+=("raven/mylib/c/string_comparator.c");
+  files+=("raven/mylib/c/string_comparator.c");
   files+=("tests/__init__.py");
   files+=("tests/test_string_comparator.py");
 
   local dirs=();
   dirs+=("raven");
   dirs+=("raven/mylib");
-  # dirs+=("raven/mylib/c");
+  dirs+=("raven/mylib/c");
 
   local not_dirs=();
   not_dirs+=("package");
