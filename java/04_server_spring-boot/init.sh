@@ -63,6 +63,7 @@ function process_files_lvl_2() {
 #                                       driver usage. Is set by this function.
 #
 function form_relational_database() {
+  FORM_QUESTION_ID="java.server.relationaldb";
   logI "";
   logI "Will the project require access to a relational database? (Y/n)";
   read_user_input_yes_no true;
@@ -70,6 +71,7 @@ function form_relational_database() {
     logI "";
     logI "A dependency to JPA via Spring Data will be added";
     var_spring_dependency_data_jpa="$(load_var SPRING_DEPENDENCY_DATA_JPA)";
+    FORM_QUESTION_ID="java.server.relationaldb.name";
     logI "";
     logI "A database driver needs to be provided at runtime.";
     logI "Please select the database system the application should connect to:";
@@ -100,6 +102,7 @@ function form_relational_database() {
 #                                       usage. Is set by this function.
 #
 function form_spring_security() {
+  FORM_QUESTION_ID="java.server.springsecurity";
   logI "";
   logI "Should the application use security mechanisms provided by Spring? (Y/n)";
   read_user_input_yes_no true;

@@ -51,6 +51,7 @@ function process_files_lvl_2() {
 #                              Is set by this function.
 #
 function form_r_package_name() {
+  FORM_QUESTION_ID="r.package.name";
   logI "";
   logI "Specify the R package name for the library.";
   logI "(Defaults to '$var_project_name_lower')";

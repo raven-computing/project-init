@@ -163,6 +163,7 @@ function process_files_lvl_1() {
 # var_python_version - The Python version string. Is set by this function.
 #
 function form_python_version() {
+  FORM_QUESTION_ID="python.version";
   logI "";
   logI "Specify the minimum version of Python required by the project.";
   logI "Please enter the major and minor version numbers, e.g. '3.8'";
@@ -199,6 +200,7 @@ function form_python_version() {
 #                            Is set by this function.
 #
 function form_python_virtenv_name() {
+  FORM_QUESTION_ID="python.virtenv.name";
   logI "";
   logI "Specify the name of the project virtual environment.";
   logI "Or press enter to use the default name '$var_project_name_lower'";
@@ -240,6 +242,7 @@ function form_python_package_name() {
   get_property "python.namespace.example" "raven.mynamespace.myproject";
   local py_namespace_example="$PROPERTY_VALUE";
 
+  FORM_QUESTION_ID="python.package.name";
   logI "";
   logI "Enter the package name of the Python source code.";
   logI "You can specify multiple levels of packages in dot notation, which will put";
@@ -302,6 +305,7 @@ function form_python_package_name() {
 #                  Is set by this function.
 #
 function form_python_use_linter() {
+  FORM_QUESTION_ID="python.use.linter";
   logI "";
   logI "Would you like to use a linter for static code analysis? (Y/n)";
   read_user_input_yes_no true;
@@ -316,6 +320,7 @@ function form_python_use_linter() {
 #                  artifacts to PyPI. Is set by this function.
 #
 function form_python_pypi_deployment() {
+  FORM_QUESTION_ID="python.pypi.deployment";
   logI "";
   logI "Would you like to be able to deploy the build artifacts to PyPI? (y/N)";
   read_user_input_yes_no false;

@@ -42,11 +42,14 @@ function execute_test_run() {
 
 function test_functionality_with() {
   local config_file="$1";
-  local title=$(head -n 1 "resources/$config_file");
-  if [[ "$title" == "# @NAME: "* ]]; then
-    title="${title:9:39}";
-  else
-    title="with $config_file";
+  local title="";
+  if [ -r "resources/$config_file" ]; then
+    title=$(head -n 1 "resources/$config_file");
+    if [[ "$title" == "# @NAME: "* ]]; then
+      title="${title:9:60}";
+    else
+      title="with $config_file";
+    fi
   fi
   declare -g -A TEST_FORM_ANSWERS;
   if ! _read_properties "resources/$config_file" TEST_FORM_ANSWERS; then
@@ -101,8 +104,8 @@ function test_functionality_with() {
       logE "There was output captured from stderr (see below)";
     fi
     if (( $test_status == 3 )); then
-      logE "The test run itself seems to have finished without critical failures,";
-      logE "but there are missing project files in the generated output (see below)";
+      logE "The test run itself seems to have finished without critical failures, but";
+      logE "there are missing or adverse project files in the generated output (see below)";
     fi
     logE "";
     logE "Captured output (stdout):";
