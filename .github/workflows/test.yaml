@@ -21,3 +21,15 @@ jobs:
           TERMINAL_NO_USE_CNTRL_CHARS: '1'
         run: ./test.sh --compatibility
 
+  test-functionality:
+    name: 'Functionality'
+    needs: test-system-compat
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v3
+
+      - name: 'Test Functionality'
+        env:
+          TERMINAL_NO_USE_CNTRL_CHARS: '1'
+        run: ./test.sh --functionality
