@@ -49,11 +49,15 @@ function test_functionality_result() {
   dirs+=("raven/mylib");
   dirs+=("raven/mylib/c");
 
+  local not_files=();
+  not_files+=("package/c/string_comparator.c");
+
   local not_dirs=();
   not_dirs+=("package");
   not_dirs+=("package/c");
 
   assert_files_exist "${files[@]}"         &&
+  assert_files_not_exist "${not_files[@]}" &&
   assert_dirs_exist "${dirs[@]}"           &&
   assert_dirs_not_exist "${not_dirs[@]}";
   return $?;
