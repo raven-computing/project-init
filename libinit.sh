@@ -261,6 +261,8 @@ PROPERTY_VALUE="";
 # [API Global]
 # Holds the value computed and set by the make_hyperlink() function.
 # The string value might contain terminal escape codes.
+# Since:
+# 1.1.0
 HYPERLINK_VALUE="";
 
 # An array for holding all supported language version
@@ -543,6 +545,9 @@ function failure() {
 # clickable labeled hyperlinks.
 # The result of this function is not printed directly but instead stored
 # in the $HYPERLINK_VALUE global variable.
+#
+# Since:
+# 1.1.0
 #
 # Args:
 # $1 - The URL of the hyperlink. This is a mandatory argument.
