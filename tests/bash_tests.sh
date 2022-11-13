@@ -48,6 +48,10 @@ function main() {
     echo "ERROR: Could not source libinit.sh library"
     return 1;
   fi
+  if ! source "utils.sh"; then
+    logE "Test utilities could not be loaded";
+    return 1;
+  fi
   local name_os="Unknown operating system";
   local name_hw="Unknown hardware";
   if _command_dependency "uname"; then
@@ -68,7 +72,7 @@ function main() {
     return 1;
   else
     logI "Found Bash version $COMPUTED_BASH_VERSION";
-    logI "Bash interpreter is compatible";
+    printt_ok "Bash interpreter is compatible:";
     return 0;
   fi
 }

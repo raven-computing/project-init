@@ -19,5 +19,5 @@ jobs:
       - name: 'Test System Compatibility'
         env:
           TERMINAL_NO_USE_CNTRL_CHARS: '1'
-        run: ./test.sh
+        run: ./test.sh --compatibility
 

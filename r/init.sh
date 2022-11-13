@@ -45,6 +45,7 @@ function process_files_lvl_1() {
 #                       Is set by this function.
 #
 function form_r_version() {
+  FORM_QUESTION_ID="r.version";
   logI "";
   logI "Specify the R language to be used by the project:";
   read_user_input_selection "${SUPPORTED_LANG_VERSIONS_LABELS[@]}";

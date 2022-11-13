@@ -46,6 +46,7 @@ function process_files_lvl_2() {
 #                          Is set by this function.
 #
 function form_c_kernel_module_name() {
+  FORM_QUESTION_ID="c.kernel.module.name";
   local default_name="";
   default_name=$(echo "$var_project_name_lower" |tr '-' '_');
   logI "";

@@ -47,6 +47,7 @@ function process_files_lvl_1() {
 #                            Is set by this function.
 #
 function form_nodejs_version() {
+  FORM_QUESTION_ID="js.nodejs.version";
   logI "";
   logI "Specify the Node.js version to be used by the project:";
   # We alienate the SUPPORTED_LANG_VERSIONS_* global vars here

@@ -122,6 +122,7 @@ function process_files_lvl_1() {
 #                          Is set by this function.
 #
 function form_java_version() {
+  FORM_QUESTION_ID="java.version";
   logI "";
   logI "Select the version of Java to be used by the project:";
   read_user_input_selection "${SUPPORTED_LANG_VERSIONS_LABELS[@]}";
@@ -146,6 +147,7 @@ function form_java_version() {
 #                              Is set by this function.
 #
 function form_java_namespace() {
+  FORM_QUESTION_ID="java.namespace";
   logI "";
   logI "Enter the namespace of the main class in dot notation.";
   get_property "java.namespace.example" "com.raven.myproject";

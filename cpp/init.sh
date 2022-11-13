@@ -135,6 +135,7 @@ function process_files_lvl_1() {
 #                         Is set by this function.
 #
 function form_cpp_version() {
+  FORM_QUESTION_ID="cpp.version";
   logI "";
   logI "Specify the C++ language standard to be used by the project:";
   read_user_input_selection "${SUPPORTED_LANG_VERSIONS_LABELS[@]}";
@@ -155,6 +156,7 @@ function form_cpp_version() {
 #                            Is set by this function.
 #
 function form_cpp_binary_name() {
+  FORM_QUESTION_ID="cpp.binary.name";
   logI "";
   logI "Enter the name of the binary file that this project produces:";
   logI "(Defaults to '$var_project_name_lower')";
@@ -201,6 +203,7 @@ function form_cpp_namespace() {
   get_property "cpp.namespace.default" "raven";
   local cpp_namespace_default="$PROPERTY_VALUE";
 
+  FORM_QUESTION_ID="cpp.namespace";
   logI "";
   logI "Enter the namespace for the project source code in dot notation.";
   logI "For example: '$cpp_namespace_example'";

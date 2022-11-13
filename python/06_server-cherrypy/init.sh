@@ -38,6 +38,7 @@ function process_files_lvl_2() {
 #                        Is set by this function.
 #
 function form_python_exec_script_name() {
+  FORM_QUESTION_ID="python.script.name";
   logI "";
   logI "Specify the name of the executable script when the application is installed.";
   logI "This is the command by which the server application can be" \

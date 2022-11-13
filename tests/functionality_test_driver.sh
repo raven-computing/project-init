@@ -15,34 +15,24 @@
 
 # #***************************************************************************#
 # *                                                                           *
-# *                   ***   Project Init Main Script   ***                    *
+# *               ***   Functionality Test Driver Script   ***                *
 # *                                                                           *
 # #***************************************************************************#
 #
-# This is the entry point for the Project Init system. It implements the
-# main function, which will be called when executing this script.
-# This script file depends on the global functions and variables defined
-# in the 'libinit.sh' and 'libform.sh' files.
+# This is the entry point for a functionality test.
 #
-# The developer documentation is available on GitHub:
-# https://github.com/raven-computing/project-init/wiki
-#
-# Please consult the docs for further information on the Init System and
-# the provided APIs. The system and its behaviour is customizable by
-# an add-on mechanism without having to change the core code of the system.
 
 
 function main() {
-  # Get the path to the directory of this script to make it call site independent
-  local libpath="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)";
+  local testpath="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)";
+  local rootpath=$(dirname "$testpath");
   # Load core libraries
-  source "$libpath/libinit.sh";
-  source "$libpath/libform.sh";
+  source "$rootpath/libinit.sh";
+  source "$rootpath/libform.sh";
 
   # Make sure this script is not executed by the root user
   if (( $(id -u) == 0 )); then
-    logW "There is no need for this program to be executed by the root user.";
-    logW "Please use a regular user instead";
+    logW "Cannot run tests as root user";
     exit $EXIT_FAILURE;
   fi
 
@@ -54,7 +44,28 @@ function main() {
 
   finish_project_init;
 
-  exit $?;
+  if (( ${_N_ERRORS} > 0 )); then
+    logE "";
+    local errtitle=" ${COLOR_RED}E R R O R${COLOR_NC} ";
+    logE " o-------------------${errtitle}-------------------o";
+    logE " |           Test run exited with errors           |";
+    logE " o-------------------------------------------------o";
+    logE "";
+    exit $EXIT_FAILURE;
+  fi
+
+  local n_warnings=${#_WARNING_LOG[@]};
+  if (( ${n_warnings} > 0 || ${_N_WARNINGS} > 0 )); then
+    logW "";
+    local warningtitle=" ${COLOR_ORANGE}W A R N I N G${COLOR_NC} ";
+    logW " o-----------------${warningtitle}-----------------o";
+    logW " |          Test run exited with warnings          |";
+    logW " o-------------------------------------------------o";
+    logW "";
+    exit $EXIT_FAILURE;
+  fi
+  exit $EXIT_SUCCESS;
+
 }
 
 main "$@";
