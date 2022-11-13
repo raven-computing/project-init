@@ -55,7 +55,7 @@ for arg in "$@"; do
     fi
   fi
   case $arg in
-    -b|--check-bash)
+    --check-bash)
     ARG_CHECK_BASH=true;
     shift
     ;;
