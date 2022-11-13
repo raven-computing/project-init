@@ -74,12 +74,14 @@ All documentation is located in the GitHub Wiki.
 
 ## Tests
 
-Compatibility tests can be performed by running the ```test.sh``` script:
+Execute the test suite by running the ```test.sh``` script:
 ```bash
 ./test.sh
 ```
 
-This will show you if the underlying system is compatible.
+This will show you if the underlying system is compatible and perform functionality tests for the Project Init tool.
+
+See ```test.sh -?``` for available options.
 
 ## License
 
