@@ -2541,9 +2541,13 @@ function replace_var() {
     # replaced="${replaced##+([[:cntrl:]])}";
 
     # We therefore do the following using external utilities:
-    # Find the index of the line containing the first printable char
-    local index="$(echo "$replaced"           \
-                  |grep -n -m 1 "[[:print:]]" \
+    # Find the index of the line containing the first printable char.
+    # Note: Since grep below immediately exits when it finds the first
+    # printable char, echo might still be writing to the then
+    # broken pipe. This is harmless here but we want to suppress
+    # the message which is then printed to stderr.
+    local index="$(echo "$replaced" 2> /dev/null \
+                  |grep -n -m 1 "[[:print:]]"    \
                   |awk -F ":" '{print $1}')";
 
     # Convert to zero-based index
