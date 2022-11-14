@@ -317,6 +317,11 @@ _FLAG_CONFIGURATION_LOADED=false;
 
 # The message to print when a project is successfully initialized.
 _STR_SUCCESS_MESSAGE="Project has been initialized";
+# The timeout of the success notification, in milliseconds.
+_INT_NOTIF_SUCCESS_TIMEOUT=3000;
+# The path to the icon to be used by the success notification.
+# Is set dynamically as the program progesses.
+_STR_NOTIF_SUCCESS_ICON="";
 
 # The path to the directory where the test output files are placed in
 # This is only applicable when the test mode is active.
@@ -456,6 +461,40 @@ function _log_success() {
       logI "";
     done
   fi
+}
+
+# Shows a system notification indicating a successful operation.
+#
+# This function will try to display a desktop notification if
+# the notify-send command is available. It returns exit status 1
+# if the notify-send command is not available, otherwise it returns
+# the exit status of notify-send.
+#
+function _show_notif_success() {
+  if _command_dependency "notify-send"; then
+    local _project_name="New Project";
+    if [ -n "$var_project_name" ]; then
+      _project_name="$var_project_name";
+    fi
+    local _has_icon=false;
+    if [ -n "${_STR_NOTIF_SUCCESS_ICON}" ]; then
+      if [ -r "${_STR_NOTIF_SUCCESS_ICON}" ]; then
+        _has_icon=true;
+      fi
+    fi
+    if [[ ${_has_icon} == true ]]; then
+      notify-send -i "${_STR_NOTIF_SUCCESS_ICON}"  \
+                  -t ${_INT_NOTIF_SUCCESS_TIMEOUT} \
+                  "${_project_name}"               \
+                  "${_STR_SUCCESS_MESSAGE}";
+    else
+      notify-send -t ${_INT_NOTIF_SUCCESS_TIMEOUT} \
+                  "${_project_name}"               \
+                  "${_STR_SUCCESS_MESSAGE}";
+    fi
+    return $?;
+  fi
+  return 1;
 }
 
 # [API function]
@@ -735,7 +774,7 @@ function _handle_util_args() {
     if [[ $PROJECT_INIT_IS_DEV_VERSION == true ]]; then
       version_dev="(Development Version)";
     fi
-    echo "Project Init System v${PROJECT_INIT_VERSION} ${version_dev}";
+    echo "Project Init v${PROJECT_INIT_VERSION} ${version_dev}";
     echo "Copyright (C) 2022 Raven Computing";
     echo "This software is licensed under the Apache License, Version 2.0";
     exit $EXIT_SUCCESS;
@@ -746,7 +785,7 @@ function _handle_util_args() {
     if [[ $PROJECT_INIT_IS_DEV_VERSION == true ]]; then
       version_dev="(Development Version)";
     fi
-    echo "Project Init System v${PROJECT_INIT_VERSION} ${version_dev}";
+    echo "Project Init v${PROJECT_INIT_VERSION} ${version_dev}";
     echo "Quickly set up new projects.";
     echo "";
     echo "This program guides a user through the steps of initializing a new software project.";
@@ -758,7 +797,7 @@ function _handle_util_args() {
     echo "Options:";
     echo "";
     if [[ "$PROJECT_INIT_BOOTSTRAP" == "1" ]]; then
-      echo "  [--no-cache]   Clear the caches after the program exits.   ";
+      echo "  [--no-cache]   Clear the caches after the program exits.";
       echo "";
     fi
     echo "  [--no-pull]    Do not update existing caches and use them as is.";
@@ -1739,8 +1778,14 @@ function finish_project_init() {
   fi
   # Check for addons after-init hook
   _run_addon_after_init_hook;
-  # Finish and shut down
+  # Finish
   _log_success;
+
+  get_boolean_property "sys.notification.success.show" "true";
+  if [[ "$PROPERTY_VALUE" == "true" ]]; then
+    _show_notif_success;
+  fi
+
   return $EXIT_SUCCESS;
 }
 
@@ -3243,6 +3288,20 @@ function proceed_next_level() {
             "at: '$CURRENT_LVL_PATH':"                          \
             "Directory does not exist";
   fi
+
+  # Check for notification icons.
+  # First check dynamic icon based on init levels
+  if [ -r "$CURRENT_LVL_PATH/icon.notif.png" ]; then
+    _STR_NOTIF_SUCCESS_ICON="$CURRENT_LVL_PATH/icon.notif.png";
+  fi
+  # Then check for global addon override
+  if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
+    if [ -r "$PROJECT_INIT_ADDONS_DIR/icon.notif.png" ]; then
+      _STR_NOTIF_SUCCESS_ICON="$PROJECT_INIT_ADDONS_DIR/icon.notif.png";
+    fi
+  fi
+
+  # Set new init script ot load
   local next_lvl_script="$CURRENT_LVL_PATH/init.sh";
 
   if ! [ -f "$next_lvl_script" ]; then
