@@ -235,7 +235,7 @@ def parse_obj_text(lines):
     lines = [line[1:].strip() for line in lines]
 
     keywords = ("Args:", "Stdout:", "Stderr:", "Returns:",
-                "Globals:", "Examples:", "Since:")
+                "Globals:", "Examples:", "Since:", "Deprecated:")
 
     ikeys = [i for i, line in enumerate(lines) if line in keywords]
 
@@ -254,6 +254,23 @@ def parse_obj_key_text_since(key_lines):
 
     Returns:
         The text of the main documentation's "Since" segment,
+        as a str.
+    """
+    key_lines = [line[1:] if line and line[0] == " " else line
+                for line in key_lines]
+
+    return " ".join(key_lines).strip()
+
+def parse_obj_key_text_deprecated(key_lines):
+    """Parses the specified lines representing the documentation
+    main text's "Deprecated" segment.
+
+    Args:
+        key_lines: The documentation main text's "Deprecated" lines,
+            as a list of str.
+
+    Returns:
+        The text of the main documentation's "Deprecated" segment,
         as a str.
     """
     key_lines = [line[1:] if line and line[0] == " " else line
@@ -407,6 +424,7 @@ def parse_obj_keys(lines):
     """
     keys = {
         "Since:": "",
+        "Deprecated:": "",
         "Args:": [],
         "Stdout:": "",
         "Stderr:": "",
@@ -427,6 +445,8 @@ def parse_obj_keys(lines):
             if key in keys:
                 if key == "Since:":
                     keys[key] = parse_obj_key_text_since(key_lines)
+                elif key == "Deprecated:":
+                    keys[key] = parse_obj_key_text_deprecated(key_lines)
                 elif key == "Args:":
                     keys[key] = parse_obj_key_list_args(key_lines)
                 elif key in ("Stdout:", "Stderr:") :
@@ -445,6 +465,8 @@ def parse_obj_keys(lines):
         if key in keys:
             if key == "Since:":
                 keys[key] = parse_obj_key_text_since(key_lines)
+            elif key == "Deprecated:":
+                keys[key] = parse_obj_key_text_deprecated(key_lines)
             elif key == "Args:":
                 keys[key] = parse_obj_key_list_args(key_lines)
             elif key in ("Stdout:", "Stderr:") :
@@ -483,6 +505,7 @@ def parse_doc_segment(src_file, src_lines, doc):
         "definition": {},
         "text": "",
         "since": "",
+        "deprecated": "",
         "args": [],
         "stdout": "",
         "stderr": "",
@@ -501,6 +524,7 @@ def parse_doc_segment(src_file, src_lines, doc):
     segment["text"] = parse_obj_text(doc_lines[1:-1])
     keys = parse_obj_keys(doc_lines[1:-1])
     segment["since"] = keys["Since:"]
+    segment["deprecated"] = keys["Deprecated:"]
     segment["args"] = keys["Args:"]
     segment["stdout"] = keys["Stdout:"]
     segment["stderr"] = keys["Stderr:"]
@@ -769,6 +793,11 @@ def create_doc_text_links(files, all_globals, all_functions):
                     glob[1], all_globals, all_functions
                 )
 
+            if doc["deprecated"]:
+                doc["deprecated"] = transform_link_text(
+                    doc["deprecated"], all_globals, all_functions
+                )
+
 def get_project_init_version():
     """Gets the version information for the Project Init system.
 
@@ -906,6 +935,11 @@ def create_markdown_content(docs):
             buffer.write("**Since:** ")
             buffer.write(glob["since"])
 
+        if glob["deprecated"]:
+            buffer.write("\n\n")
+            buffer.write(":warning:  \n**Deprecated:** ")
+            buffer.write(glob["deprecated"])
+
         buffer.write("\n\n---\n\n")
 
     if len(all_functions) > 0:
@@ -925,6 +959,12 @@ def create_markdown_content(docs):
             buffer.write("\n")
             buffer.write("**Since:** ")
             buffer.write(func["since"])
+            buffer.write("\n")
+
+        if func["deprecated"]:
+            buffer.write("\n")
+            buffer.write(":warning:  \n**Deprecated:** ")
+            buffer.write(func["deprecated"])
             buffer.write("\n")
 
         if len(func["args"]) > 0:
