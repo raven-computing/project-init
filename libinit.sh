@@ -323,12 +323,6 @@ _INT_NOTIF_SUCCESS_TIMEOUT=3000;
 # Is set dynamically as the program progesses.
 _STR_NOTIF_SUCCESS_ICON="";
 
-# The path to the directory where the test output files are placed in
-# This is only applicable when the test mode is active.
-readonly _TESTS_OUTPUT_DIR="${RES_CACHE_LOCATION}/pi_tests_generated";
-# The properties config file to be loaded when in test mode.
-readonly _TESTS_PROPERTIES="tests/resources/project.properties";
-
 # Terminal color flag may be set as env var
 if [[ "$TERMINAL_USE_ANSI_COLORS" == "0" ]]; then
   readonly TERMINAL_USE_ANSI_COLORS=false;
@@ -1597,40 +1591,6 @@ function _fill_files_list_from() {
   fi
 }
 
-# Loads the configuration files used in test mode and stores the
-# data in the corresponding global variables.
-#
-# The caller should check the relevant PROJECT_INIT_TESTS_ACTIVE
-# and PROJECT_INIT_TESTS_RUN_CONFIG environment variables before
-# calling this function.
-#
-# Globals:
-# _FORM_ANSWERS - The configured form answers from the test run file.
-#                 Is declared and initialized by this function.
-#
-function _load_test_configuration() {
-  declare -g -A _FORM_ANSWERS;
-  if ! _read_properties "$PROJECT_INIT_TESTS_RUN_CONFIG" _FORM_ANSWERS; then
-    logE "The configuration file for the test run has errors:";
-    logE "at: '$PROJECT_INIT_TESTS_RUN_CONFIG'";
-    failure "Failed to execute test run";
-  fi
-  # Adjust path if in test mode
-  FORM_QUESTION_ID="project.dir";
-  if _get_form_answer; then
-    if [[ "$FORM_QUESTION_ANSWER" != "${_TESTS_OUTPUT_DIR}"/* ]]; then
-      local test_path="${_TESTS_OUTPUT_DIR}/${FORM_QUESTION_ANSWER}";
-      _FORM_ANSWERS["project.dir"]="$test_path";
-    fi
-  else
-    logE "No project directory specified for test run.";
-    logE "Add a 'project.dir' entry in the test run properties file:";
-    logE "at: '$PROJECT_INIT_TESTS_RUN_CONFIG'";
-    failure "Failed to execute test run";
-  fi
-  _read_properties "${_TESTS_PROPERTIES}";
-}
-
 # Loads the base system configuration files and stores the
 # data in the corresponding global variables.
 #
@@ -1696,7 +1656,12 @@ function _load_configuration() {
       logE "but 'PROJECT_INIT_TESTS_RUN_CONFIG' is missing";
       failure "Failed to execute test run";
     fi
-    _load_test_configuration;
+    if [[ $(type -t _load_test_configuration) == function ]]; then
+      _load_test_configuration;
+    else
+      logW "Environment variable 'PROJECT_INIT_TESTS_ACTIVE' is set";
+      logW "but function _load_test_configuration() is not defined";
+    fi
   fi
 
   _FLAG_CONFIGURATION_LOADED=true;
@@ -2188,7 +2153,6 @@ function _check_is_valid_project_dir() {
 # 2 - If no question ID was set.
 #
 function _get_form_answer() {
-  # logW "FORM_QUESTION_ID=$FORM_QUESTION_ID";
   if [ -z "$FORM_QUESTION_ID" ]; then
     FORM_QUESTION_ANSWER="";
     return 2;

@@ -125,7 +125,7 @@ function assert_files_exist() {
   fi
   local file="";
   for file in "${check_files[@]}"; do
-    if ! [ -f "${_TESTS_OUTPUT_DIR}${f_path_prefix}/$file" ]; then
+    if ! [ -f "${TESTS_OUTPUT_DIR}${f_path_prefix}/$file" ]; then
       ASSERT_FAIL_MISSING_FILES+=("$file");
       assertion_status=1;
     fi
@@ -142,7 +142,7 @@ function assert_files_not_exist() {
   fi
   local file="";
   for file in "${check_files[@]}"; do
-    if [ -f "${_TESTS_OUTPUT_DIR}${f_path_prefix}/$file" ]; then
+    if [ -f "${TESTS_OUTPUT_DIR}${f_path_prefix}/$file" ]; then
       ASSERT_FAIL_ADVERSE_FILES+=("$file");
       assertion_status=1;
     fi
@@ -159,7 +159,7 @@ function assert_dirs_exist() {
   fi
   local dir="";
   for dir in "${check_dirs[@]}"; do
-    if ! [ -d "${_TESTS_OUTPUT_DIR}${f_path_prefix}/$dir" ]; then
+    if ! [ -d "${TESTS_OUTPUT_DIR}${f_path_prefix}/$dir" ]; then
       ASSERT_FAIL_MISSING_DIRS+=("$dir");
       assertion_status=1;
     fi
@@ -176,7 +176,7 @@ function assert_dirs_not_exist() {
   fi
   local dir="";
   for dir in "${check_dirs[@]}"; do
-    if [ -d "${_TESTS_OUTPUT_DIR}${f_path_prefix}/$dir" ]; then
+    if [ -d "${TESTS_OUTPUT_DIR}${f_path_prefix}/$dir" ]; then
       ASSERT_FAIL_ADVERSE_DIRS+=("$dir");
       assertion_status=1;
     fi

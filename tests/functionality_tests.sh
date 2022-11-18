@@ -22,6 +22,8 @@
 
 # The path to the tests directory
 TESTPATH="";
+# The path to the directory where the test output files are placed in
+TESTS_OUTPUT_DIR="";
 
 
 function execute_test_run() {
@@ -68,7 +70,7 @@ function test_functionality_with() {
   local output_stderr="";
   local test_status=0;
   local exit_status=0;
-  local f_out_stderr="${_TESTS_OUTPUT_DIR}/run_stderr";
+  local f_out_stderr="${TESTS_OUTPUT_DIR}/run_stderr";
   output_stdout=$(bash "functionality_test_driver.sh" 2>"$f_out_stderr");
   exit_status=$?;
 
@@ -217,18 +219,20 @@ function main() {
     return 1;
   fi
 
-  if [ -d "${_TESTS_OUTPUT_DIR}" ]; then
+  export TESTS_OUTPUT_DIR="${RES_CACHE_LOCATION}/pi_tests_generated";
+
+  if [ -d "${TESTS_OUTPUT_DIR}" ]; then
     logI "Clearing previously created test output directory";
-    if ! rm -rf "${_TESTS_OUTPUT_DIR}"; then
-      logW "Failed to clear test output directory: '${_TESTS_OUTPUT_DIR}'";
+    if ! rm -rf "${TESTS_OUTPUT_DIR}"; then
+      logW "Failed to clear test output directory: '${TESTS_OUTPUT_DIR}'";
       return 1;
     fi
   fi
 
-  if ! [ -d "${_TESTS_OUTPUT_DIR}" ]; then
-    mkdir -p "${_TESTS_OUTPUT_DIR}";
+  if ! [ -d "${TESTS_OUTPUT_DIR}" ]; then
+    mkdir -p "${TESTS_OUTPUT_DIR}";
     if (( $? != 0 )); then
-      logE "Failed to create test output directory '${_TESTS_OUTPUT_DIR}'";
+      logE "Failed to create test output directory '${TESTS_OUTPUT_DIR}'";
       return 1;
     fi
   fi
@@ -237,6 +241,7 @@ function main() {
   echo "";
 
   export PROJECT_INIT_TESTS_ACTIVE="1";
+
   local exit_status=0;
   local n_filter_runs=${#filter_runs[@]};
   if (( $n_filter_runs > 0 )); then
@@ -277,13 +282,13 @@ function main() {
   fi
 
   if [[ $arg_keep_output == false ]]; then
-    if [ -d "${_TESTS_OUTPUT_DIR}" ]; then
-      if ! rm -rf "${_TESTS_OUTPUT_DIR}"; then
-        logW "Failed to clear test output directory: '${_TESTS_OUTPUT_DIR}'";
+    if [ -d "${TESTS_OUTPUT_DIR}" ]; then
+      if ! rm -rf "${TESTS_OUTPUT_DIR}"; then
+        logW "Failed to clear test output directory: '${TESTS_OUTPUT_DIR}'";
       fi
     fi
   else
-    logI "Generated output can be found at: '${_TESTS_OUTPUT_DIR}'";
+    logI "Generated output can be found at: '${TESTS_OUTPUT_DIR}'";
   fi
 
   return $exit_status;

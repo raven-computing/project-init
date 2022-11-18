@@ -23,6 +23,44 @@
 #
 
 
+# The properties config file to be loaded for the test runs.
+readonly _TESTS_PROPERTIES="tests/resources/project.properties";
+
+
+# Loads the configuration files used in test mode and stores the
+# data in the corresponding global variables.
+#
+# The caller should check the relevant PROJECT_INIT_TESTS_ACTIVE
+# and PROJECT_INIT_TESTS_RUN_CONFIG environment variables before
+# calling this function.
+#
+# Globals:
+# _FORM_ANSWERS - The configured form answers from the test run file.
+#                 Is declared and initialized by this function.
+#
+function _load_test_configuration() {
+  declare -g -A _FORM_ANSWERS;
+  if ! _read_properties "$PROJECT_INIT_TESTS_RUN_CONFIG" _FORM_ANSWERS; then
+    logE "The configuration file for the test run has errors:";
+    logE "at: '$PROJECT_INIT_TESTS_RUN_CONFIG'";
+    failure "Failed to execute test run";
+  fi
+  # Adjust path if in test mode
+  FORM_QUESTION_ID="project.dir";
+  if _get_form_answer; then
+    if [[ "$FORM_QUESTION_ANSWER" != "${TESTS_OUTPUT_DIR}"/* ]]; then
+      local test_path="${TESTS_OUTPUT_DIR}/${FORM_QUESTION_ANSWER}";
+      _FORM_ANSWERS["project.dir"]="$test_path";
+    fi
+  else
+    logE "No project directory specified for test run.";
+    logE "Add a 'project.dir' entry in the test run properties file:";
+    logE "at: '$PROJECT_INIT_TESTS_RUN_CONFIG'";
+    failure "Failed to execute test run";
+  fi
+  _read_properties "${_TESTS_PROPERTIES}";
+}
+
 function main() {
   local testpath="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)";
   local rootpath=$(dirname "$testpath");
