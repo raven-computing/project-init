@@ -39,6 +39,11 @@ function test_functionality_result() {
   files+=("src/main/tests/CMakeLists.txt");
   files+=("src/main/tests/c/test_example.c");
 
-  assert_files_exist "${files[@]}";
+  local dirs=();
+  dirs+=("src/main/resources");
+  dirs+=("src/main/tests/resources");
+
+  assert_files_exist "${files[@]}"  &&
+  assert_dirs_exist "${dirs[@]}";
   return $?;
 }
