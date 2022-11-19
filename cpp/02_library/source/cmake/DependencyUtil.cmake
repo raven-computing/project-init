@@ -266,13 +266,21 @@ function(dependency)
     else()
         if(${DEP_ARGS_DEPENDENCY_RESOURCE} MATCHES "^(http|https|file)://")
             # Source archive file
+            if(NOT DEFINED DEP_ARGS_DEPENDENCY_FILE_HASH)
+                message(
+                    FATAL_ERROR
+                    "Dependency ${DEP_ARGS_DEPENDENCY_NAME} has a missing "
+                    "argument. Please provide argument DEPENDENCY_FILE_HASH "
+                    "for archive file dependency resources."
+                )
+            endif()
             FetchContent_Declare(
                 ${DEP_ARGS_DEPENDENCY_NAME}
                 URL ${DEP_ARGS_DEPENDENCY_RESOURCE}
                 URL_HASH SHA256=${DEP_ARGS_DEPENDENCY_FILE_HASH}
             )
         else()
-             message(
+            message(
                 FATAL_ERROR
                 "Dependency ${DEP_ARGS_DEPENDENCY_NAME} resource value "
                 "must either represent a Git repository "
