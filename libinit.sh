@@ -296,6 +296,10 @@ LIST_FILES_TXT=();
 # Project Init resources, including addons, are cached.
 readonly RES_CACHE_LOCATION="/tmp";
 
+# The base URL to be used when creating hyperlinks
+# to the Project Init documentation, e.g. for help texts.
+readonly DOCS_BASE_URL="https://github.com/raven-computing/project-init/wiki";
+
 # Indicates whether the file cache is invalidated.
 _FLAG_FCACHE_ERR=false;
 
@@ -491,6 +495,88 @@ function _show_notif_success() {
   return 1;
 }
 
+# Prints a help text statement with the specified log level.
+#
+# Is used to guide the user to some specific part of the official documentation.
+# The help text is directly printed with the specified log level. Therefore a call
+# to this function needs to be placed at the right location.
+#
+# Args:
+# $1 - The log level to use when printing the help text.
+#      Must be one of 'I' (Info), 'W' (Warning), 'E' (Error).
+# $2 - The documentation link relative to the base URL as indicated
+#      by the $DOCS_BASE_URL global variable.
+#
+# Globals:
+# DOCS_BASE_URL - Is used by this function to determine the base part of the created
+#                 hyperlink, which points to the official documentation.
+#
+# Stdout:
+# Help text information with the specified log level.
+#
+function _show_helptext() {
+  local _log_lvl="$1";
+  local _doc_res="$2";
+  if [ -z "${_log_lvl}" ]; then
+    logE "Programming error: No log level specified in call to _show_helptext()";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    return 1;
+  fi
+  if [ -z "${_doc_res}" ]; then
+    logE "Programming error: No resource name specified in call to _show_helptext()";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    return 1;
+  fi
+  make_hyperlink "${DOCS_BASE_URL}/${_doc_res}" "documentation";
+  local _helptext="[HELP]: See the $HYPERLINK_VALUE for more information";
+  if [[ "${_log_lvl}" == "I" ]]; then
+    logI "";
+    logI "${_helptext}";
+    logI "";
+  elif [[ "${_log_lvl}" == "W" ]]; then
+    logW "";
+    logW "${_helptext}";
+    logW "";
+  elif [[ "${_log_lvl}" == "E" ]]; then
+    logE "";
+    logE "${_helptext}";
+    logE "";
+  else
+    logE "Programming error: Invalid log level specified in call to _show_helptext()";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    return 1;
+  fi
+  return 0;
+}
+
+# Makes a hyperlink value which points to an API function
+# description within the official documentation.
+#
+# Is used to display a link to a specific API function within the official
+# documentation. The hyperlink value is created by using the make_hyperlink() function.
+# Therefore, the result is saved in the $HYPERLINK_VALUE global variable.
+#
+# Args:
+# $1 - The function name to make a link for. Must not contain any brackets.
+#
+# Globals:
+# DOCS_BASE_URL   - Is used by this function to determine the base part of the created
+#                   hyperlink, which points to the official documentation.
+# HYPERLINK_VALUE - Holds the string value of the created hyperlink.
+#                   Is set as a result of a call to this function.
+#
+function _make_func_hl() {
+  local _func_name="$1";
+  if [ -z "${_func_name}" ]; then
+    logE "Programming error: No function name specified in call to _make_func_hl()";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    HYPERLINK_VALUE="";
+    return 1;
+  fi
+  make_hyperlink "${DOCS_BASE_URL}/API-Reference#${_func_name}" "${_func_name}()";
+  return $?;
+}
+
 # [API function]
 # Prints a statement indicating a failed operation.
 #
@@ -612,8 +698,11 @@ function make_hyperlink() {
   fi
   get_boolean_property "sys.output.hyperlinks.escape" "true";
   if [[ "$PROPERTY_VALUE" == "true" ]]; then
-    HYPERLINK_VALUE="\e]8;;${_hl_url}\e\\${_hl_label}\e]8;;\e\\";
+    HYPERLINK_VALUE="\e]8;;${_hl_url}\e\\\\${_hl_label}\e]8;;\e\\\\";
   else
+    if [[ "${_hl_label}" != "${_hl_url}" ]]; then
+      _hl_url="${_hl_label} (${_hl_url})";
+    fi
     HYPERLINK_VALUE="${_hl_url}";
   fi
   return 0;
@@ -686,6 +775,7 @@ function _load_version_addons() {
     if ! [[ $version_addons =~ $re ]]; then
       logW "Invalid version string specified in addons resource:";
       logW "at: '$path_version_addons'";
+      _show_helptext "W" "Addons#versioning";
       version_addons="?.?.?";
       ret_val=1;
     fi
@@ -1521,6 +1611,7 @@ function _run_addon_load_hook() {
       else
         logW "The addons load hook is not marked as executable.";
         logW "Please set as executable: '$PROJECT_INIT_ADDONS_DIR/load-hook.sh'";
+        _show_helptext "W" "Addons#hooks";
         warning "The load-hook of the Project Init script was not executed";
       fi
     fi
@@ -1550,6 +1641,7 @@ function _run_addon_after_init_hook() {
         logW "The addons after-init hook is not marked as executable.";
         logW "Please set as executable:" \
              "'$PROJECT_INIT_ADDONS_DIR/after-init-hook.sh'";
+        _show_helptext "W" "Addons#hooks";
 
         warning "The after-init-hook of the Project Init script was not executed";
       fi
@@ -1722,22 +1814,25 @@ function start_project_init() {
 function finish_project_init() {
   # Check that all API functions have been called
   if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
+    _make_func_hl "project_init_copy";
     failure "The script in last init level was executed without a call to the"  \
-            "project_init_copy() function. Please make sure that the 'init.sh'" \
+            "$HYPERLINK_VALUE function. Please make sure that the 'init.sh'"    \
             "script in the lowermost init level calls the project_init_copy()"  \
             "function when ready.";
   fi
   if [[ ${_FLAG_PROJECT_LICENSE_PROCESSED} == false ]]; then
+    _make_func_hl "project_init_license";
     failure "The script in last init level was executed without a call to the"     \
-            "project_init_license() function. Please make sure that the 'init.sh'" \
+            "$HYPERLINK_VALUE function. Please make sure that the 'init.sh'"       \
             "script in the lowermost init level calls the project_init_license()"  \
             "function when ready. The function must always be called, even"        \
             "when no license was selected or there is no intention in using"       \
             "any license or copyright notice";
   fi
   if [[ ${_FLAG_PROJECT_FILES_PROCESSED} == false ]]; then
+    _make_func_hl "project_init_process";
     failure "The script in last init level was executed without a call to the" \
-            "project_init_process() function. Please make sure that the"       \
+            "$HYPERLINK_VALUE function. Please make sure that the"             \
             "'init.sh' script in the lowermost init level calls the"           \
             "project_init_process() function when ready.";
   fi
@@ -1952,9 +2047,10 @@ function _check_unreplaced_vars() {
   for f in $CACHE_ALL_FILES; do
     # Check if file still exists
     if ! [ -f "$f" ]; then
+      _make_func_hl "find_all_files";
       logW "Project file was removed but is still present in the file cache:";
       logW "at: '$f'";
-      logW "Please call the find_all_files() function after" \
+      logW "Please call the $HYPERLINK_VALUE function after" \
            "adding/moving/deleting files";
 
       continue;
@@ -1974,9 +2070,10 @@ function _check_unreplaced_vars() {
       logW "Substitution variable not replaced: '$subvar_id'";
       # Check for copyright header substitution variable
       if [[ "$subvar_id" == "VAR_COPYRIGHT_HEADER" ]]; then
+        _make_func_hl "project_init_license";
         logW "Possible cause:";
         logW "Have you specified all file extensions in the call ";
-        logW "to the project_init_license() function?";
+        logW "to the $HYPERLINK_VALUE function?";
       fi
       # Replace with an empty string
       replace_var "$subvar_id" "";
@@ -2214,9 +2311,10 @@ function read_user_input_selection() {
   local length=${#selection_names[@]};
   # Check that we have something to select
   if (( $length == 0 )); then
+    _make_func_hl "read_user_input_selection";
     logE "Programming error: Illegal function call:";
     logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to read_user_input_selection() function: " \
+    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
             "No selection items specified";
   fi
   echo "";
@@ -2522,23 +2620,28 @@ function replace_var() {
   local _var_file_ext="$3";
   # Check given args
   if (( ${_arg_count} == 0 )); then
+    _make_func_hl "replace_var";
     logE "Programming error: Illegal function call:";
     logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to replace_var() function: " \
+    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
             "No arguments specified";
   fi
   if [ -z "${_var_key}" ]; then
+    _make_func_hl "replace_var";
     logE "Programming error: Illegal function call:";
     logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to replace_var() function: " \
+    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
             "Key argument cannot be an empty string";
   fi
   if [ -z "${_all_files}" ]; then
+    _make_func_hl "replace_var";
+    local hl_replace_var="$HYPERLINK_VALUE";
+    _make_func_hl "project_init_copy";
     logE "Programming error: Illegal function call:";
     logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to replace_var() function: "         \
+    failure "Programming error: Invalid call to $hl_replace_var function: "       \
             "No source files found. Substitution variables can only be replaced " \
-            "after the project_init_copy() function has been called";
+            "after the $HYPERLINK_VALUE function has been called";
   fi
   # Remove the 'VAR_' prefix if necessary as
   # it is set explicitly when using awk
@@ -2557,9 +2660,10 @@ function replace_var() {
     # Check whether the file can be read
     if ! [ -r "$f" ]; then
       if [[ ${_FLAG_FCACHE_ERR} == false ]]; then
+        _make_func_hl "find_all_files";
         logW "Project files seem to have changed but the" \
              "file cache was not updated.";
-        logW "Please call the find_all_files() function after" \
+        logW "Please call the $HYPERLINK_VALUE function after" \
              "adding/moving/deleting files";
       fi
       # Set the global file cache error flag to signal
@@ -2666,20 +2770,25 @@ function project_init_license() {
   local all_file_ext="$@";
   # Check API call order
   if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
+    _make_func_hl "project_init_license";
+    local _hl_project_init_license="$HYPERLINK_VALUE";
+    _make_func_hl "project_init_copy";
+    local _hl_project_init_copy="$HYPERLINK_VALUE";
     logE "Programming error in init script:";
     logE "at: '${CURRENT_LVL_PATH}/init.sh' (line ${BASH_LINENO[0]})";
-    failure "Missing call to project_init_copy() function:"                         \
-            ""                                                                      \
-            "The script in init level $CURRENT_LVL_NUMBER has called the "          \
-            "project_init_license() function without having previously called "     \
-            "the project_init_copy() function. Please make sure that the 'init.sh'" \
-            "script calls all mandatory API functions in the correct order."        \
+    failure "Missing call to project_init_copy() function:"                              \
+            ""                                                                           \
+            "The script in init level $CURRENT_LVL_NUMBER has called the "               \
+            "${_hl_project_init_license} function without having previously called "     \
+            "the ${_hl_project_init_copy} function. Please make sure that the 'init.sh'" \
+            "script calls all mandatory API functions in the correct order."             \
             "";
   fi
 
   if [ -z "$all_file_ext" ]; then
+    _make_func_hl "project_init_license";
     logW "No file extensions specified in the call" \
-         "to the project_init_license() function.";
+         "to the $HYPERLINK_VALUE function.";
     logW "Copyright header variables in source files will not be replaced.";
     logW "Please specify in the call to the project_init_license() function all file";
     logW "extensions of project source files for which copyright headers exist";
@@ -2766,14 +2875,18 @@ function project_init_license() {
 function project_init_process() {
   # Check API call order
   if [[ ${_FLAG_PROJECT_LICENSE_PROCESSED} == false ]]; then
+    _make_func_hl "project_init_process";
+    local _hl_project_init_process="$HYPERLINK_VALUE";
+    _make_func_hl "project_init_license";
+    local _hl_project_init_license="$HYPERLINK_VALUE";
     logE "Programming error in init script:";
     logE "at: '${CURRENT_LVL_PATH}/init.sh' (line ${BASH_LINENO[0]})";
-    failure "Missing call to project_init_license() function:"                         \
-            ""                                                                         \
-            "The script in init level $CURRENT_LVL_NUMBER has called the "             \
-            "project_init_process() function without having previously called "        \
-            "the project_init_license() function. Please make sure that the 'init.sh'" \
-            "script calls all mandatory API functions in the correct order."           \
+    failure "Missing call to project_init_license() function:"                              \
+            ""                                                                              \
+            "The script in init level $CURRENT_LVL_NUMBER has called the "                  \
+            "${_hl_project_init_process} function without having previously called "        \
+            "the ${_hl_project_init_license} function. Please make sure that the 'init.sh'" \
+            "script calls all mandatory API functions in the correct order."                \
             "";
   fi
 
@@ -2810,12 +2923,13 @@ function project_init_process() {
 
   _check_unreplaced_vars;
   if (( $? != 0 )); then
+    _make_func_hl "replace_var";
     logW "";
     logW "Substitution variables for which no value was specified were";
     logW "removed from the project source files.";
     logW "";
     logW "Please specify a value in the corresponding init script by";
-    logW "calling the replace_var() function";
+    logW "calling the $HYPERLINK_VALUE function";
   fi
 
   # Signal files have been processed
@@ -2853,15 +2967,17 @@ function add_lang_version() {
   local _lang_version_num="$1";
   local _lang_version_str="$2";
   if [ -z "${_lang_version_num}" ]; then
+    _make_func_hl "add_lang_version";
     logE "Programming error: Illegal function call:";
     logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to add_lang_version() function: " \
+    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
             "No version number specified";
   fi
   if [ -z "${_lang_version_str}" ]; then
+    _make_func_hl "add_lang_version";
     logE "Programming error: Illegal function call:";
     logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to add_lang_version() function: " \
+    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
             "No version label specified";
   fi
   if [[ ! "${SUPPORTED_LANG_VERSIONS_IDS[*]}" =~ "${_lang_version_num}" ]]; then
@@ -2895,9 +3011,10 @@ function add_lang_version() {
 function remove_lang_version() {
   local _lang_version="$1";
   if [ -z "${_lang_version}" ]; then
+    _make_func_hl "remove_lang_version";
     logE "Programming error: Illegal function call:";
     logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to remove_lang_version() function: " \
+    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
             "No arguments specified";
   fi
   for i in "${!SUPPORTED_LANG_VERSIONS_IDS[@]}"; do
@@ -3003,8 +3120,9 @@ function select_next_level_directory() {
   done
   local n_dirs=${#next_dirs[@]};
   if (( $n_dirs == 0 )); then
+    _make_func_hl "select_next_level_directory";
     logE "Cannot descend to next init level. No init level directories found";
-    failure "You have called the select_next_level_directory() function:" \
+    failure "You have called the $HYPERLINK_VALUE function:"              \
             "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})"            \
             ""                                                            \
             "No subordinate init directory is available at that level."   \
@@ -3060,24 +3178,27 @@ function select_project_type() {
   local lang_id="$1";
   local lang_name="$2";
   if [ -z "$lang_id" ]; then
+    _make_func_hl "select_project_type";
     logE "Programming error: Illegal function call:";
     logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to select_project_type() function: " \
+    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
             "No language ID argument specified";
   fi
   if [ -z "$lang_name" ]; then
+    _make_func_hl "select_project_type";
     logW "No language name argument specified in call" \
-         "to select_project_type() function:";
+         "to $HYPERLINK_VALUE function:";
     logW "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
     lang_name="$lang_id";
   fi
   # Check current init level
   if (( $CURRENT_LVL_NUMBER != 1 )); then
+    _make_func_hl "select_project_type";
     logE "Project types can only be selected at init level 1.";
-    logE "The call to the select_project_type() function was made:";
+    logE "The call to the $HYPERLINK_VALUE function was made:";
     logE "at init level: $CURRENT_LVL_NUMBER";
     logE "at: '$CURRENT_LVL_PATH'";
-    failure "Programming error: Invalid call to select_project_type() function." \
+    failure "Programming error: Invalid call to $HYPERLINK_VALUE function."      \
             "Project types under a given language can only be selected while at" \
             "init level 1";
   fi
@@ -3233,11 +3354,13 @@ function proceed_next_level() {
     done
     # Check again if any applicable dir was found
     if [[ "$dir_next" == "" ]]; then
+      _make_func_hl "proceed_next_level";
       logE "Cannot find directory to source next init script";
+      _show_helptext "E" "Introduction#init-levels";
       failure "Failed to proceed to next init level from current level directory:" \
               "at: '$CURRENT_LEVEL_PATH'" "  "                                     \
               "Please specify the directory for the next init level in your"       \
-              "call to the proceed_next_level() function";
+              "call to the $HYPERLINK_VALUE function";
     fi
   fi
   # Set global vars to new values
@@ -3248,6 +3371,7 @@ function proceed_next_level() {
   # Check whether directory and level script can be sourced
   if ! [ -d "$CURRENT_LVL_PATH" ]; then
     logE "Cannot source init script for level $CURRENT_LVL_NUMBER";
+    _show_helptext "E" "Introduction#init-levels";
     failure "Failed to source init script for next init level:" \
             "at: '$CURRENT_LVL_PATH':"                          \
             "Directory does not exist";
@@ -3270,6 +3394,7 @@ function proceed_next_level() {
 
   if ! [ -f "$next_lvl_script" ]; then
     logE "Cannot source init script for level $CURRENT_LVL_NUMBER";
+    _show_helptext "E" "Introduction#init-scripts";
     failure "Failed to source init script for next init level." \
             "Script does not exist: "                           \
             "File: '$next_lvl_script'";
