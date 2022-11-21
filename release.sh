@@ -212,7 +212,7 @@ git push                               &&
 git push $GIT_ORIGIN $tag_this_version &&
 git push $GIT_ORIGIN $tag_v_latest;
 
-_STR_SUCCESS_MESSAGE="The Project Init system v$version_release has been released";
+PROJECT_INIT_SUCCESS_MESSAGE="The Project Init system v$version_release has been released";
 _log_success;
 exit $EXIT_SUCCESS;
 

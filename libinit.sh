@@ -265,6 +265,13 @@ PROPERTY_VALUE="";
 # 1.1.0
 HYPERLINK_VALUE="";
 
+# [API Global]
+# The message to show when a project is successfully initialized.
+# This text is shown in the terminal and in the desktop notification.
+# Since:
+# 1.1.0
+PROJECT_INIT_SUCCESS_MESSAGE="Project has been initialized";
+
 # An array for holding all supported language version
 # numbers/identifiers
 SUPPORTED_LANG_VERSIONS_IDS=();
@@ -319,8 +326,6 @@ _FLAG_PROJECT_DIR_POLLUTED=false;
 # Indicates whether the system configuration has been loaded.
 _FLAG_CONFIGURATION_LOADED=false;
 
-# The message to print when a project is successfully initialized.
-_STR_SUCCESS_MESSAGE="Project has been initialized";
 # The timeout of the success notification, in milliseconds.
 _INT_NOTIF_SUCCESS_TIMEOUT=3000;
 # The path to the icon to be used by the success notification.
@@ -448,7 +453,7 @@ function _log_success() {
     echo -n "-";
   done
   echo "";
-  logI "${_STR_SUCCESS_MESSAGE}";
+  logI "${PROJECT_INIT_SUCCESS_MESSAGE}";
   logI "";
   # Check logged warning messages
   local warn_size=${#_WARNING_LOG[@]};
@@ -484,11 +489,11 @@ function _show_notif_success() {
       notify-send -i "${_STR_NOTIF_SUCCESS_ICON}"  \
                   -t ${_INT_NOTIF_SUCCESS_TIMEOUT} \
                   "${_project_name}"               \
-                  "${_STR_SUCCESS_MESSAGE}";
+                  "${PROJECT_INIT_SUCCESS_MESSAGE}";
     else
       notify-send -t ${_INT_NOTIF_SUCCESS_TIMEOUT} \
                   "${_project_name}"               \
-                  "${_STR_SUCCESS_MESSAGE}";
+                  "${PROJECT_INIT_SUCCESS_MESSAGE}";
     fi
     return $?;
   fi
