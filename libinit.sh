@@ -307,6 +307,16 @@ readonly RES_CACHE_LOCATION="/tmp";
 # to the Project Init documentation, e.g. for help texts.
 readonly DOCS_BASE_URL="https://github.com/raven-computing/project-init/wiki";
 
+# Contains the absolute path to the directory of the current theoretic
+# init level within the addons resource. This is essentially the addons
+# counterpart to $CURRENT_LVL_PATH, but the path is always pointing
+# to the addons resource directory. This variable is automatically
+# adjusted to always point to the init level directory of the addons
+# resource that is or would be applicable, even when no such directory
+# is provided by the addon. If no addon is active, then this variable
+# will be left empty.
+_ADDONS_CURRENT_LVL_PATH="";
+
 # Indicates whether the file cache is invalidated.
 _FLAG_FCACHE_ERR=false;
 
@@ -331,6 +341,8 @@ _INT_NOTIF_SUCCESS_TIMEOUT=3000;
 # The path to the icon to be used by the success notification.
 # Is set dynamically as the program progesses.
 _STR_NOTIF_SUCCESS_ICON="";
+# Indicates whether a success notification icon was specified by an addon.
+_FLAG_NOTIF_SUCCESS_ICON_ADDON=false;
 
 # Terminal color flag may be set as env var
 if [[ "$TERMINAL_USE_ANSI_COLORS" == "0" ]]; then
@@ -1786,12 +1798,19 @@ function start_project_init() {
   _load_addons_resource;
 
   # Check the addons dir env var and
-  # adjust the path if necessary
+  # adjust the paths if necessary
   if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
     if (( ${#PROJECT_INIT_ADDONS_DIR} > 1 )); then
       # Remove trailing slash
       PROJECT_INIT_ADDONS_DIR="${PROJECT_INIT_ADDONS_DIR%/}";
+      _ADDONS_CURRENT_LVL_PATH="$PROJECT_INIT_ADDONS_DIR";
       _load_version_addons;
+
+      # Check for addon icon override
+      if [ -r "$PROJECT_INIT_ADDONS_DIR/icon.notif.png" ]; then
+        _STR_NOTIF_SUCCESS_ICON="$PROJECT_INIT_ADDONS_DIR/icon.notif.png";
+        _FLAG_NOTIF_SUCCESS_ICON_ADDON=true;
+      fi
     fi
   fi
 
@@ -3373,6 +3392,10 @@ function proceed_next_level() {
   CURRENT_LVL_NUMBER=$((CURRENT_LVL_NUMBER + 1));
   declare SCRIPT_LVL_${CURRENT_LVL_NUMBER}_BASE="$CURRENT_LVL_PATH";
 
+  if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
+    _ADDONS_CURRENT_LVL_PATH="${_ADDONS_CURRENT_LVL_PATH}/$dir_next";
+  fi
+
   # Check whether directory and level script can be sourced
   if ! [ -d "$CURRENT_LVL_PATH" ]; then
     logE "Cannot source init script for level $CURRENT_LVL_NUMBER";
@@ -3384,13 +3407,18 @@ function proceed_next_level() {
 
   # Check for notification icons.
   # First check dynamic icon based on init levels
-  if [ -r "$CURRENT_LVL_PATH/icon.notif.png" ]; then
-    _STR_NOTIF_SUCCESS_ICON="$CURRENT_LVL_PATH/icon.notif.png";
+  if [[ ${_FLAG_NOTIF_SUCCESS_ICON_ADDON} == false ]]; then
+    if [ -r "$CURRENT_LVL_PATH/icon.notif.png" ]; then
+      # Set new icon from base resources
+      _STR_NOTIF_SUCCESS_ICON="$CURRENT_LVL_PATH/icon.notif.png";
+    fi
   fi
-  # Then check for global addon override
+  # Then check for addon override
   if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
-    if [ -r "$PROJECT_INIT_ADDONS_DIR/icon.notif.png" ]; then
-      _STR_NOTIF_SUCCESS_ICON="$PROJECT_INIT_ADDONS_DIR/icon.notif.png";
+    if [ -r "${_ADDONS_CURRENT_LVL_PATH}/icon.notif.png" ]; then
+      # Override icon from addons resource
+      _STR_NOTIF_SUCCESS_ICON="${_ADDONS_CURRENT_LVL_PATH}/icon.notif.png";
+      _FLAG_NOTIF_SUCCESS_ICON_ADDON=true;
     fi
   fi
 
