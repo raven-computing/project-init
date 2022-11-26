@@ -1282,20 +1282,23 @@ function _load_addons_resource() {
     # Check set dir var
     if [ -d "$PROJECT_INIT_ADDONS_DIR" ]; then
       if ! [ -r "$PROJECT_INIT_ADDONS_DIR/INIT_ADDONS" ]; then
-        if [[ $addons_is_git_res == true ]]; then
-          logW "Repository is not marked as a Project Init addons resource:";
-          logW "Accessed via: '$PROJECT_INIT_ADDONS_RES'";
-          logW "Please add an empty file named 'INIT_ADDONS' in the repository root";
-          logW "in order to use it as a Project Init addons resource.";
-        else
-          logW "Directory is not marked as a Project Init addons resource:";
-          logW "at: '$PROJECT_INIT_ADDONS_DIR'";
-          logW "Please create an empty file '$PROJECT_INIT_ADDONS_DIR/INIT_ADDONS'";
-          logW "in order to use the directory as a Project Init addons resource.";
+        # Do not show warnings when in test mode
+        if [[ "$PROJECT_INIT_TESTS_ACTIVE" != "1" ]]; then
+          if [[ $addons_is_git_res == true ]]; then
+            logW "Repository is not marked as a Project Init addons resource:";
+            logW "Accessed via: '$PROJECT_INIT_ADDONS_RES'";
+            logW "Please add an empty file named 'INIT_ADDONS' in the repository root";
+            logW "in order to use it as a Project Init addons resource.";
+          else
+            logW "Directory is not marked as a Project Init addons resource:";
+            logW "at: '$PROJECT_INIT_ADDONS_DIR'";
+            logW "Please create an empty file '$PROJECT_INIT_ADDONS_DIR/INIT_ADDONS'";
+            logW "in order to use the directory as a Project Init addons resource.";
+          fi
+          logW "";
+          logW "Ignoring 'PROJECT_INIT_ADDONS_RES' resource";
+          PROJECT_INIT_ADDONS_DIR="";
         fi
-        logW "";
-        logW "Ignoring 'PROJECT_INIT_ADDONS_RES' resource";
-        PROJECT_INIT_ADDONS_DIR="";
       fi
     else
       logW "Cannot use Project Init addons resource:";

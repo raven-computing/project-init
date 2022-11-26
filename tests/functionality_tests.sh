@@ -30,6 +30,13 @@ function execute_test_run() {
   local testfile="$1";
   local test_run_status=0;
   source "$testfile";
+  local is_addon_test_run=false;
+  if [[ "$testfile" == test_func_addon_* ]]; then
+    is_addon_test_run=true;
+  fi
+  if [[ $is_addon_test_run == true ]]; then
+    export PROJECT_INIT_ADDONS_RES="$BASEPATH/addons";
+  fi
   if [[ $(type -t "test_functionality") == function ]]; then
     test_functionality;
     test_run_status=$?;
@@ -39,6 +46,9 @@ function execute_test_run() {
   fi
   unset -f test_functionality;
   unset -f test_functionality_result;
+  if [[ $is_addon_test_run == true ]]; then
+    export -n PROJECT_INIT_ADDONS_RES;
+  fi
   return $test_run_status;
 }
 
@@ -201,8 +211,10 @@ function main() {
     esac
   done
   TESTPATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)";
+  BASEPATH="$(dirname "$TESTPATH")";
   cd "$TESTPATH";
-  if ! source "../libinit.sh"; then
+
+  if ! source "$BASEPATH/libinit.sh"; then
     echo "ERROR: Could not source libinit.sh library"
     return 1;
   fi
@@ -263,7 +275,7 @@ function main() {
   else
     # Find all applicable test run script files
     for testfile in $(ls "$TESTPATH"); do
-      if [[ "$testfile" == test_func_*.sh ]]; then
+      if [[ "$testfile" == test_func_*.sh && "$testfile" != test_func_addon_*.sh ]]; then
         execute_test_run "$testfile";
         exit_status=$?;
         if (( $exit_status != 0 )); then
@@ -271,6 +283,18 @@ function main() {
         fi
       fi
     done
+    if (( $exit_status == 0 )); then
+      # Find all applicable test run script files for addon tests
+      for testfile in $(ls "$TESTPATH"); do
+        if [[ "$testfile" == test_func_addon_*.sh ]]; then
+          execute_test_run "$testfile";
+          exit_status=$?;
+          if (( $exit_status != 0 )); then
+            break;
+          fi
+        fi
+      done
+    fi
   fi
 
   if (( $exit_status != 0 )); then

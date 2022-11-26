@@ -18,10 +18,15 @@ function process_files_lvl_2() {
   logI "Addon function process_files_lvl_2() called";
 }
 
+# Form questions
+
+form_java_version;
+
+# Project setup
+
 project_init_copy;
 
 project_init_license "java";
 
 project_init_process;
-
 
