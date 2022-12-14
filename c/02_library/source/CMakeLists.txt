@@ -11,10 +11,6 @@ project(
     LANGUAGES "C"
 )
 
-# Specify the C standard
-set(CMAKE_C_STANDARD ${{VAR_C_VERSION}})
-set(CMAKE_C_STANDARD_REQUIRED ON)
-
 # Options
 option(${{VAR_PROJECT_NAME_UPPER}}_BUILD_TESTS "Enable/disable tests" OFF)
 option(${{VAR_PROJECT_NAME_UPPER}}_BUILD_SHARED_LIBS "Build shared libraries" OFF)

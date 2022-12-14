@@ -5,6 +5,9 @@
 
 set(${{VAR_PROJECT_NAME_UPPER}}_TARGET_LIB_MAIN ${{VAR_ARTIFACT_BINARY_NAME}})
 
+# Specify the C standard
+set(${{VAR_PROJECT_NAME_UPPER}}_C_STANDARD ${{VAR_C_VERSION}})
+
 if(${{VAR_PROJECT_NAME_UPPER}}_BUILD_SHARED_LIBS)
     set(${{VAR_PROJECT_NAME_UPPER}}_MAIN_LIB_TYPE SHARED)
 else()
@@ -23,6 +26,13 @@ target_include_directories(
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
     PRIVATE
     c
+)
+
+set_target_properties(
+    ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_LIB_MAIN}
+    PROPERTIES
+    C_STANDARD ${${{VAR_PROJECT_NAME_UPPER}}_C_STANDARD}
+    C_STANDARD_REQUIRED True
 )
 
 #===================================[ TESTS ]==================================

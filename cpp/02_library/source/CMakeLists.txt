@@ -10,10 +10,6 @@ project(
     HOMEPAGE_URL "${{VAR_PROJECT_ORGANISATION_URL}}"
 )
 
-# Specify the C++ standard
-set(CMAKE_CXX_STANDARD ${{VAR_CPP_VERSION}})
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-
 # Options
 option(${{VAR_PROJECT_NAME_UPPER}}_BUILD_TESTS "Enable/disable tests" OFF)
 option(${{VAR_PROJECT_NAME_UPPER}}_BUILD_SHARED_LIBS "Build shared libraries" OFF)
