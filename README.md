@@ -8,7 +8,7 @@ This repository also contains the content for the base project source templates.
 
 ## Getting Started
 
-There are multiple ways you can use the Project Init system whenever you want to initialize a new softwre project. The easiest way is to [install](#install) the *run.sh* script on your system. This makes the ```project-init``` command available for your convenience. If you don't want to install anything or just try it out once, simply [bootstrap](#bootstrap) the system temporarily by running the *run.sh* script with the provided commands. You may also [clone](#clone) this entire repository to a location of your choice.
+There are multiple ways you can use Project Init whenever you want to initialize a new software project. The easiest way is to [install](#install) the *run.sh* script on your system. This makes the ```project-init``` command available for your convenience. If you don't want to install anything or just try it out once, simply [bootstrap](#bootstrap) the system temporarily by running the *run.sh* script with the provided commands. You may also [clone](#clone) this entire repository to a location of your choice.
 
 We recommend that you first read the [Compatibility](#compatibility) section.
 
