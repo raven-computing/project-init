@@ -1,3 +1,8 @@
+#### 1.1.1
+* Fixed usage of sub() awk function in replace_var() causing unreplaced substitution variables when using the same key multiple times on the same line of a source template. Changed to use gsub() awk function instead to always match all keys globally.
+* Improved project source templates.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.1.0...v1.1.1)
+
 #### 1.1.0
 * Added desktop success notifications with programming language icons when a new project is initialized.
 * Added *sys.notification.success.show* system property.
