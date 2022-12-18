@@ -2733,7 +2733,7 @@ function replace_var() {
     # Replace declared variable
     local replaced="$(awk -v key='\\${{VAR_'"${_var_key}"'}}' \
                           -v value="${_var_value}"            \
-                          '{ sub(key, value); print; }'       \
+                          '{ gsub(key, value); print; }'      \
                           "$f")";
 
     # Remove leading control characters.
