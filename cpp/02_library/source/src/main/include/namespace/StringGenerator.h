@@ -5,13 +5,15 @@ ${{VAR_COPYRIGHT_HEADER}}
 
 #include <string>
 
+#include "${{VAR_ARTIFACT_BINARY_NAME}}_export.h"
+
 
 ${{VAR_NAMESPACE_DECL_BEGIN}}
 /**
  * A dummy implementation of an object generating strings.
  *
  */
-class StringGenerator {
+class ${{VAR_ARTIFACT_BINARY_NAME_UPPER}}_EXPORT StringGenerator {
 
     std::string val;
     int count;

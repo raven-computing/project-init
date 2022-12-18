@@ -26,6 +26,8 @@
 # VAR_CPP_VERSION_LABEL: The version label of C++ to be used, e.g. 'C++20'
 # VAR_ARTIFACT_BINARY_NAME: The name of the binary file to
 #                           be produced by the project
+# VAR_ARTIFACT_BINARY_NAME_UPPER: The name of the binary file to be produced
+#                                 by the project, in all upper-case.
 # VAR_NAMESPACE: The namespace of the project, in dot notation
 # VAR_NAMESPACE_0: The first package name in the namespace hierarchy
 # VAR_NAMESPACE_PATH: The namespace of the project, in directory path notation,
@@ -37,16 +39,17 @@
 # VAR_NAMESPACE_DECL_END: The namespace declaration end part
 
 function process_files_lvl_1() {
-  replace_var "CPP_VERSION"             "$var_cpp_version";
-  replace_var "CPP_VERSION_LABEL"       "$var_cpp_version_label";
-  replace_var "ARTIFACT_BINARY_NAME"    "$var_artifact_binary_name";
-  replace_var "NAMESPACE"               "$var_namespace";
-  replace_var "NAMESPACE_0"             "$var_namespace_0";
-  replace_var "NAMESPACE_PATH"          "$var_namespace_path";
-  replace_var "NAMESPACE_COLON"         "$var_namespace_colon";
-  replace_var "NAMESPACE_INCLUDE_GUARD" "$var_namespace_include_guard";
-  replace_var "NAMESPACE_DECL_BEGIN"    "$var_namespace_decl_begin";
-  replace_var "NAMESPACE_DECL_END"      "$var_namespace_decl_end";
+  replace_var "CPP_VERSION"                "$var_cpp_version";
+  replace_var "CPP_VERSION_LABEL"          "$var_cpp_version_label";
+  replace_var "ARTIFACT_BINARY_NAME"       "$var_artifact_binary_name";
+  replace_var "ARTIFACT_BINARY_NAME_UPPER" "$var_artifact_binary_name_upper";
+  replace_var "NAMESPACE"                  "$var_namespace";
+  replace_var "NAMESPACE_0"                "$var_namespace_0";
+  replace_var "NAMESPACE_PATH"             "$var_namespace_path";
+  replace_var "NAMESPACE_COLON"            "$var_namespace_colon";
+  replace_var "NAMESPACE_INCLUDE_GUARD"    "$var_namespace_include_guard";
+  replace_var "NAMESPACE_DECL_BEGIN"       "$var_namespace_decl_begin";
+  replace_var "NAMESPACE_DECL_END"         "$var_namespace_decl_end";
 
   if [ -n "$var_namespace_path" ]; then
     # Create namespace directory layout and move source files
@@ -152,8 +155,10 @@ function form_cpp_version() {
 # The associated shell global variable is set by this function.
 #
 # Globals:
-# var_artifact_binary_name - The name of the binary artifact.
-#                            Is set by this function.
+# var_artifact_binary_name       - The name of the binary artifact.
+#                                  Is set by this function.
+# var_artifact_binary_name_upper - The name of the binary artifact in
+#                                  all upper-case. Is set by this function.
 #
 function form_cpp_binary_name() {
   FORM_QUESTION_ID="cpp.binary.name";
@@ -166,6 +171,8 @@ function form_cpp_binary_name() {
     entered_binary_name="$var_project_name_lower";
   fi
   var_artifact_binary_name="$entered_binary_name";
+  var_artifact_binary_name_upper=$(echo "$entered_binary_name" \
+                                    |tr '[:lower:]' '[:upper:]');
 }
 
 # [API function]

@@ -27,13 +27,16 @@
 #                      used, e.g. 'C99'
 # VAR_ARTIFACT_BINARY_NAME: The name of the binary file to
 #                           be produced by the project
+# VAR_ARTIFACT_BINARY_NAME_UPPER: The name of the binary file to be produced
+#                                 by the project, in all upper-case.
 # VAR_PREFIX_INCLUDE_GUARD: The prefix to be used in all header include guards
 
 function process_files_lvl_1() {
-  replace_var "C_VERSION"               "$var_c_version";
-  replace_var "C_VERSION_LABEL"         "$var_c_version_label";
-  replace_var "ARTIFACT_BINARY_NAME"    "$var_artifact_binary_name";
-  replace_var "PREFIX_INCLUDE_GUARD"    "$var_project_name_upper";
+  replace_var "C_VERSION"                  "$var_c_version";
+  replace_var "C_VERSION_LABEL"            "$var_c_version_label";
+  replace_var "ARTIFACT_BINARY_NAME"       "$var_artifact_binary_name";
+  replace_var "ARTIFACT_BINARY_NAME_UPPER" "$var_artifact_binary_name_upper";
+  replace_var "PREFIX_INCLUDE_GUARD"       "$var_project_name_upper";
 }
 
 # [API function]
@@ -66,8 +69,10 @@ function form_c_version() {
 # The associated shell global variable is set by this function.
 #
 # Globals:
-# var_artifact_binary_name - The name of the binary artifact.
-#                            Is set by this function.
+# var_artifact_binary_name       - The name of the binary artifact.
+#                                  Is set by this function.
+# var_artifact_binary_name_upper - The name of the binary artifact in
+#                                  all upper-case. Is set by this function.
 #
 function form_c_binary_name() {
   FORM_QUESTION_ID="c.binary.name";
@@ -80,6 +85,8 @@ function form_c_binary_name() {
     entered_binary_name="$var_project_name_lower";
   fi
   var_artifact_binary_name="$entered_binary_name";
+  var_artifact_binary_name_upper=$(echo "$entered_binary_name" \
+                                    |tr '[:lower:]' '[:upper:]');
 }
 
 # Specify supported C standards
