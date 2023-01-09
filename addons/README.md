@@ -9,9 +9,13 @@ This directory contains example files for Project Init addons.
 
 Contains init code and resources showing how to add another programming language via an addon. The example is emblematic for any language, but does only contain a small project type with a shell script for illustrative purposes. See [documentation](https://github.com/raven-computing/project-init/wiki/Addons#add-custom-programming-languages).
 
+See the [Tutorial](https://github.com/raven-computing/project-init/wiki/Tutorial%3A-Add-a-New-Programming-Language) for a step-by-step guide on how to create an addon based on these example files.
+
 ### java
 
 Contains init code and resources showing how to add another project type via an addon for a programming language which is already supported by the base system. The example is emblematic for any supported language, but does only contain a small project type in Java for illustrative purposes. See [documentation](https://github.com/raven-computing/project-init/wiki/Addons#add-custom-project-types).
+
+See the [Tutorial](https://github.com/raven-computing/project-init/wiki/Tutorial%3A-Add-a-New-Project-Type) for a step-by-step guide on how to create an addon based on these example files.
 
 ### licenses
 
