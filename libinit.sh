@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2023 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,10 +36,11 @@
 # strongly advised to only use API functions in their code.
 #
 # All global variables defined in this file should be considered read-only by
-# external/API users if their identifying name is written in all caps.
-# Do not manually assign a value to any such global variable.
-# The values of those global variables should only be changed by functions
-# defined in this file or init system code.
+# API users if their identifying name is written in all caps, unless the
+# corresponding documentation states that the variable can be used otherwise.
+# Do not manually assign a value to read-only global variables.
+# The values of variables whose identifying name starts with an underscore
+# should only be changed by functions defined in this file or init system code.
 #
 # The Project Init system divides the initialization into separate steps,
 # so called init levels. These levels do not have to be visually
@@ -78,7 +79,8 @@
 # the "*" is the unique identifier of that substitution variable, in all caps.
 # A standard mechanism is provided by which substitution variables defined in
 # project source template files are replaced by the concrete value set in the
-# corresponding shell variable.
+# corresponding shell variable. The replace_var() function implements
+# this mechanism.
 #
 # Once an init script has completed its task and gathered all relevant
 # information from the user, there are two distinct situations to consider.
@@ -96,7 +98,7 @@
 # First, the project source template files are copied as is to the
 # project target directory. Second, the licensing and copyright information is
 # set up based on the information provided by the user. Third, all copied
-# project source files are processed and potentially changed.
+# project source files are processed and potentially changed, renamed or moved.
 # The actually initialization is therefore executed when the last init script
 # calls the following functions in this specific order:
 #   * project_init_copy()
@@ -108,7 +110,7 @@
 # the last lines of code in the last init script within the lowermost
 # init level. The project_init_process() function is responsible for
 # processing the project source template files in such a way, that
-# the initialized project contains syntactically correct code and can
+# the initialized project contains syntactically correct source code and can
 # be built and used practically out of the box. In doing so, all encountered
 # substitution variables are replaced by the value set in the corresponding
 # init script code. Any init script can introduce and define new substitution
@@ -268,6 +270,7 @@ HYPERLINK_VALUE="";
 # [API Global]
 # The message to show when a project is successfully initialized.
 # This text is shown in the terminal and in the desktop notification.
+# A new value can be set to this variable to change the success message.
 # Since:
 # 1.1.0
 PROJECT_INIT_SUCCESS_MESSAGE="Project has been initialized";
@@ -1137,7 +1140,8 @@ function _check_system_dependencies() {
 #      handled by Git.
 #
 # Stdout:
-# Loading text is printed normally and encountered errors.
+# Text to indicate the loading operation.
+# Encountered errors are also printed on stdout.
 #
 # Globals:
 # PROJECT_INIT_ADDONS_DIR - The path to the (temporary) directory containing
