@@ -1504,8 +1504,8 @@ function _read_properties() {
 # [API function]
 # Gets the property value for the specified key.
 #
-# This function queries the value for the specified key in
-# the $PROPERTIES global variable and writes the result to $PROPERTY_VALUE.
+# This function queries the value with the specified key in the global property
+# store and writes the result to the $PROPERTY_VALUE global variable.
 # The default value to use is an optional argument. If it is not specified
 # and the given key does not exist, then $PROPERTY_VALUE is set to an
 # empty string.
@@ -1524,8 +1524,6 @@ function _read_properties() {
 #                  this function returns. Holds either the specified default
 #                  value or an empty string if no property with such
 #                  key exists.
-# PROPERTIES     - The variable which contains the key-value pairs.
-#                  Must be an already declared associative array.
 #
 # Examples:
 # get_property "my.prop.key";
@@ -1552,8 +1550,8 @@ function get_property() {
 # [API function]
 # Gets the boolean property value for the specified key.
 #
-# This function queries the boolean value for the specified key in
-# the $PROPERTIES global variable and writes the result to $PROPERTY_VALUE.
+# This function queries the boolean value with the specified key in the global
+# property store and writes the result to the $PROPERTY_VALUE global variable.
 # It can be used instead of get_property() if the queried property is known
 # to represent a boolean. If a malformed value is encountered, then a warning
 # is logged. This function guarantees that after it returns
@@ -1578,8 +1576,6 @@ function get_property() {
 #                  key once this function returns. Holds either the
 #                  specified default value or the string "false" if no
 #                  property with such key exists.
-# PROPERTIES     - The variable which contains the key-value pairs.
-#                  Must be an already declared associative array.
 #
 # Examples:
 # get_boolean_property "my.prop.key";
