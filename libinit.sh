@@ -2345,11 +2345,24 @@ function read_user_input_selection() {
             "No selection items specified";
   fi
   echo "";
-  # Print all selectable options
+  # Print all selectable options.
+  # Align item names independent from total number of items.
+  local spaces=1;
+  local padding=${#length};
+  ((++padding));
   local number=0;
+  local i;
   for (( i=0; i<${length}; ++i )); do
     number=$((i+1));
-    echo "[$number] ${selection_names[$i]}";
+    # Compute how many spaces need to be added between the
+    # number of the item and its name.
+    spaces=$(( padding - ${#number} ));
+    echo -n "[$number]";
+    local j;
+    for (( j=0; j<${spaces}; ++j )); do
+      echo -n " ";
+    done
+    echo "${selection_names[$i]}";
   done
   echo "";
 
