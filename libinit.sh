@@ -879,7 +879,7 @@ function _handle_util_args() {
       version_dev="(Development Version)";
     fi
     echo "Project Init v${PROJECT_INIT_VERSION} ${version_dev}";
-    echo "Copyright (C) 2022 Raven Computing";
+    echo "Copyright (C) 2023 Raven Computing";
     echo "This software is licensed under the Apache License, Version 2.0";
     exit $EXIT_SUCCESS;
   fi
@@ -1386,9 +1386,9 @@ function _show_start_text() {
     fi
   fi
   if [[ $has_addons_text == false ]]; then
-    logI "Welcome to Project Init. This program will guide you through the steps";
-    logI "of initializing a new software project. Please answer the following";
-    logI "questions to get started.";
+    logI "This program will guide you through the steps of initializing";
+    logI "a new software project. Please answer the following questions";
+    logI "to get started.";
   fi
 }
 
