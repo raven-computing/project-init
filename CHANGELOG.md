@@ -1,3 +1,10 @@
+#### 1.1.2
+* Improved source code and project documentation.
+* Improved Java POM project source template formatting.
+* Improved start text description.
+* Improved selection list item formatting by adding appropriate whitespace padding between list numbers and item names.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.1.1...v1.1.2)
+
 #### 1.1.1
 * Fixed usage of sub() awk function in replace_var() causing unreplaced substitution variables when using the same key multiple times on the same line of a source template. Changed to use gsub() awk function instead to always match all keys globally.
 * Improved project source templates.
