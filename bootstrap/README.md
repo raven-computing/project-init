@@ -78,7 +78,7 @@ bash <(curl -sL https://github.com/raven-computing/project-init/raw/v1-latest/bo
 
 ### Uninstallation
 
-If you have installed Project Init as shown in the previous section and want to uninstall it again, you can use the *install.sh* script with the ```--uninstall``` option. Use the followong command to uninstall:
+If you have installed Project Init as shown in the previous section and want to uninstall it again, you can use the *install.sh* script with the ```--uninstall``` option. Use the following command to uninstall:
 
 with ```wget```:
 ```bash
