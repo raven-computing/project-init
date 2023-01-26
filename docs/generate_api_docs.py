@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2023 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,7 +31,8 @@ SOURCE_FILES = ["libinit.sh",
                 "java/init.sh",
                 "js/init.sh",
                 "python/init.sh",
-                "r/init.sh"]
+                "r/init.sh",
+                "tests/utils.sh"]
 
 # The name of the file to be created.
 OUTPUT_FILE = "api_docs"
