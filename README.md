@@ -68,7 +68,7 @@ The program uses fairly common arguments when calling external utilities. They s
 ## Documentation
 
 The Project Init system can be extended by an add-ons mechanism.  
-Please consult the [Developer Documentation](https://github.com/raven-computing/project-init/wiki) and [API Reference](https://github.com/raven-computing/project-init/wiki/API-Reference) for more information.
+Please consult the [Developer Documentation](https://github.com/raven-computing/project-init/wiki) and [API Reference](https://github.com/raven-computing/project-init/wiki/API-Reference-v1) for more information.
 
 All documentation is located in the GitHub Wiki.
 

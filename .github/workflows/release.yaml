@@ -30,7 +30,7 @@ jobs:
           name: api_docs.md
 
       - name: 'Setup API Docs'
-        run: mv api_docs.md API-Reference.md
+        run: mv api_docs.md API-Reference-v1.md
 
       - name: 'Commit and Push Wiki Changes'
         env:
