@@ -1,3 +1,8 @@
+#### 1.1.3
+* Changed _make_func_hl() function to refer to API documentation applicable to correct major version identifier.
+* Refactored internal link to project source repository used when creating helptext links.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.1.2...v1.1.3)
+
 #### 1.1.2
 * Improved source code and project documentation.
 * Improved Java POM project source template formatting.
