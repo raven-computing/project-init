@@ -306,9 +306,12 @@ LIST_FILES_TXT=();
 # Project Init resources, including addons, are cached.
 readonly RES_CACHE_LOCATION="/tmp";
 
+# The base URL pointing to the Project Init source repository.
+readonly PROJECT_BASE_URL="https://github.com/raven-computing/project-init";
+
 # The base URL to be used when creating hyperlinks
 # to the Project Init documentation, e.g. for help texts.
-readonly DOCS_BASE_URL="https://github.com/raven-computing/project-init/wiki";
+readonly DOCS_BASE_URL="${PROJECT_BASE_URL}/wiki";
 
 # Contains the absolute path to the directory of the current theoretic
 # init level within the addons resource. This is essentially the addons
@@ -593,7 +596,9 @@ function _make_func_hl() {
     HYPERLINK_VALUE="";
     return 1;
   fi
-  make_hyperlink "${DOCS_BASE_URL}/API-Reference#${_func_name}" "${_func_name}()";
+  local version_spec=( ${PROJECT_INIT_VERSION//./ } );
+  local _m="${version_spec[0]}"; # Major version
+  make_hyperlink "${DOCS_BASE_URL}/API-Reference-v${_m}#${_func_name}" "${_func_name}()";
   return $?;
 }
 
