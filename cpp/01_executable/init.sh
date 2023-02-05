@@ -29,6 +29,8 @@ form_cpp_binary_name;
 
 form_cpp_namespace;
 
+form_cpp_add_docker_integration;
+
 # Project setup
 
 project_init_copy;
