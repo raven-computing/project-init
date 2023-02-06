@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2023 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,10 +37,14 @@ function test_functionality_result() {
   files+=("src/main/c/main.c");
   files+=("src/main/tests/CMakeLists.txt");
   files+=("src/main/tests/c/test_application.c");
+  files+=(".docker/controls.sh");
+  files+=(".docker/Dockerfile-build");
+  files+=(".docker/entrypoint.sh");
 
   local dirs=();
   dirs+=("src/main/resources");
   dirs+=("src/main/tests/resources");
+  dirs+=(".docker");
 
   assert_files_exist "${files[@]}"  &&
   assert_dirs_exist "${dirs[@]}";
