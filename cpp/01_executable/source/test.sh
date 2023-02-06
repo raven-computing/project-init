@@ -10,7 +10,8 @@ ${USAGE}
 
 Options:
 ${{VAR_SCRIPT_TEST_ISOLATED_OPT}}
-  [-?|--help] Show this help message.
+
+  [-?|--help]  Show this help message.
 EOS
 )
 
@@ -69,6 +70,7 @@ fi
 # Check if the build dir is empty
 if [ -z "$(ls -A build)" ]; then
   # Build the tests first
+  echo "Building project before test run execution";
   bash build.sh;
   if (( $? != 0 )); then
     exit $?;

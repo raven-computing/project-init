@@ -14,9 +14,9 @@ Options:
 
   [--debug]      Build the application with debug symbols and with
                  optimizations turned off.
+${{VAR_SCRIPT_BUILD_ISOLATED_OPT}}
 
   [--skip-tests] Do not build any tests.
-${{VAR_SCRIPT_BUILD_ISOLATED_OPT}}
 
   [-?|--help]    Show this help message.
 EOS
@@ -25,8 +25,8 @@ EOS
 # Arg flags
 ARG_CLEAN=false;
 ARG_DEBUG=false;
-ARG_SKIP_TESTS=false;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGFLAG}}
+ARG_SKIP_TESTS=false;
 ARG_SHOW_HELP=false;
 
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY}}
@@ -87,7 +87,7 @@ ${{VAR_SCRIPT_BUILD_ISOLATED_MAIN}}
 # Ensure the required executable is available
 if ! command -v "cmake" &> /dev/null; then
   echo "ERROR: Could not find the 'cmake' executable.";
-  echo "ERROR: Please make sure that CMake is correctly installed";
+  echo "Please make sure that CMake is correctly installed";
 ${{VAR_SCRIPT_BUILD_ISOLATED_HINT1}}
   exit 1;
 fi
@@ -106,7 +106,7 @@ if [[ $ARG_SKIP_TESTS == true ]]; then
   BUILD_TESTS="OFF";
 fi
 
-# Configure
+# CMake: Configure
 cmake -DCMAKE_BUILD_TYPE="$BUILD_CONFIGURATION" \
       -D${{VAR_PROJECT_NAME_UPPER}}_BUILD_TESTS="$BUILD_TESTS" ..;
 
@@ -114,6 +114,6 @@ if (( $? != 0 )); then
   exit $?;
 fi
 
-# Build
+# CMake: Build
 cmake --build . --config "$BUILD_CONFIGURATION";
 exit $?;
