@@ -12,11 +12,11 @@
 ###############################################################################
 
 if [[ "$1" == "build" ]]; then
-    shift;
-    exec ./build.sh "$@";
+  shift;
+  exec ./build.sh "$@";
 elif [[ "$1" == "tests" ]]; then
-    shift;
-    exec ./test.sh "$@";
+  shift;
+  exec ./test.sh "$@";
 else
-    exec "$@";
+  exec "$@";
 fi
