@@ -9,6 +9,7 @@ Tests the ${{VAR_PROJECT_NAME}} library.
 ${USAGE}
 
 Options:
+${{VAR_SCRIPT_TEST_ISOLATED_OPT}}
 
   [--native]      Only run tests for native shared libraries (using CTest).
 
@@ -22,24 +23,31 @@ EOS
 )
 
 # Arg flags
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGFLAG}}
 ARG_NATIVE=false;
 ARG_SKIP_JNI=false;
 ARG_SKIP_NATIVE=false;
 ARG_SHOW_HELP=false;
 
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY}}
+
 # Parse all arguments given to this script
 for arg in "$@"; do
   case $arg in
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGPARSE}}
     --native)
     ARG_NATIVE=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;
     --skip-jni)
     ARG_SKIP_JNI=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;
     --skip-native)
     ARG_SKIP_NATIVE=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;
     -\?|--help)
@@ -63,19 +71,32 @@ if [[ $ARG_SHOW_HELP == true ]]; then
   exit 0;
 fi
 
+# Need to prematurely create the build dir if it does not exist
+# so it can be used as a volume by Docker when using
+# an isolated test execution
+if ! [ -d "build" ]; then
+  mkdir "build";
+fi
+
+${{VAR_SCRIPT_TEST_ISOLATED_MAIN}}
+
 # Ensure the required executables are available
 if [[ $ARG_NATIVE == true || $ARG_SKIP_NATIVE == false ]]; then
   if ! command -v "ctest" &> /dev/null; then
     echo "ERROR: Could not find the 'ctest' executable.";
-    echo "ERROR: Please make sure that CMake and CTest are correctly installed";
+    echo "Please make sure that CMake and CTest are correctly installed";
     exit 1;
   fi
 fi
 
-if ! [ -d "build" ]; then
+# Check if the build dir is empty
+if [ -z "$(ls -A build)" ]; then
   # Build the tests first
+  echo "Building project before test run execution";
   bash build.sh;
-  exit $?;
+  if (( $? != 0 )); then
+    exit $?;
+  fi
 fi
 
 if [[ $ARG_NATIVE == true ]]; then

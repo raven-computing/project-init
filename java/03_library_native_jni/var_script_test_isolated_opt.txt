@@ -1,0 +1,3 @@
+
+  [--isolated]    Execute the entire test process in an isolated Docker container.
+
