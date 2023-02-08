@@ -1,0 +1,25 @@
+###############################################################################
+#                                                                             #
+#     Docker image to build and test the ${{VAR_PROJECT_NAME}} project
+#                                                                             #
+###############################################################################
+FROM python:3.11-bullseye
+
+# Arguments
+ARG DWORKDIR="/app"
+
+# Working directory
+WORKDIR $DWORKDIR
+
+# The build dependencies must be part of the image
+COPY requirements.txt $DWORKDIR
+
+# Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Volumes: include the entire source tree
+VOLUME ["$DWORKDIR"]
+
+ENTRYPOINT [".docker/entrypoint.sh"]
+
+CMD ["build"]
