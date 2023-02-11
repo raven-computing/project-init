@@ -2704,6 +2704,24 @@ function replace_var() {
     _var_key="${_var_key:4}";
   fi
 
+  # If this function was called with only the key arg, then we
+  # load the var value from the corresponding var file
+  if [ -z "${_var_value}" ]; then
+    if (( ${_arg_count} == 1 )); then
+      # If the file does not exist, then the empty string
+      # is assigned to the variable value
+      _var_value="$(load_var ${_var_key})";
+    fi
+  fi
+
+  # When the variable value contains literal ampersand chars ('&'), then those
+  # must be escaped so that they are not interpreted by awk to mean the
+  # matched text (i.e. the variable key) when using gsub() below. Since the
+  # literal ampersand should end up like that in the final output, it must pass
+  # both lexical as well as runtime level processing of awk and therefore we
+  # must replace each literal '&' with '\\&' (two literal backslashes).
+  _var_value="${_var_value//&/\\\\&}";
+
   for f in ${_all_files}; do
     # Check if a specific file extension was specified
     if [ -n "${_var_file_ext}" ]; then
@@ -2727,15 +2745,6 @@ function replace_var() {
       continue;
     fi
 
-    # If this function was called with only the key arg, then we
-    # load the var value from the corresponding var file
-    if [ -z "${_var_value}" ]; then
-      if (( ${_arg_count} == 1 )); then
-        # If the file does not exist, then the empty string
-        # is assigned to the variable value
-        _var_value="$(load_var ${_var_key})";
-      fi
-    fi
     # For an enhanced formatting we remove every line entirely if
     # it contains only a variable declaration and the given variable
     # value is empty. Otherwise the handled file would contain

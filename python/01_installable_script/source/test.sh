@@ -10,8 +10,7 @@ ${USAGE}
 
 Options:
 ${{VAR_SCRIPT_TEST_ISOLATED_OPT}}
-
-  [--lint]          Perform static code analysis with a linter.
+${{VAR_SCRIPT_TEST_LINT_HELP}}
 
   [--no-virtualenv] Do not use a virtual environment for the tests.
 
@@ -21,7 +20,7 @@ EOS
 
 # Arg flags
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGFLAG}}
-ARG_LINT=false;
+${{VAR_SCRIPT_TEST_LINT_ARG}}
 ARG_NO_VIRTUALENV=false;
 ARG_SHOW_HELP=false;
 
@@ -31,11 +30,7 @@ ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY}}
 for arg in "$@"; do
   case $arg in
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGPARSE}}
-    --lint)
-    ARG_LINT=true;
-${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
-    shift
-    ;;
+${{VAR_SCRIPT_TEST_LINT_ARG_PARSE}}
     --no-virtualenv)
     ARG_NO_VIRTUALENV=true;
     shift
@@ -75,17 +70,7 @@ if [[ $ARG_NO_VIRTUALENV == false ]]; then
   fi
 fi
 
-# Check linter flag
-if [[ $ARG_LINT == true ]]; then
-  if ! command -v "pylint" &> /dev/null; then
-    logE "Could not find requirement 'pylint'";
-    exit 1;
-  fi
-  logI "Performing static code analysis";
-  # Add project root to sys.path. Needed for namespace packages
-  pylint --init-hook="sys.path.append('.')" "$_PROJECT_SRC_PACKAGE_MAIN";
-  exit 0;
-fi
+${{VAR_SCRIPT_TEST_LINT_CODE}}
 
 logI "Running unit tests";
 ${_PYTHON_EXEC} -m unittest;

@@ -9,21 +9,33 @@ Tests the ${{VAR_PROJECT_NAME}} library.
 ${USAGE}
 
 Options:
+${{VAR_SCRIPT_TEST_ISOLATED_OPT}}
 
 ${{VAR_SCRIPT_TEST_LINT_HELP}}
 
-  [-?|--help] Show this help message.
+  [--no-virtualenv] Do not use a virtual environment for the tests.
+
+  [-?|--help]       Show this help message.
 EOS
 )
 
 # Arg flags
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGFLAG}}
 ${{VAR_SCRIPT_TEST_LINT_ARG}}
+ARG_NO_VIRTUALENV=false;
 ARG_SHOW_HELP=false;
+
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY}}
 
 # Parse all arguments given to this script
 for arg in "$@"; do
   case $arg in
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGPARSE}}
 ${{VAR_SCRIPT_TEST_LINT_ARG_PARSE}}
+    --no-virtualenv)
+    ARG_NO_VIRTUALENV=true;
+    shift
+    ;;
     -\?|--help)
     ARG_SHOW_HELP=true;
     shift
@@ -49,6 +61,16 @@ fi
 if ! source "setup.sh"; then
   exit 1;
 fi
+
+${{VAR_SCRIPT_TEST_ISOLATED_MAIN}}
+
+if [[ $ARG_NO_VIRTUALENV == false ]]; then
+  # Setup and activate virtual environment
+  if ! setup_virtual_env; then
+    exit 1;
+  fi
+fi
+
 ${{VAR_SCRIPT_TEST_LINT_CODE}}
 
 logI "Building tests";
