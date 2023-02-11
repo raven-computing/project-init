@@ -1,3 +1,8 @@
+#### 1.1.4
+* Fixed wrong handling of ampersand characters in value of substitution variables when replacing them with replace_var() function.
+* Improved performance by rearranged loading of substitution variable values from var file by calling load_var() function once outside of loop in replace_var() function.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.1.3...v1.1.4)
+
 #### 1.1.3
 * Changed _make_func_hl() function to refer to API documentation applicable to correct major version identifier.
 * Refactored internal link to project source repository used when creating helptext links.
