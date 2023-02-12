@@ -24,7 +24,7 @@ readonly CONTAINER_BUILD_VERSION="0.1";
 # the execution has completed
 #
 # Args:
-# $@ - The arguments to be passed to the containers entrypoint.
+# $@ - The arguments to be passed to the container's entrypoint.
 #
 # Returns:
 # Either the exit status of the Docker-related commands, if unsuccessful,
