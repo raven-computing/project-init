@@ -1,0 +1,5 @@
+if [[ $ARG_ISOLATED == true ]]; then
+  source ".docker/controls.sh";
+  run_isolated_app "${ARGS_ISOLATED[@]}";
+  exit $?;
+fi

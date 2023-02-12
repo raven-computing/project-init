@@ -1,0 +1,2 @@
+
+  [--isolated] Execute the application process in an isolated Docker container.

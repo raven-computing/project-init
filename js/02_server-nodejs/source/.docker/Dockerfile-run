@@ -1,0 +1,25 @@
+###############################################################################
+#                                                                             #
+#    Docker image to run the application of the ${{VAR_PROJECT_NAME}} project
+#                                                                             #
+###############################################################################
+FROM node:${{VAR_NODEJS_VERSION}}-bullseye
+
+# Arguments
+ARG DWORKDIR="/app"
+
+# Environment
+ENV TZ=UTC
+
+# Working directory
+WORKDIR $DWORKDIR
+
+# Volumes: include the entire source tree
+VOLUME ["$DWORKDIR"]
+
+# Expose webserver port
+EXPOSE 8080
+
+ENTRYPOINT [".docker/entrypoint.sh"]
+
+CMD ["app"]
