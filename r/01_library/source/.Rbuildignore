@@ -1,5 +1,6 @@
 ^build$
 ^build\.sh$
+^\.docker$
 ^\.Rproj\.user$
 ^.global\.sh$
 ^LICENSE\.md$
