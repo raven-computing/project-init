@@ -50,11 +50,12 @@ function _run_isolated() {
   fi
 
   echo "Executing isolated $run_type";
-  docker run --name ${CONTAINER_BUILD_NAME}                        \
-             --mount type=bind,source=${PWD},target=${PWD}         \
-             --rm                                                  \
-             -t ${CONTAINER_BUILD_NAME}:${CONTAINER_BUILD_VERSION} \
-             "$run_type"                                           \
+  docker run --name ${CONTAINER_BUILD_NAME}                     \
+             --mount type=bind,source=${PWD},target=${PWD}      \
+             --rm                                               \
+             --tty                                              \
+             ${CONTAINER_BUILD_NAME}:${CONTAINER_BUILD_VERSION} \
+             "$run_type"                                        \
              "$@";
 
   return $?;
