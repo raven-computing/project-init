@@ -906,7 +906,7 @@ function _handle_util_args() {
     echo "Options:";
     echo "";
     if [[ "$PROJECT_INIT_BOOTSTRAP" == "1" ]]; then
-      echo "  [--no-cache]   Clear the caches after the program exits.";
+      echo "  [--no-cache]   Clear the caches before and after the program runs.";
       echo "";
     fi
     echo "  [--no-pull]    Do not update existing caches and use them as is.";

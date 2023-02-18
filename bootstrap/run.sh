@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2023 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,14 +22,15 @@
 # This script is used to bootstrap the Project Init system and run it without
 # installing the content on the host system. By default, all resources are
 # cached into the system's temporary directory. This behaviour can be adjusted
-# by specifying the '--no-cache' option, which will clear the caches after
-# execution of the Project Init system has completed. Once the cache is filled,
-# it is reused in subsequent invocations of this program. By default, the
-# content of a reused cache is updated in every new invocation of the program.
-# This behaviour can be adjusted by specifying the '--no-pull' option, which
-# will disable cache updates and use the locally available cache as is.
-# All other arguments are passed as is to the
-# Project Init system's main program.
+# by specifying the '--no-cache' option, which will clear the caches before
+# and after execution of the Project Init system main program. Once the cache
+# is filled, it is reused in subsequent invocations of this program.
+# By default, the content of a reused cache is updated in every new invocation
+# of the program. This behaviour can be adjusted by specifying the '--no-pull'
+# option, which will disable cache updates and use the locally available
+# cache as is.
+# All other arguments are passed as is to the Project Init system's
+# main program.
 # This script will return the exit status of the Project Init system's main
 # program, i.e. 0 for success and non-zero otherwise.
 #
@@ -204,6 +205,9 @@ function main() {
     echo "ERROR: Failed to change active working directory" \
          "to $PROJECT_INIT_CACHE_LOCATION";
     exit 1;
+  fi
+  if [[ $arg_no_cache == true ]]; then
+    remove_cache_data;
   fi
 
   bootstrap_project_init;
