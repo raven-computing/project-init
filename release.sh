@@ -212,6 +212,10 @@ git push                               &&
 git push $GIT_ORIGIN $tag_this_version &&
 git push $GIT_ORIGIN $tag_v_latest;
 
+if (( $? != 0 )); then
+  failure "Failed to push release-commits";
+fi
+
 PROJECT_INIT_SUCCESS_MESSAGE="The Project Init system v$version_release has been released";
 _log_success;
 exit $EXIT_SUCCESS;
