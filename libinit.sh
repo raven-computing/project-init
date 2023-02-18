@@ -1932,6 +1932,7 @@ function find_all_files() {
   # Build arg string for find command
   file_args=();
   isfirst=true;
+  local f="";
   for f in "${LIST_FILES_TXT[@]}"; do
     if [[ $isfirst == true ]]; then
       isfirst=false;
@@ -1943,10 +1944,11 @@ function find_all_files() {
   done
 
   # List all files matching an ext or file name
-  CACHE_ALL_FILES=$(find $var_project_dir/ -type f \( "${file_args[@]}" \));
+  CACHE_ALL_FILES=$(find "$var_project_dir/" -type f \( "${file_args[@]}" \));
   if (( $? != 0 )); then
+    local cmd_status=$?;
     logE "Failed to update internal file cache:";
-    logE "Command 'find' returned non-zero exit status.";
+    logE "Command 'find' returned non-zero exit status $cmd_status";
     failure "Failed to update internal file cache." \
             "Your system might be using an incompatible version of 'find'";
   fi
