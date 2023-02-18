@@ -1959,6 +1959,7 @@ function find_all_files() {
 #
 # This function copies all files in the Project Init source directory to the
 # Project Init target directory indicated by the $var_project_dir variable.
+# The project template source directory must exist and not be empty.
 #
 # The file cache for the project target files, which is represented by
 # the $CACHE_ALL_FILES global variable, is populated with the paths to
@@ -2000,7 +2001,7 @@ function project_init_copy() {
   fi
 
   # Set source directory if arg is not given
-  if [[ "$files_source" == "" ]]; then
+  if [ -z "$files_source" ]; then
     files_source="$CURRENT_LVL_PATH/source";
   fi
   # Check if source is directory
@@ -2009,6 +2010,13 @@ function project_init_copy() {
          "or is not a directory:";
     logE "at: '$files_source'";
     failure "Project source template directory not found";
+  fi
+  # Check that the source directory is not empty
+  if [ -z "$(ls $files_source)" ]; then
+    logE "Project source template directory is empty:";
+    logE "at: '$files_source'";
+    failure "Cannot initialize new project." \
+            "Project source template directory must not be empty";
   fi
 
   # Check if target dir already exists, and create if necessary,
