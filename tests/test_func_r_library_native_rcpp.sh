@@ -15,22 +15,33 @@
 
 # #***************************************************************************#
 # *                                                                           *
-# *               ***   Init Script for R Library Projects   ***              *
-# *                               INIT LEVEL 2                                *
+# *          ***   Functionality Test for R Library Projects   ***            *
+# *                          Using Native Code (Rcpp)                         *
 # *                                                                           *
 # #***************************************************************************#
 
 
-# Form questions
+function test_functionality() {
+  test_functionality_with "test_r_library_native_rcpp.properties";
+  return $?;
+}
 
-form_r_version;
+function test_functionality_result() {
+  local files=();
+  files+=("README.md");
+  files+=("LICENSE");
+  files+=(".gitignore");
+  files+=(".Rbuildignore");
+  files+=("DESCRIPTION");
+  files+=("NAMESPACE");
+  files+=("R/example.R");
+  files+=("R/package.R");
+  files+=("src/example.cpp");
+  files+=("man/addFortyTwo.Rd");
+  files+=("man/addVecFortyTwoNative.Rd");
+  files+=("tests/testthat.R");
+  files+=("tests/testthat/test-example.R");
 
-form_r_package_name;
-
-# Project setup
-
-project_init_copy;
-
-project_init_license "R";
-
-project_init_process;
+  assert_files_exist "${files[@]}";
+  return $?;
+}

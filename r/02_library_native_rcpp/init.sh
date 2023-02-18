@@ -15,7 +15,8 @@
 
 # #***************************************************************************#
 # *                                                                           *
-# *               ***   Init Script for R Library Projects   ***              *
+# *            ***   Init Script for R Library Projects Using   ***           *
+# *                           Native Code with Rcpp                           *
 # *                               INIT LEVEL 2                                *
 # *                                                                           *
 # #***************************************************************************#
@@ -31,6 +32,6 @@ form_r_package_name;
 
 project_init_copy;
 
-project_init_license "R";
+project_init_license "R" "cpp";
 
 project_init_process;

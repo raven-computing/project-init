@@ -20,5 +20,6 @@ CMakeLists.txt
 DESCRIPTION
 LICENSE
 Makefile
+NAMESPACE
 package.json
 requirements.txt
