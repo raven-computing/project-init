@@ -1,3 +1,10 @@
+#### 1.1.5
+* Improved implementation of project_init_copy() function and add a check for empty project source template directories.
+* Improved implementation of find_all_files() function.
+* Improved bootstrap run script to also clear local cache directory before initmain is launched.
+* Updated supported Node.js versions in project source template.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.1.4...v1.1.5)
+
 #### 1.1.4
 * Fixed wrong handling of ampersand characters in value of substitution variables when replacing them with replace_var() function.
 * Improved performance by rearranged loading of substitution variable values from var file by calling load_var() function once outside of loop in replace_var() function.
