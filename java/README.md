@@ -11,7 +11,7 @@ Project init code for Java projects.
   A code library providing reusable classes and functions.
 
 * **(03) Library with native code (JNI)**  
-  A code library which includes C++ code and interacts with it using JNI.
+  A code library which includes C or C++ code and interacts with it using JNI.
 
 * **(04) Server application (Spring Boot)**  
   A server application utilizing the Spring Boot framework.

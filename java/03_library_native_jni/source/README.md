@@ -22,7 +22,7 @@ Add the link to the project documentation here.
 
 ## Build
 
-To build this project from source you require **C++17** or higher.
+To build this project from source you require **${{VAR_NATIVE_LANG_VERSION_LABEL}}** or higher.
 For the native library, we use **CMake** as our build system generator. This project requires **CMake 3.14** or higher.
 
 Use the ```build.sh``` script to build the library:

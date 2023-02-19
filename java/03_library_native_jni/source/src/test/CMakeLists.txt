@@ -3,6 +3,6 @@
 add_test_suite(
     TEST_SUITE_NAME        StringComparatorTest
     TEST_SUITE_TARGET      test_string_comparator
-    TEST_SUITE_SOURCE      cpp/${{VAR_NAMESPACE_PATH}}/StringComparatorTest.cpp
+    TEST_SUITE_SOURCE      ${{VAR_CMAKE_LANG_IDENTIFIER}}/${{VAR_NAMESPACE_PATH}}/${{VAR_CMAKE_TEST_SOURCE_FILE}}
     TEST_SUITE_LINK        ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_LIB_JNI_MAIN}
 )
