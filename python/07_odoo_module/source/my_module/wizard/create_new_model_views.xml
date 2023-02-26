@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+${{VAR_COPYRIGHT_HEADER}}
+<odoo>
+  <record id="action_create_new_model" model="ir.actions.act_window">
+    <field name="name">Create In Wizard</field>
+    <field name="res_model">create.new.model.wizard</field>
+    <field name="view_mode">form</field>
+    <field name="target">new</field>
+    <field name="binding_model_id" ref="my_module.model_rc_new_model"/>
+    <field name="binding_view_types">list</field>
+  </record>
+  <record id="create_new_model_wizard_form" model="ir.ui.view">
+    <field name="name">create.new.model.wizard.form</field>
+    <field name="model">create.new.model.wizard</field>
+    <field name="arch" type="xml">
+      <form string="Create New Model Wizard">
+        <sheet>
+          <separator string="Create New Records"/>
+          <group col="1">
+            <p class="oe_grey">This is some text.</p>
+          </group>
+          <group col="1">
+            <field name="field_a"/>
+            <field name="field_b"/>
+            <field name="field_c"/>
+          </group>
+        </sheet>
+        <footer>
+          <button name="action_create_new"
+                  string="Create"
+                  class="oe_highlight"
+                  type="object"/>
+          <button special="cancel"
+                  string="Cancel"
+                  type="object"
+                  class="btn btn-secondary oe_inline"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+</odoo>
+

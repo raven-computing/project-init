@@ -18,7 +18,10 @@
 *.xml
 CMakeLists.txt
 DESCRIPTION
+docker-compose-test.yaml
+ir.model.access.csv
 LICENSE
 Makefile
+MANIFEST.in
 package.json
 requirements.txt

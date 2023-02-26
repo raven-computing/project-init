@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+${{VAR_COPYRIGHT_HEADER}}
+<odoo>
+  <data>
+    <record id="view_new_model_tree" model="ir.ui.view">
+      <field name="name">rc.new.model.tree</field>
+      <field name="model">rc.new.model</field>
+      <field name="arch" type="xml">
+        <tree string="New Model List">
+          <field name="field_a" string="Characters"/>
+          <field name="field_b" string="Integers"/>
+          <field name="field_c" string="Floats"/>
+        </tree>
+      </field>
+    </record>
+    <record id="view_new_model_form" model="ir.ui.view">
+      <field name="name">rc.new.model.form</field>
+      <field name="model">rc.new.model</field>
+      <field name="arch" type="xml">
+        <form string="New Model Form">
+          <sheet>
+            <p>This is an example form.</p>
+            <group col="4">
+              <field name="field_a"/>
+              <field name="field_b"/>
+              <field name="field_c"/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+  </data>
+</odoo>
+

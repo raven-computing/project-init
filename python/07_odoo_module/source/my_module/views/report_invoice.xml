@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+${{VAR_COPYRIGHT_HEADER}}
+<odoo>
+  <template id="report_invoice_document" inherit_id="account.report_invoice_document">
+    <xpath expr="//p[@name='payment_communication']" position="before">
+      <div class="my_invoice_pseudo_class">
+        <span>${{VAR_PROJECT_SLOGAN_STRING}}</span>
+      </div>
+    </xpath>
+  </template>
+</odoo>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+${{VAR_COPYRIGHT_HEADER}}
+<odoo>
+  <record id="group_my_new_group" model="res.groups">
+   <field name="name">My New Group</field>
+   <field name="comment">This is a new group.</field>
+ </record>
+</odoo>
+

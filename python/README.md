@@ -22,3 +22,6 @@ Project init code for Python projects.
 * **(06) Server application (CherryPy)**  
   A server application utilizing the CherryPy web framework.
 
+* **(07) Odoo Module**  
+  A module for the Odoo ERP system and web application framework.
+

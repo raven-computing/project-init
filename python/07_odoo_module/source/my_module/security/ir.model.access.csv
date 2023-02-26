@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+${{VAR_ODOO_MODULE_NAME}}.access_rc_new_model_group_admin,Access New Model Admin,model_rc_new_model,base.group_system,1,1,1,1
+${{VAR_ODOO_MODULE_NAME}}.access_rc_new_model_group_user,Access New Model User,model_rc_new_model,base.group_user,1,1,1,0
+${{VAR_ODOO_MODULE_NAME}}.access_create_new_model_wizard,Access Create New Model Wizard,model_create_new_model_wizard,base.group_user,1,1,1,0
+
