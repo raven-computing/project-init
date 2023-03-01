@@ -1,0 +1,3 @@
+        "views/new_model_menus.xml",
+        "views/new_model_views.xml",
+        "views/report_invoice.xml",

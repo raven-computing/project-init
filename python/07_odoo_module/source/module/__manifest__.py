@@ -10,15 +10,12 @@ ${{VAR_COPYRIGHT_HEADER}}
     "license": "GPL-2",
     "depends": [
         "base",
+        "account",
     ],
     "data": [
-        "security/ir.model.access.csv",
-        "security/my_module_groups.xml",
-        "security/new_model_security.xml",
-        "views/new_model_menus.xml",
-        "views/new_model_views.xml",
-        "views/report_invoice.xml",
-        "wizard/create_new_model_views.xml",
+${{VAR_MANIFEST_SECURITY_DECL}}
+${{VAR_MANIFEST_VIEWS_DECL}}
+${{VAR_MANIFEST_WIZARD_DECL}}
     ],
     "assets": {
        "web.assets_backend": [

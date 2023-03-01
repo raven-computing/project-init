@@ -1,17 +1,20 @@
 #!/bin/bash
-# Test script for the ${{VAR_PROJECT_NAME}} library.
+# Test script for the ${{VAR_PROJECT_NAME}} Odoo module project.
 
 USAGE="Usage: test.sh [options]";
 
 HELP_TEXT=$(cat << EOS
-Tests the ${{VAR_PROJECT_NAME}} library.
+Tests the ${{VAR_PROJECT_NAME}} Odoo modules.
 
 ${USAGE}
 
 Options:
+
   [--interactive]   [ARGS]
                     Starts an Odoo instance for interactive testing.
                     All optional arguments from [ARGS] are passed to the Odoo executable as is.
+                    If specified, this must be the last given option as all subsequent
+                    arguments will be interpreted as being part of the [ARGS] option argument.
 
   [--isolated]      Run isolated tests inside a Docker container.
 
@@ -33,6 +36,10 @@ ARGS_ISOLATED=();
 
 # Parse all arguments given to this script
 for arg in "$@"; do
+  if [[ $ARG_INTERACTIVE == true ]]; then
+    ARGS_ISOLATED+=($arg);
+    continue;
+  fi
   case $arg in
     --interactive)
     ARG_INTERACTIVE=true;
@@ -61,10 +68,6 @@ for arg in "$@"; do
     echo "";
     echo "Run 'test.sh --help' for more information";
     exit 1;
-
-    # TODO: Allow specification of arbitrary args when using --interactive opt
-    # and pass those to the odoo exec
-    # ARGS_ISOLATED+=($arg);
     ;;
   esac
 done

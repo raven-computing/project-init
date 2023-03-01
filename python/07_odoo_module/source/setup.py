@@ -23,7 +23,10 @@ setup(
     author="${{VAR_PROJECT_ORGANISATION_NAME}}",
     author_email="${{VAR_PROJECT_ORGANISATION_EMAIL}}",
     license="${{VAR_PROJECT_LICENSE}}",
-    packages=find_namespace_packages(include=PACKAGES, exclude=["*.tests"]),
+    packages=find_namespace_packages(
+        include=PACKAGES,
+        exclude=["*.tests"]
+    ),
     include_package_data=True,
     package_data={
         "": ["security/ir.model.access.csv"],

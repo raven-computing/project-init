@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+${{VAR_COPYRIGHT_HEADER}}
+<odoo>
+  <record id="action_new_model_list" model="ir.actions.act_window">
+    <field name="name">New Model Records</field>
+    <field name="type">ir.actions.act_window</field>
+    <field name="res_model">rc.new.model</field>
+    <field name="view_mode">tree,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">
+        Create Some Records for the New Model
+      </p>
+    </field>
+  </record>
+
+  <menuitem id="menu_new_model"
+            name="New Model"
+            parent="base.menu_administration"
+            action="action_new_model_list"
+            sequence="120"
+            groups="base.group_user"/>
+</odoo>
+

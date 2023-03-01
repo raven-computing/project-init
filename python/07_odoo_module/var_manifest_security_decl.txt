@@ -1,0 +1,3 @@
+        "security/ir.model.access.csv",
+        "security/${{VAR_ODOO_MODULE_NAME}}_groups.xml",
+        "security/new_model_security.xml",
