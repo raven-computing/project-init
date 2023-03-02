@@ -18,10 +18,7 @@ ${{VAR_MANIFEST_VIEWS_DECL}}
 ${{VAR_MANIFEST_WIZARD_DECL}}
     ],
     "assets": {
-       "web.assets_backend": [
-            "${{VAR_ODOO_MODULE_NAME}}/static/src/js/**/*",
-            "${{VAR_ODOO_MODULE_NAME}}/static/src/xml/**/*",
-        ],
+       "web.assets_backend": [],
         "web.assets_frontend": [],
     },
     "auto_install": False,

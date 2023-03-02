@@ -10,7 +10,7 @@ This section should be used to instruct the user on how to accomplish the most b
 
 ## Compatibility
 
-This library requires Python ${{VAR_PYTHON_VERSION}} or higher.
+This project requires Python ${{VAR_PYTHON_VERSION}} or higher.
 Supported Odoo version?
 
 

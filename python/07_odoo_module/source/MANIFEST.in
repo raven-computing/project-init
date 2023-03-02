@@ -1,1 +1,0 @@
-global-include ${{VAR_ODOO_MODULE_NAME}}/**/*.xml
