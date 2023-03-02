@@ -36,6 +36,29 @@ function test_functionality_result() {
   files+=("test.sh");
   files+=("setup.py");
   files+=("requirements.txt");
+  files+=(".docker/Dockerfile-build");
+  files+=(".docker/etc/odoo.conf");
+  files+=("the_test_module/__init__.py");
+  files+=("the_test_module/__manifest__.py");
+  files+=("the_test_module/controllers/__init__.py");
+  files+=("the_test_module/controllers/the_test_module.py");
+  files+=("the_test_module/models/__init__.py");
+  files+=("the_test_module/models/new_model.py");
+  files+=("the_test_module/security/ir.model.access.csv");
+  files+=("the_test_module/security/the_test_module_groups.xml");
+  files+=("the_test_module/security/new_model_security.xml");
+  files+=("the_test_module/tests/__init__.py");
+  files+=("the_test_module/tests/test_trivial.py");
+  files+=("the_test_module/views/new_model_menus.xml");
+  files+=("the_test_module/views/new_model_views.xml");
+  files+=("the_test_module/views/report_invoice.xml");
+  files+=("the_test_module/wizard/__init__.py");
+  files+=("the_test_module/wizard/create_new_model_views.xml");
+  files+=("the_test_module/wizard/create_new_model.py");
+
+  local not_files=();
+  not_files+=("the_test_module/controllers/module.py");
+  not_files+=("the_test_module/security/module_groups.py");
 
   local dirs=();
   dirs+=("the_test_module");
@@ -43,8 +66,9 @@ function test_functionality_result() {
   local not_dirs=();
   not_dirs+=("module");
 
-  assert_files_exist "${files[@]}"        &&
-  assert_dirs_exist "${dirs[@]}"          &&
+  assert_files_exist "${files[@]}"         &&
+  assert_files_not_exist "${not_files[@]}" &&
+  assert_dirs_exist "${dirs[@]}"           &&
   assert_dirs_not_exist "${not_dirs[@]}";
   return $?;
 }
