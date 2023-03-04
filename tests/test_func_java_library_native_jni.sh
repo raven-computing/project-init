@@ -49,6 +49,12 @@ function test_functionality_result() {
   files+=(".docker/Dockerfile-build");
   files+=(".docker/entrypoint.sh");
 
+  local not_files=();
+  not_files+=("cmake/ConfigUnity.cmake");
+  not_files+=("cmake/c_DependencyUtil.cmake");
+  not_files+=("cmake/c_TestUtil.cmake");
+  not_files+=("src/main/include/raven/mynsa/mynsb/string_comparator.h");
+
   local dirs=();
   dirs+=("src/main/java/raven");
   dirs+=("src/main/java/raven/mynsa");
@@ -70,8 +76,11 @@ function test_functionality_result() {
   not_dirs+=("src/main/include/namespace");
   not_dirs+=("src/test/java/namespace");
   not_dirs+=("src/test/cpp/namespace");
+  not_dirs+=("src/main/c");
+  not_dirs+=("src/test/c");
 
   assert_files_exist "${files[@]}"         &&
+  assert_files_not_exist "${not_files[@]}" &&
   assert_dirs_exist "${dirs[@]}"           &&
   assert_dirs_not_exist "${not_dirs[@]}";
   return $?;

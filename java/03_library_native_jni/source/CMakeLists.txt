@@ -8,11 +8,10 @@ project(
     VERSION 0.0.1
     DESCRIPTION "Native JNI library for the ${{VAR_PROJECT_NAME}} Java library"
     HOMEPAGE_URL "${{VAR_PROJECT_ORGANISATION_URL}}"
+${{VAR_CMAKE_PROJECT_LANG_SPEC}}
 )
 
-# Specify the C++ standard
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+${{VAR_CMAKE_LANG_SPEC}}
 
 # Options
 option(${{VAR_PROJECT_NAME_UPPER}}_BUILD_TESTS "Enable/disable tests" ON)
