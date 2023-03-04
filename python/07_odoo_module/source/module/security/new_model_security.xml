@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+${{VAR_COPYRIGHT_HEADER}}
+<odoo>
+  <record id="new_model_new_rule" model="ir.rule">
+    <field name="name">new.model.new.rule</field>
+    <field name="model_id" ref="model_rc_new_model"/>
+    <field name="domain_force">[('create_uid','=', user.id)]</field>
+    <field name="perm_read" eval="False"/>
+  </record>
+</odoo>
+

@@ -1,0 +1,4 @@
+${{VAR_COPYRIGHT_HEADER}}
+
+from . import ${{VAR_ODOO_MODULE_NAME}}
+

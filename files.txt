@@ -20,8 +20,11 @@ CMakeLists.txt
 DESCRIPTION
 Dockerfile-build
 Dockerfile-run
+docker-compose-test.yaml
+ir.model.access.csv
 LICENSE
 Makefile
+MANIFEST.in
 NAMESPACE
 package.json
 requirements.txt
