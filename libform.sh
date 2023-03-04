@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2023 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -53,24 +53,30 @@ FORM_MAIN_NEXT_DIR="";
 # Shows and runs through the main Project Init form.
 function show_project_init_main_form() {
   logI "";
-  FORM_QUESTION_ID="project.name";
-  logI "Enter the name of the project:";
-  read_user_input_text;
-  local entered_project_name="$USER_INPUT_ENTERED_TEXT";
+  local specified_project_name="";
+  get_property "project.name" "ask";
+  if [[ "$PROPERTY_VALUE" == "ask" ]]; then
+    FORM_QUESTION_ID="project.name";
+    logI "Enter the name of the project:";
+    read_user_input_text;
+    specified_project_name="$USER_INPUT_ENTERED_TEXT";
+  else
+    specified_project_name="$PROPERTY_VALUE";
+  fi
 
-  if [ -z "$entered_project_name" ]; then
+  if [ -z "$specified_project_name" ]; then
     logE "Please provide a project name";
     failure "No project name was specified";
   fi
   # Check against regex pattern
   local re="^[0-9a-zA-Z_-]+$";
-  if ! [[ "$entered_project_name" =~ $re ]]; then
+  if ! [[ "$specified_project_name" =~ $re ]]; then
     logE "Invalid project name";
     failure "A project name with invalid characters was specified." \
             "Only lower/upper-case A-Z, digits, '-' and '_' characters are allowed";
   fi
   # Save as is, as lowercase and as uppercase
-  var_project_name="$entered_project_name";
+  var_project_name="$specified_project_name";
   var_project_name_lower=$(echo "$var_project_name" |tr '[:upper:]' '[:lower:]');
   var_project_name_upper=$(echo "$var_project_name" |tr '[:lower:]' '[:upper:]');
   if (( $? != 0 )); then
@@ -78,20 +84,26 @@ function show_project_init_main_form() {
             "Command 'tr' returned non-zero exit status";
   fi
 
-  FORM_QUESTION_ID="project.description";
-  logI "";
-  logI "Enter a short description of the project:";
-  read_user_input_text;
-  local entered_project_description="$USER_INPUT_ENTERED_TEXT";
+  local specified_project_description;
+  get_property "project.description" "ask";
+  if [[ "$PROPERTY_VALUE" == "ask" ]]; then
+    FORM_QUESTION_ID="project.description";
+    logI "";
+    logI "Enter a short description of the project:";
+    read_user_input_text;
+    specified_project_description="$USER_INPUT_ENTERED_TEXT";
+  else
+    specified_project_description="$PROPERTY_VALUE";
+  fi
 
   # Check whether to set default text
-  if [ -z "$entered_project_description" ]; then
+  if [ -z "$specified_project_description" ]; then
     logI "You have not entered a short project description.";
     logI "A default description will be generated for you";
     get_property "project.description.default" "Project Init Default Description";
     var_project_description="$PROPERTY_VALUE";
   else
-    var_project_description="$entered_project_description";
+    var_project_description="$specified_project_description";
   fi
 
   # Set generic variables used in every project
@@ -164,25 +176,51 @@ function show_project_init_main_form() {
   project_licenses_dirs+=("NONE");
   project_licenses_names+=("None");
 
-  FORM_QUESTION_ID="project.license";
-  logI "";
-  logI "Choose a license for the project:";
-  read_user_input_selection "${project_licenses_names[@]}";
-
-  # Check whether to set default text
-  if [ -z "$USER_INPUT_ENTERED_INDEX" ]; then
+  get_property "project.license" "ask";
+  if [[ "$PROPERTY_VALUE" == "ask" ]]; then
+    # Prompt to chosse a license
+    FORM_QUESTION_ID="project.license";
     logI "";
-    logI "You have not selected a license. The project will not be licensed";
-    var_project_license_dir="NONE";
-    var_project_license="None";
-  else
-    # Either set the selected license or 'None' 
-    var_project_license="${project_licenses_names[USER_INPUT_ENTERED_INDEX]}";
-    var_project_license_dir="${project_licenses_dirs[USER_INPUT_ENTERED_INDEX]}";
+    logI "Choose a license for the project:";
+    read_user_input_selection "${project_licenses_names[@]}";
 
-    if [[ "$var_project_license_dir" == "NONE" ]]; then
+    # Check whether to set default text
+    if [ -z "$USER_INPUT_ENTERED_INDEX" ]; then
       logI "";
-      logI "The project will have no license";
+      logI "You have not selected a license. The project will not be licensed";
+      var_project_license_dir="NONE";
+      var_project_license="None";
+    else
+      # Either set the selected license or 'None' 
+      var_project_license="${project_licenses_names[USER_INPUT_ENTERED_INDEX]}";
+      var_project_license_dir="${project_licenses_dirs[USER_INPUT_ENTERED_INDEX]}";
+
+      if [[ "$var_project_license_dir" == "NONE" ]]; then
+        logI "";
+        logI "The project will have no license";
+      fi
+    fi
+  else
+    # License name was specified directly as property
+    var_project_license="$PROPERTY_VALUE";
+    # Find the corresponding license dir
+    local i;
+    for (( i=0; i<${#project_licenses_names[@]}; ++i )); do
+      if [[ "$var_project_license" == "${project_licenses_names[$i]}" ]]; then
+        var_project_license_dir="${project_licenses_dirs[$i]}";
+        break;
+      fi
+    done
+    # Check if license name was valid by checking whether we found a dir for it
+    if [ -z "$var_project_license_dir" ]; then
+      logE "No valid license specified for the new project";
+      local hint_prop_key="${COLOR_CYAN}project.license=ask${COLOR_NC}";
+      local hint_prop_file="${COLOR_CYAN}project.properties${COLOR_NC}";
+      failure \
+        "You have specified that new projects should use the license '$var_project_license'," \
+        "however, this license is not available. Either specify a valid license name"         \
+        "or set ${hint_prop_key} in your ${hint_prop_file} file to be able to select "        \
+        "an available license from a list.";
     fi
   fi
 
