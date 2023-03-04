@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2023 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -45,6 +45,9 @@ function test_functionality_result() {
   files+=("src/main/include/raven/mynsa/mynsb/StringComparator.h");
   files+=("src/test/CMakeLists.txt");
   files+=("src/test/cpp/raven/mynsa/mynsb/StringComparatorTest.cpp");
+  files+=(".docker/controls.sh");
+  files+=(".docker/Dockerfile-build");
+  files+=(".docker/entrypoint.sh");
 
   local dirs=();
   dirs+=("src/main/java/raven");
@@ -59,6 +62,7 @@ function test_functionality_result() {
   dirs+=("src/test/cpp/raven");
   dirs+=("src/test/cpp/raven/mynsa");
   dirs+=("src/test/cpp/raven/mynsa/mynsb");
+  dirs+=(".docker");
 
   local not_dirs=();
   not_dirs+=("src/main/java/namespace");

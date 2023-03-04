@@ -1,4 +1,6 @@
+
     --lint)
     ARG_LINT=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;

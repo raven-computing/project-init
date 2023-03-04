@@ -10,23 +10,29 @@ ${USAGE}
 
 Options:
 
-  [--check]   Perform distribution checks.
+  [--check]    Perform distribution checks.
+${{VAR_SCRIPT_TEST_ISOLATED_OPT}}
 
-  [-?|--help] Show this help message.
+  [-?|--help]  Show this help message.
 EOS
 )
 
 # Arg flags
 ARG_CHECK=false;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGFLAG}}
 ARG_SHOW_HELP=false;
+
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY}}
 
 # Parse all arguments given to this script
 for arg in "$@"; do
   case $arg in
     --check)
     ARG_CHECK=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGPARSE}}
     -\?|--help)
     ARG_SHOW_HELP=true;
     shift
@@ -55,10 +61,12 @@ if ! source ".global.sh"; then
   exit 1;
 fi
 
+${{VAR_SCRIPT_TEST_ISOLATED_MAIN}}
+
 # Ensure the required executable is available
 if ! command -v "Rscript" &> /dev/null; then
   logE "ERROR: Could not find the 'Rscript' executable.";
-  logE "ERROR: Please make sure that R is correctly installed";
+  logE "Please make sure that R is correctly installed";
   exit 1;
 fi
 

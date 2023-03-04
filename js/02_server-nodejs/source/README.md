@@ -31,7 +31,7 @@ npm install
 
 You can then run the application with:
 ```
-node app.js
+./run.sh
 ```
 
 

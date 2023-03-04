@@ -1,0 +1,7 @@
+    --isolated)
+    ARG_ISOLATED=true;
+    # When running in an isolated container,
+    # we don't need additional virtual envs
+    ARGS_ISOLATED+=(--no-virtualenv);
+    shift
+    ;;

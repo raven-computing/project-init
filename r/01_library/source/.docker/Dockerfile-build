@@ -1,0 +1,43 @@
+###############################################################################
+#                                                                             #
+#     Docker image to build and test the ${{VAR_PROJECT_NAME}} project
+#                                                                             #
+###############################################################################
+FROM r-base:4.2.2
+
+# Arguments
+ARG DWORKDIR="/app"
+
+# Environment
+ENV TZ=UTC
+
+# Working directory
+WORKDIR $DWORKDIR
+
+# APT dependencies
+RUN apt-get -y update && apt-get -y install \
+ openssl \
+ libssl-dev \
+ libcurl4-openssl-dev \
+ libssh2-1-dev \
+ libxml2-dev \
+ zlib1g-dev \
+ libbz2-dev \
+ liblzma-dev \
+ libpng-dev \
+ libtiff5-dev \
+ libjpeg-dev \
+ libharfbuzz-dev \
+ libfribidi-dev \
+ libfontconfig1-dev \
+ libfreetype6-dev
+
+# R dependencies
+RUN R -e "install.packages(c('devtools', 'testthat', 'roxygen2'), dependencies=TRUE)"
+
+# Volumes: include the entire source tree
+VOLUME ["$DWORKDIR"]
+
+ENTRYPOINT [".docker/entrypoint.sh"]
+
+CMD ["build"]

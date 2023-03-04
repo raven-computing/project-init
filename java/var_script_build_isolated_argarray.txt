@@ -1,0 +1,3 @@
+# Array of arguments passed through to an isolated run.
+# Should be set in arg-parse loop below.
+ARGS_ISOLATED=();

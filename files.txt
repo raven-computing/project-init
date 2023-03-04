@@ -18,6 +18,8 @@
 *.xml
 CMakeLists.txt
 DESCRIPTION
+Dockerfile-build
+Dockerfile-run
 LICENSE
 Makefile
 package.json

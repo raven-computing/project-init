@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2023 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,10 +41,14 @@ function test_functionality_result() {
   files+=("raven/mylib/__init__.py");
   files+=("tests/__init__.py");
   files+=("tests/test_string_generator.py");
+  files+=(".docker/controls.sh");
+  files+=(".docker/Dockerfile-build");
+  files+=(".docker/entrypoint.sh");
 
   local dirs=();
   dirs+=("raven");
   dirs+=("raven/mylib");
+  dirs+=(".docker");
 
   local not_dirs=();
   not_dirs+=("package");

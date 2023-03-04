@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2023 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,6 +30,26 @@
 function process_files_lvl_1() {
   replace_var "R_VERSION"        "$var_r_version";
   replace_var "R_VERSION_LABEL"  "$var_r_version_label";
+
+  if [ -n "$var_integration_docker_enabled" ]; then
+    replace_var "SCRIPT_BUILD_ISOLATED_OPT"          "$var_script_build_isolated_opt";
+    replace_var "SCRIPT_BUILD_ISOLATED_ARGFLAG"      "$var_script_build_isolated_argflag";
+    replace_var "SCRIPT_BUILD_ISOLATED_ARGARRAY"     "$var_script_build_isolated_argarray";
+    replace_var "SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD" "$var_script_build_isolated_argarray_add";
+    replace_var "SCRIPT_BUILD_ISOLATED_ARGPARSE"     "$var_script_build_isolated_argparse";
+    replace_var "SCRIPT_BUILD_ISOLATED_MAIN"         "$var_script_build_isolated_main";
+    replace_var "SCRIPT_BUILD_ISOLATED_HINT1"        "$var_script_build_isolated_hint1";
+    replace_var "SCRIPT_TEST_ISOLATED_OPT"           "$var_script_test_isolated_opt";
+    replace_var "SCRIPT_TEST_ISOLATED_MAIN"          "$var_script_test_isolated_main";
+    if [[ "$var_integration_docker_enabled" == "0" ]]; then
+      # Remove entire .docker dir in source root
+      rm -r "$var_project_dir/.docker";
+      if (( $? != 0 )); then
+          failure "Failed to remove template source docker integration directory";
+      fi
+      find_all_files;
+    fi
+  fi
 }
 
 # [API function]
@@ -51,6 +71,38 @@ function form_r_version() {
   read_user_input_selection "${SUPPORTED_LANG_VERSIONS_LABELS[@]}";
   var_r_version=${SUPPORTED_LANG_VERSIONS_IDS[USER_INPUT_ENTERED_INDEX]};
   var_r_version_label=${SUPPORTED_LANG_VERSIONS_LABELS[USER_INPUT_ENTERED_INDEX]};
+}
+
+# Prompts the user to enter whether he wants Docker integration.
+#
+function form_r_add_docker_integration() {
+  FORM_QUESTION_ID="r.integration.docker";
+  logI "";
+  logI "Would you like to enable Docker integration? (Y/n)";
+  read_user_input_yes_no true;
+  if [[ "$USER_INPUT_ENTERED_BOOL" == "true" ]]; then
+    var_integration_docker_enabled="1";
+    var_script_build_isolated_opt="$(load_var SCRIPT_BUILD_ISOLATED_OPT)";
+    var_script_build_isolated_argflag="$(load_var SCRIPT_BUILD_ISOLATED_ARGFLAG)";
+    var_script_build_isolated_argarray="$(load_var SCRIPT_BUILD_ISOLATED_ARGARRAY)";
+    var_script_build_isolated_argarray_add="$(load_var SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD)";
+    var_script_build_isolated_argparse="$(load_var SCRIPT_BUILD_ISOLATED_ARGPARSE)";
+    var_script_build_isolated_main="$(load_var SCRIPT_BUILD_ISOLATED_MAIN)";
+    var_script_build_isolated_hint1="$(load_var SCRIPT_BUILD_ISOLATED_HINT1)";
+    var_script_test_isolated_opt="$(load_var SCRIPT_TEST_ISOLATED_OPT)";
+    var_script_test_isolated_main="$(load_var SCRIPT_TEST_ISOLATED_MAIN)";
+  else
+    var_integration_docker_enabled="0";
+    var_script_build_isolated_opt="";
+    var_script_build_isolated_argflag="";
+    var_script_build_isolated_argarray="";
+    var_script_build_isolated_argarray_add="";
+    var_script_build_isolated_argparse="";
+    var_script_build_isolated_main="";
+    var_script_build_isolated_hint1="";
+    var_script_test_isolated_opt="";
+    var_script_test_isolated_main="";
+  fi
 }
 
 # Specify supported R versions

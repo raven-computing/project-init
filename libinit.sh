@@ -2589,7 +2589,10 @@ function read_user_input_yes_no() {
 #
 # The loaded variable value is dumped to stdout.
 # If no variable file can be found in the currently active init
-# level directory, then an empty string is dumped to stdout by this function.
+# level directory, then the upper init levels are searched in reversed
+# order, until the root init level is reached. If the root init level
+# was reached and no suitable file can be found, then an empty string
+# is dumped to stdout by this function.
 #
 # Stdout:
 # The string value of the variable with the specified key, or an
@@ -2613,11 +2616,18 @@ function load_var() {
   # Add file extension
   arg_file="$arg_file.txt";
   local var_content="";  # Default if no file is found
-  # Load var content from file in current init level
-  if [ -f "$CURRENT_LVL_PATH/$arg_file" ]; then
-    # Read file content
-    var_content="$(cat $CURRENT_LVL_PATH/$arg_file)";
-  fi
+  # Load var content from first found file, starting in current init
+  # level and sequentially going backwards.
+  local init_lvl="$CURRENT_LVL_PATH";
+  local i;
+  for (( i=$CURRENT_LVL_NUMBER; i>=0; --i )); do
+    if [ -r "$init_lvl/$arg_file" ]; then
+      # Read file content
+      var_content="$(cat $init_lvl/$arg_file)";
+      break;
+    fi
+    init_lvl="$(dirname "$init_lvl")";
+  done
   echo "$var_content";
 }
 

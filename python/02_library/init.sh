@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2023 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,6 +32,8 @@ form_python_package_name;
 form_python_use_linter;
 
 form_python_pypi_deployment;
+
+form_python_add_docker_integration;
 
 # Project setup
 
