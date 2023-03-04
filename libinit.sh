@@ -1633,6 +1633,11 @@ function _run_addon_load_hook() {
         (cd "$PROJECT_INIT_ADDONS_DIR" \
             && exec "$PROJECT_INIT_ADDONS_DIR/load-hook.sh" > /dev/null 2>&1);
 
+        local hook_exit_status=$?;
+        if (( $hook_exit_status != 0 )); then
+          logW "Load-hook finished with exit status $hook_exit_status";
+          warning "The load-hook of the Project Init addon did not exit successfully";
+        fi
       else
         logW "The addons load hook is not marked as executable.";
         logW "Please set as executable: '$PROJECT_INIT_ADDONS_DIR/load-hook.sh'";
@@ -1662,6 +1667,11 @@ function _run_addon_after_init_hook() {
             && export VAR_PROJECT_DIR="$var_project_dir"; \
             exec "$PROJECT_INIT_ADDONS_DIR/after-init-hook.sh" > /dev/null 2>&1);
 
+        local hook_exit_status=$?;
+        if (( $hook_exit_status != 0 )); then
+          logW "After-init-hook finished with exit status $hook_exit_status";
+          warning "The after-init-hook of the Project Init addon did not exit successfully";
+        fi
       else
         logW "The addons after-init hook is not marked as executable.";
         logW "Please set as executable:" \
