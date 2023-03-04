@@ -22,5 +22,6 @@ Dockerfile-build
 Dockerfile-run
 LICENSE
 Makefile
+NAMESPACE
 package.json
 requirements.txt
