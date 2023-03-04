@@ -1256,10 +1256,12 @@ function _load_addons_resource_git() {
 # the corresponding system variables.
 #
 # Calling this function only has an effect if the $PROJECT_INIT_ADDONS_RES
-# environment variable is set. Addons can be loaded in two ways: directly via a
-# directory in the filesystem or via a Git repository. In any case, however,
-# this function makes the underlying addons resources available to the rest of
-# the init system by setting the $PROJECT_INIT_ADDONS_DIR global variable.
+# environment variable is set or the underlying user has created
+# the 'project-init-addons-res' config file. Addons can be loaded
+# in two ways: directly via a directory in the filesystem or via
+# a Git repository. In any case, however, this function makes the underlying
+# addons resources available to the rest of the init system by setting
+# the $PROJECT_INIT_ADDONS_DIR global variable.
 # Code which consumes addons resources must do so by only using
 # the $PROJECT_INIT_ADDONS_DIR global variable, which, after this function is
 # called and if non-empty, provides the absolute path to the directory
@@ -1277,6 +1279,14 @@ function _load_addons_resource_git() {
 #                           Is set by this function.
 #
 function _load_addons_resource() {
+  # First check if addons res is specified by config file, as that should
+  # take precedence when available over the env var
+  if [ -r "$HOME/project-init-addons-res" ]; then
+    PROJECT_INIT_ADDONS_RES=$(head -n 1 "$HOME/project-init-addons-res");
+  elif [ -r "$HOME/.project-init-addons-res" ]; then
+    PROJECT_INIT_ADDONS_RES=$(head -n 1 "$HOME/.project-init-addons-res");
+  fi
+  # Process environment variable
   if [ -n "$PROJECT_INIT_ADDONS_RES" ]; then
     local addons_is_git_res=false;
     if [[ "$PROJECT_INIT_ADDONS_RES" == GIT:* ]]; then
