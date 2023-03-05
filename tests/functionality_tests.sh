@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2023 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,17 +24,21 @@
 TESTPATH="";
 # The path to the directory where the test output files are placed in
 TESTS_OUTPUT_DIR="";
+# Boolean flag which is true only when doing functionality tests for
+# external addons. Please note that this does not include the addons tests
+# under BASEPATH/addons, for which this is still false
+IS_ADDON_TESTS=false;
 
 
 function execute_test_run() {
   local testfile="$1";
   local test_run_status=0;
   source "$testfile";
-  local is_addon_test_run=false;
-  if [[ "$testfile" == test_func_addon_* ]]; then
-    is_addon_test_run=true;
+  local is_base_addon_test_run=false;
+  if [[ $IS_ADDON_TESTS == false && "$testfile" == test_func_addon_* ]]; then
+    is_base_addon_test_run=true;
   fi
-  if [[ $is_addon_test_run == true ]]; then
+  if [[ $is_base_addon_test_run == true ]]; then
     export PROJECT_INIT_ADDONS_RES="$BASEPATH/addons";
   fi
   if [[ $(type -t "test_functionality") == function ]]; then
@@ -46,7 +50,7 @@ function execute_test_run() {
   fi
   unset -f test_functionality;
   unset -f test_functionality_result;
-  if [[ $is_addon_test_run == true ]]; then
+  if [[ $is_base_addon_test_run == true ]]; then
     export -n PROJECT_INIT_ADDONS_RES;
   fi
   return $test_run_status;
@@ -81,7 +85,7 @@ function test_functionality_with() {
   local test_status=0;
   local exit_status=0;
   local f_out_stderr="${TESTS_OUTPUT_DIR}/run_stderr";
-  output_stdout=$(bash "functionality_test_driver.sh" 2>"$f_out_stderr");
+  output_stdout=$(bash "$BASETESTPATH/functionality_test_driver.sh" 2>"$f_out_stderr");
   exit_status=$?;
 
   if [ -r "$f_out_stderr" ]; then
@@ -182,6 +186,7 @@ function main() {
   local arg_keep_output=false;
   local arg_filter_runs="";
   local filter_runs=();
+  local arg_test_path="";
   for arg in "$@"; do
     case $arg in
       --keep-output)
@@ -202,6 +207,10 @@ function main() {
       done
       shift
       ;;
+      --test-path=*)
+      arg_test_path="${arg:12}";
+      shift
+      ;;
       *)
       # Unknown arg
       echo "Internal error";
@@ -210,23 +219,46 @@ function main() {
       ;;
     esac
   done
-  TESTPATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)";
-  BASEPATH="$(dirname "$TESTPATH")";
-  cd "$TESTPATH";
+  BASETESTPATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)";
+  TESTPATH="$BASETESTPATH";
+  BASEPATH="$(dirname "$BASETESTPATH")";
 
   if ! source "$BASEPATH/libinit.sh"; then
     echo "ERROR: Could not source libinit.sh library"
     return 1;
   fi
+
+  if [ -n "$arg_test_path" ]; then
+    IS_ADDON_TESTS=true;
+    TESTPATH="$arg_test_path";
+    export PROJECT_INIT_ADDONS_RES="$TESTPATH";
+    if ! [ -f "$TESTPATH/INIT_ADDONS" ]; then
+      logE "Cannot run Project Init tests for addon. Directory is not an addons resource:";
+      logE "at: '$TESTPATH'";
+      logE "Missing file 'INIT_ADDONS' in source root";
+      return 1;
+    fi
+    if ! [ -d "$TESTPATH/tests" ]; then
+      logE "Cannot run Project Init tests for addon. Addons resource has no 'tests' directory:";
+      logE "at: '$TESTPATH'";
+      logE "Place all your tests inside the '$TESTPATH/tests' directory and try again";
+      return 1;
+    fi
+    TESTPATH="$TESTPATH/tests";
+  fi
+
+  cd "$TESTPATH";
+
   if ! [ -d "$TESTPATH/resources" ]; then
-    logE "Test resource directory not found";
+    logE "Test resource directory not found.";
+    logE "Place test resources inside the '$TESTPATH/resources' directory and try again";
     return 1;
   fi
-  if ! [ -r "functionality_test_driver.sh" ]; then
+  if ! [ -r "$BASETESTPATH/functionality_test_driver.sh" ]; then
     logE "Functionality test driver script not found";
     return 1;
   fi
-  if ! source "utils.sh"; then
+  if ! source "$BASETESTPATH/utils.sh"; then
     logE "Test utilities could not be loaded";
     return 1;
   fi
@@ -249,7 +281,11 @@ function main() {
     fi
   fi
 
-  logI "Testing functionality of Project Init";
+  addon_mention="";
+  if [[ $IS_ADDON_TESTS == true ]]; then
+    addon_mention="addon ";
+  fi
+  logI "Testing functionality of Project Init $addon_mention";
   echo "";
 
   export PROJECT_INIT_TESTS_ACTIVE="1";
@@ -298,10 +334,10 @@ function main() {
   fi
 
   if (( $exit_status != 0 )); then
-    logE "Testing of functionality has not completed";
+    logE "Testing of ${addon_mention}functionality has not completed";
     logE "An error has occurred during a functionality test";
   else
-    logI "Testing of functionality has completed";
+    logI "Testing of ${addon_mention}functionality has completed";
     printt_ok "All functionality tests have passed:";
   fi
 
