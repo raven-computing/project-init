@@ -219,7 +219,7 @@ function main() {
       ;;
     esac
   done
-  BASETESTPATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)";
+  export BASETESTPATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)";
   TESTPATH="$BASETESTPATH";
   BASEPATH="$(dirname "$BASETESTPATH")";
 
@@ -263,7 +263,9 @@ function main() {
     return 1;
   fi
 
+  export TESTPATH;
   export TESTS_OUTPUT_DIR="${RES_CACHE_LOCATION}/pi_tests_generated";
+  export IS_ADDON_TESTS;
 
   if [ -d "${TESTS_OUTPUT_DIR}" ]; then
     logI "Clearing previously created test output directory";

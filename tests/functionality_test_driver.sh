@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2023 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,8 +23,9 @@
 #
 
 
-# The properties config file to be loaded for the test runs.
-readonly _TESTS_PROPERTIES="tests/resources/project.properties";
+# The properties config file to be loaded for the test runs,
+# relative to the test path.
+readonly _TESTS_PROPERTIES="resources/project.properties";
 
 
 # Loads the configuration files used in test mode and stores the
@@ -58,7 +59,15 @@ function _load_test_configuration() {
     logE "at: '$PROJECT_INIT_TESTS_RUN_CONFIG'";
     failure "Failed to execute test run";
   fi
-  _read_properties "${_TESTS_PROPERTIES}";
+  # First load the testing project.properties from the addon, then from the base
+  # testing resource because those specified there should always take
+  # precedence when testing
+  if [[ $IS_ADDON_TESTS == true ]]; then
+    if [ -r "${TESTPATH}/${_TESTS_PROPERTIES}" ]; then
+      _read_properties "${TESTPATH}/${_TESTS_PROPERTIES}";
+    fi
+  fi
+  _read_properties "${BASETESTPATH}/${_TESTS_PROPERTIES}";
 }
 
 function main() {
