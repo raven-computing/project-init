@@ -34,6 +34,14 @@
 # This script will return the exit status of the Project Init system's main
 # program, i.e. 0 for success and non-zero otherwise.
 #
+# This script will behave differently when the PROJECT_INIT_BOOTSTRAP_FETCHONLY
+# environment variable is set to '1'. If this is true, then this script will
+# only try to make the latest Project Init base resources available in the cache
+# directory and then exit immediately. The Project Init system's main program is
+# not run in this case and his script will return exit status 0 for success
+# and non-zero otherwise. In the case of success, the path to the base resource
+# cache is printed to stdout.
+#
 # USAGE: run.sh [--no-cache] [--no-pull]
 
 
@@ -156,6 +164,9 @@ function bootstrap_project_init() {
   if [[ $arg_version_str == false ]]; then
     echo "OK";
   fi
+  if [[ "$PROJECT_INIT_BOOTSTRAP_FETCHONLY" == "1" ]]; then
+    echo "$PROJECT_INIT_CACHE_LOCATION/$base_res_dir";
+  fi
   return 0;
 }
 
@@ -184,6 +195,10 @@ function main() {
       ;;
     esac
   done
+
+  if [[ "$PROJECT_INIT_BOOTSTRAP_FETCHONLY" == "1" ]]; then
+    arg_version_str=true;
+  fi
 
   # Ensure that git and mktemp are available
   if ! command -v "git" &> /dev/null; then
@@ -215,23 +230,25 @@ function main() {
   local exit_status=$?;
   if (( $exit_status == 0 )); then
     export PROJECT_INIT_BOOTSTRAP="1";
-    if [ -r "$PROJECT_INIT_SCRIPT_MAIN" ]; then
-      if [ -x "$PROJECT_INIT_SCRIPT_MAIN" ]; then
-        # Correct working paths
-        local CACHE_LOCATION_BASE="$PWD";
-        cd "${_USER_CWD}";
+    if [[ "$PROJECT_INIT_BOOTSTRAP_FETCHONLY" != "1" ]]; then
+      if [ -r "$PROJECT_INIT_SCRIPT_MAIN" ]; then
+        if [ -x "$PROJECT_INIT_SCRIPT_MAIN" ]; then
+          # Correct working paths
+          local CACHE_LOCATION_BASE="$PWD";
+          cd "${_USER_CWD}";
 
-        # Run the Project Init main script
-        bash "${CACHE_LOCATION_BASE}/${PROJECT_INIT_SCRIPT_MAIN}" "$@";
+          # Run the Project Init main script
+          bash "${CACHE_LOCATION_BASE}/${PROJECT_INIT_SCRIPT_MAIN}" "$@";
 
-        exit_status=$?;
+          exit_status=$?;
+        else
+          echo "ERROR: Project init script '$PROJECT_INIT_SCRIPT_MAIN' is not executable.";
+          exit_status=1;
+        fi
       else
-        echo "ERROR: Project init script '$PROJECT_INIT_SCRIPT_MAIN' is not executable.";
+        echo "ERROR: Project init script '$PROJECT_INIT_SCRIPT_MAIN' not found.";
         exit_status=1;
       fi
-    else
-      echo "ERROR: Project init script '$PROJECT_INIT_SCRIPT_MAIN' not found.";
-      exit_status=1;
     fi
   fi
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2023 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -96,6 +96,31 @@ function _erasechars() {
   done
 }
 
+# [API function]
+# Asserts that the first specified argument is equal to the second argument.
+#
+# This function is supposed to be used in test suites. Any encountered errors
+# may be printed on stdout.
+#
+# Args:
+# $1 - The expected value of the assertion. This is a mandatory argument.
+# $2 - The actual value of the assertion. This is a mandatory argument.
+# $3 - The status code to be returned by this function if the two given
+#      values are not equal.
+#
+# Returns:
+# 0 - If the specified arguments are equal.
+# 1 - If the specified arguments are not equal.
+#
+# Stdout:
+# An error message in the case that the actual value is not equal
+# to the expected value, dumped to stdout.
+#
+# Examples:
+# expected="A";
+# actual="$(echo A)";
+# assert_equal "$expected" "$actual" $?;
+#
 function assert_equal() {
   local expected="$1";
   local actual="$2";
@@ -116,6 +141,26 @@ function assert_equal() {
   fi
 }
 
+# [API function]
+# Asserts that all files given as arguments exist.
+#
+# This function is supposed to be used in test suites.
+#
+# Args:
+# $@ - A series of files to check. At least one file must be specified.
+#
+# Returns:
+# 0 - If all specified files exist.
+# 1 - If at least one of the specified files does not exist.
+#
+# Globals:
+# ASSERT_FAIL_MISSING_FILES - Will contain all files that have failed
+#                             this assertion. Is set by this function.
+#
+# Examples:
+# files=("fileA.txt" "fileB.txt" "fileC.json");
+# assert_files_exist "${files[@]}";
+#
 function assert_files_exist() {
   local check_files=("$@");
   local assertion_status=0;
@@ -133,6 +178,26 @@ function assert_files_exist() {
   return $assertion_status;
 }
 
+# [API function]
+# Asserts that all files given as arguments do not exist.
+#
+# This function is supposed to be used in test suites.
+#
+# Args:
+# $@ - A series of files to check. At least one file must be specified.
+#
+# Returns:
+# 0 - If all specified files do not exist.
+# 1 - If at least one of the specified files does exist.
+#
+# Globals:
+# ASSERT_FAIL_ADVERSE_FILES - Will contain all files that have failed
+#                             this assertion. Is set by this function.
+#
+# Examples:
+# files=("fileA.txt" "fileB.txt" "fileC.json");
+# assert_files_not_exist "${files[@]}";
+#
 function assert_files_not_exist() {
   local check_files=("$@");
   local assertion_status=0;
@@ -150,6 +215,26 @@ function assert_files_not_exist() {
   return $assertion_status;
 }
 
+# [API function]
+# Asserts that all directories given as arguments exist.
+#
+# This function is supposed to be used in test suites.
+#
+# Args:
+# $@ - A series of directories to check. At least one directory must be specified.
+#
+# Returns:
+# 0 - If all specified directories exist.
+# 1 - If at least one of the specified directories does not exist.
+#
+# Globals:
+# ASSERT_FAIL_MISSING_DIRS - Will contain all directories that have failed
+#                            this assertion. Is set by this function.
+#
+# Examples:
+# dirs=("myDirA" "myDirB" "myDirC");
+# assert_dirs_exist "${dirs[@]}";
+#
 function assert_dirs_exist() {
   local check_dirs=("$@");
   local assertion_status=0;
@@ -167,6 +252,26 @@ function assert_dirs_exist() {
   return $assertion_status;
 }
 
+# [API function]
+# Asserts that all directories given as arguments do not exist.
+#
+# This function is supposed to be used in test suites.
+#
+# Args:
+# $@ - A series of directories to check. At least one directory must be specified.
+#
+# Returns:
+# 0 - If all specified directories do not exist.
+# 1 - If at least one of the specified directories does exist.
+#
+# Globals:
+# ASSERT_FAIL_ADVERSE_DIRS - Will contain all directories that have failed
+#                            this assertion. Is set by this function.
+#
+# Examples:
+# dirs=("myDirA" "myDirB" "myDirC");
+# assert_dirs_not_exist "${dirs[@]}";
+#
 function assert_dirs_not_exist() {
   local check_dirs=("$@");
   local assertion_status=0;

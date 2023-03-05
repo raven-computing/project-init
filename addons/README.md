@@ -21,6 +21,9 @@ See the [Tutorial](https://github.com/raven-computing/project-init/wiki/Tutorial
 
 Contains resources showing how to add another license via an addon. The example license is imaginary without any real use. See [documentation](https://github.com/raven-computing/project-init/wiki/Addons#add-custom-licenses).
 
+### tests
+
+Contains functionality test cases and resources. Tests are executed by running the *test.sh* script.
 
 ## **Files:**
 
@@ -39,6 +42,10 @@ An executable Bash shell script which is automatically executed BEFORE the proje
 ### after-init-hook.sh
 
 An executable Bash shell script which is automatically executed AFTER a new project was successfully initialized. It can contain arbitrary shell code. See [documentation](https://github.com/raven-computing/project-init/wiki/Addons#after-init-hook).
+
+### test.sh
+
+A test script to execute functionality tests for the addon.
 
 ### title.txt
 
