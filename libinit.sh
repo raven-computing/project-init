@@ -1286,6 +1286,12 @@ function _load_addons_resource() {
   elif [ -r "$HOME/.project-init-addons-res" ]; then
     PROJECT_INIT_ADDONS_RES=$(head -n 1 "$HOME/.project-init-addons-res");
   fi
+  # Also check for branch/tag specification in file
+  if [ -r "$HOME/project-init-addons-res-branch" ]; then
+    PROJECT_INIT_ADDONS_RES_BRANCH=$(head -n 1 "$HOME/project-init-addons-res-branch");
+  elif [ -r "$HOME/.project-init-addons-res-branch" ]; then
+    PROJECT_INIT_ADDONS_RES_BRANCH=$(head -n 1 "$HOME/.project-init-addons-res-branch");
+  fi
   # Process environment variable
   if [ -n "$PROJECT_INIT_ADDONS_RES" ]; then
     local addons_is_git_res=false;
