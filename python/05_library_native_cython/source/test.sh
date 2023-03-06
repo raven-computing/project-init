@@ -67,6 +67,7 @@ if [[ $ARG_SHOW_HELP == true ]]; then
 fi
 
 # Source setup script
+SETUPSH_VIRTUALENV_AUTO_ACTIVATE="0";
 if ! source "setup.sh"; then
   exit 1;
 fi
