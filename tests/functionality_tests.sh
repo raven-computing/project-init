@@ -115,7 +115,7 @@ function test_functionality_with() {
 
   if (( $test_status != 0 )); then
     echo -e "${LABEL_FAILED}\n";
-    logE "Functionality test run exited with exit status $exit_status";
+    logE "Functionality test run finished with exit status $exit_status";
     if [[ "$output_stderr" != "" ]]; then
       logE "There was output captured from stderr (see below)";
     fi
