@@ -164,6 +164,7 @@ function process_files_lvl_1() {
     replace_var "SCRIPT_BUILD_ISOLATED_MAIN"         "$var_script_build_isolated_main";
     replace_var "SCRIPT_TEST_ISOLATED_OPT"           "$var_script_test_isolated_opt";
     replace_var "SCRIPT_TEST_ISOLATED_MAIN"          "$var_script_test_isolated_main";
+    replace_var "SCRIPT_TEST_ISOLATED_HINT1"         "$var_script_test_isolated_hint1";
     if [[ "$var_integration_docker_enabled" == "0" ]]; then
       # Remove entire .docker dir in source root
       rm -r "$var_project_dir/.docker";
@@ -379,6 +380,7 @@ function form_python_add_docker_integration() {
     var_script_build_isolated_main="$(load_var SCRIPT_BUILD_ISOLATED_MAIN)";
     var_script_test_isolated_opt="$(load_var SCRIPT_TEST_ISOLATED_OPT)";
     var_script_test_isolated_main="$(load_var SCRIPT_TEST_ISOLATED_MAIN)";
+    var_script_test_isolated_hint1="$(load_var SCRIPT_TEST_ISOLATED_HINT1)";
   else
     var_integration_docker_enabled="0";
     var_script_build_isolated_opt="";
@@ -389,6 +391,7 @@ function form_python_add_docker_integration() {
     var_script_build_isolated_main="";
     var_script_test_isolated_opt="";
     var_script_test_isolated_main="";
+    var_script_test_isolated_hint1="";
   fi
 }
 

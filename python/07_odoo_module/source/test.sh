@@ -10,13 +10,12 @@ ${USAGE}
 
 Options:
 
-  [--interactive]   [ARGS]
+  [--interactive]   [args]
                     Starts an Odoo instance for interactive testing.
-                    All optional arguments from [ARGS] are passed to the Odoo executable as is.
+                    All optional arguments from [args] are passed to the Odoo executable as is.
                     If specified, this must be the last given option as all subsequent
-                    arguments will be interpreted as being part of the [ARGS] option argument.
-
-  [--isolated]      Run isolated tests inside a Docker container.
+                    arguments will be interpreted as being part of the [args] option argument.
+${{VAR_SCRIPT_TEST_ISOLATED_OPT}}
 
   [--no-virtualenv] Do not use a virtual environment for the tests.
 
@@ -26,33 +25,28 @@ EOS
 
 # Arg flags
 ARG_INTERACTIVE=false;
-ARG_ISOLATED=false;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGFLAG}}
 ARG_NO_VIRTUALENV=false;
 ARG_SHOW_HELP=false;
 
-# Array of arguments passed through to an isolated run.
-# Should be set in arg-parse loop below.
-ARGS_ISOLATED=();
+odoo_args=();
+
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY}}
 
 # Parse all arguments given to this script
 for arg in "$@"; do
   if [[ $ARG_INTERACTIVE == true ]]; then
-    ARGS_ISOLATED+=($arg);
+    odoo_args+=("$arg");
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     continue;
   fi
   case $arg in
     --interactive)
     ARG_INTERACTIVE=true;
-    ARGS_ISOLATED+=($arg);
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;
-    --isolated)
-    ARG_ISOLATED=true;
-    # When running in an isolated container,
-    # we don't need additional virtual envs
-    ARGS_ISOLATED+=(--no-virtualenv);
-    shift
-    ;;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGPARSE}}
     --no-virtualenv)
     ARG_NO_VIRTUALENV=true;
     shift
@@ -79,15 +73,12 @@ if [[ $ARG_SHOW_HELP == true ]]; then
 fi
 
 # Source setup script
+SETUPSH_VIRTUALENV_AUTO_ACTIVATE="0";
 if ! source "setup.sh"; then
   exit 1;
 fi
 
-if [[ $ARG_ISOLATED == true ]]; then
-  source ".docker/controls.sh";
-  run_isolated_tests "${ARGS_ISOLATED[@]}";
-  exit $?;
-fi
+${{VAR_SCRIPT_TEST_ISOLATED_MAIN}}
 
 if [[ $ARG_NO_VIRTUALENV == false ]]; then
   # Setup and activate virtual environment
@@ -100,10 +91,10 @@ if [[ $ARG_INTERACTIVE == true ]]; then
   if ! command -v "odoo" &> /dev/null; then
     logE "Could not find the 'odoo' executable.";
     logE "To interactively test, please correctly install Odoo on your system";
-    logE "or try with the '--isolated' option to test with Docker containers.";
+${{VAR_SCRIPT_TEST_ISOLATED_HINT1}}
     exit 1;
   fi
-  odoo;
+  odoo ${odoo_args[@]};
   exit $?;
 fi
 

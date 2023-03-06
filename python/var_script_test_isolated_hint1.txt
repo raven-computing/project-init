@@ -1,0 +1,1 @@
+    logE "or try with the '--isolated' option to test with Docker containers.";

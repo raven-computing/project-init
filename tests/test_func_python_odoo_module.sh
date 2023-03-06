@@ -35,6 +35,7 @@ function test_functionality_result() {
   files+=("build.sh");
   files+=("test.sh");
   files+=("setup.py");
+  files+=("MANIFEST.in");
   files+=("requirements.txt");
   files+=(".docker/Dockerfile-build");
   files+=(".docker/etc/odoo.conf");

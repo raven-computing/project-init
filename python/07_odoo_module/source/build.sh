@@ -11,8 +11,7 @@ ${USAGE}
 Options:
 
   [--clean]         Remove the build data and related files and then exit.
-
-  [--isolated]      Execute the entire build process in an isolated Docker container.
+${{VAR_SCRIPT_BUILD_ISOLATED_OPT}}
 
   [--no-virtualenv] Do not use a virtual environment for the build.
 
@@ -24,14 +23,12 @@ EOS
 
 # Arg flags
 ARG_CLEAN=false;
-ARG_ISOLATED=false;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGFLAG}}
 ARG_NO_VIRTUALENV=false;
 ARG_SKIP_TESTS=false;
 ARG_SHOW_HELP=false;
 
-# Array of arguments passed through to an isolated run.
-# Should be set in arg-parse loop below.
-ARGS_ISOLATED=();
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY}}
 
 # Parse all arguments given to this script
 for arg in "$@"; do
@@ -40,20 +37,14 @@ for arg in "$@"; do
     ARG_CLEAN=true;
     shift
     ;;
-    --isolated)
-    ARG_ISOLATED=true;
-    # When running in an isolated container,
-    # we don't need additional virtual envs
-    ARGS_ISOLATED+=(--no-virtualenv);
-    shift
-    ;;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGPARSE}}
     --no-virtualenv)
     ARG_NO_VIRTUALENV=true;
     shift
     ;;
     --skip-tests)
     ARG_SKIP_TESTS=true;
-    ARGS_ISOLATED+=($arg);
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;
     -\?|--help)
@@ -78,6 +69,7 @@ if [[ $ARG_SHOW_HELP == true ]]; then
 fi
 
 # Source setup script
+SETUPSH_VIRTUALENV_AUTO_ACTIVATE="0";
 if ! source "setup.sh"; then
   exit 1;
 fi
@@ -97,11 +89,7 @@ if [[ $ARG_CLEAN == true ]]; then
   exit 0;
 fi
 
-if [[ $ARG_ISOLATED == true ]]; then
-  source ".docker/controls.sh";
-  run_isolated_build "${ARGS_ISOLATED[@]}";
-  exit $?;
-fi
+${{VAR_SCRIPT_BUILD_ISOLATED_MAIN}}
 
 if [[ $ARG_NO_VIRTUALENV == false ]]; then
   # Setup and activate virtual environment

@@ -161,3 +161,9 @@ if [[ $(__b_in_subshell) == "1" ]]; then
   logE "Please run this script by sourcing it";
   exit 1;
 fi
+
+# Automatically activate the virtual env unless this
+# behaviour is suppressed by specifying the env var
+if [[ "$SETUPSH_VIRTUALENV_AUTO_ACTIVATE" != "0" ]]; then
+  setup_virtual_env;
+fi

@@ -1,0 +1,2 @@
+global-include **/*.xml
+global-include **/*.csv
