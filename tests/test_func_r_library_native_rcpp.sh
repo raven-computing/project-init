@@ -42,6 +42,10 @@ function test_functionality_result() {
   files+=("tests/testthat.R");
   files+=("tests/testthat/test-example.R");
 
-  assert_files_exist "${files[@]}";
+  local not_dirs=();
+  not_dirs+=(".docker");
+
+  assert_files_exist "${files[@]}" &&
+  assert_dirs_not_exist "${not_dirs[@]}";
   return $?;
 }

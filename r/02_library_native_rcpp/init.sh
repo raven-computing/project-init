@@ -28,6 +28,8 @@ form_r_version;
 
 form_r_package_name;
 
+form_r_add_docker_integration;
+
 # Project setup
 
 project_init_copy;
