@@ -23,7 +23,7 @@ Contains resources showing how to add another license via an addon. The example 
 
 ### tests
 
-Contains functionality test cases and resources. Tests are executed by running the *test.sh* script.
+Contains functionality test cases and resources. Tests are executed by running the *test.sh* script. See [documentation](https://github.com/raven-computing/project-init/wiki/Addons#testing).
 
 ## **Files:**
 
@@ -45,7 +45,7 @@ An executable Bash shell script which is automatically executed AFTER a new proj
 
 ### test.sh
 
-A test script to execute functionality tests for the addon.
+A test script to execute functionality tests for the addon. See [documentation](https://github.com/raven-computing/project-init/wiki/Addons#testing).
 
 ### title.txt
 
