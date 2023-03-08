@@ -32,7 +32,8 @@ SOURCE_FILES = ["libinit.sh",
                 "js/init.sh",
                 "python/init.sh",
                 "r/init.sh",
-                "tests/utils.sh"]
+                "tests/utils.sh",
+                "tests/functionality_tests.sh"]
 
 # The name of the file to be created.
 OUTPUT_FILE = "api_docs"

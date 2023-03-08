@@ -30,6 +30,21 @@ TESTS_OUTPUT_DIR="";
 IS_ADDON_TESTS=false;
 
 
+# The testing facility entrypoint to initiate functionality test runs.
+#
+# The specified file must contain the test case by defining
+# the test_functionality() function. If that function is not defined in
+# the specified file, then this function will fail with an error statement.
+#
+# Args:
+# $1 - A file containing the functionality test case.
+#      This is a mandatory argument.
+#
+# Returns:
+# 0  - If the functionality test run has finished successfully, without
+#      any errors or warnings.
+# nz - In the case of a test failure due to any reason.
+#
 function execute_test_run() {
   local testfile="$1";
   local test_run_status=0;
@@ -56,6 +71,35 @@ function execute_test_run() {
   return $test_run_status;
 }
 
+# [API function]
+# Executes a functionality test run with the specified test parameters.
+#
+# This function is supposed to be used in test suites.
+# The specified file must contain the test run parameters. The file must
+# be properties-formatted and each test parameter corresponds to
+# one property line.
+#
+# Since:
+# 1.2.0
+#
+# Args:
+# $1 - A file containing the test run parameters. It is presumed that the
+#      file is located relative to the 'tests/resources' directory.
+#      This is a mandatory argument.
+#
+# Returns:
+# 0  - If the test run has finished successfully, without any errors or warnings.
+# nz - In the case of a test failure due to any reason.
+#
+# Examples:
+# # Inside the test case file 'tests/test_func_example.sh'
+# function test_functionality() {
+#   # Execute a test run with the parameters specified
+#   # in the 'tests/resources/test_example.properties' file
+#   test_functionality_with "test_example.properties";
+#   return $?;
+# }
+#
 function test_functionality_with() {
   local config_file="$1";
   local title="";

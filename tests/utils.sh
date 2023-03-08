@@ -102,11 +102,15 @@ function _erasechars() {
 # This function is supposed to be used in test suites. Any encountered errors
 # may be printed on stdout.
 #
+# Since:
+# 1.2.0
+#
 # Args:
 # $1 - The expected value of the assertion. This is a mandatory argument.
 # $2 - The actual value of the assertion. This is a mandatory argument.
 # $3 - The status code to be returned by this function if the two given
-#      values are not equal.
+#      values are not equal. This usually comes from the status code
+#      returned by the command which produced the actual value.
 #
 # Returns:
 # 0 - If the specified arguments are equal.
@@ -146,6 +150,9 @@ function assert_equal() {
 #
 # This function is supposed to be used in test suites.
 #
+# Since:
+# 1.2.0
+#
 # Args:
 # $@ - A series of files to check. At least one file must be specified.
 #
@@ -182,6 +189,9 @@ function assert_files_exist() {
 # Asserts that all files given as arguments do not exist.
 #
 # This function is supposed to be used in test suites.
+#
+# Since:
+# 1.2.0
 #
 # Args:
 # $@ - A series of files to check. At least one file must be specified.
@@ -220,6 +230,9 @@ function assert_files_not_exist() {
 #
 # This function is supposed to be used in test suites.
 #
+# Since:
+# 1.2.0
+#
 # Args:
 # $@ - A series of directories to check. At least one directory must be specified.
 #
@@ -256,6 +269,9 @@ function assert_dirs_exist() {
 # Asserts that all directories given as arguments do not exist.
 #
 # This function is supposed to be used in test suites.
+#
+# Since:
+# 1.2.0
 #
 # Args:
 # $@ - A series of directories to check. At least one directory must be specified.
