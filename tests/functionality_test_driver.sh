@@ -95,7 +95,7 @@ function main() {
     logE "";
     local errtitle=" ${COLOR_RED}E R R O R${COLOR_NC} ";
     logE " o-------------------${errtitle}-------------------o";
-    logE " |           Test run exited with errors           |";
+    logE " |          Test run finished with errors          |";
     logE " o-------------------------------------------------o";
     logE "";
     exit $EXIT_FAILURE;
@@ -106,7 +106,7 @@ function main() {
     logW "";
     local warningtitle=" ${COLOR_ORANGE}W A R N I N G${COLOR_NC} ";
     logW " o-----------------${warningtitle}-----------------o";
-    logW " |          Test run exited with warnings          |";
+    logW " |         Test run finished with warnings         |";
     logW " o-------------------------------------------------o";
     logW "";
     exit $EXIT_FAILURE;
