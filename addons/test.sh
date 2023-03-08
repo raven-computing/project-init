@@ -97,10 +97,6 @@ if [ -n "$arg_optarg_required" ]; then
   exit 1;
 fi
 
-# Instruct the bootstrap run script to only make the resources of Project Init
-# available and print the location to stdout, and not start the tool directly.
-export PROJECT_INIT_BOOTSTRAP_FETCHONLY="1";
-
 # Download the bootstrap code. Try with wget and curl
 if command -v "wget" &> /dev/null; then
   bootstrap_code=$(wget -q -O - $PROJECT_INIT_BOOTSTRAP_RUN);
@@ -116,6 +112,10 @@ if (( $? != 0 )); then
   echo "ERROR: Failed fetch Project Init bootstrap code";
   exit 1;
 fi
+
+# Instruct the bootstrap run script to only make the resources of Project Init
+# available and print the location to stdout, and not start the tool directly.
+export PROJECT_INIT_BOOTSTRAP_FETCHONLY="1";
 
 # Run the bootstrap code and capture the output
 bootstrap_output=$(echo "$bootstrap_code" |bash);
