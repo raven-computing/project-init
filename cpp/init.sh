@@ -153,6 +153,7 @@ function process_files_lvl_1() {
 # The associated shell global variables are set by this function.
 #
 # Globals:
+# FORM_QUESTION_ID      - cpp.version
 # var_cpp_version       - The C++ version string. Is set by this function.
 # var_cpp_version_label - The C++ version label string.
 #                         Is set by this function.
@@ -175,6 +176,7 @@ function form_cpp_version() {
 # The associated shell global variable is set by this function.
 #
 # Globals:
+# FORM_QUESTION_ID               - cpp.binary.name
 # var_artifact_binary_name       - The name of the binary artifact.
 #                                  Is set by this function.
 # var_artifact_binary_name_upper - The name of the binary artifact in
@@ -208,6 +210,7 @@ function form_cpp_binary_name() {
 # set by this function.
 #
 # Globals:
+# FORM_QUESTION_ID           - cpp.namespace
 # var_namespace              - The entire namespace in dot notation.
 #                              Is set by this function.
 # var_namespace_0            - The first package name of the namespace.

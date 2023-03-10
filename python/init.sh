@@ -184,6 +184,7 @@ function process_files_lvl_1() {
 # The associated shell global variable is set by this function.
 #
 # Globals:
+# FORM_QUESTION_ID   - python.version
 # var_python_version - The Python version string. Is set by this function.
 #
 function form_python_version() {
@@ -224,6 +225,7 @@ function form_python_version() {
 # The associated shell global variable is set by this function.
 #
 # Globals:
+# FORM_QUESTION_ID         - python.virtenv.name
 # var_project_virtenv_name - The name of the virtual environment.
 #                            Is set by this function.
 #
@@ -261,6 +263,7 @@ function form_python_virtenv_name() {
 # The associated shell global variables are set by this function.
 #
 # Globals:
+# FORM_QUESTION_ID   - python.package.name
 # var_namespace      - The entire namespace in dot notation. Is set by this function.
 #                      This is equivalent to the package name if no namespace package
 #                      was defined.
@@ -337,8 +340,9 @@ function form_python_package_name() {
 # the project development.
 #
 # Globals:
-# var_use_linter - A boolean flag indicating whether to use a linter.
-#                  Is set by this function.
+# FORM_QUESTION_ID - python.use.linter
+# var_use_linter   - A boolean flag indicating whether to use a linter.
+#                    Is set by this function.
 #
 function form_python_use_linter() {
   FORM_QUESTION_ID="python.use.linter";
@@ -352,8 +356,9 @@ function form_python_use_linter() {
 # Prompts the user to enter whether he wants to deploy the project to PyPI.
 #
 # Globals:
-# var_use_deploy - A boolean flag indicating whether to deploy project
-#                  artifacts to PyPI. Is set by this function.
+# FORM_QUESTION_ID - python.pypi.deployment
+# var_use_deploy   - A boolean flag indicating whether to deploy project
+#                    artifacts to PyPI. Is set by this function.
 #
 function form_python_pypi_deployment() {
   FORM_QUESTION_ID="python.pypi.deployment";

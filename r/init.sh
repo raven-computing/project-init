@@ -80,6 +80,7 @@ function process_files_lvl_1() {
 # The associated shell global variables are set by this function.
 #
 # Globals:
+# FORM_QUESTION_ID    - r.version
 # var_r_version       - The R version string. Is set by this function.
 # var_r_version_label - The R version label string.
 #                       Is set by this function.

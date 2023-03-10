@@ -238,6 +238,18 @@ FORM_PROJECT_TYPE_NAME="";
 FORM_PROJECT_TYPE_DIR="";
 
 # [API Global]
+# The identifier of the question for which form input is requested.
+# This variable can be set before calling the read_user_input_selection() ,
+# read_user_input_text() or read_user_input_yes_no() function to make the form
+# question that follows assignable by a unique identifier. Currently, this is
+# only used during testing. When a value is set before calling any of the
+# aforementioned functions, it instructs those functions to read the
+# user-provided answer from a prepared internal data structure.
+# Since:
+# 1.2.0
+FORM_QUESTION_ID="";
+
+# [API Global]
 # Holds the name of the directory representing
 # the next init level that was selected by the user. Please note
 # that this is not the absolute path to the selected directory,

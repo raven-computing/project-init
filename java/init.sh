@@ -136,6 +136,7 @@ function process_files_lvl_1() {
 # set by this function.
 #
 # Globals:
+# FORM_QUESTION_ID       - java.version
 # var_java_version       - The Java version string. Is set by this function.
 # var_java_version_label - The Java version label string. Is set by this function.
 # var_java_version_pom   - The Java version string as used in a project's POM.
@@ -160,6 +161,7 @@ function form_java_version() {
 # set by this function.
 #
 # Globals:
+# FORM_QUESTION_ID           - java.namespace
 # var_namespace              - The entire namespace in dot notation.
 #                              Is set by this function.
 # var_namespace_trailing_sep - The namespace in dot notation, with a

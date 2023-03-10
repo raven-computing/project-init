@@ -67,6 +67,7 @@ function process_files_lvl_1() {
 # The associated shell global variables are set by this function.
 #
 # Globals:
+# FORM_QUESTION_ID    - c.version
 # var_c_version       - The C version string. Is set by this function.
 # var_c_version_label - The C version label string.
 #                       Is set by this function.
@@ -89,6 +90,7 @@ function form_c_version() {
 # The associated shell global variable is set by this function.
 #
 # Globals:
+# FORM_QUESTION_ID               - c.binary.name
 # var_artifact_binary_name       - The name of the binary artifact.
 #                                  Is set by this function.
 # var_artifact_binary_name_upper - The name of the binary artifact in

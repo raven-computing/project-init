@@ -59,6 +59,7 @@ function process_files_lvl_1() {
 # The associated shell global variables are set by this function.
 #
 # Globals:
+# FORM_QUESTION_ID         - js.nodejs.version
 # var_nodejs_version       - The Node.js version string.
 #                            Is set by this function.
 # var_nodejs_version_label - The Node.js version label string.
