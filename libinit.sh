@@ -3280,6 +3280,7 @@ function select_next_level_directory() {
 #                          type list displayed to the user.
 # FORM_PROJECT_TYPE_DIR  - The path to the directory of the
 #                          selected project type.
+# FORM_QUESTION_ID       - project.type
 #
 # Examples:
 # select_project_type "js" "JavaScript";
