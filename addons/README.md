@@ -45,7 +45,7 @@ An executable Bash shell script which is automatically executed AFTER a new proj
 
 ### test.sh
 
-A test script to execute functionality tests for the addon. See [documentation](https://github.com/raven-computing/project-init/wiki/Addons#testing).
+A test script to execute functionality tests for the addon. You can copy this file as is to the source root of your actual addon to enable testing for it. See [documentation](https://github.com/raven-computing/project-init/wiki/Addons#tests-setup).
 
 ### title.txt
 
