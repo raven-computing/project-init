@@ -1,3 +1,29 @@
+#### 1.2.0
+* Added R library with native C++ code using Rcpp project type source template.
+* Added Odoo module project type source template.
+* Added form_java_native_lib_jni_lang() function in Java init script to let the user choose if he wants C or C++ as the language for the native part of the JNI-based Java library. Added corresponding C source files to project type.
+* Added isolated build and test options via Docker for most source templates. This is provided via calls to form_*_add_docker_integration() functions and can be turned off by answering 'No' to the corresponding form question. Docker-related files are put into the '.docker' directory in the source template root. All build.sh and test.sh project control scripts are adjusted to honour a potential Docker integration of the generated project.
+* Added project properties to control if the first major form questions for the project name, -description and -license should be asked from the user or have default values globally. Restructured libform.sh show_project_init_main_form() function.
+* Added form_r_package_name() function to ask for R library package names.
+* Added FORM_QUESTION_ID as public API global so it can be used by addons for testing purposes.
+* Added run.sh script to Node.js project source template.
+* Added functionality test API and made needed internal functions and globals public for API usage. Adjusted documentation.
+* Added test.sh control script for addons.
+* Added addons tests project.properties as an example.
+* Added addons tests example functionality test case scripts and test parameters.
+* Changed bootstrap run.sh script to only make Project Init base resources available without starting the main program when the PROJECT_INIT_BOOTSTRAP_FETCHONLY environment variable is set.
+* Changed test.sh control script to allow testing of addons resources via the new --test-path option.
+* Changed all affected form_*() functions to mention the FORM_QUESTION_ID global used during testing.
+* Changed _load_addons_resource() function to first check for 'project-init-addons-res' and 'project-init-addons-res-branch' config files and let those override any related set environment variables.
+* Changed _run_addon_load_hook() function to check exit status of load-hook and show warning if non-zero.
+* Changed _run_addon_after_init_hook() function to check exit status of after-init-hook and show warning if non-zero.
+* Changed load_var() function to search init level directories in reversed order for var_*.txt files and let lower-level files potentially override higher-level files.
+* Changed generate_api_docs.py script to include test-related files containing API functions.
+* Changed files.txt to include Docker-, Odoo- and R-related files in project source templates.
+* Improved some project source templates.
+* Renamed 02_server-shiny to 03_server-shiny project type source template.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.1.5...v1.2.0)
+
 #### 1.1.5
 * Improved implementation of project_init_copy() function and add a check for empty project source template directories.
 * Improved implementation of find_all_files() function.
