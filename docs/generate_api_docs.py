@@ -38,9 +38,8 @@ SOURCE_FILES = ["libinit.sh",
 # The name of the file to be created.
 OUTPUT_FILE = "api_docs"
 
-# The base URL to be used when generating links inside
-# the generated documentation.
-LINK_BASE_URL = "https://github.com/raven-computing/project-init/blob/v1-latest"
+# The URL to the Project Init repository.
+PROJECT_BASE_URL = "https://github.com/raven-computing/project-init"
 
 # The path to the directory of this script.
 DOCS_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -49,6 +48,14 @@ DOCS_DIR = os.path.abspath(os.path.dirname(__file__))
 # has encountered some invalid format.
 INCORRECT_FORMAT = False
 
+# The base URL to be used when generating links inside
+# the generated documentation.
+# Use the get_link_base_url() function to get this value.
+_LINK_BASE_URL = None
+
+# The Project Init version, as a tuple of version identifiers.
+# Use the get_project_init_version() function to get this value.
+_PROJECT_INIT_VERSION = "?"
 
 def parse_args():
     """Parses the arguments passed to this program.
@@ -800,6 +807,26 @@ def create_doc_text_links(files, all_globals, all_functions):
                     doc["deprecated"], all_globals, all_functions
                 )
 
+def get_link_base_url():
+    """Gets the base URL to be used when generating links inside
+    the generated documentation.
+
+    Returns:
+        The base URL used for hyperlinks.
+    """
+    global _LINK_BASE_URL
+    if _LINK_BASE_URL is not None:
+        return _LINK_BASE_URL
+
+    version = get_project_init_version()
+    major_version = version[0]
+    _LINK_BASE_URL = "{}/blob/v{}-latest".format(
+        PROJECT_BASE_URL,
+        major_version
+    )
+
+    return _LINK_BASE_URL
+
 def get_project_init_version():
     """Gets the version information for the Project Init system.
 
@@ -809,6 +836,10 @@ def get_project_init_version():
         A 4-tuple holding the major-minor-patch-postfix information,
         or None if the version could not be determined.
     """
+    global _PROJECT_INIT_VERSION
+    if _PROJECT_INIT_VERSION != "?":
+        return _PROJECT_INIT_VERSION
+
     project_root = os.path.split(DOCS_DIR)[0]
     version_file = project_root + "/VERSION"
     if os.path.isfile(version_file):
@@ -822,6 +853,7 @@ def get_project_init_version():
             is_valid = re.match("^[0-9]+\.[0-9]+\.[0-9]+(-dev)?$", version_str)
             if not is_valid:
                 warn(f"Invalid version string: '{version_str}'")
+                _PROJECT_INIT_VERSION = None
                 return None
 
             vitems = version_str.replace("-", ".").split(".")
@@ -833,8 +865,12 @@ def get_project_init_version():
                 if len(vitems) == 4:
                     vpostfix = vitems[3]
 
-                return (int(vmajor), int(vminor), int(vpatch), vpostfix)
+                _PROJECT_INIT_VERSION = (
+                    int(vmajor), int(vminor), int(vpatch), vpostfix
+                )
+                return _PROJECT_INIT_VERSION
 
+    _PROJECT_INIT_VERSION = None
     return None
 
 def get_intermediate_structure_json(docs):
@@ -891,6 +927,8 @@ def create_markdown_content(docs):
 
     buffer.write("# Project Init: API Reference\n\n")
 
+    link_base_url = get_link_base_url()
+
     version = get_project_init_version()
     if version is not None:
         vmajor = version[0]
@@ -926,7 +964,7 @@ def create_markdown_content(docs):
         buffer.write("## **{}**\n".format(glob["name"]))
         src_file  = glob["file"]
         line = glob["definition"]["line"]
-        buffer.write(f"[\\[source\\]]({LINK_BASE_URL}/{src_file}#L{line})\n\n")
+        buffer.write(f"[\\[source\\]]({link_base_url}/{src_file}#L{line})\n\n")
         if "readonly" in glob["attr"]:
             buffer.write("Attributes: \\[**constant**\\]\n\n")
 
@@ -952,7 +990,7 @@ def create_markdown_content(docs):
         src_file = func["file"]
         lbegin, lend = func["definition"]["line"].split(":")
         buffer.write(
-            f"[\\[source\\]]({LINK_BASE_URL}/{src_file}#L{lbegin}-L{lend})\n\n"
+            f"[\\[source\\]]({link_base_url}/{src_file}#L{lbegin}-L{lend})\n\n"
         )
         buffer.write(func["text"])
         buffer.write("\n")
