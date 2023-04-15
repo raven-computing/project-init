@@ -1,0 +1,7 @@
+This file should be found by the 'grep' command. (2)
+Line A
+Line B
+Line C
+Line D
+Line E
+${{INCLUDE:some/other/file/to/include}}

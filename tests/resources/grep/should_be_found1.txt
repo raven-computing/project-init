@@ -1,0 +1,7 @@
+This file should be found by the 'grep' command. (1)
+Line A
+Line B
+Line C
+${{INCLUDE:the/shared/file/to/include}}
+Line D
+Line E

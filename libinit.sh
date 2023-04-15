@@ -2971,6 +2971,115 @@ function project_init_license() {
   _FLAG_PROJECT_LICENSE_PROCESSED=true;
 }
 
+# Processes all include directives in copied project source template files.
+#
+# This function scans all source template files that were previously copied into
+# the project target directory. Any found include directive will be replaced by the
+# corresponding shared source template file. Addons resources are considered and
+# can potentially override any shared template from the base resources.
+#
+# Returns:
+# 0 - If all found include directives could be processed.
+# 1 - If at least one error has occurred.
+#
+# Globals:
+# var_project_dir - The path to the project directory, which will be scanned
+#                   recursively for files containing include directives.
+#
+function _process_include_directives() {
+  local line="";
+  local found_file="";
+  local line_num=0;
+  local include_directive="";
+  local include_target="";
+  local include_value="";
+  local replaced="";
+  local regex_numeric="^[0-9]+$";
+
+  local SHARED_TEMPLATES_BASE="${SCRIPT_LVL_0_BASE}/share";
+  local SHARED_TEMPLATES_ADDONS="";
+  if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
+    SHARED_TEMPLATES_ADDONS="${PROJECT_INIT_ADDONS_DIR}/share";
+  fi
+  local n_errors=0;
+
+  # Search for files in the project target directory which have include directives
+  local all_includes=$(grep --recursive                  \
+                            --line-number                \
+                            --regexp='^${{INCLUDE:.*}}$' \
+                            "$var_project_dir");
+
+  # Process found includes
+  for line in $all_includes; do
+    # Pattern:
+    # found_file:line_num:${{INCLUDE:the/file/in/share}}
+    # For example:
+    # /proj/cmake/Util.cmake:1234:${{INCLUDE:lang/cmake/Util.cmake}}
+    #                       ^    ^          ^                       
+    #           f1          | f2 |    f3    |          f4           
+
+    found_file=$(echo "$line" |cut -d: -f1);
+    line_num=$(echo "$line" |cut -d: -f2);
+    include_directive=$(echo "$line" |cut -d: -f4);
+
+    # Check that the processed line number is an actual integer
+    if ! [[ "$line_num" =~ $regex_numeric ]]; then
+      ((++n_errors));
+      continue;
+    fi
+    # Check field 4, which is the last one. It must end with '}}', otherwise
+    # the path of the file to include contains a ':' character, which is
+    # not allowed.
+    if [[ "$include_directive" != *'}}' ]]; then
+      ((++n_errors));
+      logW "Include directive in source template contains an invalid ':' character:";
+      logW "at: '$found_file' (line $line_num)";
+      continue;
+    fi
+    # Remove the trailing '}}'
+    include_directive="${include_directive::-2}";
+    # Absolute path to the included shared file.
+    # Shared templates in the addons resource override any base ones
+    if [ -n "$SHARED_TEMPLATES_ADDONS" ] \
+      && [ -r "${SHARED_TEMPLATES_ADDONS}/${include_directive}" ]; then
+
+      include_target="${SHARED_TEMPLATES_ADDONS}/${include_directive}";
+    else
+      include_target="${SHARED_TEMPLATES_BASE}/${include_directive}";
+    fi
+    # Ensure that the file actually exists
+    if ! [ -r "$include_target" ]; then
+      ((++n_errors));
+      logW "Cannot include file '$include_directive'";
+      logW "From include directive:";
+      logW "at: '$found_file' (line $line_num)";
+      continue;
+    fi
+    # Read the content of the included file
+    include_value="$(cat "$include_target")";
+    # Read the source file and replace the include directive with
+    # the content of the included file
+    replaced="$(awk -v key='\\${{INCLUDE:'"${include_directive}"'}}' \
+                    -v value="${include_value}"                      \
+                    '{ gsub(key, value); print; }'                   \
+                    "$found_file")";
+
+    # Replace file content
+    echo "$replaced" > "$found_file";
+  done
+
+  # Check for errors
+  if (( $n_errors > 0 )); then
+    local what="include directive";
+    if (( $n_errors > 1 )); then
+      what="include directives"; # plural
+    fi
+    warning "A total of ${n_errors} ${what} could not be processed";
+    return 1;
+  fi
+  return 0;
+}
+
 # [API function]
 # Processes the project source template files copied to the project
 # target directory.
@@ -3001,6 +3110,8 @@ function project_init_process() {
             "script calls all mandatory API functions in the correct order."                \
             "";
   fi
+
+  _process_include_directives;
 
   replace_var "PROJECT_NAME"               "$var_project_name";
   replace_var "PROJECT_NAME_LOWER"         "$var_project_name_lower";
