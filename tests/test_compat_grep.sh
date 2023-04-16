@@ -108,8 +108,8 @@ function test_grep_input_first_line_with_printable_char() {
 function test_grep_find_all_files_with_include_directives() {
   local expected=$(cat << EOS
 resources/grep/should_be_found1.txt:5:\${{INCLUDE:the/shared/file/to/include}}
-resources/grep/should_be_found3.txt:1:\${{INCLUDE:and/a/different/file/also.txt}}
 resources/grep/should_be_found2.txt:7:\${{INCLUDE:some/other/file/to/include}}
+resources/grep/should_be_found3.txt:1:\${{INCLUDE:and/a/different/file/also.txt}}
 EOS
 )
   local actual;
@@ -117,6 +117,9 @@ EOS
                 --line-number                \
                 --regexp='^${{INCLUDE:.*}}$' \
                 "resources/grep");
+
+  # Sort output of grep
+  actual=$(echo "$actual" |sort);
 
   assert_equal "$expected" "$actual" $?;
   return $?;
