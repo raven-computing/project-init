@@ -2621,6 +2621,103 @@ function read_user_input_yes_no() {
 }
 
 # [API function]
+# Loads a shared template resource and copies it to the destination path.
+#
+# This function searches for a shared source template resource specified by
+# the first argument, loads it if it exists and copies it to the location
+# in the project target directory specified by the second argument.
+# The underlying target project directory must already be created before
+# calling this function.
+#
+# Addons resources are considered and can potentially override any shared
+# template from the base resources. If the file in the project target
+# directory, specified by the second argument, does already exist, it will
+# be replaced by the specified shared template resource.
+#
+# Args:
+# $1 - The name of the shared resource to load and copy. This is the path of
+#      the file, relative to the 'share' directory. The path must not be absolute.
+# $2 - The destination file to copy the shared resource to. Must be a path
+#      to a file in the project target directory. The path must not be absolute.
+#
+# Returns:
+# 0 - If the shared resource was successfully copied.
+# 1 - If the shared resource could not be found.
+# 2 - If the shared resource exists but could not be copied.
+#
+# Examples:
+# copy_shared "copy/this/shared/res" "to/this/path/in/my/project";
+#
+function copy_shared() {
+  local arg_shared_name="$1";
+  local arg_dest_path="$2";
+  # Check args
+  if [ -z "$arg_shared_name" ]; then
+    _make_func_hl "copy_shared";
+    logE "Programming error: Illegal function call:";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
+            "No arguments specified";
+  fi
+  if [[ "$arg_shared_name" == /* ]]; then
+    _make_func_hl "copy_shared";
+    logE "Programming error: Illegal function call:";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
+            "The shared resource name must not be an absolute path";
+  fi
+  if [ -z "$arg_dest_path" ]; then
+    _make_func_hl "copy_shared";
+    logE "Programming error: Illegal function call:";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
+            "No destination path argument specified";
+  fi
+  if [[ "$arg_dest_path" == /* ]]; then
+    _make_func_hl "copy_shared";
+    logE "Programming error: Illegal function call:";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
+            "The file destination must not be an absolute path";
+  fi
+  # Project dir must already exist
+  if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
+    _make_func_hl "copy_shared";
+    local _hl_copy_shared="$HYPERLINK_VALUE";
+    _make_func_hl "project_init_copy";
+    local _hl_pic="$HYPERLINK_VALUE";
+    logE "Programming error in init script:";
+    logE "at: '${CURRENT_LVL_PATH}/init.sh' (line ${BASH_LINENO[0]})";
+    failure "Missing call to project_init_copy() function:"                              \
+            "When calling the ${_hl_copy_shared} function, the target project directory" \
+            "must already be created. "                                                  \
+            "Make sure you first call the ${_hl_pic} function in your init script";
+  fi
+  # Check which file to load (from addon or base)
+  local shared_res_file="${SCRIPT_LVL_0_BASE}/share/${arg_shared_name}";
+  if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
+    local addon_res_file="${PROJECT_INIT_ADDONS_DIR}/share/${arg_shared_name}";
+    if [ -r "$addon_res_file" ]; then
+      shared_res_file="$addon_res_file";
+    fi
+  fi
+  if ! [ -r "$shared_res_file" ]; then
+    logW "Cannot copy shared resource '$arg_shared_name'";
+    logW "Shared resouce not found";
+    return 1;
+  fi
+  local res_destination="${var_project_dir}/${arg_dest_path}";
+  cp "$shared_res_file" "$res_destination";
+  if (( $? != 0 )); then
+    logW "Could not copy the following file:";
+    logW "Source: '$shared_res_file'";
+    logW "Target: '$res_destination'";
+    return 2;
+  fi
+  return 0;
+}
+
+# [API function]
 # Loads the variable value with the specified key from
 # the corresponding var file.
 #
