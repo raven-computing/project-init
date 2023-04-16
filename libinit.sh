@@ -2279,6 +2279,13 @@ function _check_is_valid_project_dir() {
     logE "Invalid path entered: '//' (double slashes)";
     failure "Please enter a valid project directory path";
   fi
+  # Check against ':' (colon) characters as this could lead to
+  # problems with template includes where ':' is used as a delimiter
+  if [[ "$arg_project_dir" == *":"* ]]; then
+    logE "Invalid path entered.";
+    logE "The following character is invalid: ':' (colon)";
+    failure "Please enter a valid project directory path";
+  fi
   # Must be an absolute path
   if ! [[ "$arg_project_dir" == /* ]]; then
     logE "The entered path is not absolute";
