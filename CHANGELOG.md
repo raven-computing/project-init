@@ -1,3 +1,8 @@
+#### 1.2.1
+* Updated dependency versions in C++ and Java-JNI project source templates.
+* Improved documentation generator script to consider future major version changes automatically when creating document hyperlinks.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.2.0...v1.2.1)
+
 #### 1.2.0
 * Added R library with native C++ code using Rcpp project type source template.
 * Added Odoo module project type source template.
