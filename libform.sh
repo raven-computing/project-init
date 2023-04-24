@@ -398,3 +398,36 @@ function show_project_init_main_form() {
   FORM_MAIN_NEXT_DIR="$selected_dir";
   return 0;
 }
+
+# [API function]
+# Prompts the user to enter whether he wants Docker integration.
+#
+function form_docker_integration() {
+  FORM_QUESTION_ID="project.integration.docker";
+  logI "";
+  logI "Would you like to enable Docker integration? (Y/n)";
+  read_user_input_yes_no true;
+  if [[ "$USER_INPUT_ENTERED_BOOL" == "true" ]]; then
+    var_project_integration_docker_enabled="1";
+    var_script_build_isolated_opt="$(load_var SCRIPT_BUILD_ISOLATED_OPT)";
+    var_script_build_isolated_argflag="$(load_var SCRIPT_BUILD_ISOLATED_ARGFLAG)";
+    var_script_build_isolated_argarray="$(load_var SCRIPT_BUILD_ISOLATED_ARGARRAY)";
+    var_script_build_isolated_argarray_add="$(load_var SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD)";
+    var_script_build_isolated_argparse="$(load_var SCRIPT_BUILD_ISOLATED_ARGPARSE)";
+    var_script_build_isolated_main="$(load_var SCRIPT_BUILD_ISOLATED_MAIN)";
+    var_script_build_isolated_hint1="$(load_var SCRIPT_BUILD_ISOLATED_HINT1)";
+    var_script_test_isolated_opt="$(load_var SCRIPT_TEST_ISOLATED_OPT)";
+    var_script_test_isolated_main="$(load_var SCRIPT_TEST_ISOLATED_MAIN)";
+  else
+    var_project_integration_docker_enabled="0";
+    var_script_build_isolated_opt="";
+    var_script_build_isolated_argflag="";
+    var_script_build_isolated_argarray="";
+    var_script_build_isolated_argarray_add="";
+    var_script_build_isolated_argparse="";
+    var_script_build_isolated_main="";
+    var_script_build_isolated_hint1="";
+    var_script_test_isolated_opt="";
+    var_script_test_isolated_main="";
+  fi
+}

@@ -27,7 +27,7 @@ form_c_version;
 
 form_c_binary_name;
 
-form_c_add_docker_integration
+form_docker_integration;
 
 # Project setup
 
