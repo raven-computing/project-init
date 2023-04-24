@@ -163,7 +163,7 @@ function process_files_lvl_2() {
       # Remove the original now empty placeholder namespace dir
       rm -r "$var_project_dir/src/main/include/namespace/";
       if (( $? != 0 )); then
-          failure "Failed to remove template source namespace directory";
+        failure "Failed to remove template source namespace directory";
       fi
     fi
     # Create directory layout for cpp files
@@ -178,7 +178,7 @@ function process_files_lvl_2() {
       # Remove the original now empty placeholder namespace dir
       rm -r "$var_project_dir/src/main/${c_or_cpp}/namespace/";
       if (( $? != 0 )); then
-          failure "Failed to remove template source namespace directory";
+        failure "Failed to remove template source namespace directory";
       fi
     fi
     # Create directory layout for test cpp files
@@ -193,7 +193,7 @@ function process_files_lvl_2() {
       # Remove the original now empty placeholder namespace dir
       rm -r "$var_project_dir/src/test/${c_or_cpp}/namespace/";
       if (( $? != 0 )); then
-          failure "Failed to remove template source namespace directory";
+        failure "Failed to remove template source namespace directory";
       fi
     fi
 

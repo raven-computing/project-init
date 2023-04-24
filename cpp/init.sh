@@ -89,7 +89,7 @@ function process_files_lvl_1() {
       # Remove the original now empty placeholder namespace dir
       rm -r "$var_project_dir/src/main/cpp/namespace/";
       if (( $? != 0 )); then
-          failure "Failed to remove template source namespace directory";
+        failure "Failed to remove template source namespace directory";
       fi
     fi
     if [ -d "$var_project_dir/src/main/include/namespace" ]; then
@@ -103,7 +103,7 @@ function process_files_lvl_1() {
       # Remove the original now empty placeholder namespace dir
       rm -r "$var_project_dir/src/main/include/namespace/";
       if (( $? != 0 )); then
-          failure "Failed to remove template source namespace directory";
+        failure "Failed to remove template source namespace directory";
       fi
     fi
     if [ -d "$var_project_dir/src/main/tests/cpp/namespace" ]; then
@@ -117,7 +117,7 @@ function process_files_lvl_1() {
       # Remove the original now empty placeholder namespace dir
       rm -r "$var_project_dir/src/main/tests/cpp/namespace/";
       if (( $? != 0 )); then
-          failure "Failed to remove template source namespace directory";
+        failure "Failed to remove template source namespace directory";
       fi
     fi
     # Update file cache
@@ -138,7 +138,7 @@ function process_files_lvl_1() {
       # Remove entire .docker dir in source root
       rm -r "$var_project_dir/.docker";
       if (( $? != 0 )); then
-          failure "Failed to remove template source docker integration directory";
+        failure "Failed to remove template source docker integration directory";
       fi
       find_all_files;
     fi

@@ -148,7 +148,7 @@ function process_files_lvl_1() {
       # Remove the original empty package dir
       rm -r "$var_project_dir/package/";
       if (( $? != 0 )); then
-          failure "Failed to remove template source package directory";
+        failure "Failed to remove template source package directory";
       fi
       # Update file cache
       find_all_files;
@@ -169,7 +169,7 @@ function process_files_lvl_1() {
       # Remove entire .docker dir in source root
       rm -r "$var_project_dir/.docker";
       if (( $? != 0 )); then
-          failure "Failed to remove template source docker integration directory";
+        failure "Failed to remove template source docker integration directory";
       fi
       find_all_files;
     fi
