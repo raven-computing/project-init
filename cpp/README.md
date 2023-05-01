@@ -12,3 +12,6 @@ Project init code for C++ projects.
 
 * **(03) Server application (Poco)**  
   A server application utilizing the Poco library.
+
+* **(04) Desktop GUI application (ImGUI)**  
+  A desktop GUI application using ImGUI, GLFW and OpenGL 3.
