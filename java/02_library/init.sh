@@ -27,7 +27,7 @@ form_java_version;
 
 form_java_namespace;
 
-form_java_add_docker_integration;
+form_docker_integration;
 
 # Project setup
 
