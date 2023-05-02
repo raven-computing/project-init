@@ -418,6 +418,10 @@ function form_docker_integration() {
     var_script_build_isolated_hint1="$(load_var SCRIPT_BUILD_ISOLATED_HINT1)";
     var_script_test_isolated_opt="$(load_var SCRIPT_TEST_ISOLATED_OPT)";
     var_script_test_isolated_main="$(load_var SCRIPT_TEST_ISOLATED_MAIN)";
+    var_script_test_isolated_hint1="$(load_var SCRIPT_TEST_ISOLATED_HINT1)";
+    var_script_run_isolated_opt="$(load_var SCRIPT_RUN_ISOLATED_OPT)";
+    var_script_run_isolated_main="$(load_var SCRIPT_RUN_ISOLATED_MAIN)";
+    var_script_run_isolated_hint1="$(load_var SCRIPT_RUN_ISOLATED_HINT1)";
   else
     var_project_integration_docker_enabled="0";
     var_script_build_isolated_opt="";
@@ -429,5 +433,9 @@ function form_docker_integration() {
     var_script_build_isolated_hint1="";
     var_script_test_isolated_opt="";
     var_script_test_isolated_main="";
+    var_script_test_isolated_hint1="";
+    var_script_run_isolated_opt="";
+    var_script_run_isolated_main="";
+    var_script_run_isolated_hint1="";
   fi
 }

@@ -2981,6 +2981,10 @@ function _project_init_process_docker_integration() {
   replace_var "SCRIPT_BUILD_ISOLATED_HINT1"        "$var_script_build_isolated_hint1";
   replace_var "SCRIPT_TEST_ISOLATED_OPT"           "$var_script_test_isolated_opt";
   replace_var "SCRIPT_TEST_ISOLATED_MAIN"          "$var_script_test_isolated_main";
+  replace_var "SCRIPT_TEST_ISOLATED_HINT1"         "$var_script_test_isolated_hint1";
+  replace_var "SCRIPT_RUN_ISOLATED_OPT"            "$var_script_run_isolated_opt";
+  replace_var "SCRIPT_RUN_ISOLATED_MAIN"           "$var_script_run_isolated_main";
+  replace_var "SCRIPT_RUN_ISOLATED_HINT1"          "$var_script_run_isolated_hint1";
   if [[ "$var_project_integration_docker_enabled" == "0" ]]; then
     # Remove entire .docker dir in source root
     rm -r "$var_project_dir/.docker";
