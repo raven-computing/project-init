@@ -89,6 +89,10 @@ function process_files_lvl_1() {
     replace_var "SCRIPT_TEST_LINT_CODE";
     replace_var "REQUIREMENTS_LINT";
     replace_var "README_DEV_LINT";
+    # The subst var 'VAR_SCRIPT_TEST_LINT_ARG_PARSE' contains another
+    # subst var, related to Docker integration, which needs to be replaced again
+    replace_var "SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD" \
+                "$var_script_build_isolated_argarray_add";
   else
     replace_var "SCRIPT_TEST_LINT_HELP"      "";
     replace_var "SCRIPT_TEST_LINT_ARG"       "";
@@ -151,26 +155,6 @@ function process_files_lvl_1() {
           failure "Failed to remove template source package directory";
       fi
       # Update file cache
-      find_all_files;
-    fi
-  fi
-
-  if [ -n "$var_integration_docker_enabled" ]; then
-    replace_var "SCRIPT_BUILD_ISOLATED_OPT"          "$var_script_build_isolated_opt";
-    replace_var "SCRIPT_BUILD_ISOLATED_ARGFLAG"      "$var_script_build_isolated_argflag";
-    replace_var "SCRIPT_BUILD_ISOLATED_ARGARRAY"     "$var_script_build_isolated_argarray";
-    replace_var "SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD" "$var_script_build_isolated_argarray_add";
-    replace_var "SCRIPT_BUILD_ISOLATED_ARGPARSE"     "$var_script_build_isolated_argparse";
-    replace_var "SCRIPT_BUILD_ISOLATED_MAIN"         "$var_script_build_isolated_main";
-    replace_var "SCRIPT_TEST_ISOLATED_OPT"           "$var_script_test_isolated_opt";
-    replace_var "SCRIPT_TEST_ISOLATED_MAIN"          "$var_script_test_isolated_main";
-    replace_var "SCRIPT_TEST_ISOLATED_HINT1"         "$var_script_test_isolated_hint1";
-    if [[ "$var_integration_docker_enabled" == "0" ]]; then
-      # Remove entire .docker dir in source root
-      rm -r "$var_project_dir/.docker";
-      if (( $? != 0 )); then
-          failure "Failed to remove template source docker integration directory";
-      fi
       find_all_files;
     fi
   fi
@@ -367,39 +351,6 @@ function form_python_pypi_deployment() {
   read_user_input_yes_no false;
   var_use_deploy=$USER_INPUT_ENTERED_BOOL;
 }
-
-# Prompts the user to enter whether he wants Docker integration.
-#
-function form_python_add_docker_integration() {
-  FORM_QUESTION_ID="python.integration.docker";
-  logI "";
-  logI "Would you like to enable Docker integration? (Y/n)";
-  read_user_input_yes_no true;
-  if [[ "$USER_INPUT_ENTERED_BOOL" == "true" ]]; then
-    var_integration_docker_enabled="1";
-    var_script_build_isolated_opt="$(load_var SCRIPT_BUILD_ISOLATED_OPT)";
-    var_script_build_isolated_argflag="$(load_var SCRIPT_BUILD_ISOLATED_ARGFLAG)";
-    var_script_build_isolated_argarray="$(load_var SCRIPT_BUILD_ISOLATED_ARGARRAY)";
-    var_script_build_isolated_argarray_add="$(load_var SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD)";
-    var_script_build_isolated_argparse="$(load_var SCRIPT_BUILD_ISOLATED_ARGPARSE)";
-    var_script_build_isolated_main="$(load_var SCRIPT_BUILD_ISOLATED_MAIN)";
-    var_script_test_isolated_opt="$(load_var SCRIPT_TEST_ISOLATED_OPT)";
-    var_script_test_isolated_main="$(load_var SCRIPT_TEST_ISOLATED_MAIN)";
-    var_script_test_isolated_hint1="$(load_var SCRIPT_TEST_ISOLATED_HINT1)";
-  else
-    var_integration_docker_enabled="0";
-    var_script_build_isolated_opt="";
-    var_script_build_isolated_argflag="";
-    var_script_build_isolated_argarray="";
-    var_script_build_isolated_argarray_add="";
-    var_script_build_isolated_argparse="";
-    var_script_build_isolated_main="";
-    var_script_test_isolated_opt="";
-    var_script_test_isolated_main="";
-    var_script_test_isolated_hint1="";
-  fi
-}
-
 
 # Create the mapping for the setup.py license classifier
 var_license_classifier_setup_py="";
