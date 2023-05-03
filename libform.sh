@@ -402,6 +402,27 @@ function show_project_init_main_form() {
 # [API function]
 # Prompts the user to enter whether he wants Docker integration.
 #
+# Enabling Docker integration for a project means that a user can build and test the
+# project inside a virtualized environment of a Docker container. This makes it easier,
+# for example, to build a project from source because a user does not have to worry
+# about the underlying toolchain. Integration with Docker is always optional.
+#
+# This function will set the `var_project_integration_docker_enabled` global variable
+# to either "1" or "0", depending on the user's choice. You may then handle this
+# information in one of your custom `process_files_lvl_*()` functions.
+#
+# The project source files responsible for the Docker integration should
+# reside in a **'.docker'** directory inside the project source root. If the user chooses
+# to disable Docker integration for a project, then that directory is automatically
+# removed from the project during initialization.
+#
+# Globals:
+# FORM_QUESTION_ID                       - project.integration.docker
+# var_project_integration_docker_enabled - Indicates whether the user wants to enable Docker
+#                                          integration for the project or not. Is set to the
+#                                          string "1" if Docker integration should be enabled,
+#                                          otherwise it is set to "0". Is set by this function.
+#
 function form_docker_integration() {
   FORM_QUESTION_ID="project.integration.docker";
   logI "";
