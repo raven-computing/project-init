@@ -2279,6 +2279,13 @@ function _check_is_valid_project_dir() {
     logE "Invalid path entered: '//' (double slashes)";
     failure "Please enter a valid project directory path";
   fi
+  # Check against ':' (colon) characters as this could lead to
+  # problems with template includes where ':' is used as a delimiter
+  if [[ "$arg_project_dir" == *":"* ]]; then
+    logE "Invalid path entered.";
+    logE "The following character is invalid: ':' (colon)";
+    failure "Please enter a valid project directory path";
+  fi
   # Must be an absolute path
   if ! [[ "$arg_project_dir" == /* ]]; then
     logE "The entered path is not absolute";
@@ -2610,6 +2617,106 @@ function read_user_input_yes_no() {
     echo -e "[${COLOR_CYAN}INPUT${COLOR_NC}] $canonical_answer";
   fi
 
+  return 0;
+}
+
+# [API function]
+# Loads a shared template resource and copies it to the destination path.
+#
+# This function searches for a shared source template resource specified by
+# the first argument, loads it if it exists and copies it to the location
+# in the project target directory specified by the second argument.
+# The underlying target project directory must already be created before
+# calling this function.
+#
+# Addons resources are considered and can potentially override any shared
+# template from the base resources. If the file in the project target
+# directory, specified by the second argument, does already exist, it will
+# be replaced by the specified shared template resource.
+#
+# Since:
+# 1.3.0
+#
+# Args:
+# $1 - The name of the shared resource to load and copy. This is the path of
+#      the file, relative to the 'share' directory. The path must not be absolute.
+# $2 - The destination file to copy the shared resource to. Must be a path
+#      to a file in the project target directory. The path must not be absolute.
+#
+# Returns:
+# 0 - If the shared resource was successfully copied.
+# 1 - If the shared resource could not be found.
+# 2 - If the shared resource exists but could not be copied.
+#
+# Examples:
+# copy_shared "copy/this/shared/res" "to/this/path/in/my/project";
+#
+function copy_shared() {
+  local arg_shared_name="$1";
+  local arg_dest_path="$2";
+  # Check args
+  if [ -z "$arg_shared_name" ]; then
+    _make_func_hl "copy_shared";
+    logE "Programming error: Illegal function call:";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
+            "No arguments specified";
+  fi
+  if [[ "$arg_shared_name" == /* ]]; then
+    _make_func_hl "copy_shared";
+    logE "Programming error: Illegal function call:";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
+            "The shared resource name must not be an absolute path";
+  fi
+  if [ -z "$arg_dest_path" ]; then
+    _make_func_hl "copy_shared";
+    logE "Programming error: Illegal function call:";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
+            "No destination path argument specified";
+  fi
+  if [[ "$arg_dest_path" == /* ]]; then
+    _make_func_hl "copy_shared";
+    logE "Programming error: Illegal function call:";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
+            "The file destination must not be an absolute path";
+  fi
+  # Project dir must already exist
+  if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
+    _make_func_hl "copy_shared";
+    local _hl_copy_shared="$HYPERLINK_VALUE";
+    _make_func_hl "project_init_copy";
+    local _hl_pic="$HYPERLINK_VALUE";
+    logE "Programming error in init script:";
+    logE "at: '${CURRENT_LVL_PATH}/init.sh' (line ${BASH_LINENO[0]})";
+    failure "Missing call to project_init_copy() function:"                              \
+            "When calling the ${_hl_copy_shared} function, the target project directory" \
+            "must already be created. "                                                  \
+            "Make sure you first call the ${_hl_pic} function in your init script";
+  fi
+  # Check which file to load (from addon or base)
+  local shared_res_file="${SCRIPT_LVL_0_BASE}/share/${arg_shared_name}";
+  if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
+    local addon_res_file="${PROJECT_INIT_ADDONS_DIR}/share/${arg_shared_name}";
+    if [ -r "$addon_res_file" ]; then
+      shared_res_file="$addon_res_file";
+    fi
+  fi
+  if ! [ -r "$shared_res_file" ]; then
+    logW "Cannot copy shared resource '$arg_shared_name'";
+    logW "Shared resouce not found";
+    return 1;
+  fi
+  local res_destination="${var_project_dir}/${arg_dest_path}";
+  cp "$shared_res_file" "$res_destination";
+  if (( $? != 0 )); then
+    logW "Could not copy the following file:";
+    logW "Source: '$shared_res_file'";
+    logW "Target: '$res_destination'";
+    return 2;
+  fi
   return 0;
 }
 
@@ -2971,6 +3078,115 @@ function project_init_license() {
   _FLAG_PROJECT_LICENSE_PROCESSED=true;
 }
 
+# Processes all include directives in copied project source template files.
+#
+# This function scans all source template files that were previously copied into
+# the project target directory. Any found include directive will be replaced by the
+# corresponding shared source template file. Addons resources are considered and
+# can potentially override any shared template from the base resources.
+#
+# Returns:
+# 0 - If all found include directives could be processed.
+# 1 - If at least one error has occurred.
+#
+# Globals:
+# var_project_dir - The path to the project directory, which will be scanned
+#                   recursively for files containing include directives.
+#
+function _process_include_directives() {
+  local line="";
+  local found_file="";
+  local line_num=0;
+  local include_directive="";
+  local include_target="";
+  local include_value="";
+  local replaced="";
+  local regex_numeric="^[0-9]+$";
+
+  local SHARED_TEMPLATES_BASE="${SCRIPT_LVL_0_BASE}/share";
+  local SHARED_TEMPLATES_ADDONS="";
+  if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
+    SHARED_TEMPLATES_ADDONS="${PROJECT_INIT_ADDONS_DIR}/share";
+  fi
+  local n_errors=0;
+
+  # Search for files in the project target directory which have include directives
+  local all_includes=$(grep --recursive                  \
+                            --line-number                \
+                            --regexp='^${{INCLUDE:.*}}$' \
+                            "$var_project_dir");
+
+  # Process found includes
+  for line in $all_includes; do
+    # Pattern:
+    # found_file:line_num:${{INCLUDE:the/file/in/share}}
+    # For example:
+    # /proj/cmake/Util.cmake:1234:${{INCLUDE:lang/cmake/Util.cmake}}
+    #                       ^    ^          ^                       
+    #           f1          | f2 |    f3    |          f4           
+
+    found_file=$(echo "$line" |cut -d: -f1);
+    line_num=$(echo "$line" |cut -d: -f2);
+    include_directive=$(echo "$line" |cut -d: -f4);
+
+    # Check that the processed line number is an actual integer
+    if ! [[ "$line_num" =~ $regex_numeric ]]; then
+      ((++n_errors));
+      continue;
+    fi
+    # Check field 4, which is the last one. It must end with '}}', otherwise
+    # the path of the file to include contains a ':' character, which is
+    # not allowed.
+    if [[ "$include_directive" != *'}}' ]]; then
+      ((++n_errors));
+      logW "Include directive in source template contains an invalid ':' character:";
+      logW "at: '$found_file' (line $line_num)";
+      continue;
+    fi
+    # Remove the trailing '}}'
+    include_directive="${include_directive::-2}";
+    # Absolute path to the included shared file.
+    # Shared templates in the addons resource override any base ones
+    if [ -n "$SHARED_TEMPLATES_ADDONS" ] \
+      && [ -r "${SHARED_TEMPLATES_ADDONS}/${include_directive}" ]; then
+
+      include_target="${SHARED_TEMPLATES_ADDONS}/${include_directive}";
+    else
+      include_target="${SHARED_TEMPLATES_BASE}/${include_directive}";
+    fi
+    # Ensure that the file actually exists
+    if ! [ -r "$include_target" ]; then
+      ((++n_errors));
+      logW "Cannot include file '$include_directive'";
+      logW "From include directive:";
+      logW "at: '$found_file' (line $line_num)";
+      continue;
+    fi
+    # Read the content of the included file
+    include_value="$(cat "$include_target")";
+    # Read the source file and replace the include directive with
+    # the content of the included file
+    replaced="$(awk -v key='\\${{INCLUDE:'"${include_directive}"'}}' \
+                    -v value="${include_value}"                      \
+                    '{ gsub(key, value); print; }'                   \
+                    "$found_file")";
+
+    # Replace file content
+    echo "$replaced" > "$found_file";
+  done
+
+  # Check for errors
+  if (( $n_errors > 0 )); then
+    local what="include directive";
+    if (( $n_errors > 1 )); then
+      what="include directives"; # plural
+    fi
+    warning "A total of ${n_errors} ${what} could not be processed";
+    return 1;
+  fi
+  return 0;
+}
+
 # [API function]
 # Processes the project source template files copied to the project
 # target directory.
@@ -3001,6 +3217,8 @@ function project_init_process() {
             "script calls all mandatory API functions in the correct order."                \
             "";
   fi
+
+  _process_include_directives;
 
   replace_var "PROJECT_NAME"               "$var_project_name";
   replace_var "PROJECT_NAME_LOWER"         "$var_project_name_lower";

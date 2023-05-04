@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2023 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -91,13 +91,43 @@ EOS
   return $?;
 }
 
+function test_replace_include_directive_from_file() {
+  local _include_file_key="the/shared/file/to/include";
+  local _include_value=$(cat << EOS
+  _INCL_BEGIN_  
+THE_INCLUDED_DATA
+  _INCL_END_  
+EOS
+)
+  local expected=$(cat << EOS
+Line A
+Line B
+Line C
+  _INCL_BEGIN_  
+THE_INCLUDED_DATA
+  _INCL_END_  
+Line D
+Line E
+EOS
+)
+  local actual;
+  actual="$(awk -v key='\\${{INCLUDE:'"${_include_file_key}"'}}' \
+                -v value="${_include_value}"                      \
+                '{ sub(key, value); print; }'                     \
+                "resources/awk_replace_include_directive.txt")";
+
+  assert_equal "$expected" "$actual" $?;
+  return $?;
+}
+
 function test_command() {
-  test_single_delimiter_first      &&
-  test_single_delimiter_second     &&
-  test_multichar_delimiter_first   &&
-  test_multichar_delimiter_second  &&
-  test_remove_line_from_file       &&
-  test_replace_variable_from_file;
+  test_single_delimiter_first              &&
+  test_single_delimiter_second             &&
+  test_multichar_delimiter_first           &&
+  test_multichar_delimiter_second          &&
+  test_remove_line_from_file               &&
+  test_replace_variable_from_file          &&
+  test_replace_include_directive_from_file;
   return $?;
 }
 

@@ -1,0 +1,6 @@
+Line A
+Line B
+Line C
+${{INCLUDE:the/shared/file/to/include}}
+Line D
+Line E

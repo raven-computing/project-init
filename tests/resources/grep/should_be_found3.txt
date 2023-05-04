@@ -1,0 +1,2 @@
+${{INCLUDE:and/a/different/file/also.txt}}
+This file should be found by the 'grep' command. (3)
