@@ -34,7 +34,7 @@ form_python_use_linter;
 
 form_python_pypi_deployment;
 
-form_python_add_docker_integration;
+form_docker_integration;
 
 # Project setup
 

@@ -23,9 +23,9 @@
 
 # Form questions
 
-form_nodejs_version
+form_nodejs_version;
 
-form_js_add_docker_integration;
+form_docker_integration;
 
 # Project setup
 

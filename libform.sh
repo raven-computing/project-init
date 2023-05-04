@@ -398,3 +398,65 @@ function show_project_init_main_form() {
   FORM_MAIN_NEXT_DIR="$selected_dir";
   return 0;
 }
+
+# [API function]
+# Prompts the user to enter whether he wants Docker integration.
+#
+# Enabling Docker integration for a project means that a user can build and test the
+# project inside a virtualized environment of a Docker container. This makes it easier,
+# for example, to build a project from source because a user does not have to worry
+# about the underlying toolchain. Integration with Docker is always optional.
+#
+# This function will set the `var_project_integration_docker_enabled` global variable
+# to either "1" or "0", depending on the user's choice. You may then handle this
+# information in one of your custom `process_files_lvl_*()` functions.
+#
+# The project source files responsible for the Docker integration should
+# reside in a **'.docker'** directory inside the project source root. If the user chooses
+# to disable Docker integration for a project, then that directory is automatically
+# removed from the project during initialization.
+#
+# Globals:
+# FORM_QUESTION_ID                       - project.integration.docker
+# var_project_integration_docker_enabled - Indicates whether the user wants to enable Docker
+#                                          integration for the project or not. Is set to the
+#                                          string "1" if Docker integration should be enabled,
+#                                          otherwise it is set to "0". Is set by this function.
+#
+function form_docker_integration() {
+  FORM_QUESTION_ID="project.integration.docker";
+  logI "";
+  logI "Would you like to enable Docker integration? (Y/n)";
+  read_user_input_yes_no true;
+  if [[ "$USER_INPUT_ENTERED_BOOL" == "true" ]]; then
+    var_project_integration_docker_enabled="1";
+    var_script_build_isolated_opt="$(load_var SCRIPT_BUILD_ISOLATED_OPT)";
+    var_script_build_isolated_argflag="$(load_var SCRIPT_BUILD_ISOLATED_ARGFLAG)";
+    var_script_build_isolated_argarray="$(load_var SCRIPT_BUILD_ISOLATED_ARGARRAY)";
+    var_script_build_isolated_argarray_add="$(load_var SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD)";
+    var_script_build_isolated_argparse="$(load_var SCRIPT_BUILD_ISOLATED_ARGPARSE)";
+    var_script_build_isolated_main="$(load_var SCRIPT_BUILD_ISOLATED_MAIN)";
+    var_script_build_isolated_hint1="$(load_var SCRIPT_BUILD_ISOLATED_HINT1)";
+    var_script_test_isolated_opt="$(load_var SCRIPT_TEST_ISOLATED_OPT)";
+    var_script_test_isolated_main="$(load_var SCRIPT_TEST_ISOLATED_MAIN)";
+    var_script_test_isolated_hint1="$(load_var SCRIPT_TEST_ISOLATED_HINT1)";
+    var_script_run_isolated_opt="$(load_var SCRIPT_RUN_ISOLATED_OPT)";
+    var_script_run_isolated_main="$(load_var SCRIPT_RUN_ISOLATED_MAIN)";
+    var_script_run_isolated_hint1="$(load_var SCRIPT_RUN_ISOLATED_HINT1)";
+  else
+    var_project_integration_docker_enabled="0";
+    var_script_build_isolated_opt="";
+    var_script_build_isolated_argflag="";
+    var_script_build_isolated_argarray="";
+    var_script_build_isolated_argarray_add="";
+    var_script_build_isolated_argparse="";
+    var_script_build_isolated_main="";
+    var_script_build_isolated_hint1="";
+    var_script_test_isolated_opt="";
+    var_script_test_isolated_main="";
+    var_script_test_isolated_hint1="";
+    var_script_run_isolated_opt="";
+    var_script_run_isolated_main="";
+    var_script_run_isolated_hint1="";
+  fi
+}

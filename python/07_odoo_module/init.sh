@@ -236,7 +236,7 @@ form_python_odoo_create_model_and_views;
 
 form_python_odoo_create_wizard;
 
-form_python_add_docker_integration;
+form_docker_integration;
 
 # Project setup
 
