@@ -2634,6 +2634,9 @@ function read_user_input_yes_no() {
 # directory, specified by the second argument, does already exist, it will
 # be replaced by the specified shared template resource.
 #
+# Since:
+# 1.3.0
+#
 # Args:
 # $1 - The name of the shared resource to load and copy. This is the path of
 #      the file, relative to the 'share' directory. The path must not be absolute.
