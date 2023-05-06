@@ -50,6 +50,14 @@
 # Represents the return value of the show_project_init_main_form() function.
 FORM_MAIN_NEXT_DIR="";
 
+# Form callback function called by libinit when the project
+# initialization process is executed.
+function _project_init_process_forms() {
+  if [ -n "$var_project_integration_docker_enabled" ]; then
+    _project_init_process_docker_integration;
+  fi
+}
+
 # Shows and runs through the main Project Init form.
 function show_project_init_main_form() {
   logI "";
@@ -399,6 +407,44 @@ function show_project_init_main_form() {
   return 0;
 }
 
+# Processes the project source template files related to the Docker integration.
+function _project_init_process_docker_integration() {
+  replace_var "SCRIPT_BUILD_ISOLATED_OPT"          "$var_script_build_isolated_opt";
+  replace_var "SCRIPT_BUILD_ISOLATED_ARGFLAG"      "$var_script_build_isolated_argflag";
+  replace_var "SCRIPT_BUILD_ISOLATED_ARGARRAY"     "$var_script_build_isolated_argarray";
+  replace_var "SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD" "$var_script_build_isolated_argarray_add";
+  replace_var "SCRIPT_BUILD_ISOLATED_ARGPARSE"     "$var_script_build_isolated_argparse";
+  replace_var "SCRIPT_BUILD_ISOLATED_MAIN"         "$var_script_build_isolated_main";
+  replace_var "SCRIPT_BUILD_ISOLATED_HINT1"        "$var_script_build_isolated_hint1";
+  replace_var "SCRIPT_TEST_ISOLATED_OPT"           "$var_script_test_isolated_opt";
+  replace_var "SCRIPT_TEST_ISOLATED_MAIN"          "$var_script_test_isolated_main";
+  replace_var "SCRIPT_TEST_ISOLATED_HINT1"         "$var_script_test_isolated_hint1";
+  replace_var "SCRIPT_RUN_ISOLATED_OPT"            "$var_script_run_isolated_opt";
+  replace_var "SCRIPT_RUN_ISOLATED_MAIN"           "$var_script_run_isolated_main";
+  replace_var "SCRIPT_RUN_ISOLATED_HINT1"          "$var_script_run_isolated_hint1";
+  if [[ "$var_project_integration_docker_enabled" == "0" ]]; then
+    # Remove entire .docker dir in source root
+    if [ -d "$var_project_dir/.docker" ]; then
+      rm -r "$var_project_dir/.docker";
+      if (( $? != 0 )); then
+        failure "Failed to remove template source docker integration directory";
+      fi
+      find_all_files;
+    else
+      logW "Cannot remove: '$var_project_dir/.docker'";
+      logW "The project Docker integration was disabled but the project directory does not";
+      logW "have a '.docker' directory in the root of the source tree.";
+      warning "Docker integration was disabled but project had no '.docker' directory";
+    fi
+  elif [[ "$var_project_integration_docker_enabled" == "1" ]]; then
+    if ! [ -d "$var_project_dir/.docker" ]; then
+      logW "The project Docker integration was enabled but the project directory does not";
+      logW "have a '.docker' directory in the root of the source tree.";
+      warning "Docker integration was enabled but could not find the '.docker' directory";
+    fi
+  fi
+}
+
 # [API function]
 # Prompts the user to enter whether he wants Docker integration.
 #
@@ -445,18 +491,5 @@ function form_docker_integration() {
     var_script_run_isolated_hint1="$(load_var SCRIPT_RUN_ISOLATED_HINT1)";
   else
     var_project_integration_docker_enabled="0";
-    var_script_build_isolated_opt="";
-    var_script_build_isolated_argflag="";
-    var_script_build_isolated_argarray="";
-    var_script_build_isolated_argarray_add="";
-    var_script_build_isolated_argparse="";
-    var_script_build_isolated_main="";
-    var_script_build_isolated_hint1="";
-    var_script_test_isolated_opt="";
-    var_script_test_isolated_main="";
-    var_script_test_isolated_hint1="";
-    var_script_run_isolated_opt="";
-    var_script_run_isolated_main="";
-    var_script_run_isolated_hint1="";
   fi
 }

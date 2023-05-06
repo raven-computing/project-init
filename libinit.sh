@@ -3187,30 +3187,6 @@ function _process_include_directives() {
   return 0;
 }
 
-function _project_init_process_docker_integration() {
-  replace_var "SCRIPT_BUILD_ISOLATED_OPT"          "$var_script_build_isolated_opt";
-  replace_var "SCRIPT_BUILD_ISOLATED_ARGFLAG"      "$var_script_build_isolated_argflag";
-  replace_var "SCRIPT_BUILD_ISOLATED_ARGARRAY"     "$var_script_build_isolated_argarray";
-  replace_var "SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD" "$var_script_build_isolated_argarray_add";
-  replace_var "SCRIPT_BUILD_ISOLATED_ARGPARSE"     "$var_script_build_isolated_argparse";
-  replace_var "SCRIPT_BUILD_ISOLATED_MAIN"         "$var_script_build_isolated_main";
-  replace_var "SCRIPT_BUILD_ISOLATED_HINT1"        "$var_script_build_isolated_hint1";
-  replace_var "SCRIPT_TEST_ISOLATED_OPT"           "$var_script_test_isolated_opt";
-  replace_var "SCRIPT_TEST_ISOLATED_MAIN"          "$var_script_test_isolated_main";
-  replace_var "SCRIPT_TEST_ISOLATED_HINT1"         "$var_script_test_isolated_hint1";
-  replace_var "SCRIPT_RUN_ISOLATED_OPT"            "$var_script_run_isolated_opt";
-  replace_var "SCRIPT_RUN_ISOLATED_MAIN"           "$var_script_run_isolated_main";
-  replace_var "SCRIPT_RUN_ISOLATED_HINT1"          "$var_script_run_isolated_hint1";
-  if [[ "$var_project_integration_docker_enabled" == "0" ]]; then
-    # Remove entire .docker dir in source root
-    rm -r "$var_project_dir/.docker";
-    if (( $? != 0 )); then
-      failure "Failed to remove template source docker integration directory";
-    fi
-    find_all_files;
-  fi
-}
-
 # [API function]
 # Processes the project source template files copied to the project
 # target directory.
@@ -3244,6 +3220,11 @@ function project_init_process() {
 
   _process_include_directives;
 
+  # Let form providers handle the init processing
+  if [[ $(type -t "_project_init_process_forms") == function ]]; then
+    _project_init_process_forms;
+  fi
+
   replace_var "PROJECT_NAME"               "$var_project_name";
   replace_var "PROJECT_NAME_LOWER"         "$var_project_name_lower";
   replace_var "PROJECT_NAME_UPPER"         "$var_project_name_upper";
@@ -3254,10 +3235,6 @@ function project_init_process() {
   replace_var "PROJECT_ORGANISATION_EMAIL" "$var_project_organisation_email";
   replace_var "PROJECT_LANG"               "$var_project_lang";
   replace_var "PROJECT_SLOGAN_STRING"      "$var_project_slogan_string";
-
-  if [ -n "$var_project_integration_docker_enabled" ]; then
-    _project_init_process_docker_integration;
-  fi
 
   # Call all functions for processing project files in the level order
   local max_lvl_number=$CURRENT_LVL_NUMBER;
