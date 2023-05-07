@@ -18,12 +18,7 @@
     <url>${{VAR_PROJECT_ORGANISATION_URL}}</url>
   </organization>
   <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.13.2</version>
-      <scope>test</scope>
-    </dependency>
+${{INCLUDE:java/maven/dependencyJunit.xml}}
   </dependencies>
   <build>
     <directory>build</directory>

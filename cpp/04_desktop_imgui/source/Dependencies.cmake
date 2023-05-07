@@ -12,9 +12,4 @@ dependency(
     DEPENDENCY_VERSION      3.3.8
 )
 
-dependency(
-    DEPENDENCY_NAME         gtest
-    DEPENDENCY_RESOURCE     google/googletest
-    DEPENDENCY_VERSION      v1.13.0
-    DEPENDENCY_SCOPE        TEST
-)
+${{INCLUDE:cpp/cmake/DependenciesCommon.cmake}}
