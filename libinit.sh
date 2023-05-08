@@ -3102,6 +3102,7 @@ function _process_include_directives() {
   local include_value="";
   local replaced="";
   local regex_numeric="^[0-9]+$";
+  local awk_stat=0;
 
   local SHARED_TEMPLATES_BASE="${SCRIPT_LVL_0_BASE}/share";
   local SHARED_TEMPLATES_ADDONS="";
@@ -3165,12 +3166,22 @@ function _process_include_directives() {
     # Read the content of the included file
     include_value="$(cat "$include_target")";
     # Read the source file and replace the include directive with
-    # the content of the included file
-    replaced="$(awk -v key='\\${{INCLUDE:'"${include_directive}"'}}' \
-                    -v value="${include_value}"                      \
-                    '{ gsub(key, value); print; }'                   \
+    # the content of the included file. Read the variable value from
+    # the environment to make awk use the string value as is
+    # without interpretation of any escape sequences.
+    replaced="$(export value="${include_value}" &&                   \
+                awk -v key='\\${{INCLUDE:'"${include_directive}"'}}' \
+                    '{ gsub(key, ENVIRON["value"]); print; }'        \
                     "$found_file")";
 
+    awk_stat=$?;
+    if (( $awk_stat != 0 )); then
+      logE "Cannot include file '$include_directive'";
+      logE "From include directive:";
+      logE "at: '$found_file' (line $line_num)";
+      failure "Failed to replace include directive. " \
+              "Command awk returned non-zero exit status $awk_stat";
+    fi
     # Replace file content
     echo "$replaced" > "$found_file";
   done

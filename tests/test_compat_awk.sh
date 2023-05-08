@@ -95,7 +95,7 @@ function test_replace_include_directive_from_file() {
   local _include_file_key="the/shared/file/to/include";
   local _include_value=$(cat << EOS
   _INCL_BEGIN_  
-THE_INCLUDED_DATA
+THE_INCLUDED_DATA with an esc slash \/ and dot \.
   _INCL_END_  
 EOS
 )
@@ -104,17 +104,17 @@ Line A
 Line B
 Line C
   _INCL_BEGIN_  
-THE_INCLUDED_DATA
+THE_INCLUDED_DATA with an esc slash \/ and dot \.
   _INCL_END_  
 Line D
 Line E
 EOS
 )
   local actual;
-  actual="$(awk -v key='\\${{INCLUDE:'"${_include_file_key}"'}}' \
-                -v value="${_include_value}"                      \
-                '{ sub(key, value); print; }'                     \
-                "resources/awk_replace_include_directive.txt")";
+  actual=$(export value="${_include_value}" &&                  \
+           awk -v key='\\${{INCLUDE:'"${_include_file_key}"'}}' \
+                '{ gsub(key, ENVIRON["value"]); print; }'       \
+                "resources/awk_replace_include_directive.txt");
 
   assert_equal "$expected" "$actual" $?;
   return $?;
