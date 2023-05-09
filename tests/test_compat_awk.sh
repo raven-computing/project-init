@@ -82,9 +82,9 @@ Line C
 EOS
 )
   local actual;
-  actual="$(awk -v key='\\${{VAR_'"${_var_key}"'}}' \
-                -v value="${_var_value}"            \
-                '{ sub(key, value); print; }'       \
+  actual="$(export value="${_var_value}" &&              \
+            awk -v key='\\${{VAR_'"${_var_key}"'}}'      \
+                '{ gsub(key, ENVIRON["value"]); print; }' \
                 "resources/awk_replace_var.txt")";
 
   assert_equal "$expected" "$actual" $?;

@@ -2883,9 +2883,11 @@ function replace_var() {
   # must be escaped so that they are not interpreted by awk to mean the
   # matched text (i.e. the variable key) when using gsub() below. Since the
   # literal ampersand should end up like that in the final output, it must pass
-  # both lexical as well as runtime level processing of awk and therefore we
-  # must replace each literal '&' with '\\&' (two literal backslashes).
-  _var_value="${_var_value//&/\\\\&}";
+  # both lexical as well as runtime level processing of awk. Only the latter is
+  # still a concern since the used awk command below was changed to pass the
+  # substitution value via the subshell environment instead of a command variable.
+  # Therefore we must only replace each literal '&' with '\&' (one literal backslash).
+  _var_value="${_var_value//&/\\&}";
 
   for f in ${_all_files}; do
     # Check if a specific file extension was specified
@@ -2933,9 +2935,9 @@ function replace_var() {
     fi
 
     # Replace declared variable
-    local replaced="$(awk -v key='\\${{VAR_'"${_var_key}"'}}' \
-                          -v value="${_var_value}"            \
-                          '{ gsub(key, value); print; }'      \
+    local replaced="$(export value="${_var_value}" &&               \
+                      awk -v key='\\${{VAR_'"${_var_key}"'}}'       \
+                          '{ gsub(key, ENVIRON["value"]); print; }' \
                           "$f")";
 
     # Remove leading control characters.
