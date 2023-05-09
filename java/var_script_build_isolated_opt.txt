@@ -1,2 +1,0 @@
-
-  [--isolated]   Execute the entire build process in an isolated Docker container.

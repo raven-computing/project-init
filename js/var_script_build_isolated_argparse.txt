@@ -1,4 +1,0 @@
-    --isolated)
-    ARG_ISOLATED=true;
-    shift
-    ;;

@@ -1,5 +1,0 @@
-if [[ $ARG_ISOLATED == true ]]; then
-  source ".docker/controls.sh";
-  run_isolated_tests "${ARGS_ISOLATED[@]}";
-  exit $?;
-fi
