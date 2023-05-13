@@ -335,6 +335,11 @@ readonly DOCS_BASE_URL="${PROJECT_BASE_URL}/wiki";
 # will be left empty.
 _ADDONS_CURRENT_LVL_PATH="";
 
+# An associative array used to track which deprecated functions
+# have already been called. Maps function names (without any '()' at the end)
+# to constant values. This is effectively used as a set.
+declare -A _DEPRECATED_FUNCTIONS;
+
 # Indicates whether the file cache is invalidated.
 _FLAG_FCACHE_ERR=false;
 
@@ -1444,6 +1449,46 @@ function _get_script_path() {
   echo "$(cd "$(dirname "${_arg_path}")" > /dev/null 2>&1 && pwd)";
 }
 
+# Prints a deprecation warning for a function.
+#
+# This function can be called from inside deprecated API functions to show a
+# warning to the user about that deprecation. It should only be used for
+# deprecated API functions, not internal functions.
+# A warning is only shown once per function.
+#
+# Returns:
+# 0 - If a deprecation warning was fired.
+# 1 - If no deprecation warning was was shown because it has aleady
+#     been fired in a previous call.
+# 2 - If the showing of deprecation warnings is disabled altogether
+#     by the system configuration.
+#
+# Globals:
+# _DEPRECATED_FUNCTIONS - The associative array to be used to track which
+#                         deprecated functions were already warned about.
+#                         Must be an already declared associative array.
+#
+function _warn_deprecated() {
+  local deprecated_fn="${FUNCNAME[1]}";
+  get_boolean_property "sys.warn.deprecation" "true";
+  if [[ "$PROPERTY_VALUE" == "false" ]]; then
+    # Deprecation warnings disabled by config
+    return 2;
+  fi
+  local depr_value="${_DEPRECATED_FUNCTIONS[$deprecated_fn]}";
+  if [[ "$depr_value" == "1"  ]]; then
+    # Deprecation warning for that function already shown
+    return 1;
+  fi
+  _DEPRECATED_FUNCTIONS[$deprecated_fn]=1;
+  _make_func_hl $deprecated_fn;
+  local depr_conf="sys.warn.deprecation=false";
+  logW "The function $HYPERLINK_VALUE is deprecated.";
+  logW "See the API documentation for how to replace the function call or use '${depr_conf}'";
+  logW "in your project.properties configuration to suppress this warning.";
+  return 0;
+}
+
 # Reads the specified .properties formatted file and populates
 # the specified associative array global variable with the corresponding
 # key-value pairs.
@@ -1906,6 +1951,14 @@ function finish_project_init() {
             "'init.sh' script in the lowermost init level calls the"           \
             "project_init_process() function when ready.";
   fi
+
+  get_boolean_property "sys.warn.deprecation" "true";
+  if [[ "$PROPERTY_VALUE" == "true" ]]; then
+    if (( ${#_DEPRECATED_FUNCTIONS[@]} > 0 )); then
+      warning "Init code is using deprecated API functions.";
+    fi
+  fi
+
   # Check for addons after-init hook
   _run_addon_after_init_hook;
   # Finish
