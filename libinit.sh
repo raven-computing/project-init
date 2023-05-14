@@ -2832,7 +2832,6 @@ function load_var() {
   fi
   # Add file extension
   arg_file="$arg_file.txt";
-  local found=false;
   local var_content="";  # Default if no file is found
   # Load var content from first found file, starting in current init
   # level and sequentially going backwards.
@@ -2840,21 +2839,12 @@ function load_var() {
   local i;
   for (( i=$CURRENT_LVL_NUMBER; i>=0; --i )); do
     if [ -r "$init_lvl/$arg_file" ]; then
-      found=true;
       # Read file content
       var_content="$(cat $init_lvl/$arg_file)";
       break;
     fi
     init_lvl="$(dirname "$init_lvl")";
   done
-  # Search in shared var store
-  if [[ $found == false ]]; then
-    local shared_var="${SCRIPT_LVL_0_BASE}/share/var/${arg_file}";
-    if [ -r "$shared_var" ]; then
-      found=true;
-      var_content="$(cat "$shared_var")";
-    fi
-  fi
   echo "$var_content";
 }
 
