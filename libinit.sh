@@ -2829,6 +2829,9 @@ function copy_shared() {
 # was reached and no suitable file can be found, then an empty string
 # is dumped to stdout by this function.
 #
+# Deprecated:
+# Since 1.3.0 this function is deprecated. Use load_var_from_file() instead.
+#
 # Args:
 # $1 - The key of the substitution variable to load.
 #
