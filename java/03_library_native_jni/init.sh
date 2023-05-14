@@ -129,11 +129,11 @@ function process_files_lvl_2() {
     local _ns_items=($(echo "$var_namespace" |tr '.' ' '));
     # Concatenate namespace items in proper order
     for (( i=0; i<${#_ns_items[@]}; i++ )); do
-      var_namespace_decl_begin="${var_namespace_decl_begin}namespace ${_ns_items[$i]} {\n";
+      var_namespace_decl_begin="${var_namespace_decl_begin}namespace ${_ns_items[$i]} {${_NL}";
     done
     # Concatenate namespace items in reverse order for the closing braces
     for (( i=${#_ns_items[@]}-1; i>=0; i-- )); do
-      var_namespace_decl_end="${var_namespace_decl_end}} // END NAMESPACE ${_ns_items[$i]}\n";
+      var_namespace_decl_end="${var_namespace_decl_end}} // END NAMESPACE ${_ns_items[$i]}${_NL}";
     done
 
     replace_var "NAMESPACE_PATH"          "$var_namespace_path";
