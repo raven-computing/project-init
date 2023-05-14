@@ -280,6 +280,14 @@ PROPERTY_VALUE="";
 HYPERLINK_VALUE="";
 
 # [API Global]
+# Holds the value loaded and set by the load_var_from_file() function.
+# The string value might contain arbitrary characters, including special
+# characters. It might be empty if no corresponding var file was found.
+# Since:
+# 1.3.0
+VAR_FILE_VALUE="";
+
+# [API Global]
 # The message to show when a project is successfully initialized.
 # This text is shown in the terminal and in the desktop notification.
 # A new value can be set to this variable to change the success message.
@@ -2842,6 +2850,102 @@ function load_var() {
     fi
   fi
   echo "$var_content";
+}
+
+# [API function]
+# Loads the variable value with the specified key from
+# the corresponding substitution variable file.
+#
+# The argument to this function represents the key of the substitution variable
+# for which a var file should be loaded. The key can be specified in the
+# complete format, i.e. with a 'VAR_'-prefix, or without that prefix.
+# The variable key argument is case insensitive.
+#
+# The loaded variable value is assigned to the $VAR_FILE_VALUE global variable.
+# Usually, this is then subsequently used to assign the actual
+# global substitution variable (see example below).
+#
+# Variable files located in init levels always take precedence over
+# equivalent variable files in shared var directories. Generally, the content
+# of the first found applicable variable file is used. The search order depends
+# on the currently active init level when this function is called.
+# If no variable file can be found in the currently active init
+# level directory, then the upper init levels are searched in reversed
+# order, until the root init level is reached. Please note that all variable
+# files within init levels must be placed in 'var' subdirectories of the
+# underlying init level directories. If the root init level
+# is reached and no suitable file can be found, then shared variable
+# directories are searched. If still no applicable variable file is found,
+# then the $VAR_FILE_VALUE global variable is set to an empty string.
+#
+# Since:
+# 1.3.0
+#
+# Args:
+# $1 - The key of the substitution variable for which the value from
+#      a var file should be loaded. This is a mandatory argument.
+#
+# Returns:
+# 0 - If a substitution variable value file was found.
+# 1 - If no substitution variable file was found.
+#
+# Globals:
+# VAR_FILE_VALUE   - Holds the string value of the found substitution
+#                    variable file. Might be empty if no var file was found.
+#                    Is set by this function.
+# CURRENT_LVL_PATH - The absolute path to the currently
+#                    active init level directory.
+#
+# Examples:
+# load_var_from_file "MY_KEY";
+# var_my_key="$VAR_FILE_VALUE";
+#
+function load_var_from_file() {
+  local arg_file="$1";
+  if [ -z "$arg_file" ]; then
+    _make_func_hl "load_var_from_file";
+    logE "Programming error: Illegal function call:";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
+            "No argument specified";
+  fi
+  # Convert to lower case
+  arg_file=$(echo "$arg_file" |tr '[:upper:]' '[:lower:]');
+  # Check for variable prefix and remove if necessary
+  if [[ "$arg_file" == var_* ]]; then
+    arg_file="${arg_file:4}";
+  fi
+  # Variable value files are located in 'var' subdirectories
+  arg_file="var/${arg_file}";
+  local found=false;
+  local var_value="";  # Default if no file is found
+  # Load var content from first found file, starting in current init
+  # level and sequentially going backwards.
+  local init_lvl="$CURRENT_LVL_PATH";
+  local i;
+  for (( i=$CURRENT_LVL_NUMBER; i>=0; --i )); do
+    if [ -r "$init_lvl/$arg_file" ]; then
+      found=true;
+      # Read file content
+      var_value="$(cat $init_lvl/$arg_file)";
+      break;
+    fi
+    init_lvl="$(dirname "$init_lvl")";
+  done
+  # Search in shared var store
+  if [[ $found == false ]]; then
+    local shared_var="${SCRIPT_LVL_0_BASE}/share/${arg_file}";
+    if [ -r "$shared_var" ]; then
+      found=true;
+      var_value="$(cat "$shared_var")";
+    fi
+  fi
+  VAR_FILE_VALUE="$var_value";
+  if [[ $found == true ]]; then
+    return 0;
+  else
+    return 1;
+  fi
 }
 
 # [API function]
