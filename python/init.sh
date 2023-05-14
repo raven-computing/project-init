@@ -65,15 +65,15 @@ function process_files_lvl_1() {
   fi
 
   if [[ $use_namespace_package == true ]]; then
-    replace_var "SETUP_PY_SETUPTOOLS_IMPORT" \
-                "$(load_var SETUP_PY_SETUPTOOLS_IMPORT_NAMESPACE)";
-    replace_var "SETUP_PY_FIND_PACKAGES" \
-                "$(load_var SETUP_PY_FIND_PACKAGES_NAMESPACE)";
+    load_var_from_file "SETUP_PY_SETUPTOOLS_IMPORT_NAMESPACE";
+    replace_var "SETUP_PY_SETUPTOOLS_IMPORT" "$VAR_FILE_VALUE";
+    load_var_from_file "SETUP_PY_FIND_PACKAGES_NAMESPACE";
+    replace_var "SETUP_PY_FIND_PACKAGES" "$VAR_FILE_VALUE";
   else
-    replace_var "SETUP_PY_SETUPTOOLS_IMPORT" \
-                "$(load_var SETUP_PY_SETUPTOOLS_IMPORT_PACKAGE)";
-    replace_var "SETUP_PY_FIND_PACKAGES" \
-                "$(load_var SETUP_PY_FIND_PACKAGES_PACKAGE)";
+    load_var_from_file "SETUP_PY_SETUPTOOLS_IMPORT_PACKAGE";
+    replace_var "SETUP_PY_SETUPTOOLS_IMPORT" "$VAR_FILE_VALUE";
+    load_var_from_file "SETUP_PY_FIND_PACKAGES_PACKAGE";
+    replace_var "SETUP_PY_FIND_PACKAGES" "$VAR_FILE_VALUE";
   fi
 
   replace_var "NAMESPACE_DECLARATION"      "$var_namespace";

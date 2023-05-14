@@ -70,7 +70,8 @@ function form_relational_database() {
   if [[ $USER_INPUT_ENTERED_BOOL == true ]]; then
     logI "";
     logI "A dependency to JPA via Spring Data will be added";
-    var_spring_dependency_data_jpa="$(load_var SPRING_DEPENDENCY_DATA_JPA)";
+    load_var_from_file "SPRING_DEPENDENCY_DATA_JPA";
+    var_spring_dependency_data_jpa="$VAR_FILE_VALUE";
     FORM_QUESTION_ID="java.server.relationaldb.name";
     logI "";
     logI "A database driver needs to be provided at runtime.";
@@ -85,7 +86,8 @@ function form_relational_database() {
     else
       logI "A runtime dependency to the $var_database_name driver" \
           "will be added to the POM";
-      local file_content="$(load_var spring_dependency_data_driver_${var_database_key})";
+      load_var_from_file "spring_dependency_data_driver_${var_database_key}";
+      local file_content="$VAR_FILE_VALUE";
       declare var_spring_dependency_data_driver_${var_database_key}="$file_content";
     fi
     logI "You will have to specify the database connection before you" \
@@ -109,8 +111,10 @@ function form_spring_security() {
   if [ $USER_INPUT_ENTERED_BOOL == true ]; then
     logI "";
     logI "A dependency to Spring Security will be added";
-    var_spring_dependency_security="$(load_var SPRING_DEPENDENCY_SECURITY)";
-    var_spring_dependency_security_test="$(load_var SPRING_DEPENDENCY_SECURITY_TEST)";
+    load_var_from_file "SPRING_DEPENDENCY_SECURITY";
+    var_spring_dependency_security="$VAR_FILE_VALUE";
+    load_var_from_file "SPRING_DEPENDENCY_SECURITY_TEST";
+    var_spring_dependency_security_test="$VAR_FILE_VALUE";
   fi
 }
 

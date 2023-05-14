@@ -74,11 +74,14 @@ function process_files_lvl_2() {
       failure "Failed to remove unselected template sources in $var_project_dir/src";
     fi
     find_all_files;
-    replace_var "CMAKE_LANG_SPEC"           "$(load_var CMAKE_LANG_SPEC_C)";
+    load_var_from_file "CMAKE_LANG_SPEC_C";
+    replace_var "CMAKE_LANG_SPEC"           "$VAR_FILE_VALUE";
     replace_var "NATIVE_LANG_VERSION"       "$var_native_lang_version";
     replace_var "NATIVE_LANG_VERSION_LABEL" "$var_native_lang_version_label";
-    replace_var "CMAKE_PROJECT_LANG_SPEC"   "$(load_var CMAKE_PROJECT_LANG_SPEC_C)";
-    replace_var "CMAKE_DEPENDENCIES"        "$(load_var CMAKE_DEPENDENCIES_C)";
+    load_var_from_file "CMAKE_PROJECT_LANG_SPEC_C";
+    replace_var "CMAKE_PROJECT_LANG_SPEC"   "$VAR_FILE_VALUE";
+    load_var_from_file "CMAKE_DEPENDENCIES_C";
+    replace_var "CMAKE_DEPENDENCIES"        "$VAR_FILE_VALUE";
     replace_var "CMAKE_LANG_IDENTIFIER"     "c";
     replace_var "CMAKE_ADD_LIBRARY_FILE"    "string_comparator.c";
     replace_var "CMAKE_TEST_SOURCE_FILE"    "test_string_comparator.c";
@@ -104,11 +107,13 @@ function process_files_lvl_2() {
       failure "Failed to remove unselected template sources in $var_project_dir/src";
     fi
     find_all_files;
-    replace_var "CMAKE_LANG_SPEC"           "$(load_var CMAKE_LANG_SPEC_CPP)";
+    load_var_from_file "CMAKE_LANG_SPEC_CPP";
+    replace_var "CMAKE_LANG_SPEC"           "$VAR_FILE_VALUE";
     replace_var "NATIVE_LANG_VERSION"       "$var_native_lang_version";
     replace_var "NATIVE_LANG_VERSION_LABEL" "$var_native_lang_version_label";
     replace_var "CMAKE_PROJECT_LANG_SPEC"   "";
-    replace_var "CMAKE_DEPENDENCIES"        "$(load_var CMAKE_DEPENDENCIES_CPP)";
+    load_var_from_file "CMAKE_DEPENDENCIES_CPP";
+    replace_var "CMAKE_DEPENDENCIES"        "$VAR_FILE_VALUE";
     replace_var "CMAKE_LANG_IDENTIFIER"     "cpp";
     replace_var "CMAKE_ADD_LIBRARY_FILE"    "StringComparator.cpp";
     replace_var "CMAKE_TEST_SOURCE_FILE"    "StringComparatorTest.cpp";
