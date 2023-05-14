@@ -1472,6 +1472,11 @@ function _get_script_path() {
 # deprecated API functions, not internal functions.
 # A warning is only shown once per function.
 #
+# Args:
+# $1 - The name of the API function for which a deprecation warning
+#      should be printed. This is an optional argument. If it is omitted,
+#      then the function name is automatically looked up in the call stack.
+#
 # Returns:
 # 0 - If a deprecation warning was fired.
 # 1 - If no deprecation warning was was shown because it has aleady
@@ -1485,7 +1490,10 @@ function _get_script_path() {
 #                         Must be an already declared associative array.
 #
 function _warn_deprecated() {
-  local deprecated_fn="${FUNCNAME[1]}";
+  local deprecated_fn="$1";
+  if [ -z "$deprecated_fn" ]; then
+    deprecated_fn="${FUNCNAME[1]}";
+  fi
   get_boolean_property "sys.warn.deprecation" "true";
   if [[ "$PROPERTY_VALUE" == "false" ]]; then
     # Deprecation warnings disabled by config
