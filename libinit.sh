@@ -355,6 +355,8 @@ declare -A _DEPRECATED_FUNCTIONS;
 # Indicates whether some deprecated feature/behaviour was used by any code.
 # Does not track the calling of deprecated functions.
 _FLAG_DEPRECATED_FEATURE_USED=false;
+# Special deprecation file used by the load_var() function.
+_FILE_DEPRECATED_FN_LOAD_VAR_USED="$RES_CACHE_LOCATION/pi_deprfnloadvarused";
 
 # Indicates whether the file cache is invalidated.
 _FLAG_FCACHE_ERR=false;
@@ -1978,6 +1980,14 @@ function finish_project_init() {
 
   get_boolean_property "sys.warn.deprecation" "true";
   if [[ "$PROPERTY_VALUE" == "true" ]]; then
+    # Special handling of deprecated load_var() function
+    if [ -r "${_FILE_DEPRECATED_FN_LOAD_VAR_USED}" ]; then
+      local magic_depr_value=$(head -n 1 ${_FILE_DEPRECATED_FN_LOAD_VAR_USED});
+      if [[ "$magic_depr_value" == "pi_deprecated_fn_load_var_used=1" ]]; then
+        rm "${_FILE_DEPRECATED_FN_LOAD_VAR_USED}" > /dev/null 2>&1;
+        _warn_deprecated "load_var";
+      fi
+    fi
     if (( ${#_DEPRECATED_FUNCTIONS[@]} > 0 )); then
       warning "Init code is using deprecated API functions.";
     fi
@@ -2835,6 +2845,10 @@ function copy_shared() {
 #
 function load_var() {
   local arg_file="$1";
+  # Cannot call _warn_deprecated() directly here because it prints
+  # a warning to stdout, which would end up in the string value
+  # dumped by this function
+  echo "pi_deprecated_fn_load_var_used=1" > "${_FILE_DEPRECATED_FN_LOAD_VAR_USED}";
   # Convert to lower case
   arg_file=$(echo "$arg_file" |tr '[:upper:]' '[:lower:]');
   # Check for variable prefix
