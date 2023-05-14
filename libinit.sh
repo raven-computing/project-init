@@ -2811,6 +2811,9 @@ function copy_shared() {
 # was reached and no suitable file can be found, then an empty string
 # is dumped to stdout by this function.
 #
+# Args:
+# $1 - The key of the substitution variable to load.
+#
 # Stdout:
 # The string value of the variable with the specified key, or an
 # empty string if the corresponding var file does not exist.
