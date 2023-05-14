@@ -314,6 +314,11 @@ _N_ERRORS=0;
 # The list of all entries in 'files.txt' files.
 LIST_FILES_TXT=();
 
+# A literal new line character. Can be used in values
+# for variable substitutions.
+readonly _NL="
+";
+
 # The absolute path to the location where
 # Project Init resources, including addons, are cached.
 readonly RES_CACHE_LOCATION="/tmp";
