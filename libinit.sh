@@ -352,6 +352,9 @@ _ADDONS_CURRENT_LVL_PATH="";
 # have already been called. Maps function names (without any '()' at the end)
 # to constant values. This is effectively used as a set.
 declare -A _DEPRECATED_FUNCTIONS;
+# Indicates whether some deprecated feature/behaviour was used by any code.
+# Does not track the calling of deprecated functions.
+_FLAG_DEPRECATED_FEATURE_USED=false;
 
 # Indicates whether the file cache is invalidated.
 _FLAG_FCACHE_ERR=false;
@@ -1970,6 +1973,9 @@ function finish_project_init() {
     if (( ${#_DEPRECATED_FUNCTIONS[@]} > 0 )); then
       warning "Init code is using deprecated API functions.";
     fi
+    if [[ ${_FLAG_DEPRECATED_FEATURE_USED} == true ]]; then
+      warning "Init code is relying on deprecated behaviour.";
+    fi
   fi
 
   # Check for addons after-init hook
@@ -2961,13 +2967,14 @@ function load_var_from_file() {
 # file (replacing it with nothing). If the variable key corresponds to the only
 # characters on the respective line, then that entire line is removed from the
 # underlying file.
+#
 # If only the variable key is specified, then this function will try to load
-# the variable value from the corresponding var file by means of the load_var()
-# function. If such a file does not exist, then the variable value is set to the
-# empty string, thus potentially removing the entire line containing the variable
-# from the underlying source file. Therefore, if a variable should be explicitly
-# replaced by an empty string, regardless of any var file, then the value
-# argument ($2) must be specified as an empty string.
+# the variable value from the corresponding var file by means of the
+# load_var_from_file() function. If such a file does not exist, then the variable
+# value is set to the empty string, thus potentially removing the entire line
+# containing the variable from the underlying source file. Therefore, if a
+# variable should be explicitly replaced by an empty string, regardless of any
+# var file, then the value argument ($2) must be specified as an empty string.
 #
 # Besides the key and value, a third argument can be passed to this function.
 # That argument represents the file ending by which all present files in the
@@ -3035,9 +3042,34 @@ function replace_var() {
   # load the var value from the corresponding var file
   if [ -z "${_var_value}" ]; then
     if (( ${_arg_count} == 1 )); then
-      # If the file does not exist, then the empty string
-      # is assigned to the variable value
-      _var_value="$(load_var ${_var_key})";
+      load_var_from_file "${_var_key}";
+      _var_value="$VAR_FILE_VALUE";
+      # Backwards compatibility:
+      # Var files might still exist in older format/location, so if not found be the
+      # newer load_var_from_file() function, then call the deprecated load_var()
+      # function to stay compatible.
+      if [ -z "${_var_value}" ]; then
+        # If the file does not exist, then the empty string
+        # is assigned to the variable value
+        _var_value="$(load_var ${_var_key})";
+        if [ -n "${_var_value}" ]; then
+          _FLAG_DEPRECATED_FEATURE_USED=true;
+          get_boolean_property "sys.warn.deprecation" "true";
+          if [[ "$PROPERTY_VALUE" == "true" ]]; then
+            local depr_conf="sys.warn.deprecation=false";
+            _make_func_hl "replace_var";
+            logW "Deprecated behaviour:";
+            logW "Calling $HYPERLINK_VALUE with only the key argument while" \
+                 "using var files directly";
+            logW "in init levels without a 'var' subdirectory is deprecated:";
+            logW "with argument: '${_var_key}'";
+            logW "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+            logW "Place your var file in a 'var' subdirectory instead or use '${depr_conf}'";
+            logW "in your project.properties configuration to suppress this warning.";
+            _show_helptext "W" "Addons#variable-substitution";
+          fi
+        fi
+      fi
     fi
   fi
 
