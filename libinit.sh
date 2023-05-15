@@ -295,6 +295,18 @@ VAR_FILE_VALUE="";
 # 1.1.0
 PROJECT_INIT_SUCCESS_MESSAGE="Project has been initialized";
 
+# [API Global]
+# Can be set to `true` in order to suppress the printing of a deprecation
+# warning for the next call of any deprecated function. This variable is
+# automatically reset to `false` by a deprecated function once it returns.
+# Thus, code using deprecated functions must set this variable before each
+# call if deprecation warnings should be suppressed for all of them. Please
+# note that the automatic reset of the variable value only applies if the
+# underlying deprecated function is called within the same shell environment.
+# Since:
+# 1.3.0
+SUPPRESS_DEPRECATION_WARNING=false;
+
 # An array for holding all supported language version
 # numbers/identifiers
 SUPPORTED_LANG_VERSIONS_IDS=();
@@ -1483,23 +1495,32 @@ function _get_script_path() {
 # 0 - If a deprecation warning was fired.
 # 1 - If no deprecation warning was was shown because it has aleady
 #     been fired in a previous call.
-# 2 - If the showing of deprecation warnings is disabled altogether
+# 2 - If the showing of deprecation warnings is disabled by
+#     the SUPPRESS_DEPRECATION_WARNING global variable.
+# 3 - If the showing of deprecation warnings is disabled altogether
 #     by the system configuration.
 #
 # Globals:
-# _DEPRECATED_FUNCTIONS - The associative array to be used to track which
-#                         deprecated functions were already warned about.
-#                         Must be an already declared associative array.
+# SUPPRESS_DEPRECATION_WARNING - A boolean flag indicating whether the printing
+#                                of a deprecation warning is suppressed. If this
+#                                is true at the time this function is called, it
+#                                is automatically reset to false by this function.
+# _DEPRECATED_FUNCTIONS        - The associative array to be used to track which
+#                                deprecated functions were already warned about.
+#                                Must be an already declared associative array.
 #
 function _warn_deprecated() {
   local deprecated_fn="$1";
   if [ -z "$deprecated_fn" ]; then
     deprecated_fn="${FUNCNAME[1]}";
   fi
+  if [[ $SUPPRESS_DEPRECATION_WARNING == true ]]; then
+    SUPPRESS_DEPRECATION_WARNING=false;  # Reset
+    return 2;
+  fi
   get_boolean_property "sys.warn.deprecation" "true";
   if [[ "$PROPERTY_VALUE" == "false" ]]; then
-    # Deprecation warnings disabled by config
-    return 2;
+    return 3;
   fi
   local depr_value="${_DEPRECATED_FUNCTIONS[$deprecated_fn]}";
   if [[ "$depr_value" == "1"  ]]; then
@@ -2848,10 +2869,12 @@ function copy_shared() {
 #
 function load_var() {
   local arg_file="$1";
-  # Cannot call _warn_deprecated() directly here because it prints
-  # a warning to stdout, which would end up in the string value
-  # dumped by this function
-  echo "pi_deprecated_fn_load_var_used=1" > "${_FILE_DEPRECATED_FN_LOAD_VAR_USED}";
+  if [[ $SUPPRESS_DEPRECATION_WARNING == false ]]; then
+    # Cannot call _warn_deprecated() directly here because it prints
+    # a warning to stdout, which would end up in the string value
+    # dumped by this function
+    echo "pi_deprecated_fn_load_var_used=1" > "${_FILE_DEPRECATED_FN_LOAD_VAR_USED}";
+  fi
   # Convert to lower case
   arg_file=$(echo "$arg_file" |tr '[:upper:]' '[:lower:]');
   # Check for variable prefix
@@ -3067,9 +3090,11 @@ function replace_var() {
       # newer load_var_from_file() function, then call the deprecated load_var()
       # function to stay compatible.
       if [ -z "${_var_value}" ]; then
+        SUPPRESS_DEPRECATION_WARNING=true;
         # If the file does not exist, then the empty string
         # is assigned to the variable value
         _var_value="$(load_var ${_var_key})";
+        SUPPRESS_DEPRECATION_WARNING=false;
         if [ -n "${_var_value}" ]; then
           _FLAG_DEPRECATED_FEATURE_USED=true;
           get_boolean_property "sys.warn.deprecation" "true";
