@@ -3086,7 +3086,7 @@ function replace_var() {
       load_var_from_file "${_var_key}";
       _var_value="$VAR_FILE_VALUE";
       # Backwards compatibility:
-      # Var files might still exist in older format/location, so if not found be the
+      # Var files might still exist in older format/location, so if not found by the
       # newer load_var_from_file() function, then call the deprecated load_var()
       # function to stay compatible.
       if [ -z "${_var_value}" ]; then
