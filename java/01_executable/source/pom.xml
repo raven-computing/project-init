@@ -18,7 +18,7 @@
     <url>${{VAR_PROJECT_ORGANISATION_URL}}</url>
   </organization>
   <dependencies>
-${{INCLUDE:java/maven/dependencyJunit.xml}}
+${{INCLUDE:java/maven/dependencyUnitTests.xml}}
   </dependencies>
   <build>
     <directory>build</directory>
