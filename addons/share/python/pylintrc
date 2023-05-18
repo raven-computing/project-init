@@ -1,0 +1,9 @@
+[MASTER]
+
+# This is an example of how your addon can overwrite a shared template
+# resource file. The original file is located in the source root of
+# Project Init under 'share/python/pylintrc'. By placing your 'pylintrc'
+# file under the same directory hierarchy in your addon, your custom
+# pylintrc will take precedence over the original for all initialized
+# projects which use that shared file.
+
