@@ -2925,6 +2925,8 @@ function load_var() {
 # directories are searched. If still no applicable variable file is found,
 # then the $VAR_FILE_VALUE global variable is set to an empty string.
 #
+# Shared variable files may be overridden by addons resources.
+#
 # Since:
 # 1.3.0
 #
@@ -2979,7 +2981,17 @@ function load_var_from_file() {
     fi
     init_lvl="$(dirname "$init_lvl")";
   done
-  # Search in shared var store
+  # Search in shared var store of addon resource
+  if [[ $found == false ]]; then
+    if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
+      local addon_shared_var="${PROJECT_INIT_ADDONS_DIR}/share/${arg_file}";
+      if [ -r "$addon_shared_var" ]; then
+        found=true;
+        var_value="$(cat "$addon_shared_var")";
+      fi
+    fi
+  fi
+  # Search in shared var store of base resource
   if [[ $found == false ]]; then
     local shared_var="${SCRIPT_LVL_0_BASE}/share/${arg_file}";
     if [ -r "$shared_var" ]; then
