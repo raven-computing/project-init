@@ -1,3 +1,23 @@
+#### 1.3.0
+* Added a file include feature to remove some duplicated code in project source templates. A source template may delcare the inclusion of another shared template file with the include directive.
+* Added C++ desktop GUI application with ImGUI (using GLFW and OpenGL) project type source template.
+* Added the _NL internal global variable to hold a literal new line character.
+* Added form_docker_integration() API function.
+* Added copy_shared() API function.
+* Added internal _project_init_process_forms() callback function which will be called by libinit.sh to let other components handle their form processing. Used by libform.sh internally.
+* Added 'sys.warn.deprecation' configuration option in project.properties to allow users and/or addons to suppress deprecation warnings.
+* Added SUPPRESS_DEPRECATION_WARNING API global to allow addons to suppress specific deprecation warnings.
+* Added load_var_from_file() API function and VAR_FILE_VALUE API global.
+* Added internal _warn_deprecated() function to standardise how deprecation warnings are shown.
+* Changed _check_is_valid_project_dir() function to disallow colon characters (':') in project directory paths.
+* Changed internals of replace_var() API function.
+* Change 
+* Deprecated the load_var() API function. It is superseded by the newly introduced load_var_from_file() API function.
+* Fixed some minor code formatting issues.
+* Refactored all the language-specific Docker integration form question functions and replaced the corresponding code with calls to the form_docker_integration() API function.
+* Refactored substitution variable value files for all project source templates and languages into separate 'var' subdirectories. The naming pattern changed such that the 'var_'-prefix and the '.txt' suffix must be removed. The original behaviour if placing the var files directly into the init level directory is still supported but now deprecated.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.2.1...v1.3.0)
+
 #### 1.2.1
 * Updated dependency versions in C++ and Java-JNI project source templates.
 * Improved documentation generator script to consider future major version changes automatically when creating document hyperlinks.
