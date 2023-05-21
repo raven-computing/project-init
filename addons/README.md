@@ -21,6 +21,10 @@ See the [Tutorial](https://github.com/raven-computing/project-init/wiki/Tutorial
 
 Contains resources showing how to add another license via an addon. The example license is imaginary without any real use. See [documentation](https://github.com/raven-computing/project-init/wiki/Addons#add-custom-licenses).
 
+### share
+
+Contains shared source template resources. These are files that can be shared across all of your project types. See [documentation](https://github.com/raven-computing/project-init/wiki/Addons#shared-source-templates).
+
 ### tests
 
 Contains functionality test cases and resources. Tests are executed by running the *test.sh* script. See [documentation](https://github.com/raven-computing/project-init/wiki/Addons#testing).
