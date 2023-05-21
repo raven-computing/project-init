@@ -3121,7 +3121,7 @@ function replace_var() {
             logW "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
             logW "Place your var file in a 'var' subdirectory instead or use '${depr_conf}'";
             logW "in your project.properties configuration to suppress this warning.";
-            _show_helptext "W" "Addons#variable-substitution";
+            _show_helptext "W" "Addons#variable-substitution-files";
           fi
         fi
       fi
