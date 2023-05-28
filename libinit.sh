@@ -2477,7 +2477,10 @@ function _get_form_answer() {
 #
 # The entered input of the user is checked for validity. In the case of
 # an invalid input, such as an out of range selection number, this function
-# will exit the program by means of the failure() function.
+# will let the user reenter his answer until he provides a valid input or
+# otherwise cancels the program.
+# When in test mode and an invalid answer is provided, then this function
+# exits the program by means of the failure() function.
 #
 # A special case for the selection item is the occurrence of the "None" string.
 # If the last specified item equals "None", then if the user chooses that item
@@ -2538,49 +2541,67 @@ function read_user_input_selection() {
   echo "";
 
   local prompt_input=$(echo -e "[${COLOR_CYAN}INPUT${COLOR_NC}] ");
+  local valid_answer_given=false;
+  local retry_prompt=true;
   local selected_item="";
-  if [[ "$PROJECT_INIT_TESTS_ACTIVE" == "1" ]]; then
-    # In test mode. Print the configured answer
-    _get_form_answer;
-    selected_item="$FORM_QUESTION_ANSWER";
-    echo -e "${prompt_input}${selected_item}";
-  else
-    # Read user input
-    read -p "$prompt_input" selected_item;
-  fi
 
-  # Check special case for "None" option
-  if [ -z "$selected_item" ]; then
-    local last_item_index=$((length-1));
-    local last_item="${selection_names[last_item_index]}";
-    if [[ "$last_item" == "None" ]]; then
-      USER_INPUT_ENTERED_INDEX="";
-      return 0;
+  while [[ $valid_answer_given == false ]]; do
+    if [[ "$PROJECT_INIT_TESTS_ACTIVE" == "1" ]]; then
+      # In test mode. Print the configured answer.
+      # If the provided test answer is invalid, then fail.
+      retry_prompt=false;
+      _get_form_answer;
+      selected_item="$FORM_QUESTION_ANSWER";
+      echo -e "${prompt_input}${selected_item}";
+    else
+      # Read user input
+      read -p "$prompt_input" selected_item;
     fi
-  fi
 
-  # Validate user input
-  local re="^[0-9]+$";
-  if ! [[ $selected_item =~ $re ]]; then
-    # Input is not a number.
-    # Check if it matches one of the selection items
-    local is_valid=false;
-    for (( i=0; i<${length}; ++i )); do
-      if [[ "$selected_item" == "${selection_names[$i]}" ]]; then
-        selected_item=$((i+1));
-        is_valid=true;
-        break;
+    # Check special case for "None" option
+    if [ -z "$selected_item" ]; then
+      local last_item_index=$((length-1));
+      local last_item="${selection_names[last_item_index]}";
+      if [[ "$last_item" == "None" ]]; then
+        USER_INPUT_ENTERED_INDEX="";
+        return 0;
       fi
-    done
-    if [[ $is_valid == false ]]; then
-      logE "Invalid input";
-      failure "Please enter a valid number";
     fi
-  fi
-  if ((selected_item < 1 || selected_item > $length)); then
-    logE "Invalid number entered";
-    failure "Please enter the number of your selected item";
-  fi
+
+    # Validate user input
+    local re="^[0-9]+$";
+    if ! [[ $selected_item =~ $re ]]; then
+      # Input is not a number.
+      # Check if it matches one of the selection items
+      local is_valid=false;
+      for (( i=0; i<${length}; ++i )); do
+        if [[ "$selected_item" == "${selection_names[$i]}" ]]; then
+          selected_item=$((i+1));
+          is_valid=true;
+          break;
+        fi
+      done
+      if [[ $is_valid == false ]]; then
+        if [[ $retry_prompt == true ]]; then
+          logI "Invalid input";
+          continue;
+        else
+          logE "Invalid input";
+          failure "Please enter a valid number";
+        fi
+      fi
+    fi
+    if ((selected_item < 1 || selected_item > $length)); then
+      if [[ $retry_prompt == true ]]; then
+        logI "Invalid number entered";
+        continue;
+      else
+        logE "Invalid number entered";
+        failure "Please enter the number of your selected item";
+      fi
+    fi
+    valid_answer_given=true;
+  done
 
   local index=$((selected_item-1));
   USER_INPUT_ENTERED_INDEX=$index;
@@ -2590,7 +2611,7 @@ function read_user_input_selection() {
     local selection_item="${selection_names[index]}";
     # Move cursor to line above and erase line
     echo -ne "\033[1A\033[2K";
-    echo -e "[${COLOR_CYAN}INPUT${COLOR_NC}] $selection_item";
+    echo -e "${prompt_input}${selection_item}";
   fi
 
   return 0;
@@ -2646,6 +2667,10 @@ function read_user_input_text() {
 #
 # The entered input of the user is checked for validity, i.e. whether the
 # entered text represents or can be converted to a valid boolean.
+# If the entered input is invalid, then this function will let the user
+# reenter his answer until he provides a valid input or otherwise cancels
+# the program. When in test mode and an invalid answer is provided, then
+# this function exits the program by means of the failure() function.
 #
 # Supported text values for the boolean value of true:
 # "true", "yes", "y", "1"
@@ -2654,9 +2679,6 @@ function read_user_input_text() {
 # "false", "no", "n", "0"
 #
 # All accepted text input is case insensitive.
-#
-# If the entered value does not represent a valid boolean, then
-# this function will exit the program by means of the failure() function.
 #
 # For the case where the user does not enter anything and simply presses
 # enter, a default answer can be specified as the first argument
@@ -2686,46 +2708,63 @@ function read_user_input_text() {
 function read_user_input_yes_no() {
   local default_value=$1;
   local prompt_input=$(echo -e "[${COLOR_CYAN}INPUT${COLOR_NC}] ");
-  local entered_yes_no=="";
-  if [[ "$PROJECT_INIT_TESTS_ACTIVE" == "1" ]]; then
-    _get_form_answer;
-    entered_yes_no="$FORM_QUESTION_ANSWER";
-    echo -e "${prompt_input}${entered_yes_no}";
-  else
-    read -p "$prompt_input" entered_yes_no;
-  fi
-  # Validate user input
-  if [ -z "$entered_yes_no" ]; then
-    if [ -z "$default_value" ]; then
-      logE "Invalid input";
-      failure "Please enter either yes or no";
+  local entered_yes_no="";
+  local valid_answer_given=false;
+  local retry_prompt=true;
+
+  while [[ $valid_answer_given == false ]]; do
+    if [[ "$PROJECT_INIT_TESTS_ACTIVE" == "1" ]]; then
+      retry_prompt=false;
+      _get_form_answer;
+      entered_yes_no="$FORM_QUESTION_ANSWER";
+      echo -e "${prompt_input}${entered_yes_no}";
     else
-      entered_yes_no=$default_value;
+      read -p "$prompt_input" entered_yes_no;
     fi
-  fi
-  local canonical_answer="";
-  # Validate against supported pattern
-  case "$entered_yes_no" in
-    1|YES|yes|Yes|Y|y|true|True)
-    entered_yes_no=true;
-    canonical_answer="Yes";
-    ;;
-    0|NO|no|No|N|n|false|False)
-    entered_yes_no=false;
-    canonical_answer="No";
-    ;;
-    *)
-    logE "Invalid input";
-    failure "Please enter either yes or no";
-    ;;
-  esac
-  USER_INPUT_ENTERED_BOOL=$entered_yes_no;
+    # Validate user input
+    if [ -z "$entered_yes_no" ]; then
+      if [ -z "$default_value" ]; then
+        if [[ $retry_prompt == true ]]; then
+          logI "Invalid input. Please enter either yes or no";
+          continue;
+        else
+          logE "Invalid input";
+          failure "Please enter either yes or no";
+        fi
+      else
+        entered_yes_no=$default_value;
+      fi
+    fi
+    local canonical_answer="";
+    # Validate against supported pattern
+    case "$entered_yes_no" in
+      1|YES|yes|Yes|Y|y|true|True)
+      entered_yes_no=true;
+      canonical_answer="Yes";
+      ;;
+      0|NO|no|No|N|n|false|False)
+      entered_yes_no=false;
+      canonical_answer="No";
+      ;;
+      *)
+      if [[ $retry_prompt == true ]]; then
+        logI "Invalid input. Please enter either yes or no";
+        continue;
+      else
+        logE "Invalid input";
+        failure "Please enter either yes or no";
+      fi
+      ;;
+    esac
+    valid_answer_given=true;
+    USER_INPUT_ENTERED_BOOL=$entered_yes_no;
+  done
 
   get_boolean_property "sys.input.yesno.boolsubst" "true";
   if [[ "$PROPERTY_VALUE" == "true" ]]; then
     # Move cursor to line above and erase line
     echo -ne "\033[1A\033[2K";
-    echo -e "[${COLOR_CYAN}INPUT${COLOR_NC}] $canonical_answer";
+    echo -e "${prompt_input}${canonical_answer}";
   fi
 
   return 0;
