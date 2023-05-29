@@ -2604,9 +2604,26 @@ function read_user_input_selection() {
 # text can be potentially empty if the user simply presses enter without
 # actually entering any text.
 #
-# The entered input of the user is not checked for any kind of validity
-# or pattern. If the entered text should be constrained further, this needs to
-# be implemented by the calling code.
+# If this function is called with no arguments, then the entered input of the
+# user is not checked for any kind of validity or pattern. If the acceptable
+# text should be constrained further, then this can be done by specifying an
+# input validation function as the first argument. Such a validation function,
+# if provided, will be called by this function after the user has submitted
+# his answer. The user input is provided to the validation function as the
+# first argument. The validation function should then validate the user input
+# according to the underlying use case and return either 0 (zero) if the input
+# is deemed valid, or non-zero if the input is deemed invalid.
+# In the case of an invalid input, the user is prompted again to provide a
+# new input. This process repeats until a valid input is provided by the user
+# or the program is terminated or cancelled. It is recommended that a validation
+# function logs some information in the case of a detected invalid input such
+# that a user is informed about the cause of the invalidity.
+#
+# When in test mode and an invalid answer is provided, then this function
+# exits the program by means of the failure() function.
+#
+# Args:
+# $1 - The input validation function to use. This is an optional argument.
 #
 # Returns:
 # 0 - In the case of a valid text input.
@@ -2616,22 +2633,66 @@ function read_user_input_selection() {
 #                            entered by the user.
 #
 # Examples:
+# function _my_validation_name() {
+#   local input="$1";
+#   if [[ "$input" != "Hans" && "$input" != "Franz" ]]; then
+#     logI "Only 'Hans' and 'Franz' are allowed names";
+#     return 1;
+#   fi
+#   return 0;
+# }
+# 
 # logI "What's your name?";
 # read_user_input_text;
 # name=$USER_INPUT_ENTERED_TEXT;
 # logI "Hi ${name}! Nice to meet you.";
+# 
+# logI "What's the name of the other person?";
+# read_user_input_text _my_validation_name;
+# other_name=$USER_INPUT_ENTERED_TEXT;
+# logI "So, the other person's name is ${other_name}.";
 #
 function read_user_input_text() {
+  local _validation_function_arg=$1;
   local entered_text="";
   local prompt_input=$(echo -e "[${COLOR_CYAN}INPUT${COLOR_NC}] ");
   local entered_text="";
-  if [[ "$PROJECT_INIT_TESTS_ACTIVE" == "1" ]]; then
-    _get_form_answer;
-    entered_text="$FORM_QUESTION_ANSWER";
-    echo -e "${prompt_input}${entered_text}";
-  else
-    read -p "$prompt_input" entered_text;
-  fi
+  local valid_answer_given=false;
+  local retry_prompt=true;
+
+  while [[ $retry_prompt == true ]]; do
+    if [[ "$PROJECT_INIT_TESTS_ACTIVE" == "1" ]]; then
+      retry_prompt=false;
+      _get_form_answer;
+      entered_text="$FORM_QUESTION_ANSWER";
+      echo -e "${prompt_input}${entered_text}";
+    else
+      read -p "$prompt_input" entered_text;
+    fi
+    if [ -n "${_validation_function_arg}" ]; then
+      if [[ $(type -t ${_validation_function_arg}) == function ]]; then
+        # Call given input validation function
+        ${_validation_function_arg} "$entered_text";
+        if (( $? == 0 )); then
+          retry_prompt=false;
+          valid_answer_given=true;
+        elif [[ "$PROJECT_INIT_TESTS_ACTIVE" == "1" ]]; then
+          # For invalid input in test mode: terminate to avoid further
+          # execution of the program with potentially unsafe values.
+          failure "Invalid input";
+        fi
+      else
+        _make_func_hl "read_user_input_text";
+        logE "Programming error: Invalid argument in function call:";
+        logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+        logE "Validation function argument given to $HYPERLINK_VALUE is not" \
+             "a callable function: '${_validation_function_arg}'";
+        failure "Failed to process user input";
+      fi
+    else
+      retry_prompt=false;
+    fi
+  done
   USER_INPUT_ENTERED_TEXT="$entered_text";
   return 0;
 }
