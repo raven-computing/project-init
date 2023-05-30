@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2023 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,9 +48,17 @@ function main() {
 
   start_project_init "$@";
 
-  show_project_init_main_form;
+  if [[ $PROJECT_INIT_QUICKINIT_REQUESTED == true ]]; then
 
-  proceed_next_level "$FORM_MAIN_NEXT_DIR";
+    process_project_quickinit;
+
+  else
+
+    show_project_init_main_form;
+
+    proceed_next_level "$FORM_MAIN_NEXT_DIR";
+
+  fi
 
   finish_project_init;
 

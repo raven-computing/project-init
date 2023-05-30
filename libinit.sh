@@ -296,6 +296,13 @@ VAR_FILE_VALUE="";
 PROJECT_INIT_SUCCESS_MESSAGE="Project has been initialized";
 
 # [API Global]
+# Indicates whether the user has requested a quickinit.
+# Is either true or false.
+# Since:
+# 1.4.0
+PROJECT_INIT_QUICKINIT_REQUESTED=false;
+
+# [API Global]
 # Can be set to `true` in order to suppress the printing of a deprecation
 # warning for the next call of any deprecated function. This variable is
 # automatically reset to `false` by a deprecated function once it returns.
@@ -884,6 +891,11 @@ function _parse_args() {
   ARG_VERSION_STR=false;
   for arg in "$@"; do
     case $arg in
+      @*)
+      PROJECT_INIT_QUICKINIT_REQUESTED=true;
+      ARG_QUICKINIT_NAME="${arg:1}";
+      shift;
+      ;;
       --no-cache)
       ARG_NO_CACHE=true;
       shift;
@@ -1914,6 +1926,21 @@ function _load_configuration() {
   _FLAG_CONFIGURATION_LOADED=true;
 }
 
+function project_init_show_start_info() {
+  get_boolean_property "sys.starticon.show" "true";
+  if [[ "$PROPERTY_VALUE" == "true" ]]; then
+    _show_start_icon;
+  fi
+  get_boolean_property "sys.starttitle.show" "true";
+  if [[ "$PROPERTY_VALUE" == "true" ]]; then
+    _show_start_title;
+  fi
+  get_boolean_property "sys.starttext.show" "true";
+  if [[ "$PROPERTY_VALUE" == "true" ]]; then
+    _show_start_text;
+  fi
+}
+
 # Startup function for the Project Init system.
 function start_project_init() {
   # Keep track of the current working directory of the user when he
@@ -1957,19 +1984,6 @@ function start_project_init() {
 
   # Check for addons load hook
   _run_addon_load_hook;
-
-  get_boolean_property "sys.starticon.show" "true";
-  if [[ "$PROPERTY_VALUE" == "true" ]]; then
-    _show_start_icon;
-  fi
-  get_boolean_property "sys.starttitle.show" "true";
-  if [[ "$PROPERTY_VALUE" == "true" ]]; then
-    _show_start_title;
-  fi
-  get_boolean_property "sys.starttext.show" "true";
-  if [[ "$PROPERTY_VALUE" == "true" ]]; then
-    _show_start_text;
-  fi
 }
 
 # Finish function for the Project Init system.
@@ -2028,6 +2042,29 @@ function finish_project_init() {
   fi
 
   return $EXIT_SUCCESS;
+}
+
+function process_project_quickinit() {
+  logI "Running quickinit for $ARG_QUICKINIT_NAME";
+  # Convert to all lower-case
+  local qi_function=$(echo "$ARG_QUICKINIT_NAME" |tr '[:upper:]' '[:lower:]');
+  # Convert slashes to underscores and add function prefix
+  qi_function="quickinit_${qi_function/\//_}";
+  local qi_code_file="${SCRIPT_LVL_0_BASE}/quickinit.sh";
+  if ! [ -r "$qi_code_file" ]; then
+    logE "Quickinit code file not found.";
+    logE "No such file: '$qi_code_file'";
+    failure "Failed to load quickinit code file";
+  fi
+  source "$qi_code_file";
+  if (( $? != 0 )); then
+    failure "Failed to source quickinit code file";
+  fi
+  if [[ $(type -t "$qi_function") == function ]]; then
+    $qi_function;
+  else
+    logW "No quickinit code function found for '$ARG_QUICKINIT_NAME'";
+  fi
 }
 
 # Sorts the given file paths according to the file names.

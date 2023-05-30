@@ -60,6 +60,7 @@ function _project_init_process_forms() {
 
 # Shows and runs through the main Project Init form.
 function show_project_init_main_form() {
+  project_init_show_start_info;
   logI "";
   local specified_project_name="";
   get_property "project.name" "ask";
