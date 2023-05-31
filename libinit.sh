@@ -302,6 +302,8 @@ PROJECT_INIT_SUCCESS_MESSAGE="Project has been initialized";
 # 1.4.0
 PROJECT_INIT_QUICKINIT_REQUESTED=false;
 
+PROJECT_INIT_USED_SOURCE="";
+
 # [API Global]
 # Can be set to `true` in order to suppress the printing of a deprecation
 # warning for the next call of any deprecated function. This variable is
@@ -1988,29 +1990,31 @@ function start_project_init() {
 
 # Finish function for the Project Init system.
 function finish_project_init() {
-  # Check that all API functions have been called
-  if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
-    _make_func_hl "project_init_copy";
-    failure "The script in last init level was executed without a call to the"  \
-            "$HYPERLINK_VALUE function. Please make sure that the 'init.sh'"    \
-            "script in the lowermost init level calls the project_init_copy()"  \
-            "function when ready.";
-  fi
-  if [[ ${_FLAG_PROJECT_LICENSE_PROCESSED} == false ]]; then
-    _make_func_hl "project_init_license";
-    failure "The script in last init level was executed without a call to the"     \
-            "$HYPERLINK_VALUE function. Please make sure that the 'init.sh'"       \
-            "script in the lowermost init level calls the project_init_license()"  \
-            "function when ready. The function must always be called, even"        \
-            "when no license was selected or there is no intention in using"       \
-            "any license or copyright notice";
-  fi
-  if [[ ${_FLAG_PROJECT_FILES_PROCESSED} == false ]]; then
-    _make_func_hl "project_init_process";
-    failure "The script in last init level was executed without a call to the" \
-            "$HYPERLINK_VALUE function. Please make sure that the"             \
-            "'init.sh' script in the lowermost init level calls the"           \
-            "project_init_process() function when ready.";
+  if [[ $PROJECT_INIT_QUICKINIT_REQUESTED == false ]]; then
+    # Check that all API functions have been called
+    if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
+      _make_func_hl "project_init_copy";
+      failure "The script in last init level was executed without a call to the"  \
+              "$HYPERLINK_VALUE function. Please make sure that the 'init.sh'"    \
+              "script in the lowermost init level calls the project_init_copy()"  \
+              "function when ready.";
+    fi
+    if [[ ${_FLAG_PROJECT_LICENSE_PROCESSED} == false ]]; then
+      _make_func_hl "project_init_license";
+      failure "The script in last init level was executed without a call to the"     \
+              "$HYPERLINK_VALUE function. Please make sure that the 'init.sh'"       \
+              "script in the lowermost init level calls the project_init_license()"  \
+              "function when ready. The function must always be called, even"        \
+              "when no license was selected or there is no intention in using"       \
+              "any license or copyright notice";
+    fi
+    if [[ ${_FLAG_PROJECT_FILES_PROCESSED} == false ]]; then
+      _make_func_hl "project_init_process";
+      failure "The script in last init level was executed without a call to the" \
+              "$HYPERLINK_VALUE function. Please make sure that the"             \
+              "'init.sh' script in the lowermost init level calls the"           \
+              "project_init_process() function when ready.";
+    fi
   fi
 
   get_boolean_property "sys.warn.deprecation" "true";
@@ -2033,12 +2037,15 @@ function finish_project_init() {
 
   # Check for addons after-init hook
   _run_addon_after_init_hook;
-  # Finish
-  _log_success;
 
-  get_boolean_property "sys.notification.success.show" "true";
-  if [[ "$PROPERTY_VALUE" == "true" ]]; then
-    _show_notif_success;
+  if [[ $PROJECT_INIT_QUICKINIT_REQUESTED == false ]]; then
+    # Finish
+    _log_success;
+
+    get_boolean_property "sys.notification.success.show" "true";
+    if [[ "$PROPERTY_VALUE" == "true" ]]; then
+      _show_notif_success;
+    fi
   fi
 
   return $EXIT_SUCCESS;
@@ -2230,6 +2237,7 @@ function project_init_copy() {
     logE "at: '$var_project_dir'";
     failure "Failed to copy project source files to the target project location";
   fi
+  PROJECT_INIT_USED_SOURCE="$files_source";
   # Set file cache
   find_all_files;
   # Signal files have been copied
@@ -2765,6 +2773,56 @@ function read_user_input_yes_no() {
     echo -e "[${COLOR_CYAN}INPUT${COLOR_NC}] $canonical_answer";
   fi
 
+  return 0;
+}
+
+function copy_resource() {
+  local arg_file="$1";
+  local arg_dest="$2";
+  if [ -z "$arg_file" ]; then
+    _make_func_hl "copy_resource";
+    logE "Programming error: Illegal function call:";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
+            "No arguments specified";
+  fi
+  if [[ $PROJECT_INIT_QUICKINIT_REQUESTED == true ]]; then
+    arg_file="${SCRIPT_LVL_0_BASE}/${arg_file}";
+    arg_dest="${USER_CWD}/${arg_dest}";
+    if [ -f "$arg_dest" ]; then
+      logW "Cannot copy file resource.";
+      logW "File already exists at destination and would be overwritten:";
+      logW "at: '$arg_dest'";
+      return 3;
+    fi
+  else
+    if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
+    _make_func_hl "copy_resource";
+    local _hl_copy_res="$HYPERLINK_VALUE";
+    _make_func_hl "project_init_copy";
+    local _hl_pic="$HYPERLINK_VALUE";
+    logE "Programming error in init script:";
+    logE "at: '${CURRENT_LVL_PATH}/init.sh' (line ${BASH_LINENO[0]})";
+    failure "Missing call to project_init_copy() function:"                           \
+            "When calling the ${_hl_copy_res} function, the target project directory" \
+            "must already be created. "                                               \
+            "Make sure you first call the ${_hl_pic} function in your init script";
+    fi
+    arg_file="${PROJECT_INIT_USED_SOURCE}/${arg_file}";
+    arg_dest="${var_project_dir}/${arg_dest}";
+  fi
+  if ! [ -r "$arg_file" ]; then
+    logW "Cannot copy file resource '$arg_file'";
+    logW "Resouce not found";
+    return 1;
+  fi
+  cp "$arg_file" "$arg_dest";
+  if (( $? != 0 )); then
+    logW "Could not copy the following file:";
+    logW "Source: '$arg_file'";
+    logW "Target: '$arg_dest'";
+    return 2;
+  fi
   return 0;
 }
 

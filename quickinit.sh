@@ -22,4 +22,5 @@
 
 function quickinit_c_main() {
   logI "Initializing single C source file with quickinit";
+  copy_resource "c/01_executable/source/src/main/c/main.c" "main.c"
 }
