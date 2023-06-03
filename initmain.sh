@@ -48,9 +48,9 @@ function main() {
 
   start_project_init "$@";
 
-  if [[ $PROJECT_INIT_QUICKINIT_REQUESTED == true ]]; then
+  if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
 
-    process_project_quickinit;
+    process_project_quickstart;
 
   else
 

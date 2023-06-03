@@ -15,12 +15,12 @@
 
 # #***************************************************************************#
 # *                                                                           *
-# *                      ***   Quickinit Functions  ***                       *
+# *                      ***   Quickstart Functions  ***                      *
 # *                                                                           *
 # #***************************************************************************#
 
 
-function quickinit_c_main() {
-  logI "Initializing single C source file with quickinit";
+function quickstart_c_main() {
+  logI "Initializing single C source file with quickstart";
   copy_resource "c/01_executable/source/src/main/c/main.c" "main.c"
 }

@@ -296,11 +296,11 @@ VAR_FILE_VALUE="";
 PROJECT_INIT_SUCCESS_MESSAGE="Project has been initialized";
 
 # [API Global]
-# Indicates whether the user has requested a quickinit.
+# Indicates whether the user has requested a quickstart.
 # Is either true or false.
 # Since:
 # 1.4.0
-PROJECT_INIT_QUICKINIT_REQUESTED=false;
+PROJECT_INIT_QUICKSTART_REQUESTED=false;
 
 PROJECT_INIT_USED_SOURCE="";
 
@@ -894,8 +894,8 @@ function _parse_args() {
   for arg in "$@"; do
     case $arg in
       @*)
-      PROJECT_INIT_QUICKINIT_REQUESTED=true;
-      ARG_QUICKINIT_NAME="${arg:1}";
+      PROJECT_INIT_QUICKSTART_REQUESTED=true;
+      ARG_QUICKSTART_NAME="${arg:1}";
       shift;
       ;;
       --no-cache)
@@ -1990,7 +1990,7 @@ function start_project_init() {
 
 # Finish function for the Project Init system.
 function finish_project_init() {
-  if [[ $PROJECT_INIT_QUICKINIT_REQUESTED == false ]]; then
+  if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == false ]]; then
     # Check that all API functions have been called
     if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
       _make_func_hl "project_init_copy";
@@ -2038,7 +2038,7 @@ function finish_project_init() {
   # Check for addons after-init hook
   _run_addon_after_init_hook;
 
-  if [[ $PROJECT_INIT_QUICKINIT_REQUESTED == false ]]; then
+  if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == false ]]; then
     # Finish
     _log_success;
 
@@ -2051,26 +2051,26 @@ function finish_project_init() {
   return $EXIT_SUCCESS;
 }
 
-function process_project_quickinit() {
-  logI "Running quickinit for $ARG_QUICKINIT_NAME";
+function process_project_quickstart() {
+  logI "Running quickstart for $ARG_QUICKSTART_NAME";
   # Convert to all lower-case
-  local qi_function=$(echo "$ARG_QUICKINIT_NAME" |tr '[:upper:]' '[:lower:]');
+  local qi_function=$(echo "$ARG_QUICKSTART_NAME" |tr '[:upper:]' '[:lower:]');
   # Convert slashes to underscores and add function prefix
-  qi_function="quickinit_${qi_function/\//_}";
-  local qi_code_file="${SCRIPT_LVL_0_BASE}/quickinit.sh";
+  qi_function="quickstart_${qi_function/\//_}";
+  local qi_code_file="${SCRIPT_LVL_0_BASE}/quickstart.sh";
   if ! [ -r "$qi_code_file" ]; then
-    logE "Quickinit code file not found.";
+    logE "Quickstart code file not found.";
     logE "No such file: '$qi_code_file'";
-    failure "Failed to load quickinit code file";
+    failure "Failed to load quickstart code file";
   fi
   source "$qi_code_file";
   if (( $? != 0 )); then
-    failure "Failed to source quickinit code file";
+    failure "Failed to source quickstart code file";
   fi
   if [[ $(type -t "$qi_function") == function ]]; then
     $qi_function;
   else
-    logW "No quickinit code function found for '$ARG_QUICKINIT_NAME'";
+    logW "No quickstart code function found for '$ARG_QUICKSTART_NAME'";
   fi
 }
 
@@ -2786,7 +2786,7 @@ function copy_resource() {
     failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
             "No arguments specified";
   fi
-  if [[ $PROJECT_INIT_QUICKINIT_REQUESTED == true ]]; then
+  if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
     arg_file="${SCRIPT_LVL_0_BASE}/${arg_file}";
     arg_dest="${USER_CWD}/${arg_dest}";
     if [ -f "$arg_dest" ]; then
