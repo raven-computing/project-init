@@ -21,6 +21,12 @@
 
 
 function quickstart_c_main() {
-  logI "Initializing single C source file with quickstart";
-  copy_resource "c/01_executable/source/src/main/c/main.c" "main.c"
+  logI "Creating C source file with a main function";
+  copy_resource "c/01_executable/source/src/main/c/main.c" "main.c";
+  return 0;
+}
+
+function quickstart_main_c() {
+  quickstart_c_main;
+  return $?;
 }

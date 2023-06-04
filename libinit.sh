@@ -343,6 +343,18 @@ _N_ERRORS=0;
 # The list of all entries in 'files.txt' files.
 LIST_FILES_TXT=();
 
+# The array of files which are created by Project Init
+# in a target location.
+CACHE_ALL_FILES=();
+
+# Used by the _find_files_impl() function to store
+# the found files as a separate item in this array.
+_FOUND_FILES=();
+
+# Used by the _find_subst_vars() function to store
+# the found substitution variables.
+_FOUND_SUBST_VARS=();
+
 # A literal new line character. Can be used in values
 # for variable substitutions.
 readonly _NL="
@@ -721,6 +733,10 @@ function failure() {
     fi
   fi
 
+  if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
+    _cancel_quickstart;
+  fi
+
   # Play bell alert sound if applicable
   if [[ ${_FLAG_CONFIGURATION_LOADED} == true ]]; then
     get_boolean_property "sys.output.sound.onfail" "true";
@@ -868,6 +884,33 @@ function _load_version_addons() {
     PROJECT_INIT_ADDONS_IS_DEV_VERSION=false;
   fi
   return $ret_val;
+}
+
+# Loads the quickstart function definitions.
+#
+# The path to the directory containing the quickstart script
+# file must be specified.
+#
+# Args:
+# $1 - The path to the quickstart script directory.
+#      This is a mandatory argument.
+#
+# Returns:
+# 0 - If the quickstart function definitions could be successfully loaded.
+# 1 - If the quickstart script file was not found.
+# 2 - If the quickstart script file was found but could not be loaded.
+#
+function _load_quickstart_definitions() {
+  local quickstart_path_base="$1";
+  local quickstart_code_file="${quickstart_path_base}/quickstart.sh";
+  if ! [ -r "$quickstart_code_file" ]; then
+    return 1;
+  fi
+  source "$quickstart_code_file";
+  if (( $? != 0 )); then
+    return 2;
+  fi
+  return 0;
 }
 
 # Parses all given arguments and sets the global $ARG_* variables.
@@ -1928,6 +1971,54 @@ function _load_configuration() {
   _FLAG_CONFIGURATION_LOADED=true;
 }
 
+# Initializes standard substitution variables to default values.
+#
+# This function sets the following substitution variables:
+#
+# VAR_PROJECT_ORGANISATION_NAME: The name of the organisation for the project
+# VAR_PROJECT_ORGANISATION_URL: The URL for the organisation website
+# VAR_PROJECT_ORGANISATION_EMAIL: The E-Mail of the organisation of the project
+# VAR_COPYRIGHT_YEAR: The year used in copyright notices
+# VAR_COPYRIGHT_HOLDER: The name of the copyright holder
+# VAR_PROJECT_SLOGAN_STRING: The example string to use within the generated
+#                            example source code, e.g. when printing something
+#                            to the screen
+#
+function _load_default_subst_vars() {
+  get_property "project.organisation.name" "Raven Computing";
+  var_project_organisation_name="$PROPERTY_VALUE";
+
+  get_property "project.organisation.url" "https://www.raven-computing.com";
+  var_project_organisation_url="$PROPERTY_VALUE";
+
+  get_property "project.organisation.email" "info@raven-computing.com";
+  var_project_organisation_email="$PROPERTY_VALUE";
+
+  get_property "project.slogan.string" "Created by Project Init system";
+  var_project_slogan_string="$PROPERTY_VALUE";
+
+  var_copyright_year=$(date +%Y);
+  if (( $? != 0 )); then
+    logW "Failed to get current date:";
+    logW "Command 'date' returned non-zero exit status.";
+    warning "Check date in copyright headers of source files";
+    var_copyright_year="1970";
+  fi
+  var_copyright_holder="$var_project_organisation_name";
+}
+
+# Replaces standard substitution variables according to the
+# set global variable value.
+function _replace_default_subst_vars() {
+  replace_var "PROJECT_ORGANISATION_NAME"  "$var_project_organisation_name";
+  replace_var "PROJECT_ORGANISATION_URL"   "$var_project_organisation_url";
+  replace_var "PROJECT_ORGANISATION_EMAIL" "$var_project_organisation_email";
+  replace_var "PROJECT_SLOGAN_STRING"      "$var_project_slogan_string";
+  replace_var "COPYRIGHT_YEAR"             "$var_copyright_year";
+  replace_var "COPYRIGHT_HOLDER"           "$var_copyright_holder";
+}
+
+# Shows the start information to the user according to the set configuration.
 function project_init_show_start_info() {
   get_boolean_property "sys.starticon.show" "true";
   if [[ "$PROPERTY_VALUE" == "true" ]]; then
@@ -1986,6 +2077,9 @@ function start_project_init() {
 
   # Check for addons load hook
   _run_addon_load_hook;
+
+  # Initialize some common substitution variables
+  _load_default_subst_vars;
 }
 
 # Finish function for the Project Init system.
@@ -2051,27 +2145,50 @@ function finish_project_init() {
   return $EXIT_SUCCESS;
 }
 
-function process_project_quickstart() {
-  logI "Running quickstart for $ARG_QUICKSTART_NAME";
+# Primary processing function for the quickstart mode.
+function process_project_init_quickstart() {
+  _load_version_base;
   # Convert to all lower-case
-  local qi_function=$(echo "$ARG_QUICKSTART_NAME" |tr '[:upper:]' '[:lower:]');
-  # Convert slashes to underscores and add function prefix
-  qi_function="quickstart_${qi_function/\//_}";
-  local qi_code_file="${SCRIPT_LVL_0_BASE}/quickstart.sh";
-  if ! [ -r "$qi_code_file" ]; then
-    logE "Quickstart code file not found.";
-    logE "No such file: '$qi_code_file'";
-    failure "Failed to load quickstart code file";
+  local quickstart_function=$(echo "$ARG_QUICKSTART_NAME" |tr '[:upper:]' '[:lower:]');
+  # Convert slashes and dots to underscores and add function prefix
+  quickstart_function="${quickstart_function/\//_}";
+  quickstart_function="quickstart_${quickstart_function/./_}";
+
+  get_boolean_property "sys.quickstart.base.disable" "false";
+  if [[ "$PROPERTY_VALUE" == "false" ]]; then
+    if ! _load_quickstart_definitions "${SCRIPT_LVL_0_BASE}"; then
+      failure "Failed to load base system quickstart code file";
+    fi
   fi
-  source "$qi_code_file";
-  if (( $? != 0 )); then
-    failure "Failed to source quickstart code file";
+  # Check for quickstart addons
+  if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
+    _load_quickstart_definitions "$PROJECT_INIT_ADDONS_DIR";
+    if (( $? == 2 )); then
+      failure "Failed to load quickstart function definitions from addon";
+    fi
   fi
-  if [[ $(type -t "$qi_function") == function ]]; then
-    $qi_function;
-  else
+
+  if [[ $(type -t "$quickstart_function") != function ]]; then
     logW "No quickstart code function found for '$ARG_QUICKSTART_NAME'";
+    return 1;
   fi
+  # Call quickstart function
+  $quickstart_function;
+  if (( $? != 0 )); then
+    _cancel_quickstart;
+    return 2;
+  fi
+  _replace_default_subst_vars;
+  # Check for unreplaced substitution variables
+  if _find_subst_vars "${CACHE_ALL_FILES[@]}"; then
+    local substvar="";
+    for substvar in "${_FOUND_SUBST_VARS[@]}"; do
+      logW "Substitution variable was not replaced: '$substvar'";
+      # Remove subst var from copied file
+      replace_var "$substvar" "";
+    done
+  fi
+  return 0;
 }
 
 # Sorts the given file paths according to the file names.
@@ -2100,6 +2217,51 @@ function _sort_file_paths() {
   done |sort |cut -d? -f2
 }
 
+function _find_files_impl() {
+  local target_path="$1";
+  local file_types="$2";
+  shift 2;
+  local match_ext_list=("$@");
+  # Build arg string for find command
+  file_args=();
+  isfirst=true;
+  local f="";
+  for f in "${match_ext_list[@]}"; do
+    if [[ $isfirst == true ]]; then
+      isfirst=false;
+      # The first item does not have an '-o' option
+      file_args+=(-name "$f");
+    else
+      file_args+=( -o -name "$f");
+    fi
+  done
+
+  local find_args=("-type");
+  find_args+=("$file_types");
+  if (( ${#file_args[@]} > 0 )); then
+    find_args+=("${file_args[@]}");
+  fi
+
+  _FOUND_FILES=();
+  local found_files="";
+  # List all files matching an ext or file name
+  found_files=$(find "$target_path" "${find_args[@]}");
+  local cmd_find_status=$?;
+  if (( $cmd_find_status != 0 )); then
+    return $cmd_find_status;
+  fi
+  # Save the internal field separator
+  local IFS_ORIG="$IFS";
+  # Set the IFS to a new line char
+  IFS="${_NL}";
+  for f in $found_files; do
+    _FOUND_FILES+=("$f");
+  done
+  # Reset the original IFS value
+  IFS="$IFS_ORIG";
+  return 0;
+}
+
 # [API function]
 # Finds all files in the project directory indicated by
 # the $var_project_dir variable.
@@ -2122,22 +2284,9 @@ function _sort_file_paths() {
 # var_project_dir - The path to the project directory (target).
 #
 function find_all_files() {
-  # Build arg string for find command
-  file_args=();
-  isfirst=true;
-  local f="";
-  for f in "${LIST_FILES_TXT[@]}"; do
-    if [[ $isfirst == true ]]; then
-      isfirst=false;
-      # The first item does not have an '-o' option
-      file_args+=(-name "$f");
-    else
-      file_args+=( -o -name "$f");
-    fi
-  done
-
-  # List all files matching an ext or file name
-  CACHE_ALL_FILES=$(find "$var_project_dir/" -type f \( "${file_args[@]}" \));
+  CACHE_ALL_FILES=(); # Clear cache
+  # Find all regular files matching an ext or file name
+  _find_files_impl "$var_project_dir" "f" "${LIST_FILES_TXT[@]}";
   if (( $? != 0 )); then
     local cmd_status=$?;
     logE "Failed to update internal file cache:";
@@ -2145,6 +2294,11 @@ function find_all_files() {
     failure "Failed to update internal file cache." \
             "Your system might be using an incompatible version of 'find'";
   fi
+  # Copy found files to cache
+  local f="";
+  for f in "${_FOUND_FILES[@]}"; do
+    CACHE_ALL_FILES+=("$f");
+  done
 }
 
 # [API function]
@@ -2262,6 +2416,32 @@ function _unique_items() {
   done |sort -u
 }
 
+function _find_subst_vars() {
+  local files_to_search=("$@");
+  _FOUND_SUBST_VARS=(); # Reset
+  local f="";
+  for f in "${files_to_search[@]}"; do
+    if [ -d "$f" ]; then
+      continue; # Ignore directories
+    fi
+    if ! [ -f "$f" ]; then
+      continue; # Ignore non-existing regular files
+    fi
+    local subvar="";
+    for subvar in $(grep -o '\${{VAR_[0-9A-Z_]\+}}' "$f"); do
+      _FOUND_SUBST_VARS+=("${subvar:3:-2}");
+    done
+  done
+
+  # Remove duplicates
+  if (( ${#_FOUND_SUBST_VARS[@]} > 0 )); then
+    _FOUND_SUBST_VARS=( $(_unique_items "${_FOUND_SUBST_VARS[@]}") );
+    return 0;
+  else
+    return 1;
+  fi
+}
+
 # Validates that no unreplaced substitution variables are present in
 # all files specified by the internal file cache.
 #
@@ -2280,7 +2460,11 @@ function _unique_items() {
 #
 function _check_unreplaced_vars() {
   local found_subvars=();
-  for f in $CACHE_ALL_FILES; do
+  local f="";
+  for f in "${CACHE_ALL_FILES[@]}"; do
+    if [ -d "$f" ]; then
+      continue; # Ignore directories
+    fi
     # Check if file still exists
     if ! [ -f "$f" ]; then
       _make_func_hl "find_all_files";
@@ -2291,6 +2475,7 @@ function _check_unreplaced_vars() {
 
       continue;
     fi
+    local subvar="";
     # Seach for substitution variable pattern
     for subvar in $(grep -o '\${{VAR_[0-9A-Z_]\+}}' "$f"); do
       found_subvars+=("$subvar");
@@ -2405,6 +2590,24 @@ function _load_extension_map() {
   fi
 }
 
+# Indicates whether the given path is absolute.
+#
+# Args:
+# $1 - The path to check. This is a mandatory argument.
+#
+# Returns:
+# 0 - If the specified argument represents an absolute path.
+# 1 - If the specified argument does not represent an absolute path.
+#
+function _is_absolute_path() {
+  local path_to_check="$1";
+  if [[ "$path_to_check" == /* ]]; then
+    return 0;
+  else
+    return 1;
+  fi
+}
+
 # Indicates whether the specified string represents a valid absolute path
 # to a project target directory.
 #
@@ -2443,7 +2646,7 @@ function _check_is_valid_project_dir() {
     failure "Please enter a valid project directory path";
   fi
   # Must be an absolute path
-  if ! [[ "$arg_project_dir" == /* ]]; then
+  if ! _is_absolute_path "$arg_project_dir"; then
     logE "The entered path is not absolute";
     failure "Please enter a valid absolute path for the project directory";
   fi
@@ -2776,26 +2979,59 @@ function read_user_input_yes_no() {
   return 0;
 }
 
+function _cancel_quickstart() {
+  local arg_do_exit_with_status="$1";
+  if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == false ]]; then
+    return 1;
+  fi
+  if (( ${#CACHE_ALL_FILES[@]} > 0 )); then
+    local f="";
+    for f in "${CACHE_ALL_FILES[@]}"; do
+      if [ -d "$f" ]; then
+        if ! rm -rf "$f"; then
+          logW "Failed to clean up directory created by quickstart function.";
+          logW "Check directory '$f'";
+        fi
+      elif [ -f "$f" ]; then
+        if ! rm "$f"; then
+          logW "Failed to clean up file created by quickstart function.";
+          logW "Check file '$f'";
+        fi
+      fi
+    done
+  fi
+  if [ -n "$arg_do_exit_with_status" ]; then
+    exit $arg_do_exit_with_status;
+  fi
+}
+
 function copy_resource() {
-  local arg_file="$1";
+  local arg_src="$1";
   local arg_dest="$2";
-  if [ -z "$arg_file" ]; then
+  if [ -z "$arg_src" ]; then
     _make_func_hl "copy_resource";
     logE "Programming error: Illegal function call:";
     logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
     failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
             "No arguments specified";
   fi
+  if [ -z "$arg_dest" ]; then
+    arg_dest=$(basename "$arg_src");
+  fi
   if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
-    arg_file="${SCRIPT_LVL_0_BASE}/${arg_file}";
+    # In Quickstart mode
+    if ! _is_absolute_path "$arg_src"; then
+      arg_src="${SCRIPT_LVL_0_BASE}/${arg_src}";
+    fi
     arg_dest="${USER_CWD}/${arg_dest}";
-    if [ -f "$arg_dest" ]; then
-      logW "Cannot copy file resource.";
-      logW "File already exists at destination and would be overwritten:";
+    if [ -e "$arg_dest" ]; then
+      logW "Cannot copy resource.";
+      logW "File or directory already exists at destination and would be overwritten:";
       logW "at: '$arg_dest'";
-      return 3;
+      _cancel_quickstart $EXIT_FAILURE;
     fi
   else
+    # In regular form-based mode
     if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
     _make_func_hl "copy_resource";
     local _hl_copy_res="$HYPERLINK_VALUE";
@@ -2808,20 +3044,43 @@ function copy_resource() {
             "must already be created. "                                               \
             "Make sure you first call the ${_hl_pic} function in your init script";
     fi
-    arg_file="${PROJECT_INIT_USED_SOURCE}/${arg_file}";
+    if ! _is_absolute_path "$arg_src"; then
+      arg_src="${PROJECT_INIT_USED_SOURCE}/${arg_src}";
+    fi
     arg_dest="${var_project_dir}/${arg_dest}";
   fi
-  if ! [ -r "$arg_file" ]; then
-    logW "Cannot copy file resource '$arg_file'";
+  if ! [ -r "$arg_src" ]; then
+    logW "Cannot copy file resource '$arg_src'";
     logW "Resouce not found";
     return 1;
   fi
-  cp "$arg_file" "$arg_dest";
-  if (( $? != 0 )); then
-    logW "Could not copy the following file:";
-    logW "Source: '$arg_file'";
-    logW "Target: '$arg_dest'";
-    return 2;
+  if [ -d "$arg_src" ]; then
+    cp -r "$arg_src" "$arg_dest" 2>/dev/null;
+    if (( $? != 0 )); then
+      logW "Could not copy the following directory:";
+      logW "Source: '$arg_src'";
+      logW "Target: '$arg_dest'";
+      return 2;
+    fi
+    CACHE_ALL_FILES+=("$arg_dest");
+    _find_files_impl "$arg_dest" "f";
+    if (( $? != 0 )); then
+      logE "Failed to list files in target directory: '$arg_dest'";
+      failure "Internal error.";
+    fi
+    local f="";
+    for f in "${_FOUND_FILES[@]}"; do
+      CACHE_ALL_FILES+=("$f");
+    done
+  else
+    cp "$arg_src" "$arg_dest" 2>/dev/null;
+    if (( $? != 0 )); then
+      logW "Could not copy the following regular file:";
+      logW "Source: '$arg_src'";
+      logW "Target: '$arg_dest'";
+      return 2;
+    fi
+    CACHE_ALL_FILES+=("$arg_dest");
   fi
   return 0;
 }
@@ -2868,7 +3127,7 @@ function copy_shared() {
     failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
             "No arguments specified";
   fi
-  if [[ "$arg_shared_name" == /* ]]; then
+  if _is_absolute_path "$arg_shared_name"; then
     _make_func_hl "copy_shared";
     logE "Programming error: Illegal function call:";
     logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
@@ -2882,25 +3141,27 @@ function copy_shared() {
     failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
             "No destination path argument specified";
   fi
-  if [[ "$arg_dest_path" == /* ]]; then
+  if _is_absolute_path "$arg_dest_path"; then
     _make_func_hl "copy_shared";
     logE "Programming error: Illegal function call:";
     logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
     failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
             "The file destination must not be an absolute path";
   fi
-  # Project dir must already exist
-  if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
-    _make_func_hl "copy_shared";
-    local _hl_copy_shared="$HYPERLINK_VALUE";
-    _make_func_hl "project_init_copy";
-    local _hl_pic="$HYPERLINK_VALUE";
-    logE "Programming error in init script:";
-    logE "at: '${CURRENT_LVL_PATH}/init.sh' (line ${BASH_LINENO[0]})";
-    failure "Missing call to project_init_copy() function:"                              \
-            "When calling the ${_hl_copy_shared} function, the target project directory" \
-            "must already be created. "                                                  \
-            "Make sure you first call the ${_hl_pic} function in your init script";
+  if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == false ]]; then
+    # Project dir must already exist
+    if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
+      _make_func_hl "copy_shared";
+      local _hl_copy_shared="$HYPERLINK_VALUE";
+      _make_func_hl "project_init_copy";
+      local _hl_pic="$HYPERLINK_VALUE";
+      logE "Programming error in init script:";
+      logE "at: '${CURRENT_LVL_PATH}/init.sh' (line ${BASH_LINENO[0]})";
+      failure "Missing call to project_init_copy() function:"                              \
+              "When calling the ${_hl_copy_shared} function, the target project directory" \
+              "must already be created. "                                                  \
+              "Make sure you first call the ${_hl_pic} function in your init script";
+    fi
   fi
   # Check which file to load (from addon or base)
   local shared_res_file="${SCRIPT_LVL_0_BASE}/share/${arg_shared_name}";
@@ -2915,12 +3176,7 @@ function copy_shared() {
     logW "Shared resouce not found";
     return 1;
   fi
-  local res_destination="${var_project_dir}/${arg_dest_path}";
-  cp "$shared_res_file" "$res_destination";
-  if (( $? != 0 )); then
-    logW "Could not copy the following file:";
-    logW "Source: '$shared_res_file'";
-    logW "Target: '$res_destination'";
+  if ! copy_resource "$shared_res_file" "$arg_dest_path"; then
     return 2;
   fi
   return 0;
@@ -3150,7 +3406,6 @@ function load_var_from_file() {
 # replace_var "VAR_TEST" "value only in .java files" "java";
 #
 function replace_var() {
-  local _all_files="$CACHE_ALL_FILES";
   local _arg_count=$#;
   local _var_key="$1";
   local _var_value="$2";
@@ -3170,7 +3425,10 @@ function replace_var() {
     failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
             "Key argument cannot be an empty string";
   fi
-  if [ -z "${_all_files}" ]; then
+  if (( ${#CACHE_ALL_FILES[@]} == 0 )); then
+    if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
+      return 1;
+    fi
     _make_func_hl "replace_var";
     local hl_replace_var="$HYPERLINK_VALUE";
     _make_func_hl "project_init_copy";
@@ -3233,7 +3491,12 @@ function replace_var() {
   # Therefore we must only replace each literal '&' with '\&' (one literal backslash).
   _var_value="${_var_value//&/\\&}";
 
-  for f in ${_all_files}; do
+  local f="";
+  for f in "${CACHE_ALL_FILES[@]}"; do
+    # Skip if file is a directory
+    if [ -d "$f" ]; then
+      continue;
+    fi
     # Check if a specific file extension was specified
     if [ -n "${_var_file_ext}" ]; then
       # Skip all file which do not have the specified extension
@@ -3597,11 +3860,8 @@ function project_init_process() {
   replace_var "PROJECT_NAME_UPPER"         "$var_project_name_upper";
   replace_var "PROJECT_DESCRIPTION"        "$var_project_description";
   replace_var "PROJECT_DIR"                "$var_project_dir";
-  replace_var "PROJECT_ORGANISATION_NAME"  "$var_project_organisation_name";
-  replace_var "PROJECT_ORGANISATION_URL"   "$var_project_organisation_url";
-  replace_var "PROJECT_ORGANISATION_EMAIL" "$var_project_organisation_email";
   replace_var "PROJECT_LANG"               "$var_project_lang";
-  replace_var "PROJECT_SLOGAN_STRING"      "$var_project_slogan_string";
+  _replace_default_subst_vars;
 
   # Call all functions for processing project files in the level order
   local max_lvl_number=$CURRENT_LVL_NUMBER;

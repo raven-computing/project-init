@@ -49,15 +49,10 @@ function main() {
   start_project_init "$@";
 
   if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
-
-    process_project_quickstart;
-
+    process_project_init_quickstart;
   else
-
     show_project_init_main_form;
-
     proceed_next_level "$FORM_MAIN_NEXT_DIR";
-
   fi
 
   finish_project_init;
