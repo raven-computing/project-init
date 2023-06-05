@@ -297,11 +297,21 @@ PROJECT_INIT_SUCCESS_MESSAGE="Project has been initialized";
 
 # [API Global]
 # Indicates whether the user has requested a quickstart.
-# Is either true or false.
+# Is either true or false.  
+# This variable must be regarded as read-only.
 # Since:
 # 1.4.0
 PROJECT_INIT_QUICKSTART_REQUESTED=false;
 
+# [API Global]
+# Indicates the path to the project source template directory used
+# to initialize a new project. This variable is only set after project
+# initialization process has started and the source template files have
+# been copied to the project target directory by means of
+# the project_init_copy() function.  
+# This variable must be regarded as read-only.
+# Since:
+# 1.4.0
 PROJECT_INIT_USED_SOURCE="";
 
 # [API Global]
@@ -922,11 +932,12 @@ function _load_quickstart_definitions() {
 # An error message is printed if an unknown argument is encountered.
 #
 # Globals:
-# ARG_NO_CACHE    - Represents the '--no-cache' option.
-# ARG_NO_PULL     - Represents the '--no-pull' option.
-# ARG_HELP        - Represents the '-?|--help' option.
-# ARG_VERSION     - Represents the '--version' option.
-# ARG_VERSION_STR - Represents the '-#' option.
+# ARG_QUICKSTART_NAME - Represents the quickstart '@' argument.
+# ARG_NO_CACHE        - Represents the '--no-cache' option.
+# ARG_NO_PULL         - Represents the '--no-pull' option.
+# ARG_HELP            - Represents the '-?|--help' option.
+# ARG_VERSION         - Represents the '--version' option.
+# ARG_VERSION_STR     - Represents the '-#' option.
 #
 function _parse_args() {
   ARG_NO_CACHE=false;
@@ -2148,6 +2159,10 @@ function finish_project_init() {
 # Primary processing function for the quickstart mode.
 function process_project_init_quickstart() {
   _load_version_base;
+  if [ -z "$ARG_QUICKSTART_NAME" ]; then
+    logW "No quickstart name specified";
+    _cancel_quickstart $EXIT_FAILURE;
+  fi
   # Convert to all lower-case
   local quickstart_function=$(echo "$ARG_QUICKSTART_NAME" |tr '[:upper:]' '[:lower:]');
   # Convert slashes and dots to underscores and add function prefix
@@ -2169,14 +2184,13 @@ function process_project_init_quickstart() {
   fi
 
   if [[ $(type -t "$quickstart_function") != function ]]; then
-    logW "No quickstart code function found for '$ARG_QUICKSTART_NAME'";
-    return 1;
+    logW "No quickstart code function found for name '$ARG_QUICKSTART_NAME'";
+    _cancel_quickstart $EXIT_FAILURE;
   fi
   # Call quickstart function
   $quickstart_function;
   if (( $? != 0 )); then
-    _cancel_quickstart;
-    return 2;
+    _cancel_quickstart $EXIT_FAILURE;
   fi
   _replace_default_subst_vars;
   # Check for unreplaced substitution variables
