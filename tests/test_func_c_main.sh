@@ -15,19 +15,20 @@
 
 # #***************************************************************************#
 # *                                                                           *
-# *                      ***   Quickstart Functions  ***                      *
+# *        ***   Functionality Tests for the Quickstart Function   ***        *
 # *                                                                           *
 # #***************************************************************************#
 
 
-function quickstart_c_main() {
-  logI "Creating C source file with a main function";
-  copy_resource "c/01_executable/source/src/main/c/main.c" "main.c";
-  replace_var "VAR_COPYRIGHT_HEADER" "// Copyright";
-  return 0;
+function test_functionality() {
+  test_functionality_quickstart @c_main;
+  return $?;
 }
 
-function quickstart_main_c() {
-  quickstart_c_main;
+function test_functionality_result() {
+  local files=();
+  files+=("main.c");
+
+  assert_files_exist "${files[@]}";
   return $?;
 }

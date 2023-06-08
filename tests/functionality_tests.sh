@@ -71,65 +71,27 @@ function execute_test_run() {
   return $test_run_status;
 }
 
-# [API function]
-# Executes a functionality test run with the specified test parameters.
-#
-# This function is supposed to be used in test suites.
-# The specified file must contain the test run parameters. The file must
-# be properties-formatted and each test parameter corresponds to
-# one property line.
-#
-# Since:
-# 1.2.0
-#
-# Args:
-# $1 - A file containing the test run parameters. It is presumed that the
-#      file is located relative to the 'tests/resources' directory.
-#      This is a mandatory argument.
-#
-# Returns:
-# 0  - If the test run has finished successfully, without any errors or warnings.
-# nz - In the case of a test failure due to any reason.
-#
-# Examples:
-# # Inside the test case file 'tests/test_func_example.sh'
-# function test_functionality() {
-#   # Execute a test run with the parameters specified
-#   # in the 'tests/resources/test_example.properties' file
-#   test_functionality_with "test_example.properties";
-#   return $?;
-# }
-#
-function test_functionality_with() {
-  local config_file="$1";
-  local title="";
-  if [ -r "resources/$config_file" ]; then
-    title=$(head -n 1 "resources/$config_file");
-    if [[ "$title" == "# @NAME: "* ]]; then
-      title="${title:9:60}";
-    else
-      title="with $config_file";
+function _test_functionality_driver() {
+  local title="$1";
+  local config_file="$2";
+  shift 2;
+  local test_driver_args="$@";
+
+  if [ -n "$config_file" ]; then
+    if [ -r "${TESTPATH}/resources/${config_file}" ]; then
+      export PROJECT_INIT_TESTS_RUN_CONFIG="${TESTPATH}/resources/${config_file}";
     fi
   fi
-  declare -g -A TEST_FORM_ANSWERS;
-  if ! _read_properties "resources/$config_file" TEST_FORM_ANSWERS; then
-    logE "Test run configuration file is invalid";
-    return 90;
-  fi
 
-  ASSERT_FILE_PATH_PREFIX="";
-  if [[ "${TEST_FORM_ANSWERS[project.dir]+1}" == "1" ]]; then
-    ASSERT_FILE_PATH_PREFIX="${TEST_FORM_ANSWERS[project.dir]}";
-  fi
-
-  export PROJECT_INIT_TESTS_RUN_CONFIG="$TESTPATH/resources/$config_file";
   printt "echo" "       Testing $title " "$LABEL_RUN";
   local output_stdout="";
   local output_stderr="";
   local test_status=0;
   local exit_status=0;
   local f_out_stderr="${TESTS_OUTPUT_DIR}/run_stderr";
-  output_stdout=$(bash "$BASETESTPATH/functionality_test_driver.sh" 2>"$f_out_stderr");
+  output_stdout=$(bash "$BASETESTPATH/functionality_test_driver.sh" \
+                        $test_driver_args 2>"$f_out_stderr");
+
   exit_status=$?;
 
   if [ -r "$f_out_stderr" ]; then
@@ -226,6 +188,93 @@ function test_functionality_with() {
   return $test_status;
 }
 
+# [API function]
+# Executes a functionality test run with the specified test parameters.
+#
+# This function is supposed to be used in test suites.
+# The specified file must contain the test run parameters. The file must
+# be properties-formatted and each test parameter corresponds to
+# one property line.
+#
+# Since:
+# 1.2.0
+#
+# Args:
+# $1 - A file containing the test run parameters. It is presumed that the
+#      file is located relative to the 'tests/resources' directory.
+#      This is a mandatory argument.
+#
+# Returns:
+# 0  - If the test run has finished successfully, without any errors or warnings.
+# nz - In the case of a test failure due to any reason.
+#
+# Examples:
+# # Inside the test case file 'tests/test_func_example.sh'
+# function test_functionality() {
+#   # Execute a test run with the parameters specified
+#   # in the 'tests/resources/test_example.properties' file
+#   test_functionality_with "test_example.properties";
+#   return $?;
+# }
+#
+function test_functionality_with() {
+  local config_file="$1";
+  local title="";
+  if [ -z "$config_file" ]; then
+    logE "No configuration file specified in call to test_functionality_with() function";
+    return 20;
+  fi
+  if [ -r "resources/$config_file" ]; then
+    title=$(head -n 1 "resources/$config_file");
+    if [[ "$title" == "# @NAME: "* ]]; then
+      title="${title:9:60}";
+    else
+      title="with $config_file";
+    fi
+  fi
+  declare -g -A TEST_FORM_ANSWERS;
+  if ! _read_properties "resources/$config_file" TEST_FORM_ANSWERS; then
+    logE "Test run configuration file is invalid";
+    return 90;
+  fi
+
+  ASSERT_FILE_PATH_PREFIX="";
+  if [[ "${TEST_FORM_ANSWERS[project.dir]+1}" == "1" ]]; then
+    ASSERT_FILE_PATH_PREFIX="${TEST_FORM_ANSWERS[project.dir]}";
+  fi
+
+  _test_functionality_driver "$title" "$config_file";
+  return $?;
+}
+
+function test_functionality_quickstart() {
+  local quickstart_arg="$1";
+  local quickstart_properties="$2";
+
+  if [[ "$quickstart_arg" != "@"* ]]; then
+    logE "Test run configuration invalid.";
+    logE "Must specify quickstart name in call to test_functionality_quickstart() function";
+    return 5;
+  fi
+
+  local quickstart_name="${quickstart_arg:1}";
+  if [ -z "$quickstart_name" ]; then
+    logE "Test run configuration invalid.";
+    logE "Invalid quickstart name in call to test_functionality_quickstart() function";
+    return 6;
+  fi
+
+  local quickstart_name_norm=$(_normalise_quickstart_name "$quickstart_name");
+
+  ASSERT_FILE_PATH_PREFIX="quickstart/${quickstart_name_norm}";
+
+  # Test run title
+  quickstart_name="Quickstart function for $quickstart_name";
+
+  _test_functionality_driver "$quickstart_name" "$quickstart_properties" "$quickstart_arg";
+  return $?;
+}
+
 function main() {
   local arg_keep_output=false;
   local arg_filter_runs="";
@@ -309,6 +358,7 @@ function main() {
 
   export TESTPATH;
   export TESTS_OUTPUT_DIR="${RES_CACHE_LOCATION}/pi_tests_generated";
+  export TESTS_OUTPUT_DIR_QUICKSTART="${TESTS_OUTPUT_DIR}/quickstart";
   export IS_ADDON_TESTS;
 
   if [ -d "${TESTS_OUTPUT_DIR}" ]; then
@@ -320,7 +370,7 @@ function main() {
   fi
 
   if ! [ -d "${TESTS_OUTPUT_DIR}" ]; then
-    mkdir -p "${TESTS_OUTPUT_DIR}";
+    mkdir -p "${TESTS_OUTPUT_DIR}" && mkdir -p "${TESTS_OUTPUT_DIR_QUICKSTART}";
     if (( $? != 0 )); then
       logE "Failed to create test output directory '${TESTS_OUTPUT_DIR}'";
       return 1;
