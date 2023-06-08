@@ -15,7 +15,7 @@
 
 # #***************************************************************************#
 # *                                                                           *
-# *               ***   Project Init Functions and Globals   ***              *
+# *                  ***   Project Init Core Libraries   ***                  *
 # *                                                                           *
 # #***************************************************************************#
 #
@@ -136,6 +136,24 @@
 # informed about an issue, without terminating the program, the warning()
 # function should be used instead. Warnings are accumulated and shown to
 # the user at the end of a successful project initialization.
+#
+# The library code in this file does not implement the concrete form to
+# be shown to the user. This has to be provided separately. However, as part
+# of the API contract, any consuming component must ensure that the library
+# lifecycle functions are called in the appropriate order. That is:
+#   * start_project_init()
+#   * finish_project_init()
+#
+# In between these function calls, a consuming component may use any
+# provided API function to implement a concrete project initialization form
+# and descend into more init levels.
+#
+# When the arguments given to the start_project_init() lifecycle function
+# result in the activation of the Quickstart mode,
+# the PROJECT_INIT_QUICKSTART_REQUESTED global variable is set to true and
+# the consuming component may proceed by calling the
+# process_project_init_quickstart() function to load and execute
+# the requested Quickstart function.
 #
 # The developer documentation is available under on GitHub:
 # https://github.com/raven-computing/project-init/wiki
@@ -325,6 +343,9 @@ PROJECT_INIT_USED_SOURCE="";
 # Since:
 # 1.3.0
 SUPPRESS_DEPRECATION_WARNING=false;
+
+# The path to the target directory where to save files in Quickstart mode.
+_PROJECT_INIT_QUICKSTART_OUTPUT_DIR="";
 
 # An array for holding all supported language version
 # numbers/identifiers
@@ -758,6 +779,46 @@ function failure() {
   exit $EXIT_FAILURE;
 }
 
+# Cancels a Quickstart operation.
+#
+# This function potentially cleans up already copied resources in the project
+# target directory. If no argument is given, then this function returns
+# normally, otherwise it exits the entire application with the exit code
+# specified by the first argument.
+# If not in Quickstart mode, then this function has no effect.
+#
+# Args:
+# $1 - Optional exit status of the application.
+#
+# Globals:
+# CACHE_ALL_FILES - The files already copied to the project target directory.
+#
+function _cancel_quickstart() {
+  local arg_do_exit_with_status="$1";
+  if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == false ]]; then
+    return 1;
+  fi
+  if (( ${#CACHE_ALL_FILES[@]} > 0 )); then
+    local f="";
+    for f in "${CACHE_ALL_FILES[@]}"; do
+      if [ -d "$f" ]; then
+        if ! rm -rf "$f"; then
+          logW "Failed to clean up directory created by quickstart function.";
+          logW "Check directory '$f'";
+        fi
+      elif [ -f "$f" ]; then
+        if ! rm "$f"; then
+          logW "Failed to clean up file created by quickstart function.";
+          logW "Check file '$f'";
+        fi
+      fi
+    done
+  fi
+  if [ -n "$arg_do_exit_with_status" ]; then
+    exit $arg_do_exit_with_status;
+  fi
+}
+
 # [API function]
 # Creates a hyperlink from the specified URL.
 #
@@ -948,7 +1009,7 @@ function _parse_args() {
   for arg in "$@"; do
     case $arg in
       @*)
-      PROJECT_INIT_QUICKSTART_REQUESTED=true;
+      readonly PROJECT_INIT_QUICKSTART_REQUESTED=true;
       ARG_QUICKSTART_NAME="${arg:1}";
       shift;
       ;;
@@ -982,6 +1043,10 @@ function _parse_args() {
       ;;
     esac
   done
+  # Make sure API global is read-only
+  if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == false ]]; then
+    readonly PROJECT_INIT_QUICKSTART_REQUESTED;
+  fi
 }
 
 # Handles the utility/helper arguments if passed to this program.
@@ -1604,6 +1669,46 @@ function _warn_deprecated() {
   return 0;
 }
 
+# Checks that the application is not running in Quickstart mode.
+#
+# Shows a warning if Quickstart mode is activated. This function shoud only
+# be used by API functions if they wish to show a warning if called while in
+# Quickstart mode but they are only applicable in regular mode.
+#
+# Returns:
+# 0 - If the application is not running in Quickstart mode.
+# 1 - If Quickstart mode is active.
+#
+function _check_no_quickstart() {
+  if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
+    local api_fn="${FUNCNAME[1]}";
+    _make_func_hl "$api_fn";
+    logW "Calling $HYPERLINK_VALUE in Quickstart mode has no effect:";
+    logW "at: '${BASH_SOURCE[2]}' (line ${BASH_LINENO[1]})";
+    return 1;
+  else
+    return 0;
+  fi
+}
+
+# Normalises the given Quickstart name.
+#
+# Args:
+# $1 - The unnormalised Quickstart name.
+#
+# Stdout:
+# The normalised Quickstart name, dumped to stdout.
+#
+function _normalise_quickstart_name() {
+  local quickstart_name="$1";
+  # Convert to all lower-case
+  quickstart_name=$(echo "$quickstart_name" |tr '[:upper:]' '[:lower:]');
+  # Convert slashes and dots to underscores
+  quickstart_name="${quickstart_name/\//_}";
+  quickstart_name="${quickstart_name/./_}";
+  echo "$quickstart_name";
+}
+
 # Reads the specified .properties formatted file and populates
 # the specified associative array global variable with the corresponding
 # key-value pairs.
@@ -1966,10 +2071,12 @@ function _load_configuration() {
 
   # Check test configs
   if [[ "$PROJECT_INIT_TESTS_ACTIVE" == "1" ]]; then
-    if [ -z "$PROJECT_INIT_TESTS_RUN_CONFIG" ]; then
-      logE "Environment variable 'PROJECT_INIT_TESTS_ACTIVE' is set";
-      logE "but 'PROJECT_INIT_TESTS_RUN_CONFIG' is missing";
-      failure "Failed to execute test run";
+    if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == false ]]; then
+      if [ -z "$PROJECT_INIT_TESTS_RUN_CONFIG" ]; then
+        logE "Environment variable 'PROJECT_INIT_TESTS_ACTIVE' is set";
+        logE "but 'PROJECT_INIT_TESTS_RUN_CONFIG' is missing";
+        failure "Failed to execute test run";
+      fi
     fi
     if [[ $(type -t _load_test_configuration) == function ]]; then
       _load_test_configuration;
@@ -2083,6 +2190,12 @@ function start_project_init() {
     fi
   fi
 
+  if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
+    ARG_QUICKSTART_NAME_NORM=$(_normalise_quickstart_name "$ARG_QUICKSTART_NAME");
+    # Set where to save files in Quickstart mode
+    _PROJECT_INIT_QUICKSTART_OUTPUT_DIR="$USER_CWD";
+  fi
+
   _load_configuration;
   _check_system_dependencies;
 
@@ -2163,11 +2276,7 @@ function process_project_init_quickstart() {
     logW "No quickstart name specified";
     _cancel_quickstart $EXIT_FAILURE;
   fi
-  # Convert to all lower-case
-  local quickstart_function=$(echo "$ARG_QUICKSTART_NAME" |tr '[:upper:]' '[:lower:]');
-  # Convert slashes and dots to underscores and add function prefix
-  quickstart_function="${quickstart_function/\//_}";
-  quickstart_function="quickstart_${quickstart_function/./_}";
+  local quickstart_function="quickstart_${ARG_QUICKSTART_NAME_NORM}";
 
   get_boolean_property "sys.quickstart.base.disable" "false";
   if [[ "$PROPERTY_VALUE" == "false" ]]; then
@@ -2190,6 +2299,9 @@ function process_project_init_quickstart() {
   # Call quickstart function
   $quickstart_function;
   if (( $? != 0 )); then
+
+    # TODO: Show a warning here with the returned status of the function?
+
     _cancel_quickstart $EXIT_FAILURE;
   fi
   _replace_default_subst_vars;
@@ -2231,6 +2343,32 @@ function _sort_file_paths() {
   done |sort |cut -d? -f2
 }
 
+# Finds all files located under the specified base directory.
+#
+# This function searches for the files and/or directories located under
+# the base directory specified by the first argument. It searches either for
+# regular files, directories or both based on the second argument.
+# The paths of the found files/directories are filtered based on the names
+# and/or name patterns given as an optional list after second argument and then
+# stored in the $_FOUND_FILES global variable.
+#
+# Args:
+# $1 - The target path where to start search from. This is a mandatory argument.
+# $2 - The file type to filter the results by. Either 'f' for regular files,
+#      'd' for directories or 'f,d' for both regular files and directories.
+#      This is a mandatory argument.
+# $@ - The list of file/directory names and/or patterns to filter the results by.
+#      This is an optional argument.
+#
+# Returns:
+# 0  - If the search operation was successful.
+# nz - If an error occurred. Is effectively the exit status of the 'find'
+#      command used internally.
+#
+# Globals:
+# _FOUND_FILES - The array variable in which the paths of all found
+#                files will be stored.
+#
 function _find_files_impl() {
   local target_path="$1";
   local file_types="$2";
@@ -2277,32 +2415,36 @@ function _find_files_impl() {
 }
 
 # [API function]
-# Finds all files in the project directory indicated by
-# the $var_project_dir variable.
+# Finds all files to be processed by the project initialization operation.
 #
-# This function searches for the files specified in the $LIST_FILES_TXT
-# global variable. The search is conducted in the project target directory
+# This function searches for files eligible for variable substitution.
+# The search is conducted in the project target directory
 # and is done recursively. The paths to the found files are then cached
-# in the $CACHE_ALL_FILES global variable.
+# for internal usage.
 #
 # This function should be called every time the files in the project target
-# directory are changed, i.e. files are added, moved, or deleted. Changes
-# of the file contents are irrelevant. Calling this function ensures that
-# the internally used file cache is up-to-date after the project
-# structure has changed.
-#
-# Globals:
-# LIST_FILES_TXT  - Used to get all file names and file patterns
-#                   to search for, as an array
-# CACHE_ALL_FILES - The variable in which all found files are saved.
-# var_project_dir - The path to the project directory (target).
+# directory are changed, i.e. files are added, moved, or deleted manually
+# without the usage of the copy_resource() or copy_shared() functions.
+# Changes of the file contents are irrelevant. Calling this function ensures
+# that the internally used file cache is up-to-date after the project
+# structure has changed. In Quickstart mode this function is not applicable
+# as files should only be copied by the respective API functions.
 #
 function find_all_files() {
+  if ! _check_no_quickstart; then
+    return 1;
+  fi
+  if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
+    _make_func_hl "find_all_files";
+    logW "Calling $HYPERLINK_VALUE in Quickstart mode has no effect:";
+    logW "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    return 1;
+  fi
   CACHE_ALL_FILES=(); # Clear cache
   # Find all regular files matching an ext or file name
   _find_files_impl "$var_project_dir" "f" "${LIST_FILES_TXT[@]}";
-  if (( $? != 0 )); then
-    local cmd_status=$?;
+  local cmd_status=$?;
+  if (( $cmd_status != 0 )); then
     logE "Failed to update internal file cache:";
     logE "Command 'find' returned non-zero exit status $cmd_status";
     failure "Failed to update internal file cache." \
@@ -2346,6 +2488,9 @@ function find_all_files() {
 #
 function project_init_copy() {
   local files_source="$1";
+  if ! _check_no_quickstart; then
+    return 1;
+  fi
   logI "";
   # Prompt for explicit confirmation if necessary
   get_boolean_property "sys.init.confirm" "false";
@@ -2405,7 +2550,7 @@ function project_init_copy() {
     logE "at: '$var_project_dir'";
     failure "Failed to copy project source files to the target project location";
   fi
-  PROJECT_INIT_USED_SOURCE="$files_source";
+  readonly PROJECT_INIT_USED_SOURCE="$files_source";
   # Set file cache
   find_all_files;
   # Signal files have been copied
@@ -2430,6 +2575,24 @@ function _unique_items() {
   done |sort -u
 }
 
+# Finds all substitution variables contained in the specified files.
+#
+# This function searches all given files for any unreplaced substitution variable
+# and stores the unique names of all such found items
+# (without the leading '${{' and trailing '}}') in the $_FOUND_SUBST_VARS
+# global variable.
+#
+# Args:
+# $@ - The list of files to be scanned for unreplaced substitution variables.
+#
+# Returns:
+# 0 - If the search operation found at least one unreplaced substitution variable.
+# 1 - If no unreplaced substitution variable was found.
+#
+# Globals:
+# _FOUND_SUBST_VARS - The array variable in which the names of all found
+#                     substitution variable will be stored.
+#
 function _find_subst_vars() {
   local files_to_search=("$@");
   _FOUND_SUBST_VARS=(); # Reset
@@ -2993,32 +3156,52 @@ function read_user_input_yes_no() {
   return 0;
 }
 
-function _cancel_quickstart() {
-  local arg_do_exit_with_status="$1";
-  if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == false ]]; then
-    return 1;
-  fi
-  if (( ${#CACHE_ALL_FILES[@]} > 0 )); then
-    local f="";
-    for f in "${CACHE_ALL_FILES[@]}"; do
-      if [ -d "$f" ]; then
-        if ! rm -rf "$f"; then
-          logW "Failed to clean up directory created by quickstart function.";
-          logW "Check directory '$f'";
-        fi
-      elif [ -f "$f" ]; then
-        if ! rm "$f"; then
-          logW "Failed to clean up file created by quickstart function.";
-          logW "Check file '$f'";
-        fi
-      fi
-    done
-  fi
-  if [ -n "$arg_do_exit_with_status" ]; then
-    exit $arg_do_exit_with_status;
-  fi
-}
-
+# [API function]
+# Copies a template resource to the destination path.
+#
+# This function makes the template resource specified by the first argument
+# available to the project target at the path specified by the second argument.
+# The source and destination arguments are handled differently depending on
+# the underlying application mode.
+#
+# In the regular (form-based) application mode, if the source argument is
+# relative, it is interpreted as being relative to the used project template
+# source directory, i.e. the 'source' directory of the concrete project type
+# selected by the user. The destination argument is interpreted as being relative
+# to the project target directory. The underlying target project directory must
+# already be created before calling this function. If the file in the project
+# target directory does already exist, it will be replaced by the specified
+# template resource.
+#
+# In Quickstart mode, if the source argument is relative, it is interpreted as
+# being relative to the source root of the addon and base resources. If an addon
+# resource exists at the path of the source argument, it takes precedence over
+# any existing base resource. The destination argument is interpreted as being
+# relative to the underlying current working directory. If the file at the
+# specified destination already exists, it is not overwritten and this function
+# will cause the application to cancel the entire Quickstart operation.
+# 
+# An absolute source path is used as is. The destination path must never be absolute.
+# Regardless of the underlying application mode, if the source path denotes
+# a directory instead of a regular file, the directory is copied as is
+# including the entire content and all previously mentioned conditions
+# and behaviours still hold.
+#
+# Since:
+# 1.4.0
+#
+# Args:
+# $1 - The path to the resource to copy. Either an absolute or relative path.
+# $2 - The destination path to copy the resource to. The path must not be absolute.
+#
+# Returns:
+# 0 - If the resource was successfully copied.
+# 1 - If the resource could not be found.
+# 2 - If the source resource exists but could not be copied.
+#
+# Examples:
+# copy_resource "copy/this/res" "to/this/path/in/my/project";
+#
 function copy_resource() {
   local arg_src="$1";
   local arg_dest="$2";
@@ -3032,12 +3215,28 @@ function copy_resource() {
   if [ -z "$arg_dest" ]; then
     arg_dest=$(basename "$arg_src");
   fi
+  if _is_absolute_path "$arg_dest"; then
+    _make_func_hl "copy_resource";
+    logE "Programming error: Illegal argument '$arg_dest'";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
+            "The resource destination argument must not be absolute";
+  fi
+  # Mode-dependent path argument handling
   if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
-    # In Quickstart mode
+    #--------------------#
+    # In Quickstart mode #
+    #--------------------#
     if ! _is_absolute_path "$arg_src"; then
-      arg_src="${SCRIPT_LVL_0_BASE}/${arg_src}";
+      local src_base_dir="${SCRIPT_LVL_0_BASE}";
+      if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
+        if [ -r "${PROJECT_INIT_ADDONS_DIR}/${arg_src}" ]; then
+          src_base_dir="${PROJECT_INIT_ADDONS_DIR}";
+        fi
+      fi
+      arg_src="${src_base_dir}/${arg_src}";
     fi
-    arg_dest="${USER_CWD}/${arg_dest}";
+    arg_dest="${_PROJECT_INIT_QUICKSTART_OUTPUT_DIR}/${arg_dest}";
     if [ -e "$arg_dest" ]; then
       logW "Cannot copy resource.";
       logW "File or directory already exists at destination and would be overwritten:";
@@ -3045,14 +3244,16 @@ function copy_resource() {
       _cancel_quickstart $EXIT_FAILURE;
     fi
   else
-    # In regular form-based mode
+    #----------------------------#
+    # In regular form-based mode #
+    #----------------------------#
     if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
     _make_func_hl "copy_resource";
     local _hl_copy_res="$HYPERLINK_VALUE";
     _make_func_hl "project_init_copy";
     local _hl_pic="$HYPERLINK_VALUE";
     logE "Programming error in init script:";
-    logE "at: '${CURRENT_LVL_PATH}/init.sh' (line ${BASH_LINENO[0]})";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
     failure "Missing call to project_init_copy() function:"                           \
             "When calling the ${_hl_copy_res} function, the target project directory" \
             "must already be created. "                                               \
@@ -3063,12 +3264,17 @@ function copy_resource() {
     fi
     arg_dest="${var_project_dir}/${arg_dest}";
   fi
+  # Check whether source actually exists before calling cp
   if ! [ -r "$arg_src" ]; then
     logW "Cannot copy file resource '$arg_src'";
     logW "Resouce not found";
     return 1;
   fi
+  # Differentiate between copying of regular files and directories
   if [ -d "$arg_src" ]; then
+    #----------------#
+    # Copy directory #
+    #----------------#
     cp -r "$arg_src" "$arg_dest" 2>/dev/null;
     if (( $? != 0 )); then
       logW "Could not copy the following directory:";
@@ -3076,9 +3282,9 @@ function copy_resource() {
       logW "Target: '$arg_dest'";
       return 2;
     fi
+    # Update internal file cache
     CACHE_ALL_FILES+=("$arg_dest");
-    _find_files_impl "$arg_dest" "f";
-    if (( $? != 0 )); then
+    if ! _find_files_impl "$arg_dest" "f"; then
       logE "Failed to list files in target directory: '$arg_dest'";
       failure "Internal error.";
     fi
@@ -3087,6 +3293,9 @@ function copy_resource() {
       CACHE_ALL_FILES+=("$f");
     done
   else
+    #-------------------#
+    # Copy regular file #
+    #-------------------#
     cp "$arg_src" "$arg_dest" 2>/dev/null;
     if (( $? != 0 )); then
       logW "Could not copy the following regular file:";
@@ -3170,7 +3379,7 @@ function copy_shared() {
       _make_func_hl "project_init_copy";
       local _hl_pic="$HYPERLINK_VALUE";
       logE "Programming error in init script:";
-      logE "at: '${CURRENT_LVL_PATH}/init.sh' (line ${BASH_LINENO[0]})";
+      logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
       failure "Missing call to project_init_copy() function:"                              \
               "When calling the ${_hl_copy_shared} function, the target project directory" \
               "must already be created. "                                                  \
@@ -3620,6 +3829,9 @@ function replace_var() {
 #
 function project_init_license() {
   local all_file_ext="$@";
+  if ! _check_no_quickstart; then
+    return 1;
+  fi
   # Check API call order
   if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
     _make_func_hl "project_init_license";
@@ -3627,7 +3839,7 @@ function project_init_license() {
     _make_func_hl "project_init_copy";
     local _hl_project_init_copy="$HYPERLINK_VALUE";
     logE "Programming error in init script:";
-    logE "at: '${CURRENT_LVL_PATH}/init.sh' (line ${BASH_LINENO[0]})";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
     failure "Missing call to project_init_copy() function:"                              \
             ""                                                                           \
             "The script in init level $CURRENT_LVL_NUMBER has called the "               \
@@ -3845,6 +4057,9 @@ function _process_include_directives() {
 # CURRENT_LVL_NUMBER - The number of the current active init level.
 #
 function project_init_process() {
+  if ! _check_no_quickstart; then
+    return 1;
+  fi
   # Check API call order
   if [[ ${_FLAG_PROJECT_LICENSE_PROCESSED} == false ]]; then
     _make_func_hl "project_init_process";
@@ -3852,7 +4067,7 @@ function project_init_process() {
     _make_func_hl "project_init_license";
     local _hl_project_init_license="$HYPERLINK_VALUE";
     logE "Programming error in init script:";
-    logE "at: '${CURRENT_LVL_PATH}/init.sh' (line ${BASH_LINENO[0]})";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
     failure "Missing call to project_init_license() function:"                              \
             ""                                                                              \
             "The script in init level $CURRENT_LVL_NUMBER has called the "                  \
@@ -4065,6 +4280,9 @@ function clear_lang_versions() {
 # proceed_next_level "$selected_dir";
 #
 function select_next_level_directory() {
+  if ! _check_no_quickstart; then
+    return 1;
+  fi
   local next_dirs=();
   local next_names=();
   # Take path at current init level
@@ -4138,6 +4356,7 @@ function select_next_level_directory() {
 #
 # Returns:
 # 0 - In the case of a valid project type selection.
+# 1 - If this function is called while in Quickstart mode.
 #
 # Globals:
 # FORM_PROJECT_TYPE_NAME - The name selected out of the project
@@ -4154,6 +4373,9 @@ function select_next_level_directory() {
 function select_project_type() {
   local lang_id="$1";
   local lang_name="$2";
+  if ! _check_no_quickstart; then
+    return 1;
+  fi
   if [ -z "$lang_id" ]; then
     _make_func_hl "select_project_type";
     logE "Programming error: Illegal function call:";
@@ -4312,6 +4534,9 @@ function select_project_type() {
 # proceed_next_level "my_level_dir";
 #
 function proceed_next_level() {
+  if ! _check_no_quickstart; then
+    return 1;
+  fi
   # Only take the directory name not the full path
   local dir_next="$(basename "$1")";
   if [[ "$dir_next" == "" ]]; then
