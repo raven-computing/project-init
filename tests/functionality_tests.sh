@@ -112,10 +112,14 @@ function _test_functionality_driver() {
 
   if (( $test_status == 0 )); then
     if [[ $(type -t "test_functionality_result") == function ]]; then
+      # Ensure CWD is in concrete test output directory while
+      # the test result is evaluated. Change back to test path afterwards.
+      cd "${TESTS_OUTPUT_DIR}/${ASSERT_FILE_PATH_PREFIX}";
       test_functionality_result;
       if (( $? != 0 )); then
         test_status=3;
       fi
+      cd "$TESTPATH";
     fi
   fi
 
@@ -191,9 +195,9 @@ function _test_functionality_driver() {
 # [API function]
 # Executes a functionality test run with the specified test parameters.
 #
-# This function is supposed to be used in test suites.
-# The specified file must contain the test run parameters. The file must
-# be properties-formatted and each test parameter corresponds to
+# This function is supposed to be used in test suites. It is only defined while
+# in test mode. The specified file must contain the test run parameters.
+# The file must be properties-formatted and each test parameter corresponds to
 # one property line.
 #
 # Since:
@@ -247,6 +251,53 @@ function test_functionality_with() {
   return $?;
 }
 
+# [API function]
+# Executes a functionality test run for the specified Quickstart function.
+#
+# The first mandatory argument to this function is the argument which would be
+# passed to the main program if the specified Quickstart function should be used.
+# This also includes the Quickstart-specific '@'-prefix.
+# The second argument is optional and denotes the file for the test parameters
+# to use during the test run. Since Quickstart functions do not necessarily prompt
+# for user input, this is optional. However, if the underlying Quickstart function
+# makes use of any of the read_user_input_*() API functions, then test parameters
+# must be specified to provide the corresponding inputs during the test run.
+# If the test parameter file is specified, it must contain valid test run parameters.
+# The file must be properties-formatted and each test parameter corresponds to
+# one property line.
+#
+# This function is supposed to be used in test suites. It is only defined while
+# in test mode.
+#
+# Since:
+# 1.4.0
+#
+# Args:
+# $1 - The Quickstart name to test. This has to be specified like the argument
+#      given to the main program when using the Quickstart function.
+#      This is a mandatory argument.
+# $2 - A file containing the test run parameters. It is presumed that the
+#      file is located relative to the 'tests/resources' directory.
+#      This is an optional argument.
+#
+# Returns:
+# 0  - If the test run has finished successfully, without any errors or warnings.
+# nz - In the case of a test failure due to any reason.
+#
+# Examples:
+# # Inside the test case file 'tests/test_func_quickstart_example.sh'
+# function test_functionality() {
+#   # Run and test the Quickstart function 'quickstart_example_fn()'
+#   test_functionality_quickstart @example_fn;
+#   return $?;
+# 
+#   # Or:
+#   # Run and test the Quickstart function with the given parameters
+#   # in the 'tests/resources/test_quickstart.properties' file
+#   test_functionality_quickstart @example_fn "test_quickstart.properties";
+#   return $?;
+# }
+#
 function test_functionality_quickstart() {
   local quickstart_arg="$1";
   local quickstart_properties="$2";

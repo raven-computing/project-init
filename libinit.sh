@@ -790,6 +790,12 @@ function failure() {
 # Args:
 # $1 - Optional exit status of the application.
 #
+# Returns:
+# 0 - If no exit status was specified as an argument and the Quickstart
+#     operation was successfully cancelled.
+# 1 - If no Quickstart operation is active at the time this
+#     function was called. This means that this function call was a NO-OP.
+#
 # Globals:
 # CACHE_ALL_FILES - The files already copied to the project target directory.
 #
@@ -817,6 +823,7 @@ function _cancel_quickstart() {
   if [ -n "$arg_do_exit_with_status" ]; then
     exit $arg_do_exit_with_status;
   fi
+  return 0;
 }
 
 # [API function]
@@ -993,24 +1000,31 @@ function _load_quickstart_definitions() {
 # An error message is printed if an unknown argument is encountered.
 #
 # Globals:
-# ARG_QUICKSTART_NAME - Represents the quickstart '@' argument.
-# ARG_NO_CACHE        - Represents the '--no-cache' option.
-# ARG_NO_PULL         - Represents the '--no-pull' option.
-# ARG_HELP            - Represents the '-?|--help' option.
-# ARG_VERSION         - Represents the '--version' option.
-# ARG_VERSION_STR     - Represents the '-#' option.
+# ARG_QUICKSTART_NAMES - Represents the quickstart '@' argument(s).
+# ARG_NO_CACHE         - Represents the '--no-cache' option.
+# ARG_NO_PULL          - Represents the '--no-pull' option.
+# ARG_HELP             - Represents the '-?|--help' option.
+# ARG_VERSION          - Represents the '--version' option.
+# ARG_VERSION_STR      - Represents the '-#' option.
 #
 function _parse_args() {
+  ARG_QUICKSTART_NAMES=();
   ARG_NO_CACHE=false;
   ARG_NO_PULL=false;
   ARG_HELP=false;
   ARG_VERSION=false;
   ARG_VERSION_STR=false;
+  local quickstart_requested=false;
+  local arg="";
   for arg in "$@"; do
     case $arg in
       @*)
-      readonly PROJECT_INIT_QUICKSTART_REQUESTED=true;
-      ARG_QUICKSTART_NAME="${arg:1}";
+      quickstart_requested=true;
+      arg="${arg:1}";
+      local names=(${arg//,/ });
+      for arg in "${names[@]}"; do
+        ARG_QUICKSTART_NAMES+=("$arg");
+      done
       shift;
       ;;
       --no-cache)
@@ -1037,15 +1051,17 @@ function _parse_args() {
       # Unknown argument
       echo "Unknown argument: '$arg'";
       echo "";
-      echo "Use the '--help' option for more information";
+      echo "Use the '--help' option for more information.";
       echo "";
       exit $EXIT_FAILURE;
       ;;
     esac
   done
   # Make sure API global is read-only
-  if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == false ]]; then
-    readonly PROJECT_INIT_QUICKSTART_REQUESTED;
+  if [[ $quickstart_requested == true ]]; then
+    readonly PROJECT_INIT_QUICKSTART_REQUESTED=true;
+  else
+    readonly PROJECT_INIT_QUICKSTART_REQUESTED=false;
   fi
 }
 
@@ -1080,20 +1096,28 @@ function _handle_util_args() {
     echo "This program guides a user through the steps of initializing a new software project.";
     echo "Simply run it without any arguments and you will be prompted to answer some ";
     echo "basic questions to initialize a new software project.";
+    echo "Alternatively, specify one or more Quickstart functions to run.";
     echo "";
     echo "The following optional arguments are supported:"
+    echo "";
+    echo "Arguments:";
+    echo "";
+    echo "  [@Quickstart...] The name of the Quickstart to run. This argument can be applied ";
+    echo "                   multiple times, either separately or in a single argument as a ";
+    echo "                   comma-separated list of Quickstart names. The '@'-prefix in each ";
+    echo "                   separate argument is mandatory.";
     echo "";
     echo "Options:";
     echo "";
     if [[ "$PROJECT_INIT_BOOTSTRAP" == "1" ]]; then
-      echo "  [--no-cache]   Clear the caches before and after the program runs.";
+      echo "  [--no-cache]     Clear the caches before and after the program runs.";
       echo "";
     fi
-    echo "  [--no-pull]    Do not update existing caches and use them as is.";
+    echo "  [--no-pull]      Do not update existing caches and use them as is.";
     echo "";
-    echo "  [-#|--version] Show program version information.";
+    echo "  [-#|--version]   Show program version information.";
     echo "";
-    echo "  [-?|--help]    Show this help message.";
+    echo "  [-?|--help]      Show this help message.";
     echo "";
     exit $EXIT_SUCCESS;
   fi
@@ -1104,6 +1128,8 @@ function _handle_util_args() {
 function _handle_interrupt_event() {
   echo "";
   logI "Cancelling...";
+  # Ensure proper cleanup but exit under any circumstance
+  _cancel_quickstart $EXIT_CANCELLED;
   exit $EXIT_CANCELLED;
 }
 
@@ -2191,7 +2217,12 @@ function start_project_init() {
   fi
 
   if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
-    ARG_QUICKSTART_NAME_NORM=$(_normalise_quickstart_name "$ARG_QUICKSTART_NAME");
+    ARG_QUICKSTART_NAMES_NORM=();
+    local quickstart_name="";
+    for quickstart_name in "${ARG_QUICKSTART_NAMES[@]}"; do
+      quickstart_name=$(_normalise_quickstart_name "$quickstart_name");
+      ARG_QUICKSTART_NAMES_NORM+=("$quickstart_name");
+    done
     # Set where to save files in Quickstart mode
     _PROJECT_INIT_QUICKSTART_OUTPUT_DIR="$USER_CWD";
   fi
@@ -2272,11 +2303,11 @@ function finish_project_init() {
 # Primary processing function for the quickstart mode.
 function process_project_init_quickstart() {
   _load_version_base;
-  if [ -z "$ARG_QUICKSTART_NAME" ]; then
+
+  if (( ${#ARG_QUICKSTART_NAMES[@]} == 0 )); then
     logW "No quickstart name specified";
     _cancel_quickstart $EXIT_FAILURE;
   fi
-  local quickstart_function="quickstart_${ARG_QUICKSTART_NAME_NORM}";
 
   get_boolean_property "sys.quickstart.base.disable" "false";
   if [[ "$PROPERTY_VALUE" == "false" ]]; then
@@ -2284,6 +2315,7 @@ function process_project_init_quickstart() {
       failure "Failed to load base system quickstart code file";
     fi
   fi
+
   # Check for quickstart addons
   if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
     _load_quickstart_definitions "$PROJECT_INIT_ADDONS_DIR";
@@ -2292,28 +2324,43 @@ function process_project_init_quickstart() {
     fi
   fi
 
-  if [[ $(type -t "$quickstart_function") != function ]]; then
-    logW "No quickstart code function found for name '$ARG_QUICKSTART_NAME'";
-    _cancel_quickstart $EXIT_FAILURE;
-  fi
-  # Call quickstart function
-  $quickstart_function;
-  if (( $? != 0 )); then
+  local quickstart_function="";
+  local qs_fn_prefix="quickstart_";
+  local n=${#ARG_QUICKSTART_NAMES[@]};
+  local i;
+  # First validate that all Quickstart functions are defined
+  # and cancel early if one is not available
+  for (( i=0; i<${n}; ++i )); do
+    quickstart_function="${qs_fn_prefix}${ARG_QUICKSTART_NAMES_NORM[$i]}";
+    if [[ $(type -t "$quickstart_function") != function ]]; then
+      logW "No quickstart code function found for name '${ARG_QUICKSTART_NAMES[$i]}'";
+      _cancel_quickstart $EXIT_FAILURE;
+    fi
+  done
 
-    # TODO: Show a warning here with the returned status of the function?
-
-    _cancel_quickstart $EXIT_FAILURE;
-  fi
-  _replace_default_subst_vars;
-  # Check for unreplaced substitution variables
-  if _find_subst_vars "${CACHE_ALL_FILES[@]}"; then
-    local substvar="";
-    for substvar in "${_FOUND_SUBST_VARS[@]}"; do
-      logW "Substitution variable was not replaced: '$substvar'";
-      # Remove subst var from copied file
-      replace_var "$substvar" "";
-    done
-  fi
+  local quickstart_fn_status=0;
+  for (( i=0; i<${n}; ++i )); do
+    quickstart_function="${qs_fn_prefix}${ARG_QUICKSTART_NAMES_NORM[$i]}";
+    # Call Quickstart function
+    $quickstart_function;
+    quickstart_fn_status=$?;
+    if (( $quickstart_fn_status != 0 )); then
+      logW "Quickstart function ${quickstart_function}() returned" \
+           "non-zero status code $quickstart_fn_status";
+      logW "Cancelling operation due to failed Quickstart function";
+      _cancel_quickstart $EXIT_FAILURE;
+    fi
+    _replace_default_subst_vars;
+    # Check for unreplaced substitution variables
+    if _find_subst_vars "${CACHE_ALL_FILES[@]}"; then
+      local substvar="";
+      for substvar in "${_FOUND_SUBST_VARS[@]}"; do
+        logW "Substitution variable was not replaced: '$substvar'";
+        # Remove subst var from copied file
+        replace_var "$substvar" "";
+      done
+    fi
+  done
   return 0;
 }
 

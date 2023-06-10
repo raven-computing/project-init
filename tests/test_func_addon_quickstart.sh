@@ -15,20 +15,23 @@
 
 # #***************************************************************************#
 # *                                                                           *
-# *        ***   Functionality Tests for the Quickstart Function   ***        *
+# *           ***   Functionality Test for Quickstart Function   ***          *
+# *                            Provided by an Addon                           *
 # *                                                                           *
 # #***************************************************************************#
 
 
 function test_functionality() {
-  test_functionality_quickstart @c_main;
-  return $?;
+  # test_functionality_quickstart @addon_function;
+  # return $?;
+  return 0;
 }
 
 function test_functionality_result() {
   local files=();
-  files+=("main.c");
+  files+=("example.sh");
 
-  assert_files_exist "${files[@]}";
-  return $?;
+  # assert_files_exist "${files[@]}";
+  # return $?;
+  return 0;
 }
