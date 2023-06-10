@@ -31,15 +31,7 @@
 # VAR_PROJECT_NAME_LOWER: The name of the project, converted to lower case
 # VAR_PROJECT_NAME_UPPER: The name of the project, converted to upper case
 # VAR_PROJECT_DESCRIPTION: The project description
-# VAR_PROJECT_ORGANISATION_NAME: The name of the organisation for the project
-# VAR_PROJECT_ORGANISATION_URL: The URL for the organisation website
-# VAR_PROJECT_ORGANISATION_EMAIL: The E-Mail of the organisation of the project
 # VAR_PROJECT_LICENSE: The name of the project license
-# VAR_COPYRIGHT_YEAR: The year used in copyright notices
-# VAR_COPYRIGHT_HOLDER: The name of the copyright holder
-# VAR_PROJECT_SLOGAN_STRING: The example string to use within the generated
-#                            example source code, e.g. when printing something
-#                            to the screen
 # VAR_PROJECT_DIR: The absolute path to the directory where the
 #                  project is initialized
 # VAR_PROJECT_LANG: The name of the programming language used in the project
@@ -60,6 +52,7 @@ function _project_init_process_forms() {
 
 # Shows and runs through the main Project Init form.
 function show_project_init_main_form() {
+  project_init_show_start_info;
   logI "";
   local specified_project_name="";
   get_property "project.name" "ask";
@@ -113,19 +106,6 @@ function show_project_init_main_form() {
   else
     var_project_description="$specified_project_description";
   fi
-
-  # Set generic variables used in every project
-  get_property "project.organisation.name" "Raven Computing";
-  var_project_organisation_name="$PROPERTY_VALUE";
-
-  get_property "project.organisation.url" "https://www.raven-computing.com";
-  var_project_organisation_url="$PROPERTY_VALUE";
-
-  get_property "project.organisation.email" "info@raven-computing.com";
-  var_project_organisation_email="$PROPERTY_VALUE";
-
-  get_property "project.slogan.string" "Created by Project Init system";
-  var_project_slogan_string="$PROPERTY_VALUE";
 
   local all_license_dirs=();
   for fpath in "$SCRIPT_LVL_0_BASE/licenses/"*; do
@@ -232,16 +212,6 @@ function show_project_init_main_form() {
     fi
   fi
 
-  # Set copyright information vars
-  var_copyright_year=$(date +%Y);
-  if (( $? != 0 )); then
-    logW "Failed to get current date:";
-    logW "Command 'date' returned non-zero exit status.";
-    warning "Check date in copyright headers of source files";
-    var_copyright_year="1970";
-  fi
-  var_copyright_holder="$var_project_organisation_name";
-
   # Prepare reading of project target directory path
   local project_dir_name="$var_project_name_lower";
   var_project_dir="";
@@ -293,7 +263,7 @@ function show_project_init_main_form() {
   fi
 
   # Convert to absolute path if necessary
-  if ! [[ "$var_project_dir" == /* ]]; then
+  if ! _is_absolute_path "$var_project_dir"; then
     if [[ "$config_use_cwd" == "true" ]]; then
       var_project_dir="$USER_CWD/$var_project_dir";
     else

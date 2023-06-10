@@ -39,6 +39,10 @@ Contains key-value-properties to override the base default properties. See [docu
 
 Defines filenames and file patterns to be considered by Project Init for variable substitution, in addition to the files already included by the base *files.txt* configuration file. See [documentation](https://github.com/raven-computing/project-init/wiki/Addons#variable-substitution).
 
+### quickstart.sh
+
+Defines Quickstart functions for the addon. See [documentation](https://github.com/raven-computing/project-init/wiki/Addons#quickstart-functions).
+
 ### load-hook.sh
 
 An executable Bash shell script which is automatically executed BEFORE the project initialization procedure starts. It can contain arbitrary shell code. See [documentation](https://github.com/raven-computing/project-init/wiki/Addons#load-hook).
