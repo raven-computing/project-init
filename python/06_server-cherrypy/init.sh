@@ -44,19 +44,11 @@ function form_python_exec_script_name() {
   logI "This is the command by which the server application can be" \
        "started on the command line.";
   logI "Or press enter to use the default name '$var_project_name_lower'";
-  read_user_input_text;
+  read_user_input_text _validate_exec_script_name;
   var_exec_script_name="$USER_INPUT_ENTERED_TEXT";
 
   if [ -z "$var_exec_script_name" ]; then
     var_exec_script_name="$var_project_name_lower";
-  else
-    # Validate executable script name
-    local re="^[0-9a-zA-Z_-]+$";
-    if ! [[ "$var_exec_script_name" =~ $re ]]; then
-      logE "Invalid name for server application executable script";
-      failure "A script name with invalid characters was specified." \
-              "Only lower/upper-case A-Z, digits, '-' and '_' characters are allowed";
-    fi
   fi
 }
 

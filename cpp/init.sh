@@ -177,6 +177,48 @@ function form_cpp_binary_name() {
                                     |tr '[:lower:]' '[:upper:]');
 }
 
+# Validation function for the namespace form question.
+function _validate_cpp_namespace() {
+  local input="$1";
+  if [ -z "$input" ]; then
+    return 0;
+  fi
+  # Check for expected pattern
+  local re="^[a-z.]*$";
+  if ! [[ ${input} =~ $re ]]; then
+    logI "Only lower-case a-z and '.' characters are allowed";
+    return 1;
+  fi
+  if (( ${#input} == 1 )); then
+    logI "A top-level namespace must be longer than one character";
+    return 1;
+  fi
+  if [[ ${input} == *..* ]]; then
+    logI "A namespace must not contain consecutive dots ('..')";
+    return 1;
+  fi
+  if [[ ${input} == .* ]]; then
+    logI "A namespace must not start with a '.'";
+    return 1;
+  fi
+  if [[ ${input} == *. ]]; then
+    logI "A namespace must not end with a '.'";
+    return 1;
+  fi
+  local _namespace_0="$input";
+  if [[ $input == *"."* ]]; then
+    _namespace_0="${input%%.*}";
+  fi
+  # Check for disallowed names of the first package
+  local _disallowed_package_names="namespace";
+  if [[ " ${_disallowed_package_names} " =~ .*\ ${_namespace_0}\ .* ]]; then
+    logI "Invalid namespace.";
+    logI "The name '${_namespace_0}' is disallowed as a namespace";
+    return 1;
+  fi
+  return 0;
+}
+
 # [API function]
 # Prompts the user to enter the namespace that is used by the project code.
 #
@@ -219,24 +261,12 @@ function form_cpp_namespace() {
   logI "For example: '$cpp_namespace_example'";
   logI "(Defaults to '$cpp_namespace_default')";
 
-  read_user_input_text;
+  read_user_input_text _validate_cpp_namespace;
   local _namespace_name="$USER_INPUT_ENTERED_TEXT";
 
   # Validate given namespace string
   if [ -z "${_namespace_name}" ]; then
     _namespace_name="$cpp_namespace_default";
-  fi
-  # Check for expected pattern
-  local re="^[a-z][a-z\.]*[a-z]*$";
-  if ! [[ ${_namespace_name} =~ $re ]]; then
-    logE "Invalid input";
-    if [[ ${_namespace_name} == .* || ${_namespace_name} == *. ]]; then
-      failure "An invalid namespace was specified." \
-              "A namespace must not start or end with a '.'";
-    else
-      failure "The entered namespace contains invalid characters" \
-              "Only lower-case a-z and '.' characters are allowed";
-    fi
   fi
 
   # Set global vars
@@ -264,14 +294,6 @@ function form_cpp_namespace() {
   for (( i=${#_ns_items[@]}-1; i>=0; i-- )); do
     var_namespace_decl_end="${var_namespace_decl_end}} // END NAMESPACE ${_ns_items[$i]}${_NL}";
   done
-
-  # Check for disallowed names of the first package
-  local _disallowed_package_names="namespace";
-  if [[ " ${_disallowed_package_names} " =~ .*\ ${var_namespace_0}\ .* ]]; then
-    logE "Invalid input";
-    failure "An invalid namespace was specified." \
-            "The name '$var_namespace_0' is disallowed";
-  fi
 }
 
 # Specify supported C++ versions

@@ -160,6 +160,40 @@ function process_files_lvl_1() {
   fi
 }
 
+# Validation function for the Python executable script name form question.
+function _validate_exec_script_name() {
+  local input="$1";
+  if [ -z "$input" ]; then
+    return 0;
+  fi
+  local re="^[0-9a-zA-Z_-]+$";
+  if ! [[ "$input" =~ $re ]]; then
+    logI "Invalid name for executable script.";
+    logI "Only lower/upper-case A-Z, digits, '-' and '_' characters are allowed";
+    return 1;
+  fi
+  return 0;
+}
+
+# Validation function for the Python version form question.
+function _validate_python_version() {
+  local input="$1";
+  if [ -z "$input" ]; then
+    return 0;
+  fi
+  local re="^3\.[0-9]+$";
+  if ! [[ $input =~ $re ]]; then
+    if [[ $input =~ ^([0-2]|[4-9])\.? ]]; then
+      logI "Unsupported Python major vesion.";
+      logI "Only Python 3 versions are supported at this time.";
+    else
+      logI "The version must be specified as 'major.minor', e.g. '3.7' ";
+    fi
+    return 1;
+  fi
+  return 0;
+}
+
 # [API function]
 # Prompts the user to enter the Python version to use for the project.
 #
@@ -177,27 +211,30 @@ function form_python_version() {
   logI "Specify the minimum version of Python required by the project.";
   logI "Please enter the major and minor version numbers, e.g. '3.8'";
   logI "The default is '3.5'";
-  read_user_input_text;
+  read_user_input_text _validate_python_version;
   var_python_version="$USER_INPUT_ENTERED_TEXT";
 
   # Validate Python version string
   if [ -z "$var_python_version" ]; then
     logI "The minimum Python version will be set to 3.5";
     var_python_version="3.5";
-  else
-    local re="^3\.[0-9]+$";
-    if ! [[ $var_python_version =~ $re ]]; then
-      logE "Invalid input";
-      if [[ $var_python_version =~ ^([0-2]|[4-9])\.? ]]; then
-        logE "Unsupported Python major vesion";
-        failure "An invalid Python version number was entered." \
-                "Only Python 3 versions are supported at this time.";
-      else
-        failure "An invalid Python version number was entered." \
-                "The version must be specified as 'major.minor', e.g. '3.7' ";
-      fi
-    fi
   fi
+}
+
+# Validation function for the Python virtenv name form question.
+function _validate_virtenv_name() {
+  local input="$1";
+  if [ -z "$input" ]; then
+    return 0;
+  fi
+  # Validate virtual env name
+  local re="^[0-9a-zA-Z_-]+$";
+  if ! [[ "$input" =~ $re ]]; then
+    logI "Invalid name for virtual environment.";
+    logI "Only lower/upper-case A-Z, digits, '-' and '_' characters are allowed";
+    return 1;
+  fi
+  return 0;
 }
 
 # [API function]
@@ -218,20 +255,56 @@ function form_python_virtenv_name() {
   logI "";
   logI "Specify the name of the project virtual environment.";
   logI "Or press enter to use the default name '$var_project_name_lower'";
-  read_user_input_text;
+  read_user_input_text _validate_virtenv_name;
   var_project_virtenv_name="$USER_INPUT_ENTERED_TEXT";
 
   if [ -z "$var_project_virtenv_name" ]; then
     var_project_virtenv_name="$var_project_name_lower";
-  else
-    # Validate virtual env name
-    local re="^[0-9a-zA-Z_-]+$";
-    if ! [[ "$var_project_virtenv_name" =~ $re ]]; then
-      logE "Invalid name for virtual environment";
-      failure "A virtual environment name with invalid characters was specified." \
-              "Only lower/upper-case A-Z, digits, '-' and '_' characters are allowed";
-    fi
   fi
+}
+
+# Validation function for the Python package/namespace form question.
+function _validate_python_package_name() {
+  local input="$1";
+  if [ -z "$input" ]; then
+    logI "No package name specified.";
+    logI "You must specify a package name where your source code should reside";
+    return 1;
+  fi
+  # Check for expected pattern
+  local re="^[a-z.]*$";
+  if ! [[ ${input} =~ $re ]]; then
+    logI "Only lower-case a-z and '.' characters are allowed";
+    return 1;
+  fi
+  if (( ${#input} == 1 )); then
+    logI "A top-level namespace must be longer than one character";
+    return 1;
+  fi
+  if [[ ${input} == *..* ]]; then
+    logI "A namespace must not contain consecutive dots ('..')";
+    return 1;
+  fi
+  if [[ ${input} == .* ]]; then
+    logI "A namespace must not start with a '.'";
+    return 1;
+  fi
+  if [[ ${input} == *. ]]; then
+    logI "A namespace must not end with a '.'";
+    return 1;
+  fi
+  local _namespace_0="$input";
+  if [[ $input == *"."* ]]; then
+    _namespace_0="${input%%.*}";
+  fi
+  # Check for disallowed names of the first package
+  local _disallowed_package_names="package build dist tests";
+  if [[ " ${_disallowed_package_names} " =~ .*\ ${_namespace_0}\ .* ]]; then
+    logI "Invalid package name.";
+    logI "The name '${_namespace_0}' is disallowed";
+    return 1;
+  fi
+  return 0;
 }
 
 # [API function]
@@ -272,28 +345,8 @@ function form_python_package_name() {
   logI "the lowermost package under the specified namespace packages.";
   logI "For example: '$py_namespace_example'";
 
-  read_user_input_text;
+  read_user_input_text _validate_python_package_name;
   local _package_namespace_name="$USER_INPUT_ENTERED_TEXT";
-
-  # Validate given package string
-  if [ -z "${_package_namespace_name}" ]; then
-    logE "No package name specified";
-    failure "Invalid input." \
-            "You must specify a package name where your source code should reside";
-  else
-    # Check for expected pattern
-    local re="^[a-z][a-z\.]*[a-z]*$";
-    if ! [[ ${_package_namespace_name} =~ $re ]]; then
-      logE "Invalid input";
-      if [[ ${_package_namespace_name} == .* || ${_package_namespace_name} == *. ]]; then
-        failure "An invalid namespace was specified." \
-                "A namespace must not start or end with a '.'";
-      else
-        failure "The entered namespace contains invalid characters" \
-                "Only lower-case a-z and '.' characters are allowed";
-      fi
-    fi
-  fi
 
   # Set global vars
   var_namespace="${_package_namespace_name}";
@@ -309,14 +362,6 @@ function form_python_package_name() {
     var_package="$var_namespace";
   fi
   var_namespace_path=$(echo "$var_namespace" |tr "." "/");
-
-  # Check for disallowed names of the first package
-  local _disallowed_package_names="package build dist tests";
-  if [[ " ${_disallowed_package_names} " =~ .*\ ${var_namespace_0}\ .* ]]; then
-    logE "Invalid input";
-    failure "An invalid package name was specified." \
-            "The name '$var_namespace_0' is disallowed";
-  fi
 }
 
 # [API function]

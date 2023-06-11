@@ -50,6 +50,37 @@ function _project_init_process_forms() {
   fi
 }
 
+# Validation function for the project name form question.
+function _validate_project_name() {
+  local input="$1";
+  if [ -z "$input" ]; then
+    logI "Please provide a project name";
+    return 1;
+  fi
+  # Check against regex pattern
+  local re="^[0-9a-zA-Z_-]+$";
+  if ! [[ "$input" =~ $re ]]; then
+    logI "Invalid project name";
+    logI "Only lower/upper-case A-Z, digits, '-' and '_' characters are allowed";
+    return 1;
+  fi
+  return 0;
+}
+
+# Validation function for the project target directory form question.
+function _validate_project_directory() {
+  local input="$1";
+  if [ -z "$input" ]; then
+    return 0;
+  fi
+  if ! _is_absolute_path "$input"; then
+    # _check_is_valid_project_dir() expects an absolute path
+    input="${var_project_dir}/${input}";
+  fi
+  _check_is_valid_project_dir "$input";
+  return $?;
+}
+
 # Shows and runs through the main Project Init form.
 function show_project_init_main_form() {
   project_init_show_start_info;
@@ -59,23 +90,12 @@ function show_project_init_main_form() {
   if [[ "$PROPERTY_VALUE" == "ask" ]]; then
     FORM_QUESTION_ID="project.name";
     logI "Enter the name of the project:";
-    read_user_input_text;
+    read_user_input_text _validate_project_name;
     specified_project_name="$USER_INPUT_ENTERED_TEXT";
   else
     specified_project_name="$PROPERTY_VALUE";
   fi
 
-  if [ -z "$specified_project_name" ]; then
-    logE "Please provide a project name";
-    failure "No project name was specified";
-  fi
-  # Check against regex pattern
-  local re="^[0-9a-zA-Z_-]+$";
-  if ! [[ "$specified_project_name" =~ $re ]]; then
-    logE "Invalid project name";
-    failure "A project name with invalid characters was specified." \
-            "Only lower/upper-case A-Z, digits, '-' and '_' characters are allowed";
-  fi
   # Save as is, as lowercase and as uppercase
   var_project_name="$specified_project_name";
   var_project_name_lower=$(echo "$var_project_name" |tr '[:upper:]' '[:lower:]');
@@ -222,6 +242,7 @@ function show_project_init_main_form() {
   get_property "sys.project.workdir.base" "workspace";
   local project_workdir="$PROPERTY_VALUE";
   # Check configured workdir value
+  local re="^[0-9a-zA-Z_-]+$";
   if ! [[ "$project_workdir" =~ $re ]]; then
     logW "Property with key 'sys.project.workdir.base' has an invalid value.";
     logW "Only lower/upper-case A-Z, digits, '-' and '_' characters are allowed";
@@ -243,7 +264,7 @@ function show_project_init_main_form() {
   if [ -n "$var_project_dir" ]; then
     logI "(Defaults to '$var_project_dir')";
   fi
-  read_user_input_text;
+  read_user_input_text _validate_project_directory;
   local entered_project_dir="$USER_INPUT_ENTERED_TEXT";
 
   # Check given answer
@@ -273,7 +294,9 @@ function show_project_init_main_form() {
     logI "Project will be initialized under '$var_project_dir'";
   fi
 
-  _check_is_valid_project_dir "$var_project_dir";
+  if ! _check_is_valid_project_dir "$var_project_dir"; then
+    failure "Invalid project directory: '$var_project_dir'";
+  fi
 
   # Check whether the project directory already
   # exists and is not empty

@@ -74,6 +74,21 @@ function form_r_version() {
   var_r_version_label=${SUPPORTED_LANG_VERSIONS_LABELS[USER_INPUT_ENTERED_INDEX]};
 }
 
+# Validation function for the R package name form question.
+function _validate_r_package_name() {
+  local input="$1";
+  if [ -z "$input" ]; then
+    return 0;
+  fi
+  local re="^[\.0-9a-zA-Z]+$";
+  if ! [[ "$input" =~ $re ]]; then
+    logI "Invalid input for R package name.";
+    logI "Only lower/upper-case A-Z, digits and '.' characters are allowed";
+    return 1;
+  fi
+  return 0;
+}
+
 # Prompts the user to enter the name of the R package.
 #
 # The provided answer can be queried in source template files via the
@@ -89,19 +104,11 @@ function form_r_package_name() {
   logI "";
   logI "Specify the R package name for the library.";
   logI "(Defaults to '$var_project_name_lower')";
-  read_user_input_text;
+  read_user_input_text _validate_r_package_name;
   var_r_library_package_name="$USER_INPUT_ENTERED_TEXT";
 
   if [ -z "$var_r_library_package_name" ]; then
     var_r_library_package_name="$var_project_name_lower";
-  else
-    # Validate the package name
-    local re="^[\.0-9a-zA-Z]+$";
-    if ! [[ "$var_r_library_package_name" =~ $re ]]; then
-      logE "Invalid name for R package name";
-      failure "A package name with invalid characters was specified." \
-              "Only lower/upper-case A-Z, digits and '.' characters are allowed";
-    fi
   fi
 }
 

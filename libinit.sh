@@ -2842,37 +2842,51 @@ function _is_absolute_path() {
 # specified path can be in principle created by the underlying user.
 #
 # If the specified string represents an invalid path, then this function will
-# exit the program by means of the failure() function.
+# print the corresponding information by means of the logI() function and
+# return a non-zero status code.
 #
 # Args:
 # $1 - A string representing the absolute path to check.
 #
 # Returns:
 # 0 - If the specified argument is a valid path.
+# 1 - If the specified path contains an invalid char.
+# 2 - If the specified path is the root ('/').
+# 3 - If the specified path contains double slashes ('//').
+# 4 - If the specified path is not absolute.
+# 5 - If the specified path has to valid base directory.
+# 6 - If the underlying user has no write permission for the base directory
+#     of the specified path.
 #
 function _check_is_valid_project_dir() {
   local arg_project_dir="$1";
+  # Validate charset of given path.
+  # Never allow ':' (colon) characters as this could lead to
+  # problems with template includes where ':' is used as a delimiter
+  local re="^[0-9a-zA-Z/_. -]+$";
+  local pchar="";
+  local i;
+  for (( i=0; i<${#arg_project_dir}; ++i )); do
+    pchar="${arg_project_dir:$i:1}";
+    if ! [[ "${pchar}" =~ $re ]]; then
+      logI "The project directory path has an invalid character: '${pchar}'";
+      return 1;
+    fi
+  done
   # Check for invalid paths
   if [[ "$arg_project_dir" == "/" ]]; then
-    logE "Cannot create project directory in root directory '/'";
-    failure "Please choose a valid project directory";
+    logI "Cannot create project directory in root directory '/'";
+    return 2;
   fi
   # Check against double slashes
   if [[ "$arg_project_dir" == *"//"* ]]; then
-    logE "Invalid path entered: '//' (double slashes)";
-    failure "Please enter a valid project directory path";
-  fi
-  # Check against ':' (colon) characters as this could lead to
-  # problems with template includes where ':' is used as a delimiter
-  if [[ "$arg_project_dir" == *":"* ]]; then
-    logE "Invalid path entered.";
-    logE "The following character is invalid: ':' (colon)";
-    failure "Please enter a valid project directory path";
+    logI "Invalid path entered: '//' (double slashes)";
+    return 3;
   fi
   # Must be an absolute path
   if ! _is_absolute_path "$arg_project_dir"; then
-    logE "The entered path is not absolute";
-    failure "Please enter a valid absolute path for the project directory";
+    logI "The entered path is not absolute";
+    return 4;
   fi
   local existent_base_dir="$arg_project_dir";
   local found_existent_base_dir=false;
@@ -2887,16 +2901,17 @@ function _check_is_valid_project_dir() {
     existent_base_dir=$(dirname "$existent_base_dir");
   done
   if [[ $found_existent_base_dir == false ]]; then
-    logE "No valid base directory found";
-    failure "Please enter a valid absolute path for the project directory";
+    logI "No valid base directory found";
+    return 5;
   fi
   # Check for write permissions
   if ! [ -w "$existent_base_dir" ]; then
-    logE "You do not have permission to write to the directory:"
-    logE "at: '$existent_base_dir'";
-    failure "Please enter a valid absolute path for the project directory" \
-            "and make sure that you have the filesystem rights to write"   \
-            "at that location";
+    logI "You do not have permission to write to the directory:"
+    logI "at: '$existent_base_dir'";
+    logI "Please enter a valid absolute path for the project directory";
+    logI "and make sure that you have the filesystem rights to write";
+    logI "at that location";
+    return 6;
   fi
   return 0;
 }

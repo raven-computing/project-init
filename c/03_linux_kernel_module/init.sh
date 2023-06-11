@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2023 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,6 +39,24 @@ function process_files_lvl_2() {
   fi
 }
 
+# Validation function for the kernel module name form question.
+function _validate_kernel_module_name() {
+  local input="$1";
+  if [ -z "$input" ]; then
+    return 0;
+  fi
+  input=$(echo "$input" |tr '[:upper:]' '[:lower:]');
+  input=$(echo "$input" |tr '-' '_');
+  # Validate name
+  local re="^[0-9a-z_]+$";
+  if ! [[ "$input" =~ $re ]]; then
+    logI "Invalid kernel module name";
+    logI "Only lowercase a-z, digits and '_' characters are allowed";
+    return 1;
+  fi
+  return 0;
+}
+
 # Prompts the user to enter the name of the kernel module.
 #
 # Globals:
@@ -52,7 +70,7 @@ function form_c_kernel_module_name() {
   logI "";
   logI "Enter the name of the Linux kernel module that this project produces:";
   logI "(Defaults to '$default_name')";
-  read_user_input_text;
+  read_user_input_text _validate_kernel_module_name;
   local entered_module_name="$USER_INPUT_ENTERED_TEXT";
   if [ -z "$entered_module_name" ]; then
     entered_module_name="$default_name";
@@ -60,13 +78,6 @@ function form_c_kernel_module_name() {
   # Make sure name is lowercase
   entered_module_name=$(echo "$entered_module_name" |tr '[:upper:]' '[:lower:]');
   entered_module_name=$(echo "$entered_module_name" |tr '-' '_');
-  # Validate name
-  local re="^[0-9a-z_]+$";
-  if ! [[ "$entered_module_name" =~ $re ]]; then
-    logE "Invalid kernel module name";
-    failure "A kernel module name with invalid characters was specified." \
-            "Only lowercase a-z, digits and '_' characters are allowed";
-  fi
   var_kernel_module_name="$entered_module_name";
 }
 

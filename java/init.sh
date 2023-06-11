@@ -132,6 +132,48 @@ function form_java_version() {
   var_java_version_pom="$var_java_version";
 }
 
+# Validation function for the namespace form question.
+function _validate_java_namespace() {
+  local input="$1";
+  if [ -z "$input" ]; then
+    return 0;
+  fi
+  # Check for expected pattern
+  local re="^[a-z.]*$";
+  if ! [[ ${input} =~ $re ]]; then
+    logI "Only lower-case a-z and '.' characters are allowed";
+    return 1;
+  fi
+  if (( ${#input} == 1 )); then
+    logI "A top-level namespace must be longer than one character";
+    return 1;
+  fi
+  if [[ ${input} == *..* ]]; then
+    logI "A namespace must not contain consecutive dots ('..')";
+    return 1;
+  fi
+  if [[ ${input} == .* ]]; then
+    logI "A namespace must not start with a '.'";
+    return 1;
+  fi
+  if [[ ${input} == *. ]]; then
+    logI "A namespace must not end with a '.'";
+    return 1;
+  fi
+  local _namespace_0="$input";
+  if [[ $input == *"."* ]]; then
+    _namespace_0="${input%%.*}";
+  fi
+  # Check for disallowed names of the first package
+  local _disallowed_package_names="namespace jni";
+  if [[ " ${_disallowed_package_names} " =~ .*\ ${_namespace_0}\ .* ]]; then
+    logI "Invalid namespace.";
+    logI "The name '${_namespace_0}' is disallowed as a namespace";
+    return 1;
+  fi
+  return 0;
+}
+
 # [API function]
 # Prompts the user to enter the namespace that is used by the project code.
 #
@@ -155,24 +197,12 @@ function form_java_namespace() {
   get_property "java.namespace.example" "com.raven.myproject";
   local j_namespace_example="$PROPERTY_VALUE";
   logI "For example: '$j_namespace_example'";
-  read_user_input_text;
+  read_user_input_text _validate_java_namespace;
   local entered_namespace="$USER_INPUT_ENTERED_TEXT";
 
   # Validate given answer
   if [ -z "$entered_namespace" ]; then
     logI "No namespace will be used";
-  else
-    local re="^[a-z][a-z\.]*[a-z]*$";
-    if ! [[ $entered_namespace =~ $re ]]; then
-      logE "Invalid input";
-      if [[ $entered_namespace == .* || $entered_namespace == *. ]]; then
-        failure "An invalid namespace was specified." \
-                "A namespace must not start or end with a '.'";
-      else
-        failure "The entered namespace contains invalid characters" \
-                "Only lower-case a-z and '.' characters are allowed";
-      fi
-    fi
   fi
   var_namespace="$entered_namespace";
   var_namespace_trailing_sep="";
@@ -183,14 +213,6 @@ function form_java_namespace() {
     var_namespace_0="${var_namespace%%.*}";
   else
     var_namespace_0="$var_namespace";
-  fi
-
-  # Check for disallowed names of the first package
-  local _disallowed_package_names="namespace jni";
-  if [[ " ${_disallowed_package_names} " =~ .*\ ${var_namespace_0}\ .* ]]; then
-    logE "Invalid input";
-    failure "An invalid namespace was specified." \
-            "The name '$var_namespace_0' is disallowed";
   fi
 }
 

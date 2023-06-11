@@ -125,6 +125,26 @@ function process_files_lvl_2() {
   replace_var "ODOO_MODULE_NAME" "$var_odoo_module_name";
 }
 
+# Validation function for the Odoo module name form question.
+function _validate_odoo_module_name() {
+  local input="$1";
+  if [ -z "$input" ]; then
+    return 0;
+  fi
+  local re="^[a-z][a-z_]*[a-z]*$";
+  if ! [[ "$input" =~ $re ]]; then
+    logI "Only lower-case a-z and '_' characters are allowed";
+    return 1;
+  fi
+  # Check for disallowed module names
+  local _disallowed_module_names="module package build dist tests";
+  if [[ " ${_disallowed_module_names} " =~ .*\ ${input}\ .* ]]; then
+    logI "The name '${input}' is disallowed";
+    return 1;
+  fi
+  return 0;
+}
+
 # Prompts the user to enter the name of the Odoo module.
 #
 # The provided answer can be queried in source template files via the
@@ -140,29 +160,13 @@ function form_python_odoo_module_name() {
   logI "";
   logI "Enter the name for the Odoo module:";
 
-  read_user_input_text;
+  read_user_input_text _validate_odoo_module_name;
   local _odoo_module_name="$USER_INPUT_ENTERED_TEXT";
 
-  # Validate
   if [ -z "${_odoo_module_name}" ]; then
     logI "";
     logI "No module name specified. Using default name 'my_module'";
     _odoo_module_name="my_module";
-  else
-    # Check for expected pattern
-    local re="^[a-z][a-z_]*[a-z]*$";
-    if ! [[ ${_odoo_module_name} =~ $re ]]; then
-      logE "Invalid input";
-      failure "The entered module name contains invalid characters" \
-              "Only lower-case a-z and '_' characters are allowed";
-    fi
-  fi
-  # Check for disallowed module names
-  local _disallowed_module_names="module package build dist tests";
-  if [[ " ${_disallowed_module_names} " =~ .*\ ${_odoo_module_name}\ .* ]]; then
-    logE "Invalid input";
-    failure "An invalid module name was specified." \
-            "The name '${_odoo_module_name}' is disallowed";
   fi
   var_odoo_module_name="${_odoo_module_name}";
 }
