@@ -54,13 +54,13 @@ function _project_init_process_forms() {
 function _validate_project_name() {
   local input="$1";
   if [ -z "$input" ]; then
-    logI "Please provide a project name";
+    logI "Please provide a project name.";
     return 1;
   fi
   # Check against regex pattern
-  local re="^[0-9a-zA-Z_-]+$";
+  local re="^[0-9a-zA-Z_ -]+$";
   if ! [[ "$input" =~ $re ]]; then
-    logI "Invalid project name";
+    logI "Invalid project name.";
     logI "Only lower/upper-case A-Z, digits, '-' and '_' characters are allowed";
     return 1;
   fi
@@ -96,8 +96,9 @@ function show_project_init_main_form() {
     specified_project_name="$PROPERTY_VALUE";
   fi
 
-  # Save as is, as lowercase and as uppercase
-  var_project_name="$specified_project_name";
+  # Allow spaces but convert them to underscores.
+  var_project_name="${specified_project_name// /_}";
+  # Save name also as lowercase and as uppercase.
   var_project_name_lower=$(echo "$var_project_name" |tr '[:upper:]' '[:lower:]');
   var_project_name_upper=$(echo "$var_project_name" |tr '[:lower:]' '[:upper:]');
   if (( $? != 0 )); then
