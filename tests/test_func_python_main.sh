@@ -16,19 +16,19 @@
 # #***************************************************************************#
 # *                                                                           *
 # *           ***   Functionality Test for Quickstart Function   ***          *
-# *                            Provided by an Addon                           *
+# *                          Creating a main.py File                          *
 # *                                                                           *
 # #***************************************************************************#
 
 
 function test_functionality() {
-  test_functionality_quickstart @addon_function;
+  test_functionality_quickstart @main.py;
   return $?;
 }
 
 function test_functionality_result() {
   local files=();
-  files+=("example.sh");
+  files+=("main.py");
 
   assert_files_exist "${files[@]}";
   return $?;

@@ -16,19 +16,19 @@
 # #***************************************************************************#
 # *                                                                           *
 # *           ***   Functionality Test for Quickstart Function   ***          *
-# *                            Provided by an Addon                           *
+# *                           Creating a main.c File                          *
 # *                                                                           *
 # #***************************************************************************#
 
 
 function test_functionality() {
-  test_functionality_quickstart @addon_function;
+  test_functionality_quickstart @main.c;
   return $?;
 }
 
 function test_functionality_result() {
   local files=();
-  files+=("example.sh");
+  files+=("main.c");
 
   assert_files_exist "${files[@]}";
   return $?;
