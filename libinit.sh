@@ -1730,8 +1730,8 @@ function _normalise_quickstart_name() {
   # Convert to all lower-case
   quickstart_name=$(echo "$quickstart_name" |tr '[:upper:]' '[:lower:]');
   # Convert slashes and dots to underscores
-  quickstart_name="${quickstart_name/\//_}";
-  quickstart_name="${quickstart_name/./_}";
+  quickstart_name="${quickstart_name//\//_}";
+  quickstart_name="${quickstart_name//./_}";
   echo "$quickstart_name";
 }
 
