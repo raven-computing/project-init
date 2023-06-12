@@ -180,6 +180,34 @@ readonly EXIT_FAILURE=1;
 readonly EXIT_CANCELLED=5;
 
 # [API Global]
+# The status code a Quickstart function should return in the
+# case of a successful operation.
+# Since:
+# 1.4.0
+readonly QUICKSTART_STATUS_OK=$EXIT_SUCCESS;
+
+# [API Global]
+# The status code a Quickstart function should return in the case of a
+# failed operation. This indicates to the system that the entire operation,
+# which might consist of multiple chained functions, should be cancelled.
+# A warning is shown to the user about the failed operation.
+# Use QUICKSTART_STATUS_NOWARN instead to suppress that warning.
+# Since:
+# 1.4.0
+readonly QUICKSTART_STATUS_FAILURE=$EXIT_FAILURE;
+
+# [API Global]
+# The status code a Quickstart function should return in the case of a
+# failed operation, suppressing some warnings emitted by the system. This status
+# code is the same as QUICKSTART_STATUS_FAILURE but gives the underlying function
+# the opportunity to show its own warning messages to the user before returning.
+# Please note that the system will still emit other warnings and errors not related
+# to the returned status of the Quickstart function.
+# Since:
+# 1.4.0
+readonly QUICKSTART_STATUS_NOWARN=50;
+
+# [API Global]
 # Holds the version identifier of the Project Init system.
 # The format is 'major.minor.patch'.
 PROJECT_INIT_VERSION="";
@@ -2371,9 +2399,11 @@ function process_project_init_quickstart() {
     $quickstart_function;
     quickstart_fn_status=$?;
     if (( $quickstart_fn_status != 0 )); then
-      logW "Quickstart function ${quickstart_function}() returned" \
-           "non-zero status code $quickstart_fn_status";
-      logW "Cancelling operation due to failed Quickstart function";
+      if (( $quickstart_fn_status != $QUICKSTART_STATUS_NOWARN )); then
+        logW "Quickstart function ${quickstart_function}() returned" \
+             "non-zero status code $quickstart_fn_status";
+        logW "Cancelling operation due to failed Quickstart function";
+      fi
       _cancel_quickstart $EXIT_FAILURE;
     fi
     _replace_default_subst_vars;

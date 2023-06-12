@@ -24,7 +24,7 @@ function quickstart_addon_function() {
   logI "Creating addon example executable script";
   copy_shared "example.sh" "example.sh";
   replace_var "VAR_FOO" "bar";
-  return 0;
+  return $QUICKSTART_STATUS_OK;
 }
 
 # Alias for quickstart_addon_function()
