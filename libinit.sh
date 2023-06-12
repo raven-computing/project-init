@@ -215,6 +215,14 @@ PROJECT_INIT_ADDONS_IS_DEV_VERSION="";
 PROJECT_INIT_ADDONS_PATH="";
 
 # [API Global]
+# The path of the current working directory of the user when he
+# started Project Init.  
+# This variable must be regarded as read-only.
+# Since:
+# 1.4.0
+USER_CWD="";
+
+# [API Global]
 # Contains the absolute path to the directory of
 # the current active init level. As the user progresses
 # through the forms of the various init levels, this
@@ -2198,7 +2206,7 @@ function start_project_init() {
   # Keep track of the current working directory of the user when he
   # executed the main script, even though we change it below to make
   # it easier throughout the Project Init system.
-  USER_CWD="$PWD";
+  readonly USER_CWD="$PWD";
   # Script root directory
   SCRIPT_LVL_0_BASE="$(_get_script_path "${BASH_SOURCE[0]}")";
   CURRENT_LVL_PATH="$SCRIPT_LVL_0_BASE";
