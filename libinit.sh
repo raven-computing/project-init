@@ -1980,10 +1980,15 @@ function _run_addon_after_init_hook() {
       # Check if hook is executable
       if [ -x "$PROJECT_INIT_ADDONS_DIR/after-init-hook.sh" ]; then
         logI "Running after-init hook";
+        local exported_project_dir="$var_project_dir";
+        if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
+          exported_project_dir="$USER_CWD";
+        fi
         # Run hook script, in a subshell-process, define env var,
         # redirect stdout and stderr to /dev/null
         (cd "$PROJECT_INIT_ADDONS_DIR" \
-            && export VAR_PROJECT_DIR="$var_project_dir"; \
+            && export VAR_PROJECT_DIR="$exported_project_dir" \
+            && export PROJECT_INIT_QUICKSTART_REQUESTED; \
             exec "$PROJECT_INIT_ADDONS_DIR/after-init-hook.sh" > /dev/null 2>&1);
 
         local hook_exit_status=$?;
