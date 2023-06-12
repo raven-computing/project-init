@@ -23,7 +23,7 @@
 function quickstart_c_main() {
   logI "Creating C source file with a main function";
   copy_shared "c/standalone_main.c" "main.c";
-  return 0;
+  return $?;
 }
 
 # Alias for quickstart_c_main()
@@ -35,7 +35,7 @@ function quickstart_main_c() {
 function quickstart_cpp_main() {
   logI "Creating C++ source file with a main function";
   copy_shared "cpp/Standalone_main.cpp" "Main.cpp";
-  return 0;
+  return $?;
 }
 
 # Alias for quickstart_cpp_main()
@@ -47,7 +47,7 @@ function quickstart_main_cpp() {
 function quickstart_java_main() {
   logI "Creating Java source file with a main function";
   copy_shared "java/Standalone_Main.java" "Main.java";
-  return 0;
+  return $?;
 }
 
 # Alias for quickstart_java_main()
@@ -59,7 +59,7 @@ function quickstart_main_java() {
 function quickstart_python_main() {
   logI "Creating Python source file with a main function";
   copy_shared "python/standalone_main.py" "main.py";
-  return 0;
+  return $?;
 }
 
 # Alias for quickstart_python_main()
