@@ -3566,10 +3566,8 @@ function copy_shared() {
     logW "Shared resouce not found";
     return 1;
   fi
-  if ! copy_resource "$shared_res_file" "$arg_dest_path"; then
-    return 2;
-  fi
-  return 0;
+  copy_resource "$shared_res_file" "$arg_dest_path";
+  return $?;
 }
 
 # [API function]
