@@ -205,6 +205,16 @@ PROJECT_INIT_IS_DEV_VERSION="";
 PROJECT_INIT_ADDONS_IS_DEV_VERSION="";
 
 # [API Global]
+# The path to the loaded addon resource directory. This is only set if an addon
+# is available and loaded, otherwise it remains empty. It indicates the source
+# root of the addon within the local filesystem, which may or may not be
+# a temporary location.  
+# This variable must be regarded as read-only.
+# Since:
+# 1.4.0
+PROJECT_INIT_ADDONS_PATH="";
+
+# [API Global]
 # Contains the absolute path to the directory of
 # the current active init level. As the user progresses
 # through the forms of the various init levels, this
@@ -2220,6 +2230,9 @@ function start_project_init() {
       fi
     fi
   fi
+
+  # Set public API variant and protect as read-only.
+  readonly PROJECT_INIT_ADDONS_PATH="$PROJECT_INIT_ADDONS_DIR";
 
   if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
     ARG_QUICKSTART_NAMES_NORM=();
