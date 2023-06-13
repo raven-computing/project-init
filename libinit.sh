@@ -191,7 +191,7 @@ readonly QUICKSTART_STATUS_OK=$EXIT_SUCCESS;
 # failed operation. This indicates to the system that the entire operation,
 # which might consist of multiple chained functions, should be cancelled.
 # A warning is shown to the user about the failed operation.
-# Use QUICKSTART_STATUS_NOWARN instead to suppress that warning.
+# Use $QUICKSTART_STATUS_NOWARN instead to suppress that warning.
 # Since:
 # 1.4.0
 readonly QUICKSTART_STATUS_FAILURE=$EXIT_FAILURE;
@@ -199,7 +199,7 @@ readonly QUICKSTART_STATUS_FAILURE=$EXIT_FAILURE;
 # [API Global]
 # The status code a Quickstart function should return in the case of a
 # failed operation, suppressing some warnings emitted by the system. This status
-# code is the same as QUICKSTART_STATUS_FAILURE but gives the underlying function
+# code is the same as $QUICKSTART_STATUS_FAILURE but gives the underlying function
 # the opportunity to show its own warning messages to the user before returning.
 # Please note that the system will still emit other warnings and errors not related
 # to the returned status of the Quickstart function.
