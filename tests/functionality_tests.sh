@@ -78,8 +78,13 @@ function _test_functionality_driver() {
   local test_driver_args="$@";
 
   if [ -n "$config_file" ]; then
-    if [ -r "${TESTPATH}/resources/${config_file}" ]; then
-      export PROJECT_INIT_TESTS_RUN_CONFIG="${TESTPATH}/resources/${config_file}";
+    config_file="${TESTPATH}/resources/${config_file}";
+    if [ -r "$config_file" ]; then
+      export PROJECT_INIT_TESTS_RUN_CONFIG="$config_file";
+    else
+      logE "Test run configuration file is not readable:";
+      logE "at: '$config_file'";
+      return 91;
     fi
   fi
 
