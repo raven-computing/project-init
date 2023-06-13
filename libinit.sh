@@ -2387,7 +2387,7 @@ function process_project_init_quickstart() {
   for (( i=0; i<${n}; ++i )); do
     quickstart_function="${qs_fn_prefix}${ARG_QUICKSTART_NAMES_NORM[$i]}";
     if [[ $(type -t "$quickstart_function") != function ]]; then
-      logW "No quickstart code function found for name '${ARG_QUICKSTART_NAMES[$i]}'";
+      logW "No quickstart function found for name '${ARG_QUICKSTART_NAMES[$i]}'";
       _cancel_quickstart $EXIT_FAILURE;
     fi
   done
