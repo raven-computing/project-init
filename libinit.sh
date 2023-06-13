@@ -2537,12 +2537,6 @@ function find_all_files() {
   if ! _check_no_quickstart; then
     return 1;
   fi
-  if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
-    _make_func_hl "find_all_files";
-    logW "Calling $HYPERLINK_VALUE in Quickstart mode has no effect:";
-    logW "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    return 1;
-  fi
   CACHE_ALL_FILES=(); # Clear cache
   # Find all regular files matching an ext or file name
   _find_files_impl "$var_project_dir" "f" "${LIST_FILES_TXT[@]}";
