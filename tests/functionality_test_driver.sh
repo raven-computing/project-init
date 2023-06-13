@@ -47,18 +47,20 @@ function _load_test_configuration() {
       logE "at: '$PROJECT_INIT_TESTS_RUN_CONFIG'";
       failure "Failed to execute test run";
     fi
-    # Adjust path if in test mode
-    FORM_QUESTION_ID="project.dir";
-    if _get_form_answer; then
-      if [[ "$FORM_QUESTION_ANSWER" != "${TESTS_OUTPUT_DIR}"/* ]]; then
-        local test_path="${TESTS_OUTPUT_DIR}/${FORM_QUESTION_ANSWER}";
-        _FORM_ANSWERS["project.dir"]="$test_path";
+    if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == false ]]; then
+      # Adjust path if in test mode
+      FORM_QUESTION_ID="project.dir";
+      if _get_form_answer; then
+        if [[ "$FORM_QUESTION_ANSWER" != "${TESTS_OUTPUT_DIR}"/* ]]; then
+          local test_path="${TESTS_OUTPUT_DIR}/${FORM_QUESTION_ANSWER}";
+          _FORM_ANSWERS["project.dir"]="$test_path";
+        fi
+      else
+        logE "No project directory specified for test run.";
+        logE "Add a 'project.dir' entry in the test run properties file:";
+        logE "at: '$PROJECT_INIT_TESTS_RUN_CONFIG'";
+        failure "Failed to execute test run";
       fi
-    else
-      logE "No project directory specified for test run.";
-      logE "Add a 'project.dir' entry in the test run properties file:";
-      logE "at: '$PROJECT_INIT_TESTS_RUN_CONFIG'";
-      failure "Failed to execute test run";
     fi
   fi
   # First load the testing project.properties from the addon, then from the
