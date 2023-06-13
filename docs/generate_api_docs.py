@@ -151,7 +151,7 @@ def parse_obj_name(line, doc_type):
     if doc_type == "function":
         name = line[9:-4]
     elif doc_type == "global":
-        name = line.split(sep="=")[0]
+        name = line.split(sep="=")[0].split()[-1]
     elif doc_type == "exitstatus":
         name = line.split(sep="=")[0].split()[-1]
     else:
