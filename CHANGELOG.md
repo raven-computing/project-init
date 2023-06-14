@@ -1,3 +1,24 @@
+#### 1.4.0
+* Added Quickstart feature.
+* Added optional argument to read_user_input_text() function to be able to specify a validation function.
+* Added the copy_resource() API function.
+* Added PROJECT_INIT_ADDONS_PATH API global.
+* Added USER_CWD API global.
+* Added PROJECT_INIT_USED_SOURCE API global.
+* Added _load_default_subst_vars() and _replace_default_subst_vars() function to load and replace some default substitution variables.
+* Added _find_files_impl() function for common files finding operation.
+* Added _find_subst_vars() function for common substitution variable finding operation.
+* Added _is_absolute_path() internal function used throughout the code base.
+* Changed various places in form function implementations where the read_user_input_text() function is called to use a validation function.
+* Changed libform.sh main form implementation and refactored common code and setting of substitution variables out into libinit.sh.
+* Changed handling of project name form answer to allow spaces in given name and silently convert to underscores.
+* Changed implementation of _check_is_valid_project_dir() function and added more return status codes.
+* Changed implementation of copy_shared() function to use copy_resource() internally.
+* Improved implementations of read_user_input_selection() and read_user_input_yes_no() functions to handle invalid user input by allowing the user to reenter his answer instead of failing by means of the failure() function.
+* Improved object name handling for globals in API generator script.
+* Improved find_all_files() function implementation.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.3.0...v1.4.0)
+
 #### 1.3.0
 * Added a file include feature to remove some duplicated code in project source templates. A source template may delcare the inclusion of another shared template file with the include directive.
 * Added C++ desktop GUI application with ImGUI (using GLFW and OpenGL) project type source template.
