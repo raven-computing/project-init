@@ -128,9 +128,17 @@ function show_project_init_main_form() {
     var_project_description="$specified_project_description";
   fi
 
+  local license_name="";
   local all_license_dirs=();
+  local fpath="";
   for fpath in "$SCRIPT_LVL_0_BASE/licenses/"*; do
     if [ -d "$fpath" ]; then
+      license_name=$(basename "$fpath");
+      if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
+        if [ -f "$PROJECT_INIT_ADDONS_DIR/licenses/${license_name}/DISABLE" ]; then
+          continue;
+        fi
+      fi
       all_license_dirs+=("$fpath");
     fi
   done
@@ -140,7 +148,9 @@ function show_project_init_main_form() {
     if [ -d "$PROJECT_INIT_ADDONS_DIR/licenses" ]; then
       for fpath in "$PROJECT_INIT_ADDONS_DIR/licenses/"*; do
         if [ -d "$fpath" ]; then
-          all_license_dirs+=("$fpath");
+          if ! [ -f "${fpath}/DISABLE" ]; then
+            all_license_dirs+=("$fpath");
+          fi
         fi
       done
       # Check if the separator char used in the sort function
