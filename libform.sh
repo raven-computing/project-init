@@ -372,12 +372,19 @@ function show_project_init_main_form() {
             "provide at least one language for project initialization";
   fi
 
+  # To differentiate between whether a base lang or a lang provided by an addon
+  # is selected, the code below relies on the fact that languages are
+  # not user-sortable. The shown list and thus the selection item index always
+  # has first base langs before addon langs.
+  local selected_lang_index=0;
+
   # Either let the user select a language out of the list of available ones,
   # or automatically pick the lang if there is only one available
   if (( $total_number_of_langs > 1 )); then
     FORM_QUESTION_ID="project.language";
     logI "Select the language to be used:";
     read_user_input_selection "${project_lang_names[@]}";
+    selected_lang_index=$USER_INPUT_ENTERED_INDEX;
     local selected_name="${project_lang_names[USER_INPUT_ENTERED_INDEX]}";
     local selected_dir="${project_lang_dirs[USER_INPUT_ENTERED_INDEX]}";
   else
@@ -387,11 +394,10 @@ function show_project_init_main_form() {
 
   var_project_lang="$selected_name";
 
-
   # When the user choses a lang which is provided by an addon, we must set
   # the path for the current level to the addons root dir so that all
   # subsequent operations take that dir as the base
-  if (( $USER_INPUT_ENTERED_INDEX >= $number_of_base_langs )); then
+  if (( $selected_lang_index >= $number_of_base_langs )); then
     CURRENT_LVL_PATH="$PROJECT_INIT_ADDONS_DIR";
     _FLAG_PROJECT_LANG_IS_FROM_ADDONS=true;
   fi
