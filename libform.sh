@@ -353,7 +353,7 @@ function show_project_init_main_form() {
           logW "Project init directory has no name file:";
           logW "at: '$dir'";
           logW "Please add a file 'name.txt' to the directory" \
-              "of your language addon";
+               "of your language addon";
           logW "to control how the language is shown in the selection";
           name="$(basename "$dir")";
           project_lang_names+=("$name");

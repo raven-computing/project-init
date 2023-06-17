@@ -4817,8 +4817,8 @@ function proceed_next_level() {
     logE "Cannot source init script for level $CURRENT_LVL_NUMBER";
     _show_helptext "E" "Introduction#init-scripts";
     failure "Failed to source init script for next init level." \
-            "Script does not exist: "                           \
-            "File: '$next_lvl_script'";
+            "File does not exist: "                           \
+            "at: '$next_lvl_script'";
   fi
 
   source "$next_lvl_script";
