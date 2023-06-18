@@ -37,6 +37,7 @@ function run_failed_test_file() {
   local testfile_funcs_cmddecl=();
   local testfile_funcs_linenums=();
   local prev_line="";
+  local line_len=0;
   # Read and parse the test file source code
   local line_num=0;
   while read -r line; do
@@ -44,7 +45,8 @@ function run_failed_test_file() {
     # Find test functions.
     # Ignore the main test_command() function
     if [[ "$line" == "function test_"* && "$line" != "function test_command()"* ]]; then
-      testfile_funcs+=("${line:9:-4}");
+      line_len=$(( ${#line}-13 ));
+      testfile_funcs+=("${line:9:line_len}");
       testfile_funcs_linenums+=("$line_num");
       # Check for command declaration.
       # It must be a comment located right above the function declaration
@@ -103,7 +105,8 @@ function run_failed_test_file() {
 
 function run_test_file() {
   local testfile="$1";
-  local tested_cmd="${testfile:12:-3}";
+  local cmd_len=$(( ${#testfile}-15 ));
+  local tested_cmd="${testfile:12:cmd_len}";
   local cmd_is_available=false;
   local test_status=1;
   printt "echo -n" "       Testing compatibility of command:  $tested_cmd" "$LABEL_RUN";
