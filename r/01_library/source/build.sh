@@ -134,4 +134,4 @@ if (( $? != 0 )); then
   exit $?;
 fi
 
-logI "Build succcessful";
+logI "Build successful";

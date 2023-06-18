@@ -165,6 +165,6 @@ if (( $? != 0 )); then
   exit $build_status;
 fi
 
-logI "Build succcessful";
+logI "Build successful";
 exit 0;
 
