@@ -4170,6 +4170,7 @@ function _process_include_directives() {
   local replaced="";
   local regex_numeric="^[0-9]+$";
   local awk_stat=0;
+  local incl_len=0;
 
   local SHARED_TEMPLATES_BASE="${SCRIPT_LVL_0_BASE}/share";
   local SHARED_TEMPLATES_ADDONS="";
@@ -4212,7 +4213,8 @@ function _process_include_directives() {
       continue;
     fi
     # Remove the trailing '}}'
-    include_directive="${include_directive::-2}";
+    incl_len=$(( ${#include_directive}-2 ));
+    include_directive="${include_directive::incl_len}";
     # Absolute path to the included shared file.
     # Shared templates in the addons resource override any base ones
     if [ -n "$SHARED_TEMPLATES_ADDONS" ] \
