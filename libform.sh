@@ -173,12 +173,14 @@ function show_project_init_main_form() {
   local project_licenses_dirs=();
   local project_licenses_names=();
 
+  local dir="";
+  local name="";
   for dir in ${all_license_dirs[@]}; do
     local dir_name=$(basename "$dir");
     if [ -r "$dir/license.txt" ]; then
       project_licenses_dirs+=("$dir");
       if [ -r "$dir/name.txt" ]; then
-        local name=$(head -n 1 "$dir/name.txt");
+        name=$(head -n 1 "$dir/name.txt");
         project_licenses_names+=("$name");
       else
         logW "The license directory '$dir_name' has no name file";
@@ -322,26 +324,26 @@ function show_project_init_main_form() {
   local project_lang_dirs=()
   local project_lang_names=()
 
-  for dir in $(ls -d */); do
-    if [ -f "${dir}init.sh" ]; then
-      get_boolean_property "${dir::-1}.disable" "false";
+  for dir in $(ls -d *); do
+    if [ -f "${dir}/init.sh" ]; then
+      get_boolean_property "${dir}.disable" "false";
       if [[ "$PROPERTY_VALUE" == "true" ]]; then
         continue;
       fi
       if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
-        if [ -f "$PROJECT_INIT_ADDONS_DIR/${dir}DISABLE" ]; then
+        if [ -f "$PROJECT_INIT_ADDONS_DIR/${dir}/DISABLE" ]; then
           continue;
         fi
       fi
       project_lang_dirs+=("$dir");
-      if [ -r "${dir}name.txt" ]; then
-        name=$(head -n 1 "${dir}name.txt");
+      if [ -r "${dir}/name.txt" ]; then
+        name=$(head -n 1 "${dir}/name.txt");
         project_lang_names+=("$name");
       else
         logW "Project init directory has no name file:";
         logW "at: '$dir'";
         name="$dir";
-        project_lang_names+=("${name::-1}");
+        project_lang_names+=("${name}");
       fi
     fi
   done
