@@ -257,8 +257,6 @@ function test_functionality_with() {
   return $?;
 }
 
-
-
 # [API function]
 # Executes a functionality test run for the specified Quickstart function.
 #
