@@ -2706,6 +2706,8 @@ function _unique_items() {
 function _find_subst_vars() {
   local files_to_search=("$@");
   _FOUND_SUBST_VARS=(); # Reset
+  local subvar="";
+  local subvar_len=0;
   local f="";
   for f in "${files_to_search[@]}"; do
     if [ -d "$f" ]; then
@@ -2714,9 +2716,9 @@ function _find_subst_vars() {
     if ! [ -f "$f" ]; then
       continue; # Ignore non-existing regular files
     fi
-    local subvar="";
     for subvar in $(grep -o '\${{VAR_[0-9A-Z_]\+}}' "$f"); do
-      _FOUND_SUBST_VARS+=("${subvar:3:-2}");
+      subvar_len=$(( ${#subvar}-5 ));
+      _FOUND_SUBST_VARS+=("${subvar:3:subvar_len}");
     done
   done
 
@@ -2747,6 +2749,8 @@ function _find_subst_vars() {
 #
 function _check_unreplaced_vars() {
   local found_subvars=();
+  local subvar="";
+  local subvar_len=0;
   local f="";
   for f in "${CACHE_ALL_FILES[@]}"; do
     if [ -d "$f" ]; then
@@ -2762,7 +2766,6 @@ function _check_unreplaced_vars() {
 
       continue;
     fi
-    local subvar="";
     # Seach for substitution variable pattern
     for subvar in $(grep -o '\${{VAR_[0-9A-Z_]\+}}' "$f"); do
       found_subvars+=("$subvar");
@@ -2774,7 +2777,8 @@ function _check_unreplaced_vars() {
     # Filter out duplicates to simplify warn messages
     found_subvars=( $(_unique_items "${found_subvars[@]}") );
     for subvar in "${found_subvars[@]}"; do
-      local subvar_id="${subvar:3:-2}";
+      subvar_len=$(( ${#subvar}-5 ));
+      local subvar_id="${subvar:3:subvar_len}";
       logW "Substitution variable not replaced: '$subvar_id'";
       # Check for copyright header substitution variable
       if [[ "$subvar_id" == "VAR_COPYRIGHT_HEADER" ]]; then
