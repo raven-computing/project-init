@@ -401,6 +401,12 @@ SUPPORTED_LANG_VERSIONS_IDS=();
 # supported language versions
 SUPPORTED_LANG_VERSIONS_LABELS=();
 
+# The associative array for the data in project.properties files.
+declare -A PROPERTIES;
+
+# The associative array for the data in extension_map.txt files.
+declare -A COPYRIGHT_HEADER_EXT_MAP;
+
 # An array holding names of commands that are required
 # by the init system. Is filled by the _read_dependencies() function.
 SYS_DEPENDENCIES=();
@@ -1796,6 +1802,8 @@ function _normalise_quickstart_name() {
 # Args:
 # $1 - The properties file to read. This is a mandatory argument.
 # $2 - The name of the associative array global variable to populate.
+#      The variable must already be declared before calling this function.
+#      Supported variable names are 'PROPERTIES' and '_FORM_ANSWERS'.
 #      This is an optional argument.
 #
 # Returns:
@@ -1810,8 +1818,8 @@ function _normalise_quickstart_name() {
 #
 # Examples:
 # _read_properties "project.properties";
-# declare -g -A MY_A_VARIABLE;
-# _read_properties "myfile.properties" MY_A_VARIABLE;
+# # Or:
+# _read_properties "myfile.properties" PROPERTIES;
 #
 function _read_properties() {
   local properties_file="$1";
@@ -1850,7 +1858,14 @@ function _read_properties() {
             invalid_format=true;
             invalid_line=$line_num;
           else
-            declare -g $container["$p_key"]="$p_val";
+            # Assign value to key
+            if [[ "$container" == "PROPERTIES" ]]; then
+              PROPERTIES["$p_key"]="$p_val";
+            elif [[ "$container" == "_FORM_ANSWERS" ]]; then
+              _FORM_ANSWERS["$p_key"]="$p_val";
+            else
+              failure "Invalid container name '$container'";
+            fi
           fi
         else
           invalid_format=true;
@@ -2108,8 +2123,6 @@ function _fill_files_list_from() {
 # _FLAG_CONFIGURATION_LOADED - Is set by this function.
 #
 function _load_configuration() {
-  # Read in project properties
-  declare -g -A PROPERTIES;
   _read_properties "project.properties";
 
   # Check for addons properties
@@ -2845,10 +2858,9 @@ function _read_license_extension_map() {
 # Globals:
 # COPYRIGHT_HEADER_EXT_MAP - The variable to which the read key-value pairs
 #                            are written to. This global associative array
-#                            is created by this function.
+#                            must already be set when calling this function.
 #
 function _load_extension_map() {
-  declare -g -A COPYRIGHT_HEADER_EXT_MAP;
   local ext_file="extension_map.txt";
   local ext_path="$SCRIPT_LVL_0_BASE/licenses/$ext_file";
   # Read base file

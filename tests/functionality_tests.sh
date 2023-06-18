@@ -28,6 +28,8 @@ TESTS_OUTPUT_DIR="";
 # external addons. Please note that this does not include the addons tests
 # under BASEPATH/addons, for which this is still false
 IS_ADDON_TESTS=false;
+# The associative array for the form answer data.
+declare -A _FORM_ANSWERS;
 
 
 # The testing facility entrypoint to initiate functionality test runs.
@@ -241,20 +243,21 @@ function test_functionality_with() {
       title="with $config_file";
     fi
   fi
-  declare -g -A TEST_FORM_ANSWERS;
-  if ! _read_properties "resources/$config_file" TEST_FORM_ANSWERS; then
+  if ! _read_properties "resources/$config_file" _FORM_ANSWERS; then
     logE "Test run configuration file is invalid";
     return 90;
   fi
 
   ASSERT_FILE_PATH_PREFIX="";
-  if [[ "${TEST_FORM_ANSWERS[project.dir]+1}" == "1" ]]; then
-    ASSERT_FILE_PATH_PREFIX="${TEST_FORM_ANSWERS[project.dir]}";
+  if [[ "${_FORM_ANSWERS[project.dir]+1}" == "1" ]]; then
+    ASSERT_FILE_PATH_PREFIX="${_FORM_ANSWERS[project.dir]}";
   fi
 
   _test_functionality_driver "$title" "$config_file";
   return $?;
 }
+
+
 
 # [API function]
 # Executes a functionality test run for the specified Quickstart function.

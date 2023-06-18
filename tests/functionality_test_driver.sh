@@ -27,6 +27,9 @@
 # relative to the test path.
 readonly _TESTS_PROPERTIES="resources/project.properties";
 
+# The associative array for the form answer data.
+declare -A _FORM_ANSWERS;
+
 
 # Loads the configuration files used in test mode and stores the
 # data in the corresponding global variables.
@@ -40,7 +43,6 @@ readonly _TESTS_PROPERTIES="resources/project.properties";
 #                 Is declared and initialized by this function.
 #
 function _load_test_configuration() {
-  declare -g -A _FORM_ANSWERS;
   if [ -n "$PROJECT_INIT_TESTS_RUN_CONFIG" ]; then
     if ! _read_properties "$PROJECT_INIT_TESTS_RUN_CONFIG" _FORM_ANSWERS; then
       logE "The configuration file for the test run has errors:";
