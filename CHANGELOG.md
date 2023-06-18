@@ -1,3 +1,12 @@
+#### 1.4.1
+* Fixed some compatibility issues with older Bash versions by avoiding the usage of the '-g' option of the 'declare' builtin.
+* Fixed some compatibility issues with older Bash versions by avoiding the usage of negative indices in string expressions.
+* Fixed invalid read of USER_INPUT_ENTERED_INDEX when total_number_of_langs is 1 in main form implementation.
+* Improved error messages and code formatting.
+* Improved project source templates.
+* Improved main form license handling by adding missing check for 'DISABLE' info file.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.4.0...v1.4.1)
+
 #### 1.4.0
 * Added Quickstart feature.
 * Added optional argument to read_user_input_text() function to be able to specify a validation function.
