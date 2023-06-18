@@ -118,3 +118,4 @@ if (( $? != 0 )); then
   exit 1;
 fi
 logI "Build successful";
+exit 0;
