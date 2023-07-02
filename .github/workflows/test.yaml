@@ -29,7 +29,22 @@ jobs:
       - name: 'Checkout'
         uses: actions/checkout@v3
 
-      - name: 'Test Functionality'
+      - name: 'Test Functionality Using Default Bash'
         env:
           TERMINAL_NO_USE_CNTRL_CHARS: '1'
-        run: ./test.sh --functionality
+        run: bash test.sh --functionality
+
+  test-functionality-bash-min-compat:
+    name: 'Functionality (Bash 4.0)'
+    needs: test-system-compat
+    runs-on: ubuntu-latest
+    container:
+      image: ravencomputing/bash:4.0
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v3
+
+      - name: 'Test Functionality Using Bash 4.0'
+        env:
+          TERMINAL_NO_USE_CNTRL_CHARS: '1'
+        run: bash test.sh --functionality

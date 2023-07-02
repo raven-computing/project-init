@@ -438,7 +438,8 @@ function main() {
   if [[ $IS_ADDON_TESTS == true ]]; then
     addon_mention="addon ";
   fi
-  logI "Testing functionality of Project Init $addon_mention";
+  local shell_version="${BASH_VERSINFO[0]}.${BASH_VERSINFO[1]}.${BASH_VERSINFO[2]}";
+  logI "Testing functionality of Project Init ${addon_mention}with Bash ${shell_version}";
   echo "";
 
   export PROJECT_INIT_TESTS_ACTIVE="1";

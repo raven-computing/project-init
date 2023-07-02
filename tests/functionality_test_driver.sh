@@ -83,10 +83,13 @@ function main() {
   source "$rootpath/libinit.sh";
   source "$rootpath/libform.sh";
 
-  # Make sure this script is not executed by the root user
+  # Make sure this script is not executed by the root user,
+  # except when running inside a Docker container.
   if (( $(id -u) == 0 )); then
-    logW "Cannot run tests as root user";
-    exit $EXIT_FAILURE;
+    if ! [ -f "/.dockerenv" ]; then
+      logW "Cannot run tests as root user";
+      exit $EXIT_FAILURE;
+    fi
   fi
 
   start_project_init "$@";
