@@ -374,7 +374,6 @@ function show_project_init_main_form() {
     done
   fi
 
-  logI "";
   # Check whether we have anything to show
   local total_number_of_langs=${#project_lang_dirs[@]};
   if (( $total_number_of_langs == 0 )); then
@@ -394,6 +393,7 @@ function show_project_init_main_form() {
   # or automatically pick the lang if there is only one available
   if (( $total_number_of_langs > 1 )); then
     FORM_QUESTION_ID="project.language";
+    logI "";
     logI "Select the language to be used:";
     read_user_input_selection "${project_lang_names[@]}";
     selected_lang_index=$USER_INPUT_ENTERED_INDEX;

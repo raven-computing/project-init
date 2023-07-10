@@ -4690,7 +4690,6 @@ function select_project_type() {
     fi
   done
 
-  logI "";
   # Check that at least one project type can be selected
   local n_ptypes=${#project_type_dirs[@]};
   if (( $n_ptypes == 0 )); then
@@ -4706,6 +4705,7 @@ function select_project_type() {
   # only available project type
   if (( $n_ptypes > 1 )); then
     FORM_QUESTION_ID="project.type";
+    logI "";
     logI "Select the type of $lang_name project to be created:";
     read_user_input_selection "${project_type_names[@]}";
     local selected_name=${project_type_names[USER_INPUT_ENTERED_INDEX]};
