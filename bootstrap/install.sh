@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2023 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -54,6 +54,10 @@ INSTALL_PATH_USER=".local/bin";
 
 # Effective user ID
 _EUID=$(id -u);
+
+# A boolean indicating whether the install path was
+# created as a result of the installation process.
+_INSTALLATION_DIR_CREATED=false;
 
 
 # Parses the specified arguments.
@@ -169,7 +173,7 @@ function is_installed() {
 #
 function install_project_init() {
   local install_path="$1";
-  local install_file_name_tmp="pi_file_to_be_installed.sh";
+  local install_file_name_tmp="pi_file_to_be_installed_7a17bd714f823cb5.sh";
   local cmd_exit_status=0;
   local pi_updated=false;
   # Ask for confirmation unless '--yes' option was specified
@@ -214,6 +218,7 @@ function install_project_init() {
   local first_line="$(head -n 1 $install_file_name_tmp)";
   if [[ "$first_line" != "#!/bin/bash" ]]; then
     echo "ERROR: Failed to download resources. Is not a shell script";
+    rm "$install_file_name_tmp" &> /dev/null; # Cleanup
     return 1;
   fi
   # Move the downloaded file to the target installation directory
@@ -221,6 +226,7 @@ function install_project_init() {
   mv "$install_file_name_tmp" "$install_resource";
   if (( $cmd_exit_status != 0 )); then
     echo "ERROR: Failed to install resources under '$install_path'";
+    rm "$install_file_name_tmp" &> /dev/null; # Cleanup
     return 1;
   fi
   # Set owner and group
@@ -228,12 +234,18 @@ function install_project_init() {
   chown "${_user}":"${_user}" "$install_resource";
   if (( $cmd_exit_status != 0 )); then
     echo "ERROR: Failed to set owner of resource '$install_resource'";
+    if [[ $pi_updated == false ]]; then
+      rm "$install_resource" &> /dev/null; # Cleanup
+    fi
     return 1;
   fi
   # Set file permissions
   chmod 755 "$install_resource";
   if (( $cmd_exit_status != 0 )); then
     echo "ERROR: Failed to set file permissions of '$install_resource'";
+    if [[ $pi_updated == false ]]; then
+      rm "$install_resource" &> /dev/null; # Cleanup
+    fi
     return 1;
   fi
   # Check command is available
@@ -242,6 +254,13 @@ function install_project_init() {
     echo "         '$install_path'";
     echo "WARNING: Could not find command '$INSTALL_BIN_NAME'";
     echo "WARNING: Please make sure that the installation directory is on your path.";
+    if [[ ${_INSTALLATION_DIR_CREATED} == true ]]; then
+      if (( ${_EUID} != 0 )); then
+        if [ -n "$HOME" ] && [ -f "${HOME}/.profile" ]; then
+          echo "Hint: You could try to source your shell startup file. Found '~/.profile'";
+        fi
+      fi
+    fi
   fi
   # Finished
   if [[ $pi_updated == true ]]; then
@@ -313,6 +332,7 @@ function main() {
              "directory '$install_path'";
         exit 1;
       fi
+      _INSTALLATION_DIR_CREATED=true;
     fi
   fi
 
