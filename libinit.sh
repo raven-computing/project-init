@@ -4312,12 +4312,12 @@ function project_init_process() {
     _project_init_process_forms;
   fi
 
-  replace_var "PROJECT_NAME"               "$var_project_name";
-  replace_var "PROJECT_NAME_LOWER"         "$var_project_name_lower";
-  replace_var "PROJECT_NAME_UPPER"         "$var_project_name_upper";
-  replace_var "PROJECT_DESCRIPTION"        "$var_project_description";
-  replace_var "PROJECT_DIR"                "$var_project_dir";
-  replace_var "PROJECT_LANG"               "$var_project_lang";
+  replace_var "PROJECT_NAME"        "$var_project_name";
+  replace_var "PROJECT_NAME_LOWER"  "$var_project_name_lower";
+  replace_var "PROJECT_NAME_UPPER"  "$var_project_name_upper";
+  replace_var "PROJECT_DESCRIPTION" "$var_project_description";
+  replace_var "PROJECT_DIR"         "$var_project_dir";
+  replace_var "PROJECT_LANG"        "$var_project_lang";
   _replace_default_subst_vars;
 
   # Call all functions for processing project files in the level order
