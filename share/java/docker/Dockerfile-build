@@ -1,0 +1,30 @@
+###############################################################################
+#                                                                             #
+#     Docker image to build and test the ${{VAR_PROJECT_NAME}} project
+#                                                                             #
+###############################################################################
+FROM ubuntu:22.04
+
+# Arguments
+ARG DWORKDIR="/app"
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Environment
+ENV TZ=UTC
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+
+# Working directory
+WORKDIR $DWORKDIR
+
+# APT dependencies
+RUN apt-get -y update && apt-get -y --no-install-recommends install \
+ openjdk-17-jdk \
+ maven
+
+# Volumes: include the entire source tree
+VOLUME ["$DWORKDIR"]
+
+ENTRYPOINT [".docker/entrypoint.sh"]
+
+CMD ["build"]
+

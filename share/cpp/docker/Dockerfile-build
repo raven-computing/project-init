@@ -1,0 +1,40 @@
+###############################################################################
+#                                                                             #
+#     Docker image to build and test the ${{VAR_PROJECT_NAME}} project
+#                                                                             #
+###############################################################################
+FROM ubuntu:20.04
+
+# Arguments
+ARG DWORKDIR="/app"
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Environment
+ENV TZ=UTC
+
+# Working directory
+WORKDIR $DWORKDIR
+
+# APT dependencies
+RUN apt-get -y update && apt-get -y --no-install-recommends install \
+ build-essential \
+ wget \
+ git \
+ ca-certificates
+
+# Install CMake
+RUN wget -q -O /opt/cmake-installer.sh \
+ https://cmake.org/files/v3.27/cmake-3.27.4-linux-x86_64.sh && \
+ mkdir /opt/cmake && \
+ bash /opt/cmake-installer.sh --prefix=/opt/cmake --exclude-subdir && \
+ ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake && \
+ ln -s /opt/cmake/bin/ctest /usr/local/bin/ctest && \
+ ln -s /opt/cmake/bin/cpack /usr/local/bin/cpack && \
+ rm /opt/cmake-installer.sh
+
+# Volumes: include the entire source tree
+VOLUME ["$DWORKDIR"]
+
+ENTRYPOINT [".docker/entrypoint.sh"]
+
+CMD ["build"]
