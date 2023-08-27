@@ -1,3 +1,12 @@
+#### 1.4.2
+* Fixed wrong handling of special ampersand characters in value of substitution variables when replacing them in the _process_include_directives() function.
+* Fixed minor formatting issues.
+* Improved project source templates.
+* Improved bootstrap installation script.
+* Improved test suite.
+* Refactored Docker-related files in project source templates to be provided by include directives when used more than once.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.4.1...v1.4.2)
+
 #### 1.4.1
 * Fixed some compatibility issues with older Bash versions by avoiding the usage of the '-g' option of the 'declare' builtin.
 * Fixed some compatibility issues with older Bash versions by avoiding the usage of negative indices in string expressions.
