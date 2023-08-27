@@ -3,7 +3,7 @@ include(cmake/DependencyUtil.cmake)
 dependency(
     DEPENDENCY_NAME         imgui
     DEPENDENCY_RESOURCE     ocornut/imgui
-    DEPENDENCY_VERSION      v1.89.5
+    DEPENDENCY_VERSION      v1.89.8
 )
 
 dependency(
