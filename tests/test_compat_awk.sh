@@ -95,16 +95,19 @@ function test_replace_include_directive_from_file() {
   local _include_file_key="the/shared/file/to/include";
   local _include_value=$(cat << EOS
   _INCL_BEGIN_  
-THE_INCLUDED_DATA with an esc slash \/ and dot \.
+THE_INCLUDED_DATA with an esc slash \/ and dot \. and an & ampersand
   _INCL_END_  
 EOS
 )
+
+  _include_value="${_include_value//&/\\&}";
+
   local expected=$(cat << EOS
 Line A
 Line B
 Line C
   _INCL_BEGIN_  
-THE_INCLUDED_DATA with an esc slash \/ and dot \.
+THE_INCLUDED_DATA with an esc slash \/ and dot \. and an & ampersand
   _INCL_END_  
 Line D
 Line E

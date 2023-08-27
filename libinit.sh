@@ -4238,6 +4238,10 @@ function _process_include_directives() {
     fi
     # Read the content of the included file
     include_value="$(cat "$include_target")";
+    # Literal ampersand chars ('&') must be escaped before passing them
+    # to awk because they have a special meaning, i.e. they match the
+    # variable key when substituting.
+    include_value="${include_value//&/\\&}";
     # Read the source file and replace the include directive with
     # the content of the included file. Read the variable value from
     # the environment to make awk use the string value as is
