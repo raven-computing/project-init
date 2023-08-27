@@ -30,7 +30,7 @@ RUN apt-get -y update && apt-get -y install \
  libharfbuzz-dev \
  libfribidi-dev \
  libfontconfig1-dev \
- libfreetype6-dev
+ libfreetype-dev
 
 # R dependencies
 RUN R -e "install.packages(c('devtools', 'Rcpp', 'testthat', 'roxygen2'), dependencies=TRUE)"
