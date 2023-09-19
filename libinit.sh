@@ -2317,11 +2317,11 @@ function finish_project_init() {
     fi
     if [[ ${_FLAG_PROJECT_LICENSE_PROCESSED} == false ]]; then
       _make_func_hl "project_init_license";
-      failure "The script in last init level was executed without a call to the"     \
-              "$HYPERLINK_VALUE function. Please make sure that the 'init.sh'"       \
-              "script in the lowermost init level calls the project_init_license()"  \
-              "function when ready. The function must always be called, even"        \
-              "when no license was selected or there is no intention in using"       \
+      failure "The script in last init level was executed without a call to the"    \
+              "$HYPERLINK_VALUE function. Please make sure that the 'init.sh'"      \
+              "script in the lowermost init level calls the project_init_license()" \
+              "function when ready. The function must always be called, even"       \
+              "when no license was selected or there is no intention in using"      \
               "any license or copyright notice";
     fi
     if [[ ${_FLAG_PROJECT_FILES_PROCESSED} == false ]]; then
