@@ -2227,7 +2227,7 @@ function _replace_default_subst_vars() {
 }
 
 # Shows the start information to the user according to the set configuration.
-function project_init_show_start_info() {
+function _project_init_show_start_info() {
   get_boolean_property "sys.starticon.show" "true";
   if [[ "$PROPERTY_VALUE" == "true" ]]; then
     _show_start_icon;
