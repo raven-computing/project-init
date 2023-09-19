@@ -52,76 +52,10 @@ function process_files_lvl_1() {
   replace_var "NAMESPACE_DECL_END"         "$var_namespace_decl_end";
 
   if [ -n "$var_namespace_path" ]; then
-    # Create namespace directory layout and move source files
-    local path_ns_main="$var_project_dir/src/main/cpp/$var_namespace_path/";
-    local path_ns_include="$var_project_dir/src/main/include/$var_namespace_path/";
-    local path_ns_tests="$var_project_dir/src/main/tests/cpp/$var_namespace_path/";
-    if [ -d "$var_project_dir/src/main/cpp" ]; then
-      mkdir -p "$path_ns_main";
-      if (( $? != 0 )); then
-        failure "Failed to create source code namespace directory:" \
-                "at: '$path_ns_main'";
-      fi
-    fi
-    if [ -d "$var_project_dir/src/main/include" ]; then
-      mkdir -p "$path_ns_include";
-      if (( $? != 0 )); then
-        failure "Failed to create source code namespace directory:" \
-                "at: '$path_ns_include'";
-      fi
-    fi
-    if [ -d "$var_project_dir/src/main/tests" ]; then
-      mkdir -p "$path_ns_tests";
-      if (( $? != 0 )); then
-        failure "Failed to create source code namespace directory:" \
-                "at: '$path_ns_tests'";
-      fi
-    fi
-
-    if [ -d "$var_project_dir/src/main/cpp/namespace" ]; then
-      # Create directory layout for main files
-      for f in $(find "$var_project_dir/src/main/cpp/namespace" -type f); do
-        mv "$f" "$path_ns_main";
-        if (( $? != 0 )); then
-          failure "Failed to move source file into namespace layout directory";
-        fi
-      done
-      # Remove the original now empty placeholder namespace dir
-      rm -r "$var_project_dir/src/main/cpp/namespace/";
-      if (( $? != 0 )); then
-        failure "Failed to remove template source namespace directory";
-      fi
-    fi
-    if [ -d "$var_project_dir/src/main/include/namespace" ]; then
-      # Create directory layout for inlude header files
-      for f in $(find "$var_project_dir/src/main/include/namespace" -type f); do
-        mv "$f" "$path_ns_include";
-        if (( $? != 0 )); then
-          failure "Failed to move source file into namespace layout directory";
-        fi
-      done
-      # Remove the original now empty placeholder namespace dir
-      rm -r "$var_project_dir/src/main/include/namespace/";
-      if (( $? != 0 )); then
-        failure "Failed to remove template source namespace directory";
-      fi
-    fi
-    if [ -d "$var_project_dir/src/main/tests/cpp/namespace" ]; then
-      # Create directory layout for test files
-      for f in $(find "$var_project_dir/src/main/tests/cpp/namespace" -type f); do
-        mv "$f" "$path_ns_tests";
-        if (( $? != 0 )); then
-          failure "Failed to move source file into namespace layout directory";
-        fi
-      done
-      # Remove the original now empty placeholder namespace dir
-      rm -r "$var_project_dir/src/main/tests/cpp/namespace/";
-      if (( $? != 0 )); then
-        failure "Failed to remove template source namespace directory";
-      fi
-    fi
-    # Update file cache
-    find_all_files;
+    expand_namespace_directories "$var_namespace_path"        \
+                                 "src/main/cpp/namespace"     \
+                                 "src/main/include/namespace" \
+                                 "src/main/tests/cpp/namespace";
   fi
 }
 

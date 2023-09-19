@@ -4469,6 +4469,137 @@ function clear_lang_versions() {
 }
 
 # [API function]
+# Expands one or more namespace template directories to have the specified
+# directory layout.
+#
+# In many project source tree structures the concept of a namespace where various
+# source code is placed in is represented by a directory layout that resembles
+# that namespace. One namespace level/component is represented by a separate
+# directory within the source tree. This function can be used to automatically
+# expand a placeholder directory in a project source template structure to match
+# a given namespace layout.
+#
+# The underlying target project directory must already be created before calling
+# this function. At least two arguments must be specified. The first argument
+# denotes the namespace layout to expand the target directories to. Namespace
+# components are separated by slashes ('/'). All subsequent arguments denote the
+# directories in the project template source tree that should be expanded to
+# represent the given namespace. Multiple such directories can be specified in one
+# function call at once for improved efficiency, but at least one must be specified.
+# Each specified directory path must be relative to the root of the project source
+# template directory.
+#
+# The file cache holding the data about all present files in the project directory
+# to be initialized is automatically updated by this function.
+# This function may not be used in Quickstart mode.
+#
+# Args:
+# $1 - The namespace to use when expanding the specified template directories.
+#      Individual namespace levels are separated by '/' characters, however,
+#      a namespace must not start or end with a slash.
+#      This is a mandatory argument.
+# $@ - The namespace template directories to expand, relative to the project
+#      template source root directory. This is a mandatory argument. At least
+#      one directory must be provided by the caller.
+#
+# Examples:
+# # The following example expands 'ns_template_dir' in the source tree
+# # (as a subdirectory of 'src/main') to represent
+# # the 'raven/sample/stuff' namespace.
+# 
+# expand_namespace_directories "raven/sample/stuff" "src/main/ns_template_dir";
+#
+# # Now the project template directory structure is:
+# # 'src/main/raven/sample/stuff'
+#
+function expand_namespace_directories() {
+  local arg_namespace="$1";
+  shift;
+  local arg_project_paths=("$@");
+
+  if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
+  _make_func_hl "expand_namespace_directories";
+  local _hl_thisf="$HYPERLINK_VALUE";
+  _make_func_hl "project_init_copy";
+  local _hl_pic="$HYPERLINK_VALUE";
+  logE "Programming error in init script:";
+  logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+  failure "Missing call to project_init_copy() function:"                        \
+          "When calling the ${_hl_thisf} function, the target project directory" \
+          "must already be created. "                                            \
+          "Make sure you first call the ${_hl_pic} function in your init script";
+  fi
+
+  if [ -z "$arg_namespace" ]; then
+    _make_func_hl "expand_namespace_directories";
+    logE "Programming error: Illegal function call:";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
+            "No namespace argument specified";
+  fi
+  if (( ${#arg_project_paths[@]} == 0 )); then
+    _make_func_hl "expand_namespace_directories";
+    logE "Programming error: Illegal function call:";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
+            "No project directory paths specified";
+  fi
+
+  local path_source="";
+  local path_source_parent="";
+  local path_target="";
+  local project_path="";
+  local f="";
+  for project_path in "${arg_project_paths[@]}"; do
+    if _is_absolute_path "$project_path"; then
+      logW "Omitting expansion of invalid namespace template directory.";
+      logW "Path must not be absolute: '$project_path'";
+      continue;
+    fi
+    path_source="${var_project_dir}/${project_path}";
+    if ! [ -d "$path_source" ]; then
+      continue;
+    fi
+
+    path_source_parent="$(dirname "$path_source")";
+    path_target="${path_source_parent}/${arg_namespace}";
+
+    # The beginning (i.e. the name of the first directory) of the target
+    # namespace layout path must not be the same as the namespace template
+    # directory, otherwise we would overwrite the same directory
+    if [[ "${path_source##*/}" == "${arg_namespace%%/*}" ]]; then
+      logW "Cannot expand namespace template directory:";
+      logW "at: '$path_source'";
+      logW "The specified namespace '$arg_namespace' begins with the end of this path.";
+      continue;
+    fi
+
+    # Create the target namespace directory layout
+    if ! mkdir -p "$path_target"; then
+      failure "Failed to create namespace target directory structure: " \
+              "at: '$path_target'";
+    fi
+
+    # Move all files and subdirectories that are direct children of the
+    # namespace template source to the created real namespace directory
+    for f in $(find "$path_source" -mindepth 1 -maxdepth 1); do
+      if ! mv "$f" "$path_target"; then
+        failure "Failed to move file to namespace layout target directory: " \
+                "Source: '$f' " \
+                "Target: '$path_target'";
+      fi
+    done
+    # Remove the original now empty placeholder namespace dir
+    if ! rm -r "$path_source"; then
+      failure "Failed to remove template source namespace directory: " \
+              "at: '$path_source'";
+    fi
+  done
+  # Update file cache
+  find_all_files;
+}
+
+# [API function]
 # Prompts the user to select the next init directory.
 #
 # This function searches for subordinate init level directories under the currently
