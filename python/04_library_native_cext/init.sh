@@ -22,29 +22,6 @@
 # #***************************************************************************#
 
 
-function process_files_lvl_2() {
-  # Move C source files to "c" directory within the Python package
-  local path_source="$var_project_dir/$var_namespace_path/";
-  local path_source_c="$path_source/c/";
-  # Ensure that C source dir exists
-  if ! [ -d "$path_source_c" ]; then
-    mkdir -p "$path_source_c";
-    if (( $? != 0 )); then
-      failure "Failed to create directory for C source files";
-    fi
-  fi
-  # Move C source files
-  for f in $(find "$path_source" -type f -name '*.c'); do
-    mv "$f" "$path_source_c";
-    if (( $? != 0 )); then
-      failure "Failed to move C source file into corresponding directory";
-    fi
-  done
-  # Update file cache
-  find_all_files;
-}
-
-
 # Form questions
 
 form_python_version;
