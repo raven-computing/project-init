@@ -141,18 +141,18 @@
 # be shown to the user. This has to be provided separately. However, as part
 # of the API contract, any consuming component must ensure that the library
 # lifecycle functions are called in the appropriate order. That is:
-#   * start_project_init()
-#   * finish_project_init()
+#   * project_init_start()
+#   * project_init_finish()
 #
 # In between these function calls, a consuming component may use any
 # provided API function to implement a concrete project initialization form
 # and descend into more init levels.
 #
-# When the arguments given to the start_project_init() lifecycle function
+# When the arguments given to the project_init_start() lifecycle function
 # result in the activation of the Quickstart mode,
 # the PROJECT_INIT_QUICKSTART_REQUESTED global variable is set to true and
 # the consuming component may proceed by calling the
-# process_project_init_quickstart() function to load and execute
+# project_init_process_quickstart() function to load and execute
 # the requested Quickstart function.
 #
 # The developer documentation is available under on GitHub:
@@ -2243,7 +2243,7 @@ function project_init_show_start_info() {
 }
 
 # Startup function for the Project Init system.
-function start_project_init() {
+function project_init_start() {
   # Keep track of the current working directory of the user when he
   # executed the main script, even though we change it below to make
   # it easier throughout the Project Init system.
@@ -2305,7 +2305,7 @@ function start_project_init() {
 }
 
 # Finish function for the Project Init system.
-function finish_project_init() {
+function project_init_finish() {
   if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == false ]]; then
     # Check that all API functions have been called
     if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
@@ -2368,7 +2368,7 @@ function finish_project_init() {
 }
 
 # Primary processing function for the quickstart mode.
-function process_project_init_quickstart() {
+function project_init_process_quickstart() {
   _load_version_base;
 
   if (( ${#ARG_QUICKSTART_NAMES[@]} == 0 )); then
