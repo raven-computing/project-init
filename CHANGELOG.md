@@ -1,3 +1,9 @@
+#### 1.4.3
+* Added language version support for Java 21.
+* Changed Java example namespace for form question.
+* Fixed minor formatting issue.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.4.2...v1.4.3)
+
 #### 1.4.2
 * Fixed wrong handling of special ampersand characters in value of substitution variables when replacing them in the _process_include_directives() function.
 * Fixed minor formatting issues.
