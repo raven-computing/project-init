@@ -56,6 +56,10 @@ function process_files_lvl_1() {
   replace_var "NAMESPACE_DECLARATION_0"            "$var_namespace_0";
   replace_var "NAMESPACE_DECLARATION_TRAILING_SEP" "$var_namespace_trailing_sep";
 
+  if [[ "$var_project_integration_docker_enabled" == "1" && "$var_java_version" == "21" ]]; then
+    logW "Docker integration is not yet supported when using JDK 21";
+  fi
+
   if [ -z "$var_namespace" ]; then
     replace_var "NAMESPACE_PACKAGE_DECLARATION" "";
   else
@@ -240,6 +244,7 @@ set_database_system "Other" "OTHER";
 add_lang_version "1.8" "Java 8";
 add_lang_version "11" "Java 11";
 add_lang_version "17" "Java 17";
+add_lang_version "21" "Java 21";
 
 select_project_type "java" "Java";
 selected_name="$FORM_PROJECT_TYPE_NAME";

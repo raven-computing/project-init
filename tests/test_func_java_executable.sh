@@ -33,9 +33,6 @@ function test_functionality_result() {
   files+=("src/main/java/raven/mynsa/mynsb/Main.java");
   files+=("src/test/java/raven/mynsa/mynsb/MainTest.java");
   files+=("src/test/java/raven/mynsa/mynsb/MainTests.java");
-  files+=(".docker/controls.sh");
-  files+=(".docker/Dockerfile-build");
-  files+=(".docker/entrypoint.sh");
 
   local not_files=();
   not_files+=("LICENSE");
@@ -47,7 +44,6 @@ function test_functionality_result() {
   dirs+=("src/test/java/raven");
   dirs+=("src/test/java/raven/mynsa");
   dirs+=("src/test/java/raven/mynsa/mynsb");
-  dirs+=(".docker");
 
   local not_dirs=();
   not_dirs+=("src/main/java/namespace");
