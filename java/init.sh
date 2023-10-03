@@ -194,7 +194,7 @@ function form_java_namespace() {
   FORM_QUESTION_ID="java.namespace";
   logI "";
   logI "Enter the namespace of the main class in dot notation.";
-  get_property "java.namespace.example" "com.raven.myproject";
+  get_property "java.namespace.example" "raven.myproject";
   local j_namespace_example="$PROPERTY_VALUE";
   logI "For example: '$j_namespace_example'";
   read_user_input_text _validate_java_namespace;
