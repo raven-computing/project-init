@@ -1,3 +1,9 @@
+#### 1.4.4
+* Improved Python server application project source template. Added support in the project control code for interactive testing.
+* Updated Docker image for Python projects to use Python 3.12 as the base image.
+* Updated Node.js versions. Removed v14, added v20.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.4.3...v1.4.4)
+
 #### 1.4.3
 * Added language version support for Java 21.
 * Changed Java example namespace for form question.
