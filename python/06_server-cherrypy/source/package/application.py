@@ -2,6 +2,8 @@ ${{VAR_COPYRIGHT_HEADER}}
 """HTTP server main entry point."""
 
 import sys
+import platform
+
 from datetime import datetime
 
 import cherrypy
@@ -33,6 +35,11 @@ def main():
             "tools.sessions.on": True
         }
     }
+
+    cherrypy.log(f"Running on Python {platform.python_version()}")
+    if len(sys.argv) > 1:
+        cherrypy.log("Args: " + str(sys.argv[1:]))
+
     cherrypy.quickstart(Controller(), "/", config)
     return 0
 

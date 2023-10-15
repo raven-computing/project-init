@@ -9,6 +9,12 @@ Tests the ${{VAR_PROJECT_NAME}} server application.
 ${USAGE}
 
 Options:
+
+  [--interactive]   [args]
+                    Starts the server application for interactive testing.
+                    All optional arguments from [args] are passed to the application as is.
+                    If specified, this must be the last given option as all subsequent
+                    arguments will be interpreted as being part of the [args] option argument.
 ${{VAR_SCRIPT_TEST_ISOLATED_OPT}}
 
 ${{VAR_SCRIPT_TEST_LINT_HELP}}
@@ -20,16 +26,29 @@ EOS
 )
 
 # Arg flags
+ARG_INTERACTIVE=false;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGFLAG}}
 ${{VAR_SCRIPT_TEST_LINT_ARG}}
 ARG_NO_VIRTUALENV=false;
 ARG_SHOW_HELP=false;
 
+app_args=();
+
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY}}
 
 # Parse all arguments given to this script
 for arg in "$@"; do
+  if [[ $ARG_INTERACTIVE == true ]]; then
+    app_args+=("$arg");
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    continue;
+  fi
   case $arg in
+    --interactive)
+    ARG_INTERACTIVE=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGPARSE}}
 ${{VAR_SCRIPT_TEST_LINT_ARG_PARSE}}
     --no-virtualenv)
@@ -70,6 +89,11 @@ if [[ $ARG_NO_VIRTUALENV == false ]]; then
   if ! setup_virtual_env; then
     exit 1;
   fi
+fi
+
+if [[ $ARG_INTERACTIVE == true ]]; then
+  python main.py ${app_args[@]};
+  exit $?;
 fi
 
 ${{VAR_SCRIPT_TEST_LINT_CODE}}
