@@ -59,9 +59,9 @@ function form_nodejs_version() {
 
 # Specify supported versions for Node.js
 # We use the standard API for language version specification for now
-add_lang_version "14" "Node.js 14";
 add_lang_version "16" "Node.js 16";
 add_lang_version "18" "Node.js 18";
+add_lang_version "20" "Node.js 20";
 
 # Let the user choose a JavaScript project type
 select_project_type "js" "JavaScript";
