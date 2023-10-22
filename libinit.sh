@@ -4839,7 +4839,7 @@ function proceed_next_level() {
     logE "Cannot source init script for level $CURRENT_LVL_NUMBER";
     _show_helptext "E" "Introduction#init-scripts";
     failure "Failed to source init script for next init level." \
-            "File does not exist: "                           \
+            "File does not exist: "                             \
             "at: '$next_lvl_script'";
   fi
 
