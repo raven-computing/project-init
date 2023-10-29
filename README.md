@@ -63,7 +63,7 @@ Currently, we only officially support Linux/Debian-based systems. Although in pr
 
 The Project Init system requires some very common utilities, e.g. *awk* and *grep*, which should be available on pretty much any system. See the [dependencies.txt](dependencies.txt) file for a full list.
 
-The program uses fairly common arguments when calling external utilities. They should by supported by most versions found by default on common Linux distributions. However, if you're unsure whether your system meets all requirements, you can run compatibility tests. See the [Tests](#tests) Section for more information.
+The program uses fairly common arguments when calling external utilities. They should be supported by most versions found by default on common Linux distributions. However, if you're unsure whether your system meets all requirements, you can run compatibility tests. See the [Tests](#tests) Section for more information.
 
 ## Documentation
 
