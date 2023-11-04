@@ -560,18 +560,29 @@ def parse_source_file(src_file):
         source = file.read()
 
     source = source.splitlines()
+    nlines = len(source)
     doc_lines = []
     for i, line in enumerate(source, 1):
         if line.startswith("# [API "):
             i_comment_end = i
             while source[i_comment_end].startswith("#"):
                 i_comment_end += 1
+                if i_comment_end >= nlines:
+                    warn(
+                        "Source file has trailing documentation segment "
+                        f"without any code lines: '{src_file}' (at line {i})"
+                    )
+                    break
 
-            doc_lines.append(slice(i-1, i_comment_end+1))
+            if not INCORRECT_FORMAT:
+                doc_lines.append(slice(i-1, i_comment_end+1))
 
     doc_segments = []
     for doc in doc_lines:
-        doc_segments.append(parse_doc_segment(src_file, source, doc))
+        try:
+            doc_segments.append(parse_doc_segment(src_file, source, doc))
+        except IndexError:
+            warn(f"Invalid documentation format in source file: '{src_file}'")
 
     parsed = {
         "file": src_file,
