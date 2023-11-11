@@ -88,7 +88,7 @@ function main() {
   if (( $(id -u) == 0 )); then
     if ! [ -f "/.dockerenv" ]; then
       logW "Cannot run tests as root user";
-      exit $EXIT_FAILURE;
+      return $EXIT_FAILURE;
     fi
   fi
 
@@ -102,7 +102,7 @@ function main() {
     if ! mkdir -p "${_PROJECT_INIT_QUICKSTART_OUTPUT_DIR}"; then
       logE "Failed to create Quickstart test output directory:";
       logE "at: '${_PROJECT_INIT_QUICKSTART_OUTPUT_DIR}'";
-      exit $EXIT_FAILURE;
+      return $EXIT_FAILURE;
     fi
     process_project_init_quickstart;
   else
@@ -119,7 +119,7 @@ function main() {
     logE " |          Test run finished with errors          |";
     logE " o-------------------------------------------------o";
     logE "";
-    exit $EXIT_FAILURE;
+    return $EXIT_FAILURE;
   fi
 
   local n_warnings=${#_WARNING_LOG[@]};
@@ -130,9 +130,9 @@ function main() {
     logW " |         Test run finished with warnings         |";
     logW " o-------------------------------------------------o";
     logW "";
-    exit $EXIT_FAILURE;
+    return $EXIT_FAILURE;
   fi
-  exit $EXIT_SUCCESS;
+  return $EXIT_SUCCESS;
 
 }
 
