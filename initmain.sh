@@ -43,7 +43,7 @@ function main() {
   if (( $(id -u) == 0 )); then
     logW "There is no need for this program to be executed by the root user.";
     logW "Please use a regular user instead";
-    exit $EXIT_FAILURE;
+    return $EXIT_FAILURE;
   fi
 
   start_project_init "$@";
@@ -57,7 +57,7 @@ function main() {
 
   finish_project_init;
 
-  exit $?;
+  return $?;
 }
 
 main "$@";
