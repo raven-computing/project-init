@@ -1,3 +1,12 @@
+#### 1.4.5
+* Improved bootstrap scripts.
+* Improved documentation generator.
+* Improved main driver script.
+* Improved Python native library with Cython project source template to use Cython v3.
+* Improved bootstrap run script by allowing it to be executed as root while in a Docker container. [[Issue#3]](https://github.com/raven-computing/project-init/issues/3)
+* Improved Docker integration in project source templates by providing better support for non-rootless Docker.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.4.4...v1.4.5)
+
 #### 1.4.4
 * Improved Python server application project source template. Added support in the project control code for interactive testing.
 * Updated Docker image for Python projects to use Python 3.12 as the base image.
