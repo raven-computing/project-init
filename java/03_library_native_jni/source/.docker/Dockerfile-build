@@ -6,15 +6,14 @@
 FROM ubuntu:22.04
 
 # Arguments
-ARG DWORKDIR="/app"
+ARG UID=0
+ARG GID=0
+ARG DWORKDIR="/${{VAR_PROJECT_NAME_LOWER}}"
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Environment
 ENV TZ=UTC
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-
-# Working directory
-WORKDIR $DWORKDIR
 
 # APT dependencies
 RUN apt-get -y update && apt-get -y --no-install-recommends install \
@@ -24,6 +23,25 @@ RUN apt-get -y update && apt-get -y --no-install-recommends install \
  cmake \
  git \
  ca-certificates
+
+
+# Conditionally add regular user and his primary group.
+# If both the GID and UID build arguments were specified to be non-zero,
+# a separate regular user and group named 'user' are created with those IDs.
+# This makes sense with non-rootless Docker, in which case using root inside
+# a container is discouraged.
+# However, when using rootless Docker, a separate regular user is not required
+# so if GID or UID is zero, the user and group are not added.
+RUN if [ $GID -ne 0 ] && [ $UID -ne 0 ]; then \
+  addgroup --gid $GID user && \
+  adduser --uid $UID --gid $GID --disabled-password --gecos '' user; \
+ fi
+
+# Use the user with the specified UID and GID
+USER $UID:$GID
+
+# Working directory
+WORKDIR "$DWORKDIR"
 
 # Volumes: include the entire source tree
 VOLUME ["$DWORKDIR"]

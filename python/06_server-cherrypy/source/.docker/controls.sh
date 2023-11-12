@@ -43,10 +43,26 @@ function _check_docker() {
 # The exit status of the docker build command.
 #
 function _docker_build() {
+  local uid=0;
+  local gid=0;
+  local workdir="/${{VAR_PROJECT_NAME_LOWER}}";
+  # When using non-rootless Docker, the user inside the container should be a
+  # regular user. We assign him the same UID and GID as the underlying host
+  # user so that there are no conflicts when bind-mounting the source tree.
+  # However, when rootless Docker is used, we want to use the root user inside
+  # the container as it essentially maps to the underlying host user from
+  # a security point of view.
+  if ! docker info 2>/dev/null |grep -q "rootless"; then
+    uid=$(id -u);
+    gid=$(id -g);
+    workdir="/home/user${workdir}";
+  fi
   logI "Building Docker image";
-  docker build --build-arg DWORKDIR="${PWD}"                         \
-               -t ${CONTAINER_BUILD_NAME}:${CONTAINER_BUILD_VERSION} \
-               -f .docker/${CONTAINER_BUILD_DOCKERFILE} .
+  docker build --build-arg UID=${uid}                                   \
+               --build-arg GID=${gid}                                   \
+               --build-arg DWORKDIR="${workdir}"                        \
+               --tag ${CONTAINER_BUILD_NAME}:${CONTAINER_BUILD_VERSION} \
+               --file .docker/${CONTAINER_BUILD_DOCKERFILE} .
 
   return $?;
 }
@@ -76,13 +92,22 @@ function _run_isolated() {
     return $?;
   fi
 
+  local uid=0;
+  local gid=0;
+  local workdir="/${{VAR_PROJECT_NAME_LOWER}}";
+  if ! docker info 2>/dev/null |grep -q "rootless"; then
+    uid=$(id -u);
+    gid=$(id -g);
+    workdir="/home/user${workdir}";
+  fi
   logI "Executing isolated $run_type";
-  docker run --name ${CONTAINER_BUILD_NAME}                     \
-             --mount type=bind,source=${PWD},target=${PWD}      \
-             --rm                                               \
-             --tty                                              \
-             ${CONTAINER_BUILD_NAME}:${CONTAINER_BUILD_VERSION} \
-             "$run_type"                                        \
+  docker run --name ${CONTAINER_BUILD_NAME}                        \
+             --mount type=bind,source="${PWD}",target="${workdir}" \
+             --user ${uid}:${gid}                                  \
+             --rm                                                  \
+             --tty                                                 \
+             ${CONTAINER_BUILD_NAME}:${CONTAINER_BUILD_VERSION}    \
+             "$run_type"                                           \
              "$@";
 
   return $?;
@@ -112,16 +137,25 @@ function _start_interactive_isolated_tests() {
     return $?;
   fi
 
+  local uid=0;
+  local gid=0;
+  local workdir="/${{VAR_PROJECT_NAME_LOWER}}";
+  if ! docker info 2>/dev/null |grep -q "rootless"; then
+    uid=$(id -u);
+    gid=$(id -g);
+    workdir="/home/user${workdir}";
+  fi
   logI "Starting isolated Docker container for interactive testing";
-  docker run --name ${CONTAINER_BUILD_NAME}                     \
-             --interactive                                      \
-             --tty                                              \
-             --init                                             \
-             --mount type=bind,source=${PWD},target=${PWD}      \
-             --rm                                               \
-             --publish 8080:8080                                \
-             ${CONTAINER_BUILD_NAME}:${CONTAINER_BUILD_VERSION} \
-             "tests"                                            \
+  docker run --name ${CONTAINER_BUILD_NAME}                        \
+             --interactive                                         \
+             --tty                                                 \
+             --init                                                \
+             --mount type=bind,source="${PWD}",target="${workdir}" \
+             --user ${uid}:${gid}                                  \
+             --rm                                                  \
+             --publish 8080:8080                                   \
+             ${CONTAINER_BUILD_NAME}:${CONTAINER_BUILD_VERSION}    \
+             "tests"                                               \
              "$@";
 
   return $?;
