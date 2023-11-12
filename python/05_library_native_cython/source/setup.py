@@ -33,13 +33,7 @@ if os.getenv("CYTHON_BUILD_ANNOTATION", "0") == "1":
 ext_modules = cythonize(
     ext_modules,
     build_dir="build/cython",
-    annotate=annotation_enabled,
-    compiler_directives={
-        # Cython 0.x.x uses a language level for Python 2
-        # by default. Once Cython 3.x.x is released, you could
-        # remove this compiler directive
-        "language_level": "3"
-    }
+    annotate=annotation_enabled
 )
 
 setup(

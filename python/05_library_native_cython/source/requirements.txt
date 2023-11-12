@@ -1,4 +1,4 @@
-cython==0.29.32
+cython==3.0.5
 ${{VAR_REQUIREMENTS_LINT}}
 ${{VAR_REQUIREMENTS_DEPLOY}}
 build==0.7.0
