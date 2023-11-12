@@ -177,7 +177,7 @@ function main() {
     if ! [ -f "/.dockerenv" ]; then
       echo "WARNING: There is no need for this program to be executed by the root user.";
       echo "Please use a regular user instead.";
-      exit 1;
+      return 1;
     fi
   fi
   arg_version_str=false;
@@ -207,12 +207,12 @@ function main() {
   if ! command -v "git" &> /dev/null; then
     echo "Could not find the 'git' executable.";
     echo "Please make sure that git is correctly installed.";
-    exit 1;
+    return 1;
   fi
   if ! command -v "mktemp" &> /dev/null; then
     echo "Could not find the 'mktemp' executable.";
     echo "Please make sure that mktemp is correctly installed.";
-    exit 1;
+    return 1;
   fi
   local cmd_exit_status=0;
   # Save the CWD and restore it before starting initmain
@@ -222,7 +222,7 @@ function main() {
   if (( $cmd_exit_status != 0 )); then
     echo "ERROR: Failed to change active working directory" \
          "to $PROJECT_INIT_CACHE_LOCATION";
-    exit 1;
+    return 1;
   fi
   if [[ $arg_no_cache == true ]]; then
     remove_cache_data;
@@ -258,7 +258,7 @@ function main() {
   if [[ $arg_no_cache == true ]]; then
     remove_cache_data;
   fi
-  exit $exit_status;
+  return $exit_status;
 }
 
 main "$@";

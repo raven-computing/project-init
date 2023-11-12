@@ -321,7 +321,7 @@ function main() {
   else
     if [ -z "$HOME" ]; then
       echo "ERROR: Environment variable 'HOME' is not set.";
-      exit 1;
+      return 1;
     fi
     install_path="${HOME}/${INSTALL_PATH_USER}";
     if ! [ -d "$install_path" ]; then
@@ -330,7 +330,7 @@ function main() {
       if (( $? != 0 )); then
         echo "ERROR: Failed to create user-wide installation" \
              "directory '$install_path'";
-        exit 1;
+        return 1;
       fi
       _INSTALLATION_DIR_CREATED=true;
     fi
@@ -342,7 +342,7 @@ function main() {
   else
     install_project_init "$install_path";
   fi
-  exit $?;
+  return $?;
 }
 
 main "$@";
