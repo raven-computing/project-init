@@ -6,7 +6,6 @@ if [[ $ARG_LINT == true ]]; then
     exit 1;
   fi
   logI "Performing static code analysis";
-  # Add project root to sys.path. Needed for namespace packages
-  pylint --init-hook="sys.path.append('.')" "${_PROJECT_SRC_PACKAGE_MAIN}";
+  pylint "${_PROJECT_SRC_PACKAGE_MAIN}";
   exit 0;
 fi
