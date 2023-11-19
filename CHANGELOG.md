@@ -1,3 +1,7 @@
+#### 1.4.6
+* Improved Python project source templates, updated Pylint version. [[Issue#5]](https://github.com/raven-computing/project-init/issues/5)
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.4.5...v1.4.6)
+
 #### 1.4.5
 * Improved bootstrap scripts.
 * Improved documentation generator.
