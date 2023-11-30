@@ -4475,9 +4475,11 @@ function clear_lang_versions() {
 # In many project source tree structures the concept of a namespace where various
 # source code is placed in is represented by a directory layout that resembles
 # that namespace. One namespace level/component is represented by a separate
-# directory within the source tree. This function can be used to automatically
+# subdirectory within the source tree. This function can be used to automatically
 # expand a placeholder directory in a project source template structure to match
-# a given namespace layout.
+# a given namespace layout. All files and subdirectories located within the
+# template's namespace placeholder directory are moved to the expanded
+# subdirectory of the lowermost namespace component.
 #
 # The underlying target project directory must already be created before calling
 # this function. At least two arguments must be specified. The first argument
@@ -4487,11 +4489,14 @@ function clear_lang_versions() {
 # represent the given namespace. Multiple such directories can be specified in one
 # function call at once for improved efficiency, but at least one must be specified.
 # Each specified directory path must be relative to the root of the project source
-# template directory.
+# template directory. Arguments must never denote absolute paths.
 #
 # The file cache holding the data about all present files in the project directory
 # to be initialized is automatically updated by this function.
 # This function may not be used in Quickstart mode.
+#
+# Since:
+# 1.5.0
 #
 # Args:
 # $1 - The namespace to use when expanding the specified template directories.
@@ -4519,14 +4524,14 @@ function expand_namespace_directories() {
 
   if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
   _make_func_hl "expand_namespace_directories";
-  local _hl_thisf="$HYPERLINK_VALUE";
+  local _hl_this="$HYPERLINK_VALUE";
   _make_func_hl "project_init_copy";
   local _hl_pic="$HYPERLINK_VALUE";
   logE "Programming error in init script:";
   logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-  failure "Missing call to project_init_copy() function:"                        \
-          "When calling the ${_hl_thisf} function, the target project directory" \
-          "must already be created. "                                            \
+  failure "Missing call to project_init_copy() function:"                       \
+          "When calling the ${_hl_this} function, the target project directory" \
+          "must already be created. "                                           \
           "Make sure you first call the ${_hl_pic} function in your init script";
   fi
 
@@ -4576,27 +4581,31 @@ function expand_namespace_directories() {
 
     # Create the target namespace directory layout
     if ! mkdir -p "$path_target"; then
-      failure "Failed to create namespace target directory structure: " \
-              "at: '$path_target'";
+      logE "Failed to create namespace target directory structure:";
+      logE "at: '$path_target'";
+      failure "Failed to create target namespace";
     fi
 
     # Move all files and subdirectories that are direct children of the
     # namespace template source to the created real namespace directory
     for f in $(find "$path_source" -mindepth 1 -maxdepth 1); do
       if ! mv "$f" "$path_target"; then
-        failure "Failed to move file to namespace layout target directory: " \
-                "Source: '$f' " \
-                "Target: '$path_target'";
+        logE "Failed to move file to namespace layout target directory:";
+        logE "Source: '$f' ";
+        logE "Target: '$path_target'";
+        failure "Failed to move source files to target namespace";
       fi
     done
     # Remove the original now empty placeholder namespace dir
     if ! rm -r "$path_source"; then
-      failure "Failed to remove template source namespace directory: " \
-              "at: '$path_source'";
+      logE "Failed to remove template source namespace placeholder directory:";
+      logE "at: '$path_source'";
+      failure "Failed to expand namespace directory";
     fi
   done
   # Update file cache
   find_all_files;
+  return 0;
 }
 
 # [API function]
