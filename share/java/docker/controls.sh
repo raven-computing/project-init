@@ -42,6 +42,7 @@ function _run_isolated() {
 
   local uid=0;
   local gid=0;
+  local user_home="/root";
   local workdir="/${{VAR_PROJECT_NAME_LOWER}}";
   # When using non-rootless Docker, the user inside the container should be a
   # regular user. We assign him the same UID and GID as the underlying host
@@ -52,7 +53,8 @@ function _run_isolated() {
   if ! docker info 2>/dev/null |grep -q "rootless"; then
     uid=$(id -u);
     gid=$(id -g);
-    workdir="/home/user${workdir}";
+    user_home="/home/user";
+    workdir="${user_home}${workdir}";
   fi
   echo "Building Docker image";
   docker build --build-arg UID=${uid}                                   \
@@ -66,13 +68,14 @@ function _run_isolated() {
   fi
 
   echo "Executing isolated $run_type";
-  docker run --name ${CONTAINER_BUILD_NAME}                        \
-             --mount type=bind,source="${PWD}",target="${workdir}" \
-             --user ${uid}:${gid}                                  \
-             --rm                                                  \
-             --tty                                                 \
-             ${CONTAINER_BUILD_NAME}:${CONTAINER_BUILD_VERSION}    \
-             "$run_type"                                           \
+  docker run --name ${CONTAINER_BUILD_NAME}                                \
+             --mount type=bind,source="${PWD}",target="${workdir}"         \
+             --mount type=volume,source=maven-m2,target="${user_home}/.m2" \
+             --user ${uid}:${gid}                                          \
+             --rm                                                          \
+             --tty                                                         \
+             ${CONTAINER_BUILD_NAME}:${CONTAINER_BUILD_VERSION}            \
+             "$run_type"                                                   \
              "$@";
 
   return $?;
