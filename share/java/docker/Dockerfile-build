@@ -36,6 +36,15 @@ RUN if [ $GID -ne 0 ] && [ $UID -ne 0 ]; then \
 # Use the user with the specified UID and GID
 USER $UID:$GID
 
+# Create .m2 directory for Maven with the above user.
+# If the Maven .m2 repository is persisted via a volume and does not exist when
+# the container is started, the Docker deamon will create the target directory
+# automatically. Thus, when using non-rootless, the directory will have root
+# ownership and the regular user won't be able to write to it. We therefore
+# make sure that the .m2 directory already exists and is owned
+# by the correct user.
+RUN mkdir -p ~/.m2
+
 # Working directory
 WORKDIR "$DWORKDIR"
 
