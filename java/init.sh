@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -55,10 +55,6 @@ function process_files_lvl_1() {
   replace_var "NAMESPACE_DECLARATION"              "$var_namespace";
   replace_var "NAMESPACE_DECLARATION_0"            "$var_namespace_0";
   replace_var "NAMESPACE_DECLARATION_TRAILING_SEP" "$var_namespace_trailing_sep";
-
-  if [[ "$var_project_integration_docker_enabled" == "1" && "$var_java_version" == "21" ]]; then
-    logW "Docker integration is not yet supported when using JDK 21";
-  fi
 
   if [ -z "$var_namespace" ]; then
     replace_var "NAMESPACE_PACKAGE_DECLARATION" "";
