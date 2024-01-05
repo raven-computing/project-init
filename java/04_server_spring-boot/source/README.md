@@ -10,7 +10,7 @@ This section should be used to instruct the user on how to accomplish the most b
 
 ## Compatibility
 
-This application requires Java ${{VAR_JAVA_VERSION}}.
+This application requires Java ${{VAR_JAVA_VERSION}} or higher.
 
 
 ## Documentation

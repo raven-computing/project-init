@@ -10,7 +10,7 @@ This section should be used to instruct the user on how to accomplish the most b
 
 ## Compatibility
 
-This library requires Java ${{VAR_JAVA_VERSION}}.  
+This library requires Java ${{VAR_JAVA_VERSION}} or higher.  
 Specify here the platforms the library is compatible to.  
 Are there any special system dependencies to be aware of?
 
