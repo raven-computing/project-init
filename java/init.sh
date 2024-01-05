@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -51,7 +51,6 @@ function process_files_lvl_1() {
   replace_var "PROJECT_ARTIFACT_ID"                "$var_project_artifact_id";
   replace_var "JAVA_VERSION"                       "$var_java_version";
   replace_var "JAVA_VERSION_LABEL"                 "$var_java_version_label";
-  replace_var "JAVA_VERSION_POM"                   "$var_java_version_pom";
   replace_var "NAMESPACE_DECLARATION"              "$var_namespace";
   replace_var "NAMESPACE_DECLARATION_0"            "$var_namespace_0";
   replace_var "NAMESPACE_DECLARATION_TRAILING_SEP" "$var_namespace_trailing_sep";
@@ -59,6 +58,19 @@ function process_files_lvl_1() {
   if [[ "$var_project_integration_docker_enabled" == "1" && "$var_java_version" == "21" ]]; then
     logW "Docker integration is not yet supported when using JDK 21";
   fi
+
+  # Check for Java 8 compatibility requirement and adjust the POM based on that.
+  if [[ "$var_java_version" == "1.8" ]]; then
+    replace_var "POM_PROPERTIES" "";
+    load_var_from_file "POM_PROFILES";
+    replace_var "POM_PROFILES" "$VAR_FILE_VALUE";
+  else
+    load_var_from_file "POM_PROPERTIES";
+    replace_var "POM_PROPERTIES" "$VAR_FILE_VALUE";
+    replace_var "POM_PROFILES" "";
+  fi
+
+  replace_var "JAVA_VERSION_POM" "$var_java_version_pom";
 
   if [ -z "$var_namespace" ]; then
     replace_var "NAMESPACE_PACKAGE_DECLARATION" "";
