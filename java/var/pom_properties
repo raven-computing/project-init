@@ -1,0 +1,1 @@
+    <maven.compiler.release>${{VAR_JAVA_VERSION_POM}}</maven.compiler.release>
