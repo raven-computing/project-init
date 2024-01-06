@@ -55,10 +55,6 @@ function process_files_lvl_1() {
   replace_var "NAMESPACE_DECLARATION_0"            "$var_namespace_0";
   replace_var "NAMESPACE_DECLARATION_TRAILING_SEP" "$var_namespace_trailing_sep";
 
-  if [[ "$var_project_integration_docker_enabled" == "1" && "$var_java_version" == "21" ]]; then
-    logW "Docker integration is not yet supported when using JDK 21";
-  fi
-
   # Check for Java 8 compatibility requirement and adjust the POM based on that.
   if [[ "$var_java_version" == "1.8" ]]; then
     replace_var "POM_PROPERTIES" "";
