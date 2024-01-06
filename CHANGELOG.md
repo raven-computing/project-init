@@ -1,3 +1,10 @@
+#### 1.4.7
+* Improved Java isolated builds with Maven cached dependencies when using Docker isolated builds. [[Issue#8]](https://github.com/raven-computing/project-init/issues/8)
+* Improved Java builds by adding compiler release option. [[Issue#15]](https://github.com/raven-computing/project-init/issues/15)
+* Improved Docker integration when using Java 21. [[Issue#17]](https://github.com/raven-computing/project-init/issues/17)
+* Improved Java Readme templates.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.4.6...v1.4.7)
+
 #### 1.4.6
 * Improved Python project source templates, updated Pylint version. [[Issue#5]](https://github.com/raven-computing/project-init/issues/5)
 * See [full changelog](https://github.com/raven-computing/project-init/compare/v1.4.5...v1.4.6)
