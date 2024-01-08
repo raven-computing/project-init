@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -386,12 +386,14 @@ function main() {
       logE "Cannot run Project Init tests for addon. Directory is not an addons resource:";
       logE "at: '$TESTPATH'";
       logE "Missing file 'INIT_ADDONS' in source root";
+      _show_helptext "E" "Addons#setup";
       return 1;
     fi
     if ! [ -d "$TESTPATH/tests" ]; then
       logE "Cannot run Project Init tests for addon. Addons resource has no 'tests' directory:";
       logE "at: '$TESTPATH'";
       logE "Place all your tests inside the '$TESTPATH/tests' directory and try again";
+      _show_helptext "E" "Addons#tests-setup";
       return 1;
     fi
     TESTPATH="$TESTPATH/tests";
