@@ -4505,7 +4505,8 @@ function clear_lang_versions() {
 #      This is a mandatory argument.
 # $@ - The namespace template directories to expand, relative to the project
 #      template source root directory. This is a mandatory argument. At least
-#      one directory must be provided by the caller.
+#      one directory must be provided by the caller. Any namespace template
+#      directory which does not exist in the template source is silently ignored.
 #
 # Examples:
 # # The following example expands 'ns_template_dir' in the source tree
@@ -4541,6 +4542,13 @@ function expand_namespace_directories() {
     logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
     failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
             "No namespace argument specified";
+  fi
+  if _is_absolute_path "$arg_namespace"; then
+    _make_func_hl "expand_namespace_directories";
+    logE "Programming error: Illegal function call:";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
+            "Namespace argument must not start with '/'";
   fi
   if (( ${#arg_project_paths[@]} == 0 )); then
     _make_func_hl "expand_namespace_directories";
@@ -4591,7 +4599,7 @@ function expand_namespace_directories() {
     for f in $(find "$path_source" -mindepth 1 -maxdepth 1); do
       if ! mv "$f" "$path_target"; then
         logE "Failed to move file to namespace layout target directory:";
-        logE "Source: '$f' ";
+        logE "Source: '$f'";
         logE "Target: '$path_target'";
         failure "Failed to move source files to target namespace";
       fi
