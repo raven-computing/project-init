@@ -148,7 +148,8 @@ function form_java_version() {
 function _validate_java_namespace() {
   local input="$1";
   if [ -z "$input" ]; then
-    return 0;
+    logI "Please specify a namespace";
+    return 1;
   fi
   # Check for expected pattern
   local re="^[a-z.]*$";
@@ -212,15 +213,8 @@ function form_java_namespace() {
   read_user_input_text _validate_java_namespace;
   local entered_namespace="$USER_INPUT_ENTERED_TEXT";
 
-  # Validate given answer
-  if [ -z "$entered_namespace" ]; then
-    logI "No namespace will be used";
-  fi
   var_namespace="$entered_namespace";
-  var_namespace_trailing_sep="";
-  if ! [ -z "$var_namespace" ]; then
-    var_namespace_trailing_sep="$var_namespace.";
-  fi
+  var_namespace_trailing_sep="${var_namespace}.";
   if [[ $var_namespace == *"."* ]]; then
     var_namespace_0="${var_namespace%%.*}";
   else
