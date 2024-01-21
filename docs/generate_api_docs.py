@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -523,7 +523,7 @@ def parse_doc_segment(src_file, src_lines, doc):
         "examples": "",
     }
 
-    doc_lines = src_lines[doc]
+    doc_lines = remove_shellcheck_directives(src_lines[doc])
     segment["type"] = parse_doc_type(doc_lines[0])
     segment["name"] = parse_obj_name(doc_lines[-1], segment["type"])
     segment["attr"] = parse_obj_attr(doc_lines[-1], segment["type"])
@@ -589,6 +589,21 @@ def parse_source_file(src_file):
         "docs": doc_segments
     }
     return parsed
+
+def remove_shellcheck_directives(doc_lines):
+    """Removes any Shellcheck 'disable' directives.
+
+    Args:
+        doc_lines: The documentation main text lines, as a list of str.
+
+    Returns:
+        The given documentation main text lines with Shellcheck directives
+        removed from the list, as a list of str.
+    """
+    return [
+        line for line in doc_lines
+        if not line.startswith("# shellcheck disable=SC")
+    ]
 
 def filter_docs(files, func, merge_files=True):
     """Filters the specified intermediate structure by applying
