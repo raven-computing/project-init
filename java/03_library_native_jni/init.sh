@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -54,6 +54,7 @@ function process_files_lvl_2() {
   local c_or_cpp="";  # Source file extension
   if [[ "$var_java_lib_jni_native_lang" == "C" ]]; then
     c_or_cpp="c";
+    # shellcheck disable=SC2154
     rm "$var_project_dir/cmake/ConfigGtest.cmake"        &&
     rm "$var_project_dir/cmake/cpp_DependencyUtil.cmake" &&
     rm "$var_project_dir/cmake/cpp_TestUtil.cmake";
@@ -130,7 +131,9 @@ function process_files_lvl_2() {
 
     var_namespace_decl_begin="";
     var_namespace_decl_end="";
-    # Put namespace items in an array
+    # Put namespace items in an array.
+    # Intentional word split on spaces.
+    # shellcheck disable=SC2207
     local _ns_items=($(echo "$var_namespace" |tr '.' ' '));
     # Concatenate namespace items in proper order
     for (( i=0; i<${#_ns_items[@]}; i++ )); do
@@ -149,77 +152,98 @@ function process_files_lvl_2() {
     replace_var "NAMESPACE_DECL_END"      "$var_namespace_decl_end";
 
     # Create namespace directory layout and move source files
-    local dir_layout=$(echo "$var_namespace" |tr "." "/");
-    local path_ns_include="$var_project_dir/src/main/include/$dir_layout/";
-    local path_ns_native="$var_project_dir/src/main/${c_or_cpp}/${dir_layout}/";
-    local path_ns_test="$var_project_dir/src/test/${c_or_cpp}/${dir_layout}/";
+    local dir_layout="";
+    dir_layout=$(echo "$var_namespace" |tr "." "/");
+    local path_ns_include="${var_project_dir}/src/main/include/$dir_layout/";
+    local path_ns_native="${var_project_dir}/src/main/${c_or_cpp}/${dir_layout}/";
+    local path_ns_test="${var_project_dir}/src/test/${c_or_cpp}/${dir_layout}/";
     mkdir -p "$path_ns_include";
     mkdir -p "$path_ns_native";
     mkdir -p "$path_ns_test";
     # Create directory layout for include header files
-    if [ -d "$var_project_dir/src/main/include/namespace" ]; then
-      for f in $(find "$var_project_dir/src/main/include/namespace" -type f); do
-        local f_name="$(basename "$f")";
+    if [ -d "${var_project_dir}/src/main/include/namespace" ]; then
+      if ! _find_files_impl "${var_project_dir}/src/main/include/namespace" "f"; then
+        failure "Internal error: Function _find_files_impl() returned non-zero exit status";
+      fi
+      local f_name="";
+      for f in "${_FOUND_FILES[@]}"; do
+        f_name="$(basename "$f")";
         mv "$f" "$path_ns_include";
         if (( $? != 0 )); then
           failure "Failed to move source file into namespace layout directory";
         fi
       done
       # Remove the original now empty placeholder namespace dir
-      rm -r "$var_project_dir/src/main/include/namespace/";
+      rm -r "${var_project_dir}/src/main/include/namespace/";
       if (( $? != 0 )); then
         failure "Failed to remove template source namespace directory";
       fi
     fi
     # Create directory layout for cpp files
-    if [ -d "$var_project_dir/src/main/${c_or_cpp}/namespace" ]; then
-      for f in $(find "$var_project_dir/src/main/${c_or_cpp}/namespace" -type f); do
-        local f_name="$(basename "$f")";
+    if [ -d "${var_project_dir}/src/main/${c_or_cpp}/namespace" ]; then
+      if ! _find_files_impl "${var_project_dir}/src/main/${c_or_cpp}/namespace" "f"; then
+        failure "Internal error: Function _find_files_impl() returned non-zero exit status";
+      fi
+      local f_name="";
+      for f in "${_FOUND_FILES[@]}"; do
+        f_name="$(basename "$f")";
         mv "$f" "$path_ns_native";
         if (( $? != 0 )); then
           failure "Failed to move source file into namespace layout directory";
         fi
       done
       # Remove the original now empty placeholder namespace dir
-      rm -r "$var_project_dir/src/main/${c_or_cpp}/namespace/";
+      rm -r "${var_project_dir}/src/main/${c_or_cpp}/namespace/";
       if (( $? != 0 )); then
         failure "Failed to remove template source namespace directory";
       fi
     fi
     # Create directory layout for test cpp files
-    if [ -d "$var_project_dir/src/test/${c_or_cpp}/namespace" ]; then
-      for f in $(find "$var_project_dir/src/test/${c_or_cpp}/namespace" -type f); do
-        local f_name="$(basename "$f")";
+    if [ -d "${var_project_dir}/src/test/${c_or_cpp}/namespace" ]; then
+      if ! _find_files_impl "${var_project_dir}/src/test/${c_or_cpp}/namespace" "f"; then
+        failure "Internal error: Function _find_files_impl() returned non-zero exit status";
+      fi
+      local f_name="";
+      for f in "${_FOUND_FILES[@]}"; do
+        f_name="$(basename "$f")";
         mv "$f" "$path_ns_test";
         if (( $? != 0 )); then
           failure "Failed to move source file into namespace layout directory";
         fi
       done
       # Remove the original now empty placeholder namespace dir
-      rm -r "$var_project_dir/src/test/${c_or_cpp}/namespace/";
+      rm -r "${var_project_dir}/src/test/${c_or_cpp}/namespace/";
       if (( $? != 0 )); then
         failure "Failed to remove template source namespace directory";
       fi
     fi
 
     # Rename JNI-related files
-    if [ -d "$var_project_dir/src/main/include/jni" ]; then
-      for f in $(find "$var_project_dir/src/main/include/jni" -type f); do
-        local f_name="$(basename "$f")";
+    if [ -d "${var_project_dir}/src/main/include/jni" ]; then
+      if ! _find_files_impl "${var_project_dir}/src/main/include/jni" "f"; then
+        failure "Internal error: Function _find_files_impl() returned non-zero exit status";
+      fi
+      local f_name="";
+      for f in "${_FOUND_FILES[@]}"; do
+        f_name="$(basename "$f")";
         if [[ "$f_name" == namespace_* ]]; then
-          mv "$f" "$var_project_dir/src/main/include/jni/${var_namespace_underscore}${f_name:9}";
+          mv "$f" "${var_project_dir}/src/main/include/jni/${var_namespace_underscore}${f_name:9}";
           if (( $? != 0 )); then
             failure "Failed to rename include header source file in jni directory";
           fi
         fi
       done
     fi
-    if [ -d "$var_project_dir/src/main/${c_or_cpp}/jni" ]; then
-      for f in $(find "$var_project_dir/src/main/${c_or_cpp}/jni" -type f); do
-        local f_name="$(basename "$f")";
+    if [ -d "${var_project_dir}/src/main/${c_or_cpp}/jni" ]; then
+      if ! _find_files_impl "${var_project_dir}/src/main/${c_or_cpp}/jni" "f"; then
+        failure "Internal error: Function _find_files_impl() returned non-zero exit status";
+      fi
+      local f_name="";
+      for f in "${_FOUND_FILES[@]}"; do
+        f_name="$(basename "$f")";
         if [[ "$f_name" == namespace_* ]]; then
           mv "$f" \
-             "$var_project_dir/src/main/${c_or_cpp}/jni/${var_namespace_underscore}${f_name:9}";
+             "${var_project_dir}/src/main/${c_or_cpp}/jni/${var_namespace_underscore}${f_name:9}";
           if (( $? != 0 )); then
             failure "Failed to rename ${c_or_cpp} source file in jni directory";
           fi

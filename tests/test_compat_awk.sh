@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -59,7 +59,8 @@ function test_multichar_delimiter_second() {
 # @CMD: awk 'NR!~/^('"3"')$/' "resources/awk_remove_line.txt"
 function test_remove_line_from_file() {
   local line_num=3;
-  local expected=$(cat << EOS
+  local expected="";
+  expected=$(cat << EOS
 Line A
 Line B
 Line D
@@ -75,13 +76,15 @@ EOS
 function test_replace_variable_from_file() {
   local _var_key="TEST_KEY";
   local _var_value="TEST_VALUE";
-  local expected=$(cat << EOS
+  local expected="";
+  expected=$(cat << EOS
 Line A
 Line B TEST_VALUE_Data
 Line C
 EOS
 )
   local actual;
+  # shellcheck disable=SC2030
   actual="$(export value="${_var_value}" &&              \
             awk -v key='\\${{VAR_'"${_var_key}"'}}'      \
                 '{ gsub(key, ENVIRON["value"]); print; }' \
@@ -93,7 +96,8 @@ EOS
 
 function test_replace_include_directive_from_file() {
   local _include_file_key="the/shared/file/to/include";
-  local _include_value=$(cat << EOS
+  local _include_value="";
+  _include_value=$(cat << EOS
   _INCL_BEGIN_  
 THE_INCLUDED_DATA with an esc slash \/ and dot \. and an & ampersand
   _INCL_END_  
@@ -102,7 +106,8 @@ EOS
 
   _include_value="${_include_value//&/\\&}";
 
-  local expected=$(cat << EOS
+  local expected="";
+  expected=$(cat << EOS
 Line A
 Line B
 Line C
@@ -114,6 +119,7 @@ Line E
 EOS
 )
   local actual;
+  # shellcheck disable=SC2031
   actual=$(export value="${_include_value}" &&                  \
            awk -v key='\\${{INCLUDE:'"${_include_file_key}"'}}' \
                 '{ gsub(key, ENVIRON["value"]); print; }'       \

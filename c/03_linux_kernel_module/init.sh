@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,8 +28,9 @@ function process_files_lvl_2() {
   replace_var "KERNEL_MODULE_NAME" "$var_kernel_module_name";
   # Rename source file
   if [ -n "$var_kernel_module_name" ]; then
-    if [ -f "$var_project_dir/src/module.c" ]; then
-      mv "$var_project_dir/src/module.c" "$var_project_dir/src/$var_kernel_module_name.c";
+    # shellcheck disable=SC2154
+    if [ -f "${var_project_dir}/src/module.c" ]; then
+      mv "${var_project_dir}/src/module.c" "${var_project_dir}/src/${var_kernel_module_name}.c";
       if (( $? != 0 )); then
         failure "Failed to rename kernel module source file";
       fi
@@ -66,10 +67,11 @@ function _validate_kernel_module_name() {
 function form_c_kernel_module_name() {
   FORM_QUESTION_ID="c.kernel.module.name";
   local default_name="";
+  # shellcheck disable=SC2154
   default_name=$(echo "$var_project_name_lower" |tr '-' '_');
   logI "";
   logI "Enter the name of the Linux kernel module that this project produces:";
-  logI "(Defaults to '$default_name')";
+  logI "(Defaults to '${default_name}')";
   read_user_input_text _validate_kernel_module_name;
   local entered_module_name="$USER_INPUT_ENTERED_TEXT";
   if [ -z "$entered_module_name" ]; then

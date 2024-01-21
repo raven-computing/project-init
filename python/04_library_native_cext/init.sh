@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,19 +24,22 @@
 
 function process_files_lvl_2() {
   # Move C source files to "c" directory within the Python package
-  local path_source="$var_project_dir/$var_namespace_path/";
-  local path_source_c="$path_source/c/";
+  # shellcheck disable=SC2154
+  local path_source="${var_project_dir}/${var_namespace_path}/";
+  local path_source_c="${path_source}/c/";
   # Ensure that C source dir exists
   if ! [ -d "$path_source_c" ]; then
-    mkdir -p "$path_source_c";
-    if (( $? != 0 )); then
+    if ! mkdir -p "$path_source_c"; then
       failure "Failed to create directory for C source files";
     fi
   fi
   # Move C source files
-  for f in $(find "$path_source" -type f -name '*.c'); do
-    mv "$f" "$path_source_c";
-    if (( $? != 0 )); then
+  if ! _find_files_impl "$path_source" "f" '*.c'; then
+    failure "Internal error: Failed to find C source files";
+  fi
+  local f="";
+  for f in "${_FOUND_FILES[@]}"; do
+    if ! mv "$f" "$path_source_c"; then
       failure "Failed to move C source file into corresponding directory";
     fi
   done

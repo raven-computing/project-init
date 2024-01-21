@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,8 @@
 
 # @CMD: seq 1 15
 function test_seq_output() {
-  local expected=$(cat << EOS
+  local expected="";
+  expected=$(cat << EOS
 1
 2
 3

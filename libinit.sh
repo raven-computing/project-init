@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -522,6 +522,10 @@ else
   readonly COLOR_NC="\033[0m";
 fi
 
+# The text shown in prompts when requesting user input.
+_READ_FN_INPUT_PROMPT="$(echo -e "[${COLOR_CYAN}INPUT${COLOR_NC}] ")";
+readonly _READ_FN_INPUT_PROMPT;
+
 
 # [API function]
 # Prints an INFO level statement on stdout.
@@ -626,10 +630,11 @@ function _log_success() {
   logI "";
   # Check logged warning messages
   local warn_size=${#_WARNING_LOG[@]};
-  if (( $warn_size > 0 )); then
-    for warning in "${_WARNING_LOG[@]}"; do
+  if (( warn_size > 0 )); then
+    local warning_msg="";
+    for warning_msg in "${_WARNING_LOG[@]}"; do
       logW "${COLOR_ORANGE}Warning:${COLOR_NC}";
-      logW "$warning";
+      logW "$warning_msg";
       logI "";
     done
   fi
@@ -747,10 +752,23 @@ function _make_func_hl() {
     HYPERLINK_VALUE="";
     return 1;
   fi
+  # shellcheck disable=SC2206
   local version_spec=( ${PROJECT_INIT_VERSION//./ } );
   local _m="${version_spec[0]}"; # Major version
   make_hyperlink "${DOCS_BASE_URL}/API-Reference-v${_m}#${_func_name}" "${_func_name}()";
   return $?;
+}
+
+# Safely change the active working directory or fail with an error message.
+#
+# Args:
+# $1 - The path to the directory to change to. This is a mandatory argument.
+#
+function _cd_or_die() {
+  local _target_path="$1";
+  if ! cd "${_target_path}"; then
+    failure "Failed to change active working directory to '${_target_path}'";
+  fi
 }
 
 # [API function]
@@ -770,6 +788,7 @@ function _make_func_hl() {
 function failure() {
   local max_lines=20;
   logI "";
+  local i;
   if [[ $TERMINAL_USE_ANSI_COLORS == true ]]; then
     echo -ne "[${COLOR_BLUE}INFO${COLOR_NC}] ";
     for i in $(seq 1 $max_lines); do
@@ -1068,14 +1087,18 @@ function _parse_args() {
   ARG_VERSION_STR=false;
   local quickstart_requested=false;
   local arg="";
+  local qs_arg="";
+  local qs_names=();
+  local qs_name="";
   for arg in "$@"; do
     case $arg in
       @*)
       quickstart_requested=true;
-      arg="${arg:1}";
-      local names=(${arg//,/ });
-      for arg in "${names[@]}"; do
-        ARG_QUICKSTART_NAMES+=("$arg");
+      qs_arg="${arg:1}";
+      # shellcheck disable=SC2206
+      qs_names=(${qs_arg//,/ });
+      for qs_name in "${qs_names[@]}"; do
+        ARG_QUICKSTART_NAMES+=("$qs_name");
       done
       shift;
       ;;
@@ -1295,11 +1318,11 @@ function _read_dependencies() {
     while read -r line || [ -n "$line" ]; do
       line_num=$((line_num+1));
       # Ignore comments and blank lines
-      if [[ ! -z "$line" && "$line" != \#* ]]; then
+      if [[ -n "$line" && "$line" != \#* ]]; then
         # Check that the line does not contain spaces
         if [[ "$line" != *" "* ]]; then
           # Avoid duplicates
-          if [[ ! "${SYS_DEPENDENCIES[*]}" =~ "${line}" ]]; then
+          if ! _array_contains "$line" "${SYS_DEPENDENCIES[@]}"; then
             SYS_DEPENDENCIES+=( "$line" );
           fi
         else
@@ -1330,9 +1353,9 @@ function _check_system_compat() {
   # Defaults to 0 (zero) if version number cannot be determined
   local bash_version_major="${BASH_VERSINFO:-0}";
   local bash_version_full="${BASH_VERSION}";
-  if (( $bash_version_major < $REQUIREMENT_BASH_VERSION )); then
+  if (( bash_version_major < REQUIREMENT_BASH_VERSION )); then
     logW "Unsatisfied compatibility requirement.";
-    if (( $bash_version_major == 0 )); then
+    if (( bash_version_major == 0 )); then
       logW "You are using an unsupported Bash version.";
     else
       local _bash_version_msg="$bash_version_major";
@@ -1357,28 +1380,28 @@ function _check_system_dependencies() {
   if (( $? != 0 )); then
     failure "Detected error in the base dependencies.txt file";
   fi
-  for dependency in ${SYS_DEPENDENCIES[*]}; do
+  local dependency="";
+  for dependency in "${SYS_DEPENDENCIES[@]}"; do
     if ! _command_dependency "$dependency"; then
-      logE "Could not find the '$dependency' executable.";
-      logE "Please make sure that $dependency is correctly installed.";
+      logE "Could not find the '${dependency}' executable.";
+      logE "Please make sure that ${dependency} is correctly installed.";
       failure "Unsatisfied compatibility requirement. Missing system dependency";
     fi
   done
 
   # Check for addons sys dependencies
   if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
-    if [ -f "$PROJECT_INIT_ADDONS_DIR/dependencies.txt" ]; then
-      _read_dependencies "$PROJECT_INIT_ADDONS_DIR/dependencies.txt";
-      for dependency in ${SYS_DEPENDENCIES[*]}; do
-        _command_dependency "$dependency";
-        if (( $? != 0 )); then
+    if [ -f "${PROJECT_INIT_ADDONS_DIR}/dependencies.txt" ]; then
+      _read_dependencies "${PROJECT_INIT_ADDONS_DIR}/dependencies.txt";
+      for dependency in "${SYS_DEPENDENCIES[@]}"; do
+        if ! _command_dependency "$dependency"; then
           get_boolean_property "sys.dependencies.onmissing.fail" "true";
           if [[ "$PROPERTY_VALUE" == "true" ]]; then
-            logE "Could not find the '$dependency' executable.";
-            logE "Please make sure that $dependency is correctly installed.";
+            logE "Could not find the '${dependency}' executable.";
+            logE "Please make sure that ${dependency} is correctly installed.";
             failure "Unsatisfied compatibility requirement. Missing system dependency";
           else
-            logW "Missing system dependency: '$dependency'";
+            logW "Missing system dependency: '${dependency}'";
           fi
         fi
       done
@@ -1422,15 +1445,14 @@ function _load_addons_resource_git() {
   _command_dependency "git";
   # We temporarily switch to the system's /tmp directory.
   # To be reverted at the end of this function or in case of failure.
-  cd "$RES_CACHE_LOCATION";
-  cmd_exit_status=$?;
-  if (( $cmd_exit_status != 0 )); then
-    failure "Failed to change active working directory to $RES_CACHE_LOCATION";
-  fi
+  _cd_or_die "$RES_CACHE_LOCATION";
   # Effective user ID
-  local _EUID=$(id -u);
+  local _EUID="";
+  _EUID=$(id -u);
   # Find suitable cache dir
   local cache_dir_pattern="piar_cache_${_EUID}_*";
+  # Intentional splitting and globbing.
+  # shellcheck disable=SC2206
   local cache_dirs=( $cache_dir_pattern );
   local addons_res_dir="";
   # Check if a cache dir already exists
@@ -1440,8 +1462,8 @@ function _load_addons_resource_git() {
     # Create new cache dir
     addons_res_dir="$(mktemp -d piar_cache_${_EUID}_XXXXXXXXXX 2>&1)";
     cmd_exit_status=$?;
-    if (( $cmd_exit_status != 0 )); then
-      cd "$SCRIPT_LVL_0_BASE";
+    if (( cmd_exit_status != 0 )); then
+      _cd_or_die "$SCRIPT_LVL_0_BASE";
       logE "Command 'mktemp' returned non-zero exit status $cmd_exit_status";
       if [ -n "$addons_res_dir" ]; then
         logE "Command error:";
@@ -1456,58 +1478,50 @@ function _load_addons_resource_git() {
       git_branch="-b $branch";
     fi
     echo -n "Loading addons...";
-    git clone $git_branch --depth 1 "$git_res" "$RES_CACHE_LOCATION/$addons_res_dir" &> /dev/null;
+    git clone $git_branch --depth 1 "$git_res" "${RES_CACHE_LOCATION}/${addons_res_dir}" &> /dev/null;
     cmd_exit_status=$?;
-    if (( $cmd_exit_status != 0 )); then
+    if (( cmd_exit_status != 0 )); then
       echo "FAILURE";
       rm -r "$addons_res_dir";
-      cd "$SCRIPT_LVL_0_BASE";
+      _cd_or_die "$SCRIPT_LVL_0_BASE";
       logE "Command 'git clone' returned non-zero exit status $cmd_exit_status";
-      logE "Make sure that '$git_res' is a valid git repository and that ";
+      logE "Make sure that '${git_res}' is a valid git repository and that ";
       logE "you have the necessary access rights.";
       if [ -n "$branch" ]; then
-        failure "Failed to fetch Project Init addons resources from '$git_res' " \
-                "on branch '$branch' and caching it under '$RES_CACHE_LOCATION/$addons_res_dir'";
+        failure "Failed to fetch Project Init addons resources from '${git_res}' " \
+                "on branch '${branch}' and caching it under '${RES_CACHE_LOCATION}/${addons_res_dir}'";
       else
         failure "Failed to fetch Project Init addons resources from '$git_res' " \
-                "and caching it under '$RES_CACHE_LOCATION/$addons_res_dir'";
+                "and caching it under '${RES_CACHE_LOCATION}/${addons_res_dir}'";
       fi
     fi
     echo "OK";
   else
     # At least one cache dir found
     addons_res_dir="${cache_dirs[0]}";
-    cd "$addons_res_dir";
-    cmd_exit_status=$?;
-    if (( $cmd_exit_status != 0 )); then
-      failure "Failed to change active working directory to '$addons_res_dir'";
-    fi
+    _cd_or_die "$addons_res_dir";
     echo -n "Loading addons...";
     if [[ $ARG_NO_PULL == false ]]; then
       # Update cache so that we always use the latest version
       git pull &> /dev/null;
       cmd_exit_status=$?;
     fi
-    if (( $cmd_exit_status != 0 )); then
+    if (( cmd_exit_status != 0 )); then
       echo "FAILURE";
-      cd "$SCRIPT_LVL_0_BASE";
-      local cache_dir="$RES_CACHE_LOCATION/$addons_res_dir";
+      _cd_or_die "$SCRIPT_LVL_0_BASE";
+      local cache_dir="${RES_CACHE_LOCATION}/${addons_res_dir}";
       logE "Command 'git pull' returned non-zero exit status $cmd_exit_status";
       failure "Failed to update cached Project Init addons resources: "     \
-              "at: '$cache_dir'"                                            \
-              "You could try to remove the cache directory '$cache_dir' "   \
+              "at: '${cache_dir}'"                                          \
+              "You could try to remove the cache directory '${cache_dir}' " \
               "and try again.";
     fi
     echo "OK";
   fi
   # Set global var and switch back to the system init base dir
   logI "";
-  PROJECT_INIT_ADDONS_DIR="$RES_CACHE_LOCATION/$addons_res_dir";
-  cd "$SCRIPT_LVL_0_BASE";
-  cmd_exit_status=$?;
-  if (( $cmd_exit_status != 0 )); then
-    failure "Failed to change active working directory back to $SCRIPT_LVL_0_BASE";
-  fi
+  PROJECT_INIT_ADDONS_DIR="${RES_CACHE_LOCATION}/${addons_res_dir}";
+  _cd_or_die "$SCRIPT_LVL_0_BASE";
 }
 
 # Loads the Project Init addons resources if available and sets
@@ -1623,8 +1637,8 @@ function _show_start_title() {
 
   # Check for addons title
   local has_addons_title=false;
-  if [ -n "$PROJECT_INIT_ADDONS_DIR/title.txt" ]; then
-    if [ -r "$PROJECT_INIT_ADDONS_DIR/title.txt" ]; then
+  if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
+    if [ -r "${PROJECT_INIT_ADDONS_DIR}/title.txt" ]; then
       _print_text_from_file "$PROJECT_INIT_ADDONS_DIR/title.txt";
       has_addons_title=true;
     fi
@@ -1658,9 +1672,9 @@ function _show_start_text() {
   logI "";
   # Check for addons description text
   local has_addons_text=false;
-  if [ -n "$PROJECT_INIT_ADDONS_DIR/description.txt" ]; then
-    if [ -r "$PROJECT_INIT_ADDONS_DIR/description.txt" ]; then
-      _print_text_from_file "$PROJECT_INIT_ADDONS_DIR/description.txt";
+  if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
+    if [ -r "${PROJECT_INIT_ADDONS_DIR}/description.txt" ]; then
+      _print_text_from_file "${PROJECT_INIT_ADDONS_DIR}/description.txt";
       has_addons_text=true;
     fi
   fi
@@ -1841,7 +1855,7 @@ function _read_properties() {
     while read -r line || [ -n "$line" ]; do
       line_num=$((line_num+1));
       # ignore comments and blank lines
-      if [[ ! -z "$line" && "$line" != \#* ]]; then
+      if [[ -n "$line" && "$line" != \#* ]]; then
         # Check that the line is a key-value pair
         if [[ "$line" == *"="* ]]; then
           p_key=$(echo "$line" |cut -d= -f1);
@@ -2014,7 +2028,7 @@ function _run_addon_load_hook() {
             && exec "$PROJECT_INIT_ADDONS_DIR/load-hook.sh" > /dev/null 2>&1);
 
         local hook_exit_status=$?;
-        if (( $hook_exit_status != 0 )); then
+        if (( hook_exit_status != 0 )); then
           logW "Load-hook finished with exit status $hook_exit_status";
           warning "The load-hook of the Project Init addon did not exit successfully";
         fi
@@ -2053,7 +2067,7 @@ function _run_addon_after_init_hook() {
             exec "$PROJECT_INIT_ADDONS_DIR/after-init-hook.sh" > /dev/null 2>&1);
 
         local hook_exit_status=$?;
-        if (( $hook_exit_status != 0 )); then
+        if (( hook_exit_status != 0 )); then
           logW "After-init-hook finished with exit status $hook_exit_status";
           warning "The after-init-hook of the Project Init addon did not exit successfully";
         fi
@@ -2087,11 +2101,12 @@ function _fill_files_list_from() {
   local fpath="$1";
   if [ -r "$fpath" ]; then
     local line="";
+    local file_item="";
     while read -r line || [ -n "$line" ]; do
       # Ignore comments and blank lines
-      if [[ ! -z "$line" && "$line" != \#* ]]; then
+      if [[ -n "$line" && "$line" != \#* ]]; then
         # Trim surrounding whitespaces
-        local file_item="$(echo "$line" |xargs)";
+        file_item="$(echo "$line" |xargs)";
         # Add item to global variable
         LIST_FILES_TXT+=("$file_item");
       fi
@@ -2253,7 +2268,7 @@ function start_project_init() {
   CURRENT_LVL_PATH="$SCRIPT_LVL_0_BASE";
   CURRENT_LVL_NUMBER=0;
   # Ensure we are at level 0 base
-  cd "$SCRIPT_LVL_0_BASE";
+  _cd_or_die "$SCRIPT_LVL_0_BASE";
 
   _check_system_compat;
 
@@ -2337,7 +2352,8 @@ function finish_project_init() {
   if [[ "$PROPERTY_VALUE" == "true" ]]; then
     # Special handling of deprecated load_var() function
     if [ -r "${_FILE_DEPRECATED_FN_LOAD_VAR_USED}" ]; then
-      local magic_depr_value=$(head -n 1 ${_FILE_DEPRECATED_FN_LOAD_VAR_USED});
+      local magic_depr_value="";
+      magic_depr_value=$(head -n 1 ${_FILE_DEPRECATED_FN_LOAD_VAR_USED});
       if [[ "$magic_depr_value" == "pi_deprecated_fn_load_var_used=1" ]]; then
         rm "${_FILE_DEPRECATED_FN_LOAD_VAR_USED}" > /dev/null 2>&1;
         _warn_deprecated "load_var";
@@ -2397,7 +2413,7 @@ function process_project_init_quickstart() {
   local i;
   # First validate that all Quickstart functions are defined
   # and cancel early if one is not available
-  for (( i=0; i<${n}; ++i )); do
+  for (( i=0; i<n; ++i )); do
     quickstart_function="${qs_fn_prefix}${ARG_QUICKSTART_NAMES_NORM[$i]}";
     if [[ $(type -t "$quickstart_function") != function ]]; then
       logW "No quickstart function found for name '${ARG_QUICKSTART_NAMES[$i]}'";
@@ -2406,25 +2422,25 @@ function process_project_init_quickstart() {
   done
 
   local quickstart_fn_status=0;
-  for (( i=0; i<${n}; ++i )); do
+  for (( i=0; i<n; ++i )); do
     quickstart_function="${qs_fn_prefix}${ARG_QUICKSTART_NAMES_NORM[$i]}";
     # Call Quickstart function
     $quickstart_function;
     quickstart_fn_status=$?;
-    if (( $quickstart_fn_status != 0 )); then
-      if (( $quickstart_fn_status != $QUICKSTART_STATUS_NOWARN )); then
+    if (( quickstart_fn_status != QUICKSTART_STATUS_OK )); then
+      if (( quickstart_fn_status != QUICKSTART_STATUS_NOWARN )); then
         logW "Quickstart function ${quickstart_function}() returned" \
              "non-zero status code $quickstart_fn_status";
         logW "Cancelling operation due to failed Quickstart function";
       fi
-      _cancel_quickstart $EXIT_FAILURE;
+      _cancel_quickstart $QUICKSTART_STATUS_FAILURE;
     fi
     _replace_default_subst_vars;
     # Check for unreplaced substitution variables
     if _find_subst_vars "${CACHE_ALL_FILES[@]}"; then
       local substvar="";
       for substvar in "${_FOUND_SUBST_VARS[@]}"; do
-        logW "Substitution variable was not replaced: '$substvar'";
+        logW "Substitution variable was not replaced: '${substvar}'";
         # Remove subst var from copied file
         replace_var "$substvar" "";
       done
@@ -2447,15 +2463,24 @@ function process_project_init_quickstart() {
 # dumped to stdout.
 #
 # Examples:
-# my_paths=( $(_sort_file_paths "${my_path_array[@]}") );
+# With read:
+# out_array=();
+# while IFS='' read -r line; do
+#   out_array+=("$line");
+# done < <(_sort_file_paths "${in_array[@]}");
+#
+# Or shorter with mapfile:
+# mapfile -t in_array < <(_sort_file_paths "${in_array[@]}");
 #
 function _sort_file_paths() {
-  local _fpaths=$@;
-  for fpath in ${_fpaths}; do
+  local _fpaths=("$@");
+  local _path="";
+  local _fname="";
+  for _fpath in "${_fpaths[@]}"; do
     # Get the file name from the absolute path
-    fname=$(basename "${fpath}");
+    _fname=$(basename "${_fpath}");
     # Add the file name in front of the absolute path
-    echo "${fname}?${fpath}";
+    echo "${_fname}?${_fpath}";
   done |sort |cut -d? -f2
 }
 
@@ -2491,8 +2516,8 @@ function _find_files_impl() {
   shift 2;
   local match_ext_list=("$@");
   # Build arg string for find command
-  file_args=();
-  isfirst=true;
+  local file_args=();
+  local isfirst=true;
   local f="";
   for f in "${match_ext_list[@]}"; do
     if [[ $isfirst == true ]]; then
@@ -2515,7 +2540,7 @@ function _find_files_impl() {
   # List all files matching an ext or file name
   found_files=$(find "$target_path" "${find_args[@]}");
   local cmd_find_status=$?;
-  if (( $cmd_find_status != 0 )); then
+  if (( cmd_find_status != 0 )); then
     return $cmd_find_status;
   fi
   # Save the internal field separator
@@ -2554,7 +2579,7 @@ function find_all_files() {
   # Find all regular files matching an ext or file name
   _find_files_impl "$var_project_dir" "f" "${LIST_FILES_TXT[@]}";
   local cmd_status=$?;
-  if (( $cmd_status != 0 )); then
+  if (( cmd_status != 0 )); then
     logE "Failed to update internal file cache:";
     logE "Command 'find' returned non-zero exit status $cmd_status";
     failure "Failed to update internal file cache." \
@@ -2670,19 +2695,48 @@ function project_init_copy() {
 # Removes all duplicates from the specified strings.
 #
 # This function returns all provided strings, dumped to stdout, while
-# removing duplicates, i.e. all unique items are returned.
+# removing duplicates, i.e. all unique items are returned. The output lines
+# are sorted by means of the 'sort' command.
 #
 # Args:
 # $@ - A series of strings to be filtered for uniqueness.
 #
 # Stdout:
-# All unique strings in the series of specified strings, dumped to stdout.
+# All unique strings, on separate lines, in the series of specified strings,
+# dumped to stdout.
 #
 function _unique_items() {
   local items=("$@");
-  for item in ${items[@]}; do
+  local item="";
+  for item in "${items[@]}"; do
     echo "$item";
-  done |sort -u
+  done |sort -u;
+}
+
+# Indicates whether the specified element is part of the given array.
+#
+# The first argument is the element to check whether it is part of the array,
+# all subsequent arguments are considered part of the array.
+#
+# Args:
+# $1 - The element to check for membership in the array of subsequent elements.
+# $@ - The array of elements to go through.
+#
+# Returns:
+# 0 - If the specified element is in the specified array.
+# 1 - If the specified element is not in the specified array.
+#
+function _array_contains() {
+  local element="$1";
+  shift;
+  local array=("$@");
+  local item="";
+  for item in "${array[@]}"; do
+    if [[ "$item" == "$element" ]]; then
+      return 0;
+    fi
+  done;
+  return 1;
 }
 
 # Finds all substitution variables contained in the specified files.
@@ -2713,9 +2767,12 @@ function _find_subst_vars() {
     if [ -d "$f" ]; then
       continue; # Ignore directories
     fi
-    if ! [ -f "$f" ]; then
-      continue; # Ignore non-existing regular files
+    if ! [ -r "$f" ]; then
+      continue; # Ignore non-existing/non-readable regular files
     fi
+    # Subst vars cannot have IFS chars or special chars used
+    # in glob expansion, so here one line equals one word.
+    # shellcheck disable=SC2013
     for subvar in $(grep -o '\${{VAR_[0-9A-Z_]\+}}' "$f"); do
       subvar_len=$(( ${#subvar}-5 ));
       _FOUND_SUBST_VARS+=("${subvar:3:subvar_len}");
@@ -2724,7 +2781,7 @@ function _find_subst_vars() {
 
   # Remove duplicates
   if (( ${#_FOUND_SUBST_VARS[@]} > 0 )); then
-    _FOUND_SUBST_VARS=( $(_unique_items "${_FOUND_SUBST_VARS[@]}") );
+    mapfile -t _FOUND_SUBST_VARS < <(_unique_items "${_FOUND_SUBST_VARS[@]}");
     return 0;
   else
     return 1;
@@ -2767,6 +2824,9 @@ function _check_unreplaced_vars() {
       continue;
     fi
     # Seach for substitution variable pattern
+    # Subst vars cannot have IFS chars or special chars used
+    # in glob expansion, so here one line equals one word.
+    # shellcheck disable=SC2013
     for subvar in $(grep -o '\${{VAR_[0-9A-Z_]\+}}' "$f"); do
       found_subvars+=("$subvar");
     done
@@ -2775,11 +2835,11 @@ function _check_unreplaced_vars() {
   # Check if at least one substitution var was found
   if (( ${#found_subvars[@]} > 0 )); then
     # Filter out duplicates to simplify warn messages
-    found_subvars=( $(_unique_items "${found_subvars[@]}") );
+    mapfile -t found_subvars < <(_unique_items "${found_subvars[@]}");
     for subvar in "${found_subvars[@]}"; do
       subvar_len=$(( ${#subvar}-5 ));
       local subvar_id="${subvar:3:subvar_len}";
-      logW "Substitution variable not replaced: '$subvar_id'";
+      logW "Substitution variable not replaced: '${subvar_id}'";
       # Check for copyright header substitution variable
       if [[ "$subvar_id" == "VAR_COPYRIGHT_HEADER" ]]; then
         _make_func_hl "project_init_license";
@@ -2827,7 +2887,7 @@ function _read_license_extension_map() {
     local line="";
     while read -r line || [ -n "$line" ]; do
       # Ignore comments and blank lines
-      if [[ ! -z "$line" && "$line" != \#* ]]; then
+      if [[ -n "$line" && "$line" != \#* ]]; then
         # Check that the line is a key-value pair
         if [[ "$line" == *"=>"* ]]; then
           # Split by separator and remove surrounding whitespaces
@@ -3064,7 +3124,7 @@ function read_user_input_selection() {
   local selection_names=("$@");
   local length=${#selection_names[@]};
   # Check that we have something to select
-  if (( $length == 0 )); then
+  if (( length == 0 )); then
     _make_func_hl "read_user_input_selection";
     logE "Programming error: Illegal function call:";
     logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
@@ -3079,21 +3139,20 @@ function read_user_input_selection() {
   ((++padding));
   local number=0;
   local i;
-  for (( i=0; i<${length}; ++i )); do
+  for (( i=0; i<length; ++i )); do
     number=$((i+1));
     # Compute how many spaces need to be added between the
     # number of the item and its name.
     spaces=$(( padding - ${#number} ));
     echo -n "[$number]";
     local j;
-    for (( j=0; j<${spaces}; ++j )); do
+    for (( j=0; j<spaces; ++j )); do
       echo -n " ";
     done
     echo "${selection_names[$i]}";
   done
   echo "";
 
-  local prompt_input=$(echo -e "[${COLOR_CYAN}INPUT${COLOR_NC}] ");
   local valid_answer_given=false;
   local retry_prompt=true;
   local selected_item="";
@@ -3105,10 +3164,10 @@ function read_user_input_selection() {
       retry_prompt=false;
       _get_form_answer;
       selected_item="$FORM_QUESTION_ANSWER";
-      echo -e "${prompt_input}${selected_item}";
+      echo -e "${_READ_FN_INPUT_PROMPT}${selected_item}";
     else
       # Read user input
-      read -p "$prompt_input" selected_item;
+      read -r -p "${_READ_FN_INPUT_PROMPT}" selected_item;
     fi
 
     # Check special case for "None" option
@@ -3127,7 +3186,7 @@ function read_user_input_selection() {
       # Input is not a number.
       # Check if it matches one of the selection items
       local is_valid=false;
-      for (( i=0; i<${length}; ++i )); do
+      for (( i=0; i<length; ++i )); do
         if [[ "$selected_item" == "${selection_names[$i]}" ]]; then
           selected_item=$((i+1));
           is_valid=true;
@@ -3144,7 +3203,7 @@ function read_user_input_selection() {
         fi
       fi
     fi
-    if ((selected_item < 1 || selected_item > $length)); then
+    if ((selected_item < 1 || selected_item > length)); then
       if [[ $retry_prompt == true ]]; then
         logI "Invalid number entered";
         continue;
@@ -3164,7 +3223,7 @@ function read_user_input_selection() {
     local selection_item="${selection_names[index]}";
     # Move cursor to line above and erase line
     echo -ne "\033[1A\033[2K";
-    echo -e "${prompt_input}${selection_item}";
+    echo -e "${_READ_FN_INPUT_PROMPT}${selection_item}";
   fi
 
   return 0;
@@ -3229,7 +3288,6 @@ function read_user_input_selection() {
 function read_user_input_text() {
   local _validation_function_arg=$1;
   local entered_text="";
-  local prompt_input=$(echo -e "[${COLOR_CYAN}INPUT${COLOR_NC}] ");
   local entered_text="";
   local valid_answer_given=false;
   local retry_prompt=true;
@@ -3239,9 +3297,9 @@ function read_user_input_text() {
       retry_prompt=false;
       _get_form_answer;
       entered_text="$FORM_QUESTION_ANSWER";
-      echo -e "${prompt_input}${entered_text}";
+      echo -e "${_READ_FN_INPUT_PROMPT}${entered_text}";
     else
-      read -p "$prompt_input" entered_text;
+      read -r -p "${_READ_FN_INPUT_PROMPT}" entered_text;
     fi
     if [ -n "${_validation_function_arg}" ]; then
       if [[ $(type -t ${_validation_function_arg}) == function ]]; then
@@ -3321,7 +3379,6 @@ function read_user_input_text() {
 #
 function read_user_input_yes_no() {
   local default_value=$1;
-  local prompt_input=$(echo -e "[${COLOR_CYAN}INPUT${COLOR_NC}] ");
   local entered_yes_no="";
   local valid_answer_given=false;
   local retry_prompt=true;
@@ -3331,9 +3388,9 @@ function read_user_input_yes_no() {
       retry_prompt=false;
       _get_form_answer;
       entered_yes_no="$FORM_QUESTION_ANSWER";
-      echo -e "${prompt_input}${entered_yes_no}";
+      echo -e "${_READ_FN_INPUT_PROMPT}${entered_yes_no}";
     else
-      read -p "$prompt_input" entered_yes_no;
+      read -r -p "${_READ_FN_INPUT_PROMPT}" entered_yes_no;
     fi
     # Validate user input
     if [ -z "$entered_yes_no" ]; then
@@ -3378,7 +3435,7 @@ function read_user_input_yes_no() {
   if [[ "$PROPERTY_VALUE" == "true" ]]; then
     # Move cursor to line above and erase line
     echo -ne "\033[1A\033[2K";
-    echo -e "${prompt_input}${canonical_answer}";
+    echo -e "${_READ_FN_INPUT_PROMPT}${canonical_answer}";
   fi
 
   return 0;
@@ -3679,19 +3736,19 @@ function load_var() {
   arg_file=$(echo "$arg_file" |tr '[:upper:]' '[:lower:]');
   # Check for variable prefix
   if [[ "$arg_file" != var_* ]]; then
-    arg_file="var_$arg_file";
+    arg_file="var_${arg_file}";
   fi
   # Add file extension
-  arg_file="$arg_file.txt";
+  arg_file="${arg_file}.txt";
   local var_content="";  # Default if no file is found
   # Load var content from first found file, starting in current init
   # level and sequentially going backwards.
   local init_lvl="$CURRENT_LVL_PATH";
   local i;
-  for (( i=$CURRENT_LVL_NUMBER; i>=0; --i )); do
-    if [ -r "$init_lvl/$arg_file" ]; then
+  for (( i=CURRENT_LVL_NUMBER; i>=0; --i )); do
+    if [ -r "${init_lvl}/${arg_file}" ]; then
       # Read file content
-      var_content="$(cat $init_lvl/$arg_file)";
+      var_content="$(cat ${init_lvl}/${arg_file})";
       break;
     fi
     init_lvl="$(dirname "$init_lvl")";
@@ -3772,11 +3829,11 @@ function load_var_from_file() {
   # level and sequentially going backwards.
   local init_lvl="$CURRENT_LVL_PATH";
   local i;
-  for (( i=$CURRENT_LVL_NUMBER; i>=0; --i )); do
-    if [ -r "$init_lvl/$arg_file" ]; then
+  for (( i=CURRENT_LVL_NUMBER; i>=0; --i )); do
+    if [ -r "{$init_lvl}/${arg_file}" ]; then
       found=true;
       # Read file content
-      var_value="$(cat $init_lvl/$arg_file)";
+      var_value="$(cat ${init_lvl}/${arg_file})";
       break;
     fi
     init_lvl="$(dirname "$init_lvl")";
@@ -3860,7 +3917,7 @@ function replace_var() {
   local _var_value="$2";
   local _var_file_ext="$3";
   # Check given args
-  if (( ${_arg_count} == 0 )); then
+  if (( _arg_count == 0 )); then
     _make_func_hl "replace_var";
     logE "Programming error: Illegal function call:";
     logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
@@ -3896,7 +3953,7 @@ function replace_var() {
   # If this function was called with only the key arg, then we
   # load the var value from the corresponding var file
   if [ -z "${_var_value}" ]; then
-    if (( ${_arg_count} == 1 )); then
+    if (( _arg_count == 1 )); then
       load_var_from_file "${_var_key}";
       _var_value="$VAR_FILE_VALUE";
       # Backwards compatibility:
@@ -3941,6 +3998,7 @@ function replace_var() {
   _var_value="${_var_value//&/\\&}";
 
   local f="";
+  local line_num="";
   for f in "${CACHE_ALL_FILES[@]}"; do
     # Skip if file is a directory
     if [ -d "$f" ]; then
@@ -3974,16 +4032,19 @@ function replace_var() {
     # additional blank lines.
     if [ -z "${_var_value}" ]; then
       # Find all line numbers of lines containing the given variable key
+      # shellcheck disable=SC2013
       for line_num in $(grep -n "\${{VAR_${_var_key}}}" "$f" \
                           |awk -F  ":" '{print $1}'); do
 
         # Get the line text and trim leading and trailing whitespaces
-        local line="$(sed -n "${line_num}p" < "$f" |xargs)";
+        local line="";
+        line="$(sed -n "${line_num}p" < "$f" |xargs)";
         if [[ "$line" == "\${{VAR_${_var_key}}}" ]]; then
           # The line only contains the given variable key
           # without any other static text. So we remove that
           # line from the string
-          local removed="$(awk 'NR!~/^('"$line_num"')$/' "$f")";
+          local removed="";
+          removed="$(awk 'NR!~/^('"$line_num"')$/' "$f")";
           # Overwrite the source file
           echo "$removed" > "$f";
         fi
@@ -3991,10 +4052,12 @@ function replace_var() {
     fi
 
     # Replace declared variable
-    local replaced="$(export value="${_var_value}" &&               \
-                      awk -v key='\\${{VAR_'"${_var_key}"'}}'       \
-                          '{ gsub(key, ENVIRON["value"]); print; }' \
-                          "$f")";
+    local replaced="";
+    # shellcheck disable=SC2030
+    replaced="$(export value="${_var_value}" &&               \
+                awk -v key='\\${{VAR_'"${_var_key}"'}}'       \
+                    '{ gsub(key, ENVIRON["value"]); print; }' \
+                    "$f")";
 
     # Remove leading control characters.
     # The following solution using bash-builtins is really slow:
@@ -4007,9 +4070,10 @@ function replace_var() {
     # printable char, echo might still be writing to the then
     # broken pipe. This is harmless here but we want to suppress
     # the message which is then printed to stderr.
-    local index="$(echo "$replaced" 2> /dev/null \
-                  |grep -n -m 1 "[[:print:]]"    \
-                  |awk -F ":" '{print $1}')";
+    local index="";
+    index="$(echo "$replaced" 2> /dev/null \
+            |grep -n -m 1 "[[:print:]]"    \
+            |awk -F ":" '{print $1}')";
 
     # Convert to zero-based index
     index=$((index-1));
@@ -4054,7 +4118,7 @@ function replace_var() {
 # project_init_license "java" "xml" "js";
 #
 function project_init_license() {
-  local all_file_ext="$@";
+  local all_file_ext=("$@");
   if ! _check_no_quickstart; then
     return 1;
   fi
@@ -4075,25 +4139,26 @@ function project_init_license() {
             "";
   fi
 
-  if [ -z "$all_file_ext" ]; then
-    _make_func_hl "project_init_license";
-    logW "No file extensions specified in the call" \
-         "to the $HYPERLINK_VALUE function.";
-    logW "Copyright header variables in source files will not be replaced.";
-    logW "Please specify in the call to the project_init_license() function all file";
-    logW "extensions of project source files for which copyright headers exist";
-    warning "Copyright header variables could not be replaced";
+  if (( ${#all_file_ext[@]} < 2 )); then
+    if [ -z "${all_file_ext[0]}" ]; then
+      _make_func_hl "project_init_license";
+      logW "No file extensions specified in the call" \
+          "to the $HYPERLINK_VALUE function.";
+      logW "Copyright header variables in source files will not be replaced.";
+      logW "Please specify in the call to the project_init_license() function all file";
+      logW "extensions of project source files for which copyright headers exist";
+      warning "Copyright header variables could not be replaced";
+    fi
   fi
   # Check if a license was specified by the user
   if [ -n "$var_project_license_dir" ]; then
     if [ "$var_project_license_dir" != "NONE" ]; then
       # Copy the main license file
-      if [ -r "$var_project_license_dir/license.txt" ]; then
-        cp "$var_project_license_dir/license.txt" "$var_project_dir/LICENSE";
-        if (( $? != 0 )); then
+      if [ -r "${var_project_license_dir}/license.txt" ]; then
+        if ! cp "${var_project_license_dir}/license.txt" "${var_project_dir}/LICENSE"; then
           logE "An error occurred while trying to copy the following file:";
-          logE "Source: '$var_project_license_dir/license.txt'";
-          logE "Target: '$var_project_dir/LICENSE'";
+          logE "Source: '${var_project_license_dir}/license.txt'";
+          logE "Target: '${var_project_dir}/LICENSE'";
           failure "Failed to copy license file to project directory";
         fi
 
@@ -4102,6 +4167,7 @@ function project_init_license() {
         find_all_files;
       else
         logW "License file could not be created.";
+        # shellcheck disable=SC2154
         logW "Failed to find license legal text file for '$var_project_license'.";
         logW "Please add the legal text to the" \
              "file '$var_project_license_dir/license.txt'.";
@@ -4109,21 +4175,22 @@ function project_init_license() {
       fi
       # Set up copyright headers in all specified files
       _load_extension_map;
-      for file_ext in $all_file_ext; do
+      local file_ext="";
+      for file_ext in "${all_file_ext[@]}"; do
         local header_ext="$file_ext";
         # Check if the file extension is mapped to some other extension
         if [[ "${COPYRIGHT_HEADER_EXT_MAP[$header_ext]+1}" == "1" ]]; then
           header_ext="${COPYRIGHT_HEADER_EXT_MAP[${header_ext}]}";
         fi
         local var_copyright_header="";
-        local copyright_header_file="$var_project_license_dir/header.$header_ext";
+        local copyright_header_file="${var_project_license_dir}/header.${header_ext}";
         if [ -r "$copyright_header_file" ]; then
           # Read in the license declaration legal text from the file
           var_copyright_header=$(cat "$copyright_header_file");
         else
-          logW "License header template file not found for '$var_project_license'";
+          logW "License header template file not found for '${var_project_license}'";
           logW "Please create a template" \
-               "file '$var_project_license_dir/header.$header_ext'";
+               "file '${var_project_license_dir}/header.${header_ext}'";
         fi
         # First substitute the header var and then later the
         # year and copyright holder vars inside the header
@@ -4184,10 +4251,11 @@ function _process_include_directives() {
   local n_errors=0;
 
   # Search for files in the project target directory which have include directives
-  local all_includes=$(grep --recursive                  \
-                            --line-number                \
-                            --regexp='^${{INCLUDE:.*}}$' \
-                            "$var_project_dir");
+  local all_includes="";
+  all_includes=$(grep --recursive                  \
+                      --line-number                \
+                      --regexp='^${{INCLUDE:.*}}$' \
+                      "$var_project_dir");
 
   # Process found includes
   for line in $all_includes; do
@@ -4246,13 +4314,14 @@ function _process_include_directives() {
     # the content of the included file. Read the variable value from
     # the environment to make awk use the string value as is
     # without interpretation of any escape sequences.
+    # shellcheck disable=SC2031
     replaced="$(export value="${include_value}" &&                   \
                 awk -v key='\\${{INCLUDE:'"${include_directive}"'}}' \
                     '{ gsub(key, ENVIRON["value"]); print; }'        \
                     "$found_file")";
 
     awk_stat=$?;
-    if (( $awk_stat != 0 )); then
+    if (( awk_stat != 0 )); then
       logE "Cannot include file '$include_directive'";
       logE "From include directive:";
       logE "at: '$found_file' (line $line_num)";
@@ -4264,9 +4333,9 @@ function _process_include_directives() {
   done
 
   # Check for errors
-  if (( $n_errors > 0 )); then
+  if (( n_errors > 0 )); then
     local what="include directive";
-    if (( $n_errors > 1 )); then
+    if (( n_errors > 1 )); then
       what="include directives"; # plural
     fi
     warning "A total of ${n_errors} ${what} could not be processed";
@@ -4317,10 +4386,14 @@ function project_init_process() {
   fi
 
   replace_var "PROJECT_NAME"        "$var_project_name";
+  # shellcheck disable=SC2154
   replace_var "PROJECT_NAME_LOWER"  "$var_project_name_lower";
+  # shellcheck disable=SC2154
   replace_var "PROJECT_NAME_UPPER"  "$var_project_name_upper";
+  # shellcheck disable=SC2154
   replace_var "PROJECT_DESCRIPTION" "$var_project_description";
   replace_var "PROJECT_DIR"         "$var_project_dir";
+  # shellcheck disable=SC2154
   replace_var "PROJECT_LANG"        "$var_project_lang";
   _replace_default_subst_vars;
 
@@ -4403,7 +4476,7 @@ function add_lang_version() {
     failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
             "No version label specified";
   fi
-  if [[ ! "${SUPPORTED_LANG_VERSIONS_IDS[*]}" =~ "${_lang_version_num}" ]]; then
+  if ! _array_contains "${_lang_version_num}" "${SUPPORTED_LANG_VERSIONS_IDS[@]}"; then
     SUPPORTED_LANG_VERSIONS_IDS+=("${_lang_version_num}");
     SUPPORTED_LANG_VERSIONS_LABELS+=("${_lang_version_str}");
   fi
@@ -4517,24 +4590,27 @@ function select_next_level_directory() {
   fi
   local next_dirs=();
   local next_names=();
+  local dir="";
+  local dir_name="";
+  local name="";
   # Take path at current init level
-  for dir in $(ls -d "$CURRENT_LVL_PATH"/*); do
+  for dir in "${CURRENT_LVL_PATH}"/*; do
     if [ -d "$dir" ]; then
-      local dir_name=$(basename "$dir");
-      if [ -f "$dir/init.sh" ]; then
+      dir_name=$(basename "$dir");
+      if [ -f "${dir}/init.sh" ]; then
         next_dirs+=("$dir_name");
-        if [ -r "$dir/name.txt" ]; then
-          local name=$(cat "$dir/name.txt");
+        if [ -r "${dir}/name.txt" ]; then
+          name=$(cat "${dir}/name.txt");
           next_names+=("$name");
         else
-          logW "Project init level directory '$dir_name' has no name file:";
-          logW "at: '$dir'";
+          logW "Project init level directory '${dir_name}' has no name file:";
+          logW "at: '${dir}'";
           next_names+=("$dir_name");
         fi
         # Check for invalid characters
         if [[ "$dir" == *"?"* ]]; then
           logE "Invalid path encountered:";
-          logE "'$dir'";
+          logE "'${dir}'";
           logE "Path contains an invalid character: '?'";
           failure "One or more paths to a component has an invalid character." \
                   "Please make sure that the path to any directory does not"   \
@@ -4545,7 +4621,7 @@ function select_next_level_directory() {
     fi
   done
   local n_dirs=${#next_dirs[@]};
-  if (( $n_dirs == 0 )); then
+  if (( n_dirs == 0 )); then
     _make_func_hl "select_next_level_directory";
     logE "Cannot descend to next init level. No init level directories found";
     failure "You have called the $HYPERLINK_VALUE function:"              \
@@ -4559,7 +4635,7 @@ function select_next_level_directory() {
   local selected_name="";
   local selected_dir="";
   # Automatically pick the only available init directory if there is only one
-  if (( $n_dirs > 1 )); then
+  if (( n_dirs > 1 )); then
     read_user_input_selection "${next_names[@]}";
     selected_dir=${next_dirs[USER_INPUT_ENTERED_INDEX]};
     selected_name=${next_names[USER_INPUT_ENTERED_INDEX]};
@@ -4623,7 +4699,7 @@ function select_project_type() {
     lang_name="$lang_id";
   fi
   # Check current init level
-  if (( $CURRENT_LVL_NUMBER != 1 )); then
+  if (( CURRENT_LVL_NUMBER != 1 )); then
     _make_func_hl "select_project_type";
     logE "Project types can only be selected at init level 1.";
     logE "The call to the $HYPERLINK_VALUE function was made:";
@@ -4636,28 +4712,32 @@ function select_project_type() {
   # Array for storing the paths to all project
   # template dirs provided by the language
   local all_ptypes=();
+  local dir="";
   if [[ ${_FLAG_PROJECT_LANG_IS_FROM_ADDONS} == false ]]; then
     get_boolean_property "${lang_id}.baseprojects.disable" "false";
     if [[ "$PROPERTY_VALUE" == "false" ]]; then
-      for dir in $(ls -d "$CURRENT_LVL_PATH"/*); do
-        if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
-          local ptype_id="$(basename $dir)";
-          if [ -f "$PROJECT_INIT_ADDONS_DIR/${lang_id}/${ptype_id}/DISABLE" ]; then
-            continue;
+      local ptype_id="";
+      for dir in "${CURRENT_LVL_PATH}"/*; do
+        if [ -d "$dir" ]; then
+          if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
+            ptype_id="$(basename $dir)";
+            if [ -f "$PROJECT_INIT_ADDONS_DIR/${lang_id}/${ptype_id}/DISABLE" ]; then
+              continue;
+            fi
           fi
+          all_ptypes+=("$dir");
         fi
-        all_ptypes+=("$dir");
       done
     fi
   fi
 
   # Add projects templates from addons
   if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
-    if [ -d "$PROJECT_INIT_ADDONS_DIR/$lang_id" ]; then
-      all_ptypes+=("$PROJECT_INIT_ADDONS_DIR/$lang_id/*");
+    if [ -d "${PROJECT_INIT_ADDONS_DIR}/${lang_id}" ]; then
+      all_ptypes+=("${PROJECT_INIT_ADDONS_DIR}/${lang_id}"/*);
       # Check if the separator char used in the sort function
       # is part of one of the path strings
-      for fpath in ${all_ptypes[@]}; do
+      for fpath in "${all_ptypes[@]}"; do
         if [[ "$fpath" == *"?"* ]]; then
           logE "Invalid path encountered:";
           logE "'$fpath'";
@@ -4667,7 +4747,7 @@ function select_project_type() {
                   "contain '?' characters";
         fi
       done
-      all_ptypes=( $(_sort_file_paths "${all_ptypes[@]}") );
+      mapfile -t all_ptypes < <(_sort_file_paths "${all_ptypes[@]}");
     fi
   fi
 
@@ -4677,17 +4757,19 @@ function select_project_type() {
 
   # Loop over all paths and filter viable candidates
   # representing base project types
+  local dir_name="";
+  local name="";
   for dir in "${all_ptypes[@]}"; do
     if [ -d "$dir" ]; then
-      local dir_name=$(basename "$dir");
-      if [ -f "$dir/init.sh" ]; then
+      dir_name=$(basename "$dir");
+      if [ -f "${dir}/init.sh" ]; then
         project_type_dirs+=("$dir");
-        if [ -r "$dir/name.txt" ]; then
-          local name=$(cat "$dir/name.txt");
+        if [ -r "${dir}/name.txt" ]; then
+          name=$(cat "${dir}/name.txt");
           project_type_names+=("$name");
         else
-          logW "Project init type directory '$dir_name' has no name file:";
-          logW "at: '$dir'";
+          logW "Project init type directory '${dir_name}' has no name file:";
+          logW "at: '${dir}'";
           project_type_names+=("$dir_name");
         fi
       fi
@@ -4696,7 +4778,7 @@ function select_project_type() {
 
   # Check that at least one project type can be selected
   local n_ptypes=${#project_type_dirs[@]};
-  if (( $n_ptypes == 0 )); then
+  if (( n_ptypes == 0 )); then
     logE "Cannot prompt for project type selection. No options available";
     failure "You have chosen to create a project using $lang_name,"     \
             "however, no type of $lang_name project can be initialized" \
@@ -4707,7 +4789,7 @@ function select_project_type() {
 
   # Either prompt for a selection or automatically pick the
   # only available project type
-  if (( $n_ptypes > 1 )); then
+  if (( n_ptypes > 1 )); then
     FORM_QUESTION_ID="project.type";
     logI "";
     logI "Select the type of $lang_name project to be created:";
@@ -4770,20 +4852,24 @@ function proceed_next_level() {
     return 1;
   fi
   # Only take the directory name not the full path
-  local dir_next="$(basename "$1")";
+  local dir_next="";
+  dir_next="$(basename "$1")";
   if [[ "$dir_next" == "" ]]; then
     # Search all subdirs in current level dir
     # and pick the first applicable as the next
-    for dir in $(ls -d $CURRENT_LVL_PATH/*); do
-      if [ -f "${dir}/init.sh" ]; then
-        dir_next="$(basename $dir)";
-        logW "No next init directory specified in current" \
-             "init level $CURRENT_LVL_NUMBER";
-        logW "at '$CURRENT_LVL_PATH'";
-        logW "Automatically selected directory '$dir_next' for" \
-             "proceeding to next init level";
+    local dir="";
+    for dir in "${CURRENT_LVL_PATH}"/*; do
+      if [ -d "$dir" ]; then
+        if [ -f "${dir}/init.sh" ]; then
+          dir_next="$(basename $dir)";
+          logW "No next init directory specified in current" \
+               "init level $CURRENT_LVL_NUMBER";
+          logW "at '${CURRENT_LVL_PATH}'";
+          logW "Automatically selected directory '${dir_next}' for" \
+               "proceeding to next init level";
 
-        break;
+          break;
+        fi
       fi
     done
     # Check again if any applicable dir was found
@@ -4792,13 +4878,13 @@ function proceed_next_level() {
       logE "Cannot find directory to source next init script";
       _show_helptext "E" "Introduction#init-levels";
       failure "Failed to proceed to next init level from current level directory:" \
-              "at: '$CURRENT_LEVEL_PATH'" "  "                                     \
+              "at: '${CURRENT_LVL_PATH}'" "  "                                     \
               "Please specify the directory for the next init level in your"       \
               "call to the $HYPERLINK_VALUE function";
     fi
   fi
   # Set global vars to new values
-  CURRENT_LVL_PATH="$CURRENT_LVL_PATH/$dir_next";
+  CURRENT_LVL_PATH="${CURRENT_LVL_PATH}/$dir_next";
   CURRENT_LVL_NUMBER=$((CURRENT_LVL_NUMBER + 1));
   declare SCRIPT_LVL_${CURRENT_LVL_NUMBER}_BASE="$CURRENT_LVL_PATH";
 
@@ -4818,9 +4904,9 @@ function proceed_next_level() {
   # Check for notification icons.
   # First check dynamic icon based on init levels
   if [[ ${_FLAG_NOTIF_SUCCESS_ICON_ADDON} == false ]]; then
-    if [ -r "$CURRENT_LVL_PATH/icon.notif.png" ]; then
+    if [ -r "${CURRENT_LVL_PATH}/icon.notif.png" ]; then
       # Set new icon from base resources
-      _STR_NOTIF_SUCCESS_ICON="$CURRENT_LVL_PATH/icon.notif.png";
+      _STR_NOTIF_SUCCESS_ICON="${CURRENT_LVL_PATH}/icon.notif.png";
     fi
   fi
   # Then check for addon override
@@ -4833,14 +4919,14 @@ function proceed_next_level() {
   fi
 
   # Set new init script ot load
-  local next_lvl_script="$CURRENT_LVL_PATH/init.sh";
+  local next_lvl_script="${CURRENT_LVL_PATH}/init.sh";
 
   if ! [ -f "$next_lvl_script" ]; then
     logE "Cannot source init script for level $CURRENT_LVL_NUMBER";
     _show_helptext "E" "Introduction#init-scripts";
     failure "Failed to source init script for next init level." \
             "File does not exist: "                             \
-            "at: '$next_lvl_script'";
+            "at: '${next_lvl_script}'";
   fi
 
   source "$next_lvl_script";

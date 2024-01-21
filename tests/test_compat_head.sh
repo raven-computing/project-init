@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,8 @@
 
 # @CMD: head -n 10 resources/head_lines.txt
 function test_head_fewer_lines_in_file() {
-  local expected=$(cat << EOS
+  local expected="";
+  expected=$(cat << EOS
 Line A
 Line B
 Line C
@@ -40,7 +41,8 @@ EOS
 
 # @CMD: head -n 3 resources/head_lines.txt
 function test_head_fewer_lines_in_argument() {
-  local expected=$(cat << EOS
+  local expected="";
+  expected=$(cat << EOS
 Line A
 Line B
 Line C

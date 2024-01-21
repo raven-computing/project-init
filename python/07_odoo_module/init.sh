@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,9 +37,10 @@ function process_files_lvl_2() {
     # customisations to module structure first, then afterwards
     # substitution variable replacement so that file cache only
     # needs to be updated once
-    if [ -d "$var_project_dir/module" ]; then
-      local module_path="$var_project_dir/$var_odoo_module_name";
-      mv "$var_project_dir/module" "$module_path";
+    # shellcheck disable=SC2154
+    if [ -d "${var_project_dir}/module" ]; then
+      local module_path="${var_project_dir}/$var_odoo_module_name";
+      mv "${var_project_dir}/module" "$module_path";
       if (( $? != 0 )); then
         failure "Failed to rename Odoo module directory";
       fi

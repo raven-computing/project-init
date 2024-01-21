@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -131,11 +131,11 @@ function show_project_init_main_form() {
   local license_name="";
   local all_license_dirs=();
   local fpath="";
-  for fpath in "$SCRIPT_LVL_0_BASE/licenses/"*; do
+  for fpath in "${SCRIPT_LVL_0_BASE}/licenses"/*; do
     if [ -d "$fpath" ]; then
       license_name=$(basename "$fpath");
       if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
-        if [ -f "$PROJECT_INIT_ADDONS_DIR/licenses/${license_name}/DISABLE" ]; then
+        if [ -f "${PROJECT_INIT_ADDONS_DIR}/licenses/${license_name}/DISABLE" ]; then
           continue;
         fi
       fi
@@ -146,7 +146,7 @@ function show_project_init_main_form() {
   # Add the license directories from the addons to the list
   if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
     if [ -d "$PROJECT_INIT_ADDONS_DIR/licenses" ]; then
-      for fpath in "$PROJECT_INIT_ADDONS_DIR/licenses/"*; do
+      for fpath in "${PROJECT_INIT_ADDONS_DIR}/licenses"/*; do
         if [ -d "$fpath" ]; then
           if ! [ -f "${fpath}/DISABLE" ]; then
             all_license_dirs+=("$fpath");
@@ -155,17 +155,17 @@ function show_project_init_main_form() {
       done
       # Check if the separator char used in the sort function
       # is part of one of the path strings
-      for fpath in ${all_license_dirs[@]}; do
+      for fpath in "${all_license_dirs[@]}"; do
         if [[ "$fpath" == *"?"* ]]; then
           logE "Invalid path encountered:";
-          logE "'$fpath'";
+          logE "'${fpath}'";
           logE "Path contains an invalid character: '?'";
           failure "One or more paths to a component of an addon has an invalid character." \
                   "Please make sure that the path to the addons directory does not"        \
                   "contain '?' characters";
         fi
       done
-      all_license_dirs=( $(_sort_file_paths "${all_license_dirs[@]}") );
+      mapfile -t all_license_dirs < <(_sort_file_paths "${all_license_dirs[@]}");
     fi
   fi
 
@@ -175,21 +175,22 @@ function show_project_init_main_form() {
 
   local dir="";
   local name="";
-  for dir in ${all_license_dirs[@]}; do
-    local dir_name=$(basename "$dir");
-    if [ -r "$dir/license.txt" ]; then
+  local dir_name="";
+  for dir in "${all_license_dirs[@]}"; do
+    dir_name=$(basename "$dir");
+    if [ -r "${dir}/license.txt" ]; then
       project_licenses_dirs+=("$dir");
-      if [ -r "$dir/name.txt" ]; then
-        name=$(head -n 1 "$dir/name.txt");
+      if [ -r "${dir}/name.txt" ]; then
+        name=$(head -n 1 "${dir}/name.txt");
         project_licenses_names+=("$name");
       else
-        logW "The license directory '$dir_name' has no name file";
+        logW "The license directory '${dir_name}' has no name file";
         name="$dir_name";
         project_licenses_names+=("$name");
       fi
     else
       logW "The license directory does not have a 'license.txt' file:";
-      logW "at: '$dir'";
+      logW "at: '${dir}'";
     fi
   done
 
@@ -248,7 +249,6 @@ function show_project_init_main_form() {
   # Prepare reading of project target directory path
   local project_dir_name="$var_project_name_lower";
   var_project_dir="";
-  local is_home_set=false;
 
   get_boolean_property "sys.project.workdir.cwd" "false";
   local config_use_cwd="$PROPERTY_VALUE";
@@ -265,7 +265,6 @@ function show_project_init_main_form() {
     var_project_dir="$USER_CWD/$project_dir_name";
   else
     if [ -n "$HOME" ]; then
-      is_home_set=true;
       # Set as default value
       var_project_dir="$HOME/$project_workdir/$project_dir_name";
     fi
@@ -314,7 +313,7 @@ function show_project_init_main_form() {
   # Check whether the project directory already
   # exists and is not empty
   if [ -d "$var_project_dir" ]; then
-    if ! [ -z "$(ls $var_project_dir)" ]; then
+    if [ -n "$(ls $var_project_dir)" ]; then
       _FLAG_PROJECT_DIR_POLLUTED=true;
       logW "Project directory is not empty. Files may get replaced";
     fi
@@ -324,26 +323,28 @@ function show_project_init_main_form() {
   local project_lang_dirs=()
   local project_lang_names=()
 
-  for dir in $(ls -d *); do
-    if [ -f "${dir}/init.sh" ]; then
-      get_boolean_property "${dir}.disable" "false";
-      if [[ "$PROPERTY_VALUE" == "true" ]]; then
-        continue;
-      fi
-      if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
-        if [ -f "$PROJECT_INIT_ADDONS_DIR/${dir}/DISABLE" ]; then
+  for dir in *; do
+    if [ -d "$dir" ]; then
+      if [ -f "${dir}/init.sh" ]; then
+        get_boolean_property "${dir}.disable" "false";
+        if [[ "$PROPERTY_VALUE" == "true" ]]; then
           continue;
         fi
-      fi
-      project_lang_dirs+=("$dir");
-      if [ -r "${dir}/name.txt" ]; then
-        name=$(head -n 1 "${dir}/name.txt");
-        project_lang_names+=("$name");
-      else
-        logW "Project init directory has no name file:";
-        logW "at: '$dir'";
-        name="$dir";
-        project_lang_names+=("${name}");
+        if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
+          if [ -f "${PROJECT_INIT_ADDONS_DIR}/${dir}/DISABLE" ]; then
+            continue;
+          fi
+        fi
+        project_lang_dirs+=("$dir");
+        if [ -r "${dir}/name.txt" ]; then
+          name=$(head -n 1 "${dir}/name.txt");
+          project_lang_names+=("$name");
+        else
+          logW "Project init directory has no name file:";
+          logW "at: '${dir}'";
+          name="$dir";
+          project_lang_names+=("${name}");
+        fi
       fi
     fi
   done
@@ -355,20 +356,22 @@ function show_project_init_main_form() {
 
   # Add supported languages from addons to list
   if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
-    for dir in $(ls -d "$PROJECT_INIT_ADDONS_DIR"/*); do
-      if [ -f "${dir}/init.sh" ]; then
-        project_lang_dirs+=("$dir");
-        if [ -r "${dir}/name.txt" ]; then
-          name=$(head -n 1 "${dir}/name.txt");
-          project_lang_names+=("$name");
-        else
-          logW "Project init directory has no name file:";
-          logW "at: '$dir'";
-          logW "Please add a file 'name.txt' to the directory" \
-               "of your language addon";
-          logW "to control how the language is shown in the selection";
-          name="$(basename "$dir")";
-          project_lang_names+=("$name");
+    for dir in "${PROJECT_INIT_ADDONS_DIR}"/*; do
+      if [ -d "$dir" ]; then
+        if [ -f "${dir}/init.sh" ]; then
+          project_lang_dirs+=("$dir");
+          if [ -r "${dir}/name.txt" ]; then
+            name=$(head -n 1 "${dir}/name.txt");
+            project_lang_names+=("$name");
+          else
+            logW "Project init directory has no name file:";
+            logW "at: '${dir}'";
+            logW "Please add a file 'name.txt' to the directory" \
+                 "of your language addon";
+            logW "to control how the language is shown in the selection";
+            name="$(basename "$dir")";
+            project_lang_names+=("$name");
+          fi
         fi
       fi
     done
@@ -376,7 +379,7 @@ function show_project_init_main_form() {
 
   # Check whether we have anything to show
   local total_number_of_langs=${#project_lang_dirs[@]};
-  if (( $total_number_of_langs == 0 )); then
+  if (( total_number_of_langs == 0 )); then
     logE "Cannot prompt for language selection. No options available";
     failure "You have disabled all base language selection options "          \
             "but not provided a language via addons. Please either enable or" \
@@ -391,7 +394,7 @@ function show_project_init_main_form() {
 
   # Either let the user select a language out of the list of available ones,
   # or automatically pick the lang if there is only one available
-  if (( $total_number_of_langs > 1 )); then
+  if (( total_number_of_langs > 1 )); then
     FORM_QUESTION_ID="project.language";
     logI "";
     logI "Select the language to be used:";
@@ -409,7 +412,7 @@ function show_project_init_main_form() {
   # When the user choses a lang which is provided by an addon, we must set
   # the path for the current level to the addons root dir so that all
   # subsequent operations take that dir as the base
-  if (( $selected_lang_index >= $number_of_base_langs )); then
+  if (( selected_lang_index >= number_of_base_langs )); then
     CURRENT_LVL_PATH="$PROJECT_INIT_ADDONS_DIR";
     _FLAG_PROJECT_LANG_IS_FROM_ADDONS=true;
   fi

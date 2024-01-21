@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,11 +40,12 @@ ASSERT_FAIL_ADVERSE_DIRS=();
 
 function printt() {
   local i;
-  local out=$($1 "$2");
-  local padd=$(( ${TWIDTH}-${#out} ));
+  local out="";
+  out=$($1 "$2");
+  local padd=$(( TWIDTH-${#out} ));
   echo -ne "$out";
-  if (( $padd > 0 )); then
-    for (( i=0; i<${padd}; ++i )); do
+  if (( padd > 0 )); then
+    for (( i=0; i<padd; ++i )); do
       echo -n " ";
     done
   else
@@ -56,16 +57,16 @@ function printt() {
 function printt_sep() {
   local padd=${TWIDTH};
   local s="";
-  for (( i=0; i<${padd}; ++i )); do
+  for (( i=0; i<padd; ++i )); do
       s="${s}-";
   done
   logE "$s";
 }
 
 function printt_fail() {
-  local padd=$(( ${TWIDTH}-15 ));
+  local padd=$(( TWIDTH-15 ));
   local s="";
-  for (( i=0; i<${padd}; ++i )); do
+  for (( i=0; i<padd; ++i )); do
       s="${s}-";
   done
   logE "$s [${COLOR_RED}TEST FAILURE${COLOR_NC}]";
@@ -73,9 +74,9 @@ function printt_fail() {
 
 function printt_ok() {
   local s="$1";
-  local padd=$(( ${TWIDTH}-6-${#s} ));
+  local padd=$(( TWIDTH-6-${#s} ));
   local i;
-  for (( i=0; i<${padd}; ++i )); do
+  for (( i=0; i<padd; ++i )); do
       s="${s} ";
   done
   logI "$s [${COLOR_GREEN}OK${COLOR_NC}]";
@@ -85,13 +86,13 @@ function _erasechars() {
   local chars="$1";
   local len=${#chars};
   local i;
-  for (( i=0; i<${len}; ++i )); do
+  for (( i=0; i<len; ++i )); do
     echo -ne "\b";
   done
-  for (( i=0; i<${len}; ++i )); do
+  for (( i=0; i<len; ++i )); do
     echo -ne " ";
   done
-  for (( i=0; i<${len}; ++i )); do
+  for (( i=0; i<len; ++i )); do
     echo -ne "\b";
   done
 }
@@ -137,7 +138,7 @@ function assert_equal() {
     echo "$expected";
     echo "-----  Actual:  -----";
     echo "$actual";
-    if [ -n "$cmd_exit_status" ] && (( $cmd_exit_status != 0 )); then
+    if [ -n "$cmd_exit_status" ] && (( cmd_exit_status != 0 )); then
       return $cmd_exit_status;
     else
       return 1;

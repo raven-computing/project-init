@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ function process_files_lvl_1() {
     replace_var "R_LIBRARY_PACKAGE_NAME" "$var_r_library_package_name";
   fi
 
+  # shellcheck disable=SC2154
   if [[ "$var_project_license" == "Apache License 2.0" ]]; then
     replace_var "DESCRIPTION_LICENSE" "Apache License (== 2)";
   elif [[ "$var_project_license" == "MIT License" ]]; then
@@ -103,6 +104,7 @@ function form_r_package_name() {
   FORM_QUESTION_ID="r.package.name";
   logI "";
   logI "Specify the R package name for the library.";
+  # shellcheck disable=SC2154
   logI "(Defaults to '$var_project_name_lower')";
   read_user_input_text _validate_r_package_name;
   var_r_library_package_name="$USER_INPUT_ENTERED_TEXT";

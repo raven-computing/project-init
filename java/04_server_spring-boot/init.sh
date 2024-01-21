@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,10 +40,13 @@ function process_files_lvl_2() {
   replace_var "DATABASE_NAME" "$var_database_name";
   replace_var "SPRING_DEPENDENCY_DATA_JPA"                     \
               "$var_spring_dependency_data_jpa";
+  # shellcheck disable=SC2154
   replace_var "SPRING_DEPENDENCY_DATA_DRIVER_MYSQL"            \
               "$var_spring_dependency_data_driver_mysql";
+  # shellcheck disable=SC2154
   replace_var "SPRING_DEPENDENCY_DATA_DRIVER_MARIADB"          \
               "$var_spring_dependency_data_driver_mariadb";
+  # shellcheck disable=SC2154
   replace_var "SPRING_DEPENDENCY_DATA_DRIVER_POSTGRESQL"       \
               "$var_spring_dependency_data_driver_postgresql";
   replace_var "SPRING_DEPENDENCY_SECURITY"                     \

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -42,7 +42,8 @@ function form_python_exec_script_name() {
   logI "Specify the name of the executable script when installed.";
   logI "This is the command by which the script can be" \
        "called on the command line.";
-  logI "Or press enter to use the default name '$var_project_name_lower'";
+  # shellcheck disable=SC2154
+  logI "Or press enter to use the default name '${var_project_name_lower}'";
   read_user_input_text _validate_exec_script_name;
   var_exec_script_name="$USER_INPUT_ENTERED_TEXT";
 

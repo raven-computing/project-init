@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ function process_files_lvl_1() {
   replace_var "C_VERSION_LABEL"            "$var_c_version_label";
   replace_var "ARTIFACT_BINARY_NAME"       "$var_artifact_binary_name";
   replace_var "ARTIFACT_BINARY_NAME_UPPER" "$var_artifact_binary_name_upper";
+  # shellcheck disable=SC2154
   replace_var "PREFIX_INCLUDE_GUARD"       "$var_project_name_upper";
 }
 
@@ -80,6 +81,7 @@ function form_c_binary_name() {
   FORM_QUESTION_ID="c.binary.name";
   logI "";
   logI "Enter the name of the binary file that this project produces:";
+  # shellcheck disable=SC2154
   logI "(Defaults to '$var_project_name_lower')";
   read_user_input_text;
   local entered_binary_name="$USER_INPUT_ENTERED_TEXT";

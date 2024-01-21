@@ -56,13 +56,13 @@ function execute_test_run() {
     is_base_addon_test_run=true;
   fi
   if [[ $is_base_addon_test_run == true ]]; then
-    export PROJECT_INIT_ADDONS_RES="$BASEPATH/addons";
+    export PROJECT_INIT_ADDONS_RES="${BASEPATH}/addons";
   fi
   if [[ $(type -t "test_functionality") == function ]]; then
     test_functionality;
     test_run_status=$?;
   else
-    logE "Test file '$testfile' does not define function 'test_functionality()'";
+    logE "Test file '${testfile}' does not define function 'test_functionality()'";
     test_run_status=3;
   fi
   unset -f test_functionality;
@@ -77,7 +77,7 @@ function _test_functionality_driver() {
   local title="$1";
   local config_file="$2";
   shift 2;
-  local test_driver_args="$@";
+  local test_driver_args=("$@");
 
   if [ -n "$config_file" ]; then
     config_file="${TESTPATH}/resources/${config_file}";
@@ -85,7 +85,7 @@ function _test_functionality_driver() {
       export PROJECT_INIT_TESTS_RUN_CONFIG="$config_file";
     else
       logE "Test run configuration file is not readable:";
-      logE "at: '$config_file'";
+      logE "at: '${config_file}'";
       return 91;
     fi
   fi
@@ -96,8 +96,8 @@ function _test_functionality_driver() {
   local test_status=0;
   local exit_status=0;
   local f_out_stderr="${TESTS_OUTPUT_DIR}/run_stderr";
-  output_stdout=$(bash "$BASETESTPATH/functionality_test_driver.sh" \
-                        $test_driver_args 2>"$f_out_stderr");
+  output_stdout=$(bash "${BASETESTPATH}/functionality_test_driver.sh" \
+                        "${test_driver_args[@]}" 2>"$f_out_stderr");
 
   exit_status=$?;
 
@@ -105,7 +105,7 @@ function _test_functionality_driver() {
     output_stderr=$(cat "$f_out_stderr");
   fi
 
-  if (( $exit_status != 0 )); then
+  if (( exit_status != 0 )); then
     test_status=1;
   fi
 
@@ -117,26 +117,26 @@ function _test_functionality_driver() {
     _erasechars "$LABEL_RUN";
   fi
 
-  if (( $test_status == 0 )); then
+  if (( test_status == 0 )); then
     if [[ $(type -t "test_functionality_result") == function ]]; then
       # Ensure CWD is in concrete test output directory while
       # the test result is evaluated. Change back to test path afterwards.
-      cd "${TESTS_OUTPUT_DIR}/${ASSERT_FILE_PATH_PREFIX}";
+      _cd_or_die "${TESTS_OUTPUT_DIR}/${ASSERT_FILE_PATH_PREFIX}";
       test_functionality_result;
       if (( $? != 0 )); then
         test_status=3;
       fi
-      cd "$TESTPATH";
+      _cd_or_die "$TESTPATH";
     fi
   fi
 
-  if (( $test_status != 0 )); then
+  if (( test_status != 0 )); then
     echo -e "${LABEL_FAILED}\n";
     logE "Functionality test run finished with exit status $exit_status";
     if [[ "$output_stderr" != "" ]]; then
       logE "There was output captured from stderr (see below)";
     fi
-    if (( $test_status == 3 )); then
+    if (( test_status == 3 )); then
       logE "The test run itself seems to have finished without critical failures, but";
       logE "there are missing or adverse project files in the generated output (see below)";
     fi
@@ -235,15 +235,15 @@ function test_functionality_with() {
     logE "No configuration file specified in call to test_functionality_with() function";
     return 20;
   fi
-  if [ -r "resources/$config_file" ]; then
-    title=$(head -n 1 "resources/$config_file");
+  if [ -r "resources/${config_file}" ]; then
+    title=$(head -n 1 "resources/${config_file}");
     if [[ "$title" == "# @NAME: "* ]]; then
       title="${title:9:60}";
     else
       title="with $config_file";
     fi
   fi
-  if ! _read_properties "resources/$config_file" _FORM_ANSWERS; then
+  if ! _read_properties "resources/${config_file}" _FORM_ANSWERS; then
     logE "Test run configuration file is invalid";
     return 90;
   fi
@@ -321,7 +321,8 @@ function test_functionality_quickstart() {
     return 6;
   fi
 
-  local quickstart_name_norm=$(_normalise_quickstart_name "$quickstart_name");
+  local quickstart_name_norm="";
+  quickstart_name_norm=$(_normalise_quickstart_name "$quickstart_name");
 
   ASSERT_FILE_PATH_PREFIX="quickstart/${quickstart_name_norm}";
 
@@ -351,7 +352,7 @@ function main() {
       ((++ncommas));
       local i;
       local test_run_name="";
-      for (( i=1; i<=${ncommas}; ++i )); do
+      for (( i=1; i<=ncommas; ++i )); do
         test_run_name="$(echo "$arg_filter_runs" |cut -d, -f${i})";
         filter_runs+=( "$test_run_name" );
       done
@@ -364,16 +365,17 @@ function main() {
       *)
       # Unknown arg
       echo "Internal error";
-      echo "Unknown argument for functionality_tests.sh script: '$arg'";
+      echo "Unknown argument for functionality_tests.sh script: '${arg}'";
       exit 1;
       ;;
     esac
   done
-  export BASETESTPATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)";
+  BASETESTPATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)";
+  export BASETESTPATH;
   TESTPATH="$BASETESTPATH";
   BASEPATH="$(dirname "$BASETESTPATH")";
 
-  if ! source "$BASEPATH/libinit.sh"; then
+  if ! source "${BASEPATH}/libinit.sh"; then
     echo "ERROR: Could not source libinit.sh library"
     return 1;
   fi
@@ -382,35 +384,35 @@ function main() {
     IS_ADDON_TESTS=true;
     TESTPATH="$arg_test_path";
     export PROJECT_INIT_ADDONS_RES="$TESTPATH";
-    if ! [ -f "$TESTPATH/INIT_ADDONS" ]; then
+    if ! [ -f "${TESTPATH}/INIT_ADDONS" ]; then
       logE "Cannot run Project Init tests for addon. Directory is not an addons resource:";
-      logE "at: '$TESTPATH'";
+      logE "at: '${TESTPATH}'";
       logE "Missing file 'INIT_ADDONS' in source root";
       _show_helptext "E" "Addons#setup";
       return 1;
     fi
-    if ! [ -d "$TESTPATH/tests" ]; then
+    if ! [ -d "${TESTPATH}/tests" ]; then
       logE "Cannot run Project Init tests for addon. Addons resource has no 'tests' directory:";
-      logE "at: '$TESTPATH'";
-      logE "Place all your tests inside the '$TESTPATH/tests' directory and try again";
+      logE "at: '${TESTPATH}'";
+      logE "Place all your tests inside the '${TESTPATH}/tests' directory and try again";
       _show_helptext "E" "Addons#tests-setup";
       return 1;
     fi
-    TESTPATH="$TESTPATH/tests";
+    TESTPATH="${TESTPATH}/tests";
   fi
 
-  cd "$TESTPATH";
+  _cd_or_die "$TESTPATH";
 
-  if ! [ -d "$TESTPATH/resources" ]; then
+  if ! [ -d "${TESTPATH}/resources" ]; then
     logE "Test resource directory not found.";
-    logE "Place test resources inside the '$TESTPATH/resources' directory and try again";
+    logE "Place test resources inside the '${TESTPATH}/resources' directory and try again";
     return 1;
   fi
-  if ! [ -r "$BASETESTPATH/functionality_test_driver.sh" ]; then
+  if ! [ -r "${BASETESTPATH}/functionality_test_driver.sh" ]; then
     logE "Functionality test driver script not found";
     return 1;
   fi
-  if ! source "$BASETESTPATH/utils.sh"; then
+  if ! source "${BASETESTPATH}/utils.sh"; then
     logE "Test utilities could not be loaded";
     return 1;
   fi
@@ -448,40 +450,46 @@ function main() {
 
   local exit_status=0;
   local n_filter_runs=${#filter_runs[@]};
-  if (( $n_filter_runs > 0 )); then
+  if (( n_filter_runs > 0 )); then
     # Only run specified test runs
     local testname="";
-    for testname in ${filter_runs[@]}; do
+    for testname in "${filter_runs[@]}"; do
       if [ -r "test_func_${testname}.sh" ]; then
         execute_test_run "test_func_${testname}.sh";
         exit_status=$?;
       else
-        logE "Invalid name for functionality test run: '$testname'";
+        logE "Invalid name for functionality test run: '${testname}'";
         logE "No such file: '${PWD}/test_func_${testname}.sh'";
         exit_status=1;
       fi
-      if (( $exit_status != 0 )); then
+      if (( exit_status != 0 )); then
         break;
       fi
     done
   else
+    local testcmd;
+    local path_base_len;
     # Find all applicable test run script files
-    for testfile in $(ls "$TESTPATH"); do
-      if [[ "$testfile" == test_func_*.sh && "$testfile" != test_func_addon_*.sh ]]; then
-        execute_test_run "$testfile";
+    for testfile in "$TESTPATH"/*; do
+      path_base_len=$(( ${#TESTPATH}+1 ));
+      testcmd="${testfile:path_base_len}";
+      if [[ "$testcmd" == test_func_*.sh && "$testcmd" != test_func_addon_*.sh ]]; then
+        execute_test_run "$testcmd";
         exit_status=$?;
-        if (( $exit_status != 0 )); then
+        if (( exit_status != 0 )); then
           break;
         fi
       fi
     done
-    if (( $exit_status == 0 )); then
+    if (( exit_status == 0 )); then
       # Find all applicable test run script files for addon tests
-      for testfile in $(ls "$TESTPATH"); do
-        if [[ "$testfile" == test_func_addon_*.sh ]]; then
-          execute_test_run "$testfile";
+      for testfile in "$TESTPATH"/*; do
+        path_base_len=$(( ${#TESTPATH}+1 ));
+        testcmd="${testfile:path_base_len}";
+        if [[ "$testcmd" == test_func_addon_*.sh ]]; then
+          execute_test_run "$testcmd";
           exit_status=$?;
-          if (( $exit_status != 0 )); then
+          if (( exit_status != 0 )); then
             break;
           fi
         fi
@@ -489,7 +497,7 @@ function main() {
     fi
   fi
 
-  if (( $exit_status != 0 )); then
+  if (( exit_status != 0 )); then
     logE "Testing of ${addon_mention}functionality has not completed";
     logE "An error has occurred during a functionality test";
   else

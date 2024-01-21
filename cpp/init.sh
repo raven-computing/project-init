@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ function process_files_lvl_1() {
 
   if [ -n "$var_namespace_path" ]; then
     # Create namespace directory layout and move source files
+    # shellcheck disable=SC2154
     local path_ns_main="$var_project_dir/src/main/cpp/$var_namespace_path/";
     local path_ns_include="$var_project_dir/src/main/include/$var_namespace_path/";
     local path_ns_tests="$var_project_dir/src/main/tests/cpp/$var_namespace_path/";
@@ -80,6 +81,7 @@ function process_files_lvl_1() {
 
     if [ -d "$var_project_dir/src/main/cpp/namespace" ]; then
       # Create directory layout for main files
+      # shellcheck disable=SC2044
       for f in $(find "$var_project_dir/src/main/cpp/namespace" -type f); do
         mv "$f" "$path_ns_main";
         if (( $? != 0 )); then
@@ -94,6 +96,7 @@ function process_files_lvl_1() {
     fi
     if [ -d "$var_project_dir/src/main/include/namespace" ]; then
       # Create directory layout for inlude header files
+      # shellcheck disable=SC2044
       for f in $(find "$var_project_dir/src/main/include/namespace" -type f); do
         mv "$f" "$path_ns_include";
         if (( $? != 0 )); then
@@ -108,6 +111,7 @@ function process_files_lvl_1() {
     fi
     if [ -d "$var_project_dir/src/main/tests/cpp/namespace" ]; then
       # Create directory layout for test files
+      # shellcheck disable=SC2044
       for f in $(find "$var_project_dir/src/main/tests/cpp/namespace" -type f); do
         mv "$f" "$path_ns_tests";
         if (( $? != 0 )); then
@@ -166,6 +170,7 @@ function form_cpp_binary_name() {
   FORM_QUESTION_ID="cpp.binary.name";
   logI "";
   logI "Enter the name of the binary file that this project produces:";
+  # shellcheck disable=SC2154
   logI "(Defaults to '$var_project_name_lower')";
   read_user_input_text
   local entered_binary_name="$USER_INPUT_ENTERED_TEXT";
@@ -284,7 +289,9 @@ function form_cpp_namespace() {
 
   var_namespace_decl_begin="";
   var_namespace_decl_end="";
-  # Put namespace items in an array
+  # Put namespace items in an array.
+  # Convert separators to spaces to have word split.
+  # shellcheck disable=SC2207
   local _ns_items=($(echo "$var_namespace" |tr '.' ' '));
   # Concatenate namespace items in proper order
   for (( i=0; i<${#_ns_items[@]}; i++ )); do

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,10 +34,11 @@
 
 function main() {
   # Get the path to the directory of this script to make it call site independent
-  local libpath="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)";
+  local libpath="";
+  libpath="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)";
   # Load core libraries
-  source "$libpath/libinit.sh";
-  source "$libpath/libform.sh";
+  source "${libpath}/libinit.sh";
+  source "${libpath}/libform.sh";
 
   # Make sure this script is not executed by the root user
   if (( $(id -u) == 0 )); then

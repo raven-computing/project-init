@@ -74,15 +74,20 @@ function process_files_lvl_1() {
     replace_var "NAMESPACE_PACKAGE_DECLARATION" "package $var_namespace;";
 
     # Create namespace directory layout and move source files
-    local dir_layout=$(echo "$var_namespace" |tr "." "/");
-    local path_ns_main="$var_project_dir/src/main/java/$dir_layout/";
-    local path_ns_tests="$var_project_dir/src/test/java/$dir_layout/";
+    local dir_layout="";
+    dir_layout=$(echo "$var_namespace" |tr "." "/");
+    # shellcheck disable=SC2154
+    local path_ns_main="${var_project_dir}/src/main/java/${dir_layout}/";
+    local path_ns_tests="${var_project_dir}/src/test/java/${dir_layout}/";
     # Create directory layout for main files
-    if [ -d "$var_project_dir/src/main/java/namespace" ]; then
+    if [ -d "${var_project_dir}/src/main/java/namespace" ]; then
       mkdir -p "$path_ns_main";
-      for f in $(find "$var_project_dir/src/main/java/namespace" -type f); do
-        local f_name="$(basename "$f")";
+      # shellcheck disable=SC2044
+      for f in $(find "${var_project_dir}/src/main/java/namespace" -type f); do
+        local f_name="";
+        f_name="$(basename "$f")";
         # Only move files which are not blacklisted
+        # shellcheck disable=SC2076
         if [[ ! "${FILES_NO_MOVE[*]}" =~ "${f_name}" ]]; then
           mv "$f" "$path_ns_main";
           if (( $? != 0 )); then
@@ -99,6 +104,7 @@ function process_files_lvl_1() {
     # Create directory layout for test files
     if [ -d "$var_project_dir/src/test/java/namespace" ]; then
       mkdir -p "$path_ns_tests";
+      # shellcheck disable=SC2044
       for f in $(find "$var_project_dir/src/test/java/namespace" -type f); do
         mv "$f" "$path_ns_tests";
         if (( $? != 0 )); then
@@ -218,7 +224,7 @@ function form_java_namespace() {
   fi
   var_namespace="$entered_namespace";
   var_namespace_trailing_sep="";
-  if ! [ -z "$var_namespace" ]; then
+  if [ -n "$var_namespace" ]; then
     var_namespace_trailing_sep="$var_namespace.";
   fi
   if [[ $var_namespace == *"."* ]]; then
@@ -240,6 +246,7 @@ get_property "java.pom.groupid" "com.raven-computing";
 var_project_group_id="$PROPERTY_VALUE";
 
 # Set the Maven artifactId to be the lower-case version of the project name
+# shellcheck disable=SC2154
 var_project_artifact_id="$var_project_name_lower";
 
 # Specify supported relational database systems

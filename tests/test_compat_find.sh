@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,7 +36,8 @@ function test_find_one_file() {
 
 # @CMD: find resources/find/ -type f \( "${file_args[@]}" \)
 function test_find_two_files() {
-  local expected=$(cat << EOS
+  local expected="";
+  expected=$(cat << EOS
 resources/find/should_be_found1.txt
 resources/find/should_be_found2.txt
 EOS
@@ -56,7 +57,8 @@ EOS
 
 # @CMD: find resources/find/ -type f \( "${file_args[@]}" \)
 function test_find_all_files_by_name() {
-  local expected=$(cat << EOS
+  local expected="";
+  expected=$(cat << EOS
 resources/find/should_be_found1.txt
 resources/find/should_be_found2.txt
 resources/find/should_be_found3.txt
@@ -78,7 +80,8 @@ EOS
 
 # @CMD: find resources/find/ -type f
 function test_find_all_files() {
-  local expected=$(cat << EOS
+  local expected="";
+  expected=$(cat << EOS
 resources/find/should_be_found1.txt
 resources/find/should_be_found2.txt
 resources/find/should_be_found3.txt

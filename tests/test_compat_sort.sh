@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,9 +20,10 @@
 # #***************************************************************************#
 
 
-# @CMD: cat resources/sort_lines.txt |sort
+# @CMD: sort < resources/sort_lines.txt
 function test_sort_strings() {
-  local expected=$(cat << EOS
+  local expected="";
+  expected=$(cat << EOS
 Line A
 Line B
 Line C
@@ -31,14 +32,15 @@ Line E
 EOS
 )
   local actual;
-  actual=$(cat resources/sort_lines.txt |sort);
+  actual=$(sort < resources/sort_lines.txt);
   assert_equal "$expected" "$actual" $?;
   return $?;
 }
 
-# @CMD: cat resources/sort_lines_unique.txt |sort -u
+# @CMD: sort -u < resources/sort_lines_unique.txt
 function test_sort_unique() {
-  local expected=$(cat << EOS
+  local expected="";
+  expected=$(cat << EOS
 Line A
 Line B
 Line C
@@ -47,7 +49,7 @@ Line E
 EOS
 )
   local actual;
-  actual=$(cat resources/sort_lines_unique.txt |sort -u);
+  actual=$(sort -u < resources/sort_lines_unique.txt);
   assert_equal "$expected" "$actual" $?;
   return $?;
 }

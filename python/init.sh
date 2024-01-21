@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -91,6 +91,7 @@ function process_files_lvl_1() {
     replace_var "README_DEV_LINT";
     # The subst var 'VAR_SCRIPT_TEST_LINT_ARG_PARSE' contains another
     # subst var, related to Docker integration, which needs to be replaced again
+    # shellcheck disable=SC2154
     replace_var "SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD" \
                 "$var_script_build_isolated_argarray_add";
   else
@@ -101,8 +102,9 @@ function process_files_lvl_1() {
     replace_var "REQUIREMENTS_LINT"          "";
     replace_var "README_DEV_LINT"            "";
     # Remove pylintrc file
-    if [ -f "$var_project_dir/pylintrc" ]; then
-      rm "$var_project_dir/pylintrc";
+    # shellcheck disable=SC2154
+    if [ -f "${var_project_dir}/pylintrc" ]; then
+      rm "${var_project_dir}/pylintrc";
       if (( $? != 0 )); then
         failure "Failed to remove template source pylintrc file";
       fi
@@ -143,7 +145,8 @@ function process_files_lvl_1() {
       fi
 
       # Move source files into correct package
-      for f in $(find "$var_project_dir/package/" -type f); do
+      _find_files_impl "${var_project_dir}/package/" "f";
+      for f in "${_FOUND_FILES[@]}"; do
         mv "$f" "$path_ns_package";
         if (( $? != 0 )); then
           failure "Failed to move source file into package directory";
@@ -254,6 +257,7 @@ function form_python_virtenv_name() {
   FORM_QUESTION_ID="python.virtenv.name";
   logI "";
   logI "Specify the name of the project virtual environment.";
+  # shellcheck disable=SC2154
   logI "Or press enter to use the default name '$var_project_name_lower'";
   read_user_input_text _validate_virtenv_name;
   var_project_virtenv_name="$USER_INPUT_ENTERED_TEXT";
@@ -399,6 +403,7 @@ function form_python_pypi_deployment() {
 
 # Create the mapping for the setup.py license classifier
 var_license_classifier_setup_py="";
+# shellcheck disable=SC2154
 if [[ "$var_project_license" == "Apache License 2.0" ]]; then
   var_license_classifier_setup_py="License :: OSI Approved :: Apache Software License";
 elif [[ "$var_project_license" == "MIT License" ]]; then

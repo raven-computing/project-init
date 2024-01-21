@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,7 +31,8 @@ function test_grep_file_with_one_variable() {
 
 # @CMD: grep -o '\${{VAR_[0-9A-Z_]\+}}' "resources/grep_two_variables.txt"
 function test_grep_file_with_two_variables() {
-  local expected=$(cat << EOS
+  local expected="";
+  expected=$(cat << EOS
 \${{VAR_TEST_123_KEY}}
 \${{VAR_TEST_123_KEY}}
 EOS
@@ -44,7 +45,8 @@ EOS
 
 # @CMD: grep -o '\${{VAR_[0-9A-Z_]\+}}' "resources/grep_three_variables.txt"
 function test_grep_file_with_three_variables() {
-  local expected=$(cat << EOS
+  local expected="";
+  expected=$(cat << EOS
 \${{VAR_TEST_123_KEY}}
 \${{VAR_TEST_123_KEY}}
 \${{VAR_TEST_123_KEY}}
@@ -68,7 +70,8 @@ function test_grep_file_line_number_with_one_variable() {
 
 # @CMD: grep -n '\${{VAR_TEST_123_KEY}}' "resources/grep_two_variables.txt"
 function test_grep_file_line_numbers_with_two_variables() {
-  local expected=$(cat << EOS
+  local expected="";
+  expected=$(cat << EOS
 3:Line C \${{VAR_TEST_123_KEY}}_Data
 5:\${{VAR_TEST_123_KEY}} VAR_SHOULD_BE_IGNORED
 EOS
@@ -82,7 +85,8 @@ EOS
 
 # @CMD: grep -n '\${{VAR_TEST_123_KEY}}' "resources/grep_three_variables.txt"
 function test_grep_file_line_numbers_with_three_variables() {
-  local expected=$(cat << EOS
+  local expected="";
+  expected=$(cat << EOS
 1:\${{VAR_TEST_123_KEY}}
 4:Line C \${{VAR_TEST_123_KEY}}_Data
 8:\${{VAR_TEST_123_KEY}}
@@ -106,7 +110,8 @@ function test_grep_input_first_line_with_printable_char() {
 
 # @CMD: grep --recursive --line-number --regexp='^${{INCLUDE:.*}}$' "resources/grep"
 function test_grep_find_all_files_with_include_directives() {
-  local expected=$(cat << EOS
+  local expected="";
+  expected=$(cat << EOS
 resources/grep/should_be_found1.txt:5:\${{INCLUDE:the/shared/file/to/include}}
 resources/grep/should_be_found2.txt:7:\${{INCLUDE:some/other/file/to/include}}
 resources/grep/should_be_found3.txt:1:\${{INCLUDE:and/a/different/file/also.txt}}

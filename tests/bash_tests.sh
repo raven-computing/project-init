@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ COMPUTED_BASH_VERSION="";
 function is_bash_version_compatible() {
   local bash_version_major="${BASH_VERSINFO:-0}";
   local bash_version_full="${BASH_VERSION}";
-  if (( $bash_version_major == 0 )); then
+  if (( bash_version_major == 0 )); then
     COMPUTED_BASH_VERSION="Unsupported Bash version";
   else
     local _bash_version_msg="$bash_version_major";
@@ -35,7 +35,7 @@ function is_bash_version_compatible() {
     fi
     COMPUTED_BASH_VERSION="${_bash_version_msg}";
   fi
-  if (( $bash_version_major < $REQUIREMENT_BASH_VERSION )); then
+  if (( bash_version_major < REQUIREMENT_BASH_VERSION )); then
     return 1;
   fi
   return 0;
@@ -43,7 +43,7 @@ function is_bash_version_compatible() {
 
 function main() {
   TESTPATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)";
-  cd "$TESTPATH";
+  cd "$TESTPATH" || return 1;
   if ! source "../libinit.sh"; then
     echo "ERROR: Could not source libinit.sh library"
     return 1;
@@ -59,7 +59,8 @@ function main() {
     name_hw=$(uname -m);
   fi
   if _command_dependency "lsb_release"; then
-    local name_os2=$(lsb_release -d -s);
+    local name_os2="";
+    name_os2=$(lsb_release -d -s);
     name_os="${name_os} ${name_os2}";
   fi
   logI "Running tests on ${name_os} (${name_hw})";

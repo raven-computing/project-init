@@ -1,0 +1,36 @@
+# [Not following sourced files]
+disable=SC1091
+
+# [Can't follow non-constant source]
+# Dynamically sourcing files is a key aspect of Project Init.
+disable=SC1090
+
+# [Double quote to prevent globbing and word splitting]
+# We do not quote numerical values, e.g. in return statements:
+# We do:  return $?;   Instead of:  return "$?";
+# Primarily for styling reasons and to signal intent: 
+# "This is supposed to be a numerical value, not a string"
+disable=SC2086
+
+# [Check exit code directly, not indirectly with $?]
+# The  if (( $? != 0 )); then  style is widely used in our code base.
+disable=SC2181
+
+# [Expressions don't expand in single quotes, use double quotes for that]
+# Pattern is widely used in substitution variables, include directives etc.
+disable=SC2016
+
+# [Useless echo]
+# In some places, e.g. functions that dump strings to stdout which is captured
+# by the caller via a subshell, one might prefer to be more explicit,
+# i.e. show that the thing echoed is the output of the function.
+disable=SC2005
+
+# [Variable appears unused]
+# Global variables from libinit.sh are often set in lower-level init code.
+# Having this enabled would produce a lot of false positives.
+disable=SC2034
+
+# [Useless cat]
+# Not essential.
+disable=SC2002

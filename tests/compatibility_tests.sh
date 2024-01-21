@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ function run_failed_test_file() {
       fi
     fi
     prev_line="$line";
-  done < "$TESTPATH/$testfile";
+  done < "${TESTPATH}/${testfile}";
 
   local tested_func_name="";
   local tested_func_cmd="";
@@ -66,7 +66,7 @@ function run_failed_test_file() {
   local nfuncs=${#testfile_funcs[@]};
   local i;
   # Test all found test_*() functions individually
-  for (( i=0; i<${nfuncs}; ++i )); do
+  for (( i=0; i<nfuncs; ++i )); do
     tested_func_name="${testfile_funcs[i]}";
     tested_func_line="${testfile_funcs_linenums[i]}";
     tested_func_cmd="${testfile_funcs_cmddecl[i]}";
@@ -78,7 +78,7 @@ function run_failed_test_file() {
 
     tested_func_exitstatus=$?;
     # Only show details for test functions that have failed
-    if (( $tested_func_exitstatus != 0 )); then
+    if (( tested_func_exitstatus != 0 )); then
       printt_fail;
       logE "in file:      $testfile";
       logE "in function:  $tested_func_name()  (line $tested_func_line)";
@@ -113,7 +113,7 @@ function run_test_file() {
   if _command_dependency "$tested_cmd"; then
     cmd_is_available=true;
     # Run tests
-    bash "$TESTPATH/$testfile" &> /dev/null;
+    bash "${TESTPATH}/${testfile}" &> /dev/null;
     test_status=$?;
   fi
 
@@ -121,7 +121,7 @@ function run_test_file() {
     _erasechars "$LABEL_RUN";
   fi
 
-  if (( $test_status == 0 )); then
+  if (( test_status == 0 )); then
     # Tests passed
     echo -e "${LABEL_PASSED}\n";
   else
@@ -138,18 +138,18 @@ function run_test_file() {
 }
 
 function show_test_results() {
-  if (( $n_failed_cmds > 0 )); then
-    if (( $n_failed_cmds == 1 )); then
+  if (( n_failed_cmds > 0 )); then
+    if (( n_failed_cmds == 1 )); then
       logE "One command has failed compatibility tests:";
       logE "Command '${failed_cmds[0]}' has failed";
     else
       logE "Some commands have failed compatibility tests:";
       logE "All failed commands:";
-      for failed_cmd in ${failed_cmds[@]}; do
+      for failed_cmd in "${failed_cmds[@]}"; do
         logE "                      $failed_cmd";
       done
     fi
-    local n_passed=$(( ${n_cmds}-${n_failed_cmds} ));
+    local n_passed=$(( n_cmds-n_failed_cmds ));
     logE "";
     logE "Total failed compatibility tests: $n_failed_cmds   ($n_passed/$n_cmds passed)";
     logE "";
@@ -161,7 +161,7 @@ function show_test_results() {
 
 function main() {
   TESTPATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)";
-  cd "$TESTPATH";
+  cd "$TESTPATH" || return 1;
   if ! source "../libinit.sh"; then
     echo "ERROR: Could not source libinit.sh library"
     return 1;
@@ -173,17 +173,21 @@ function main() {
   # Make assert function available to test code
   export -f assert_equal;
   local testfile;
+  local testcmd;
+  local path_base_len;
   logI "Testing compatibility of system commands\n";
   # Find and run all applicable test files
-  for testfile in $(ls "$TESTPATH"); do
-    if [[ "$testfile" == test_compat_*.sh ]]; then
+  for testfile in "${TESTPATH}"/*; do
+    path_base_len=$(( ${#TESTPATH}+1 ));
+    testcmd="${testfile:path_base_len}";
+    if [[ "$testcmd" == test_compat_*.sh ]]; then
       (( n_cmds+=1 ));
-      run_test_file "$testfile";
+      run_test_file "$testcmd";
     fi
   done
   logI "Testing of command compatibility has completed";
   show_test_results;
-  if (( $n_failed_cmds > 0 )); then
+  if (( n_failed_cmds > 0 )); then
     return 1;
   else
     return 0;

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -69,6 +69,7 @@ function _load_test_configuration() {
   # base testing resource because those specified there should always take
   # precedence when testing
   if [[ $IS_ADDON_TESTS == true ]]; then
+    # shellcheck disable=SC2153
     if [ -r "${TESTPATH}/${_TESTS_PROPERTIES}" ]; then
       _read_properties "${TESTPATH}/${_TESTS_PROPERTIES}";
     fi
@@ -77,8 +78,10 @@ function _load_test_configuration() {
 }
 
 function main() {
-  local testpath="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)";
-  local rootpath=$(dirname "$testpath");
+  local testpath="";
+  testpath="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)";
+  local rootpath="";
+  rootpath=$(dirname "$testpath");
   # Load core libraries
   source "$rootpath/libinit.sh";
   source "$rootpath/libform.sh";
@@ -112,7 +115,7 @@ function main() {
 
   finish_project_init;
 
-  if (( ${_N_ERRORS} > 0 )); then
+  if (( _N_ERRORS > 0 )); then
     logE "";
     local errtitle=" ${COLOR_RED}E R R O R${COLOR_NC} ";
     logE " o-------------------${errtitle}-------------------o";
@@ -123,7 +126,7 @@ function main() {
   fi
 
   local n_warnings=${#_WARNING_LOG[@]};
-  if (( ${n_warnings} > 0 || ${_N_WARNINGS} > 0 )); then
+  if (( n_warnings > 0 || _N_WARNINGS > 0 )); then
     logW "";
     local warningtitle=" ${COLOR_ORANGE}W A R N I N G${COLOR_NC} ";
     logW " o-----------------${warningtitle}-----------------o";
