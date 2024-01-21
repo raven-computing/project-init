@@ -31,6 +31,8 @@ Options:
                        Subsequent runs will still remove any residue files prior to
                        the next execution.
 
+  [--lint]             Perform static code analysis with a linter.
+
   [--test-path]        TEST_PATH
                        The path to the source root directory of the instance to test.
                        This option is used to instruct the testing facility to run tests for
@@ -47,6 +49,7 @@ ARG_TEST_COMPAT=false;
 ARG_TEST_FUNCT=false;
 ARG_TEST_FUNCT_ARGS=();
 ARG_KEEP_OUTPUT=false;
+ARG_LINT=false;
 ARG_TEST_PATH=false;
 ARG_SHOW_HELP=false;
 
@@ -90,6 +93,10 @@ for arg in "$@"; do
     ARG_TEST_FUNCT_ARGS+=("--keep-output");
     shift
     ;;
+    --lint)
+    ARG_LINT=true;
+    shift
+    ;;
     --test-path)
     ARG_TEST_PATH=true;
     arg_check_optarg=true;
@@ -123,9 +130,49 @@ if [ -n "$arg_optarg_required" ]; then
   exit 1;
 fi
 
+# The test.sh might be called from an addon, in which case the current
+# working directory might not actually be the expected Project Init base
+# source root. Ensure the correct CWD is set
+BASEPATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)";
+cd "$BASEPATH";
+
 run_bash_compat=true;
 run_compat=true;
 run_funct=true;
+
+if [[ $ARG_LINT == true ]]; then
+  if ! command -v "shellcheck" &> /dev/null; then
+    echo "Could not find command 'shellcheck'";
+    echo "Please make sure that Shellcheck is correctly installed";
+    echo "See https://github.com/koalaman/shellcheck#installing";
+    exit 1;
+  fi
+  files_to_lint=();
+  # Add library and implementation files.
+  files_to_lint+=("libinit.sh");
+  files_to_lint+=("libform.sh");
+  files_to_lint+=("initmain.sh");
+  files_to_lint+=("quickstart.sh");
+  shopt -s globstar;
+  # Add init.sh files.
+  for initfile in **/init.sh; do
+    # Do not attempt to lint example files from the 'addons' subdir.
+    if [[ "$initfile" != "addons/"* ]]; then
+      files_to_lint+=("$initfile");
+    fi
+  done
+  # Add all test script files.
+  for testfile in tests/*.sh; do
+    files_to_lint+=("$testfile");
+  done
+  echo "Performing static code analysis";
+  shellcheck --shell=bash "${files_to_lint[@]}";
+  sc_status=$?;
+  if (( sc_status == 0 )); then
+    echo "[OK] No issues found in source files";
+  fi
+  exit $sc_status;
+fi
 
 if [[ $ARG_CHECK_BASH == true ]]; then
   if [[ $ARG_TEST_COMPAT == true || $ARG_TEST_FUNCT == true ]]; then
@@ -148,12 +195,6 @@ if [[ $ARG_TEST_FUNCT == true ]]; then
   run_bash_compat=false;
   run_compat=false;
 fi
-
-# The test.sh might be called from an addon, in which case the current
-# working directory might not actually be the expected Project Init base
-# source root. Ensure the correct CWD is set
-BASEPATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)";
-cd "$BASEPATH";
 
 test_result=0;
 
