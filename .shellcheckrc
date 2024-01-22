@@ -34,3 +34,13 @@ disable=SC2034
 # [Useless cat]
 # Not essential.
 disable=SC2002
+
+# ### Enable Optionals ###
+
+# [deprecate-which]
+# SC2230
+enable=deprecate-which
+
+# [avoid-nullary-conditions]
+# SC2244
+enable=avoid-nullary-conditions
