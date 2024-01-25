@@ -293,6 +293,7 @@ function(dependency)
             "${DEP_ARGS_DEPENDENCY_NAME}/${DEP_ARGS_DEPENDENCY_VERSION}")
 
         set(DEP_CACHE_SRC_PATH "${DEP_CACHE_SRC_BASE}/${DEP_CACHE_SRC_UNIT}")
+        file(TO_CMAKE_PATH "${DEP_CACHE_SRC_PATH}" DEP_CACHE_SRC_PATH)
 
         # Check if dependency sources are in the cache
         if(EXISTS "${DEP_CACHE_SRC_PATH}")
