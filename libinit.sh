@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -2069,6 +2069,76 @@ function _run_addon_after_init_hook() {
   fi
 }
 
+# Runs the used-defined after-init-hook if available.
+#
+# This function can be safely called even when no used-defined
+# hook is available. The hook is executed in a subprocess, for which both
+# stdout and stderr are redirected to /dev/null
+#
+function _run_user_after_init_hook() {
+  get_property "sys.user.hook.afterinit";
+  local user_hook="$PROPERTY_VALUE";
+  if [ -z "$user_hook" ]; then
+    return 0;
+  fi
+  if _is_absolute_path "$user_hook"; then
+    logW "User-defined after-init hook is invalid.";
+    logW "File path must be relative to user home directory.";
+    logW "Invalid property with key 'sys.user.hook.afterinit': '${user_hook}'";
+    _show_helptext "W" "Addons#hooks";
+    warning "The user-defined after-init hook was not executed";
+    return 1;
+  fi
+  if [ -z "$HOME" ]; then
+    logE "Cannot find user home";
+    return 1;
+  fi
+  if [[ "${user_hook}" == *"../"* ]]; then
+    logW "Invalid user-defined after-init hook.";
+    warning "The user-defined after-init hook was not executed";
+    return 1;
+  fi
+  user_hook="${HOME}/${user_hook}";
+  if ! [ -r "${user_hook}" ]; then
+    logW "User-defined after-init hook not found:";
+    logW "at: '${user_hook}'";
+    _show_helptext "W" "Addons#hooks";
+    warning "The user-defined after-init hook was not executed";
+    return 1;
+  fi
+  if ! [ -O "${user_hook}" ]; then
+    logW "User-defined after-init hook is not owned by current user:";
+    logW "at: '${user_hook}'";
+    _show_helptext "W" "Addons#hooks";
+    warning "The user-defined after-init hook was not executed";
+    return 1;
+  fi
+  if ! [ -x "${user_hook}" ]; then
+    logW "User-defined after-init hook is not marked as executable:";
+    logW "Please set as executable: '${user_hook}'";
+    _show_helptext "W" "Addons#hooks";
+    warning "The user-defined after-init hook was not executed";
+    return 1;
+  fi
+  logI "Running user-defined after-init hook";
+  local exported_project_dir="$var_project_dir";
+  if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
+    exported_project_dir="$USER_CWD";
+  fi
+  # Run hook script, in a subshell-process, define env var,
+  # redirect stdout and stderr to /dev/null
+  (cd "$HOME" \
+      && export VAR_PROJECT_DIR="$exported_project_dir" \
+      && export PROJECT_INIT_QUICKSTART_REQUESTED; \
+      exec "${user_hook}" > /dev/null 2>&1);
+
+  local hook_exit_status=$?;
+  if (( hook_exit_status != 0 )); then
+    logW "User-defined after-init hook finished with exit status $hook_exit_status";
+    warning "The user-defined after-init hook did not exit successfully";
+  fi
+}
+
 # Reads the specified 'files.txt' configuration file and populates
 # the $LIST_FILES_TXT global variable with the found entries.
 #
@@ -2103,6 +2173,25 @@ function _fill_files_list_from() {
   fi
 }
 
+# Handler function for when the addon-specific configuration file was loaded.
+#
+# This function can be used to perform checks for the addon-specific
+# 'project.properties' configuration file after the base variant was loaded
+# but before the user variant is loaded. It is only called if
+# the addon-specific file was loaded.
+#
+function _after_addons_properties_loaded() {
+  get_property "sys.user.hook.afterinit";
+  local user_hook="$PROPERTY_VALUE";
+  if [ -n "$user_hook" ]; then
+    logW "Invalid property defined by addon.";
+    logW "The property with key 'sys.user.hook.afterinit' must only be ";
+    logW "defined by the user-specific 'project.properties' file.";
+    _show_helptext "W" "Addons#hooks";
+    PROPERTIES[sys.user.hook.afterinit]="";
+  fi
+}
+
 # Loads the base system configuration files and stores the
 # data in the corresponding global variables.
 #
@@ -2129,6 +2218,7 @@ function _load_configuration() {
   if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
     if [ -f "$PROJECT_INIT_ADDONS_DIR/project.properties" ]; then
       _read_properties "$PROJECT_INIT_ADDONS_DIR/project.properties";
+      _after_addons_properties_loaded;
     fi
   fi
 
@@ -2351,8 +2441,9 @@ function finish_project_init() {
     fi
   fi
 
-  # Check for addons after-init hook
+  # Check for addons and used-defined after-init hooks.
   _run_addon_after_init_hook;
+  _run_user_after_init_hook;
 
   if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == false ]]; then
     # Finish
