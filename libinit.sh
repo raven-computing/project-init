@@ -2242,7 +2242,49 @@ function project_init_show_start_info() {
   fi
 }
 
+# [API function]
 # Startup function for the Project Init system.
+#
+# Initializes the state of the Project Init system, processes the given
+# arguments, loads configurations and potentially addons resources. This function
+# either brings the system to a state in which a regular form-based init process
+# or Quickstart function can be run, or it exits the process by means of
+# the failure() function. The general contract of the Project Init lifecycle
+# applies. When this function returns normally, the startup procedure has
+# succeeded and the caller can proceed with the desired action. The global
+# variable $PROJECT_INIT_QUICKSTART_REQUESTED will indicate whether the init
+# system is running in Quickstart mode or regular form-based mode, however, the
+# caller is in principle free to ignore the request as he sees fit. The provided
+# implementation for processing Quickstart requests can be launched by
+# calling the project_init_process_quickstart() function. When running in regular
+# form-based mode, it is the responsibility of the caller to provide a suitable
+# implementation of the main form and launch it after this function returns.
+# Once the Project Init system is initialized, a caller must ensure he calls
+# the project_init_finish() function as the shutdown procedure. Anything which
+# needs to be handled in between the startup and shutdown procedure
+# is implementation-specific.
+#
+# **WARNING:**
+#
+# This API function should **NOT** be called by an addon.
+# An addon is part of an already initialized lifecycle. This API function is
+# only intended to be used for providers of specialised Project Init
+# implementations, e.g. providers with a specialised main form implementation.
+# Normal users and organisations wishing to adapt and extend the default
+# Project Init implementation should do so by using the addon mechanism.
+# Normally, there is no need for an external consumer of Project Init to
+# provide his own lifecycle or main form implementation.
+# Only use this function if you know what you are doing.
+#
+# Args:
+# $@ - The arguments to Project Init.
+#
+# Globals:
+# PROJECT_INIT_QUICKSTART_REQUESTED - A boolean value indicating whether the
+#                                     given arguments resulted in a request to
+#                                     run a Quickstart function. Is either true
+#                                     or false. Is set by this function.
+#
 function project_init_start() {
   # Keep track of the current working directory of the user when he
   # executed the main script, even though we change it below to make
@@ -2302,9 +2344,33 @@ function project_init_start() {
 
   # Initialize some common substitution variables
   _load_default_subst_vars;
+  return 0;
 }
 
+# [API function]
 # Finish function for the Project Init system.
+#
+# Performs lifecycle checks, shows warnings and success messages and handles
+# the shutdown state of the Project Init system. This function does not exit
+# the underlying process in the case of a successful operation, in which case
+# it returns with $EXIT_SUCCESS. However, in the case of an encountered error,
+# this function might exit the process by means of the failure() function.
+#
+# **WARNING:**
+#
+# This API function should **NOT** be called by an addon.
+# An addon is part of an already initialized lifecycle. This API function is
+# only intended to be used for providers of specialised Project Init
+# implementations, e.g. providers with a specialised main form implementation.
+# Normal users and organisations wishing to adapt and extend the default
+# Project Init implementation should do so by using the addon mechanism.
+# Normally, there is no need for an external consumer of Project Init to
+# provide his own lifecycle or main form implementation.
+# Only use this function if you know what you are doing.
+#
+# Returns:
+# 0 - In the case of a successful finish procedure.
+#
 function project_init_finish() {
   if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == false ]]; then
     # Check that all API functions have been called
@@ -2367,7 +2433,28 @@ function project_init_finish() {
   return $EXIT_SUCCESS;
 }
 
+# [API function]
 # Primary processing function for the quickstart mode.
+#
+# This function handles the execution of one or more requested
+# Quickstart functions. This is the default implementation for
+# handling Quickstarts. In the case of an encountered error,
+# this function might exit the process by means of
+# the failure() function. All return values from called Quickstart
+# functions are handled by this function.
+#
+# # **WARNING:**
+#
+# This API function should **NOT** be called by an addon.
+# An addon is part of an already initialized lifecycle. This API function is
+# only intended to be used for providers of specialised Project Init
+# implementations, e.g. providers with a specialised main form implementation.
+# Normal users and organisations wishing to adapt and extend the default
+# Project Init implementation should do so by using the addon mechanism.
+# Normally, there is no need for an external consumer of Project Init to
+# provide his own lifecycle or main form implementation.
+# Only use this function if you know what you are doing.
+#
 function project_init_process_quickstart() {
   _load_version_base;
 
