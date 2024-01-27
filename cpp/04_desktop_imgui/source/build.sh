@@ -80,6 +80,11 @@ if [[ $ARG_SHOW_HELP == true ]]; then
   exit 0;
 fi
 
+if [[ $ARG_CONFIG == true && $ARG_SKIP_CONFIG == true ]]; then
+  echo "Cannot specify both --config and --skip-config options";
+  exit 1;
+fi
+
 # Check clean flag
 if [[ $ARG_CLEAN == true ]]; then
   if [ -d "build" ]; then
