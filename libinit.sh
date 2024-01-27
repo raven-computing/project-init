@@ -3830,7 +3830,7 @@ function load_var_from_file() {
   local init_lvl="$CURRENT_LVL_PATH";
   local i;
   for (( i=CURRENT_LVL_NUMBER; i>=0; --i )); do
-    if [ -r "{$init_lvl}/${arg_file}" ]; then
+    if [ -r "${init_lvl}/${arg_file}" ]; then
       found=true;
       # Read file content
       var_value="$(cat ${init_lvl}/${arg_file})";
