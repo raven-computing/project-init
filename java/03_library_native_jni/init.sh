@@ -154,7 +154,7 @@ function process_files_lvl_2() {
     # Create namespace directory layout and move source files
     local dir_layout="";
     dir_layout=$(echo "$var_namespace" |tr "." "/");
-    local path_ns_include="${var_project_dir}/src/main/include/$dir_layout/";
+    local path_ns_include="${var_project_dir}/src/main/include/${dir_layout}/";
     local path_ns_native="${var_project_dir}/src/main/${c_or_cpp}/${dir_layout}/";
     local path_ns_test="${var_project_dir}/src/test/${c_or_cpp}/${dir_layout}/";
     mkdir -p "$path_ns_include";

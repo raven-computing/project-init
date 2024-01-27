@@ -143,7 +143,7 @@ run_funct=true;
 if [[ $ARG_LINT == true ]]; then
   if ! command -v "shellcheck" &> /dev/null; then
     echo "Could not find command 'shellcheck'";
-    echo "Please make sure that Shellcheck is correctly installed";
+    echo "Please make sure that ShellCheck is correctly installed";
     echo "See https://github.com/koalaman/shellcheck#installing";
     exit 1;
   fi
