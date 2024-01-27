@@ -10,20 +10,29 @@ ${USAGE}
 
 Options:
 
-  [--clean]      Remove all build-related directories and files and then exit.
+  [--clean]       Remove all build-related directories and files and then exit.
 
-  [--debug]      Build the application with debug symbols and with
-                 optimizations turned off.
+  [--config]      Only execute the build configuration step. This option will skip
+                  the build step.
 
-  [--skip-tests] Do not build any tests.
+  [--debug]       Build the application with debug symbols and with
+                  optimizations turned off.
 
-  [-?|--help]    Show this help message.
+  [--skip-config] Skip the build configuration step. If the build tree does not
+                  exist yet, then this option has no effect and the build
+                  configuration step is executed.
+
+  [--skip-tests]  Do not build any tests.
+
+  [-?|--help]     Show this help message.
 EOS
 )
 
 # Arg flags
 ARG_CLEAN=false;
+ARG_CONFIG=false;
 ARG_DEBUG=false;
+ARG_SKIP_CONFIG=false;
 ARG_SKIP_TESTS=false;
 ARG_SHOW_HELP=false;
 
@@ -34,8 +43,16 @@ for arg in "$@"; do
     ARG_CLEAN=true;
     shift
     ;;
+    --config)
+    ARG_CONFIG=true;
+    shift
+    ;;
     --debug)
     ARG_DEBUG=true;
+    shift
+    ;;
+    --skip-config)
+    ARG_SKIP_CONFIG=true;
     shift
     ;;
     --skip-tests)
@@ -97,13 +114,24 @@ if [[ $ARG_SKIP_TESTS == true ]]; then
 fi
 
 # CMake: Configure
-cmake -DCMAKE_BUILD_TYPE="$BUILD_CONFIGURATION" \
-      -D${{VAR_PROJECT_NAME_UPPER}}_BUILD_TESTS="$BUILD_TESTS" ..;
+if [[ $ARG_SKIP_CONFIG == false ]]; then
+  cmake -DCMAKE_BUILD_TYPE="$BUILD_CONFIGURATION" \
+        -D${{VAR_PROJECT_NAME_UPPER}}_BUILD_TESTS="$BUILD_TESTS" ..;
 
-if (( $? != 0 )); then
-  exit $?;
+  config_status=$?;
+  if (( config_status != 0 )); then
+    exit $config_status;
+  fi
+  if [[ $ARG_CONFIG == true ]]; then
+    exit $config_status;
+  fi
+fi
+
+CMAKE_CONFIG_ARG="";
+if [[ $ARG_SKIP_CONFIG == false ]]; then
+  CMAKE_CONFIG_ARG="--config $BUILD_CONFIGURATION";
 fi
 
 # CMake: Build
-cmake --build . --config "$BUILD_CONFIGURATION";
+cmake --build . $CMAKE_CONFIG_ARG;
 exit $?;

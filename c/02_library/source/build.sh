@@ -10,25 +10,34 @@ ${USAGE}
 
 Options:
 
-  [--clean]      Remove all build-related directories and files and then exit.
+  [--clean]       Remove all build-related directories and files and then exit.
 
-  [--debug]      Build the libraries with debug symbols and with
-                 optimizations turned off.
+  [--config]      Only execute the build configuration step. This option will skip
+                  the build step.
+
+  [--debug]       Build the libraries with debug symbols and with
+                  optimizations turned off.
 ${{VAR_SCRIPT_BUILD_ISOLATED_OPT}}
 
-  [--shared]     Build shared libraries instead of static libraries.
+  [--shared]      Build shared libraries instead of static libraries.
 
-  [--skip-tests] Do not build any tests.
+  [--skip-config] Skip the build configuration step. If the build tree does not
+                  exist yet, then this option has no effect and the build
+                  configuration step is executed.
 
-  [-?|--help]    Show this help message.
+  [--skip-tests]  Do not build any tests.
+
+  [-?|--help]     Show this help message.
 EOS
 )
 
 # Arg flags
 ARG_CLEAN=false;
+ARG_CONFIG=false;
 ARG_SHARED=false;
 ARG_DEBUG=false;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGFLAG}}
+ARG_SKIP_CONFIG=false;
 ARG_SKIP_TESTS=false;
 ARG_SHOW_HELP=false;
 
@@ -41,6 +50,11 @@ for arg in "$@"; do
     ARG_CLEAN=true;
     shift
     ;;
+    --config)
+    ARG_CONFIG=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;
     --shared)
     ARG_SHARED=true;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
@@ -48,6 +62,11 @@ ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     ;;
     --debug)
     ARG_DEBUG=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;
+    --skip-config)
+    ARG_SKIP_CONFIG=true;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;
@@ -121,14 +140,25 @@ if [[ $ARG_SHARED == true ]]; then
 fi
 
 # CMake: Configure
-cmake -DCMAKE_BUILD_TYPE="$BUILD_CONFIGURATION" \
-      -D${{VAR_PROJECT_NAME_UPPER}}_BUILD_TESTS="$BUILD_TESTS" \
-      -D${{VAR_PROJECT_NAME_UPPER}}_BUILD_SHARED_LIBS="$BUILD_SHARED_LIBS" .. ;
+if [[ $ARG_SKIP_CONFIG == false ]]; then
+  cmake -DCMAKE_BUILD_TYPE="$BUILD_CONFIGURATION" \
+        -D${{VAR_PROJECT_NAME_UPPER}}_BUILD_TESTS="$BUILD_TESTS" \
+        -D${{VAR_PROJECT_NAME_UPPER}}_BUILD_SHARED_LIBS="$BUILD_SHARED_LIBS" .. ;
 
-if (( $? != 0 )); then
-  exit $?;
+  config_status=$?;
+  if (( config_status != 0 )); then
+    exit $config_status;
+  fi
+  if [[ $ARG_CONFIG == true ]]; then
+    exit $config_status;
+  fi
+fi
+
+CMAKE_CONFIG_ARG="";
+if [[ $ARG_SKIP_CONFIG == false ]]; then
+  CMAKE_CONFIG_ARG="--config $BUILD_CONFIGURATION";
 fi
 
 # CMake: Build
-cmake --build . --config "$BUILD_CONFIGURATION";
+cmake --build . $CMAKE_CONFIG_ARG;
 exit $?;
