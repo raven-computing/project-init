@@ -1035,6 +1035,40 @@ function _load_version_addons() {
   return $ret_val;
 }
 
+# Loads the specified addon library script file.
+#
+# The specified script path must be valid and the file
+# to be loaded must exist. If any condition is not satisfied, then
+# this function will exit the program by means of the failure() function.
+#
+# Args:
+# $1 - The name of the file to load, relative to the source tree root
+#      of the active addon. This is a mandatory argument.
+#
+function _load_addon_declared_libs() {
+  local addon_libs="$1";
+  if _is_absolute_path "$addon_libs"; then
+    logE "Addon code path is invalid.";
+    logE "Invalid property with key 'sys.addon.code.load': '${addon_libs}'";
+    logE "File path must be relative to addon directory.";
+    _show_helptext "E" "Addons#loading-common-code";
+    failure "An addon configuration has errors";
+  fi
+  if [[ "${addon_libs}" == *"../"* ]]; then
+    logE "Addon code path is invalid.";
+    failure "An addon configuration has errors";
+  fi
+  addon_libs="${PROJECT_INIT_ADDONS_DIR}/${addon_libs}";
+  if ! [ -r "${addon_libs}" ]; then
+    logE "Addon code file not found:";
+    logE "at: '${addon_libs}'";
+    logE "Invalid property with key 'sys.addon.code.load'";
+    _show_helptext "E" "Addons#loading-common-code";
+    failure "An addon configuration has errors";
+  fi
+  source "$addon_libs";
+}
+
 # Loads the quickstart function definitions.
 #
 # The path to the directory containing the quickstart script
@@ -2196,6 +2230,12 @@ function _fill_files_list_from() {
 # the addon-specific file was loaded.
 #
 function _after_addons_properties_loaded() {
+  get_property "sys.addon.code.load";
+  local addon_libs="$PROPERTY_VALUE";
+  if [ -n "$addon_libs" ]; then
+    _load_addon_declared_libs "$addon_libs";
+
+  fi
   get_property "sys.user.hook.afterinit";
   local user_hook="$PROPERTY_VALUE";
   if [ -n "$user_hook" ]; then
