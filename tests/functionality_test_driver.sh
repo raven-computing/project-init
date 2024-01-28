@@ -95,7 +95,7 @@ function main() {
     fi
   fi
 
-  start_project_init "$@";
+  project_init_start "$@";
 
   if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
     # Override the target directory for Quickstart output files
@@ -107,13 +107,13 @@ function main() {
       logE "at: '${_PROJECT_INIT_QUICKSTART_OUTPUT_DIR}'";
       return $EXIT_FAILURE;
     fi
-    process_project_init_quickstart;
+    project_init_process_quickstart;
   else
-    show_project_init_main_form;
+    project_init_show_main_form;
     proceed_next_level "$FORM_MAIN_NEXT_DIR";
   fi
 
-  finish_project_init;
+  project_init_finish;
 
   if (( _N_ERRORS > 0 )); then
     logE "";

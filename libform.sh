@@ -20,7 +20,7 @@
 # #***************************************************************************#
 #
 # This file contains the code for the init level 0 main form.
-# Call the show_project_init_main_form() function to conduct the user
+# Call the project_init_show_main_form() function to conduct the user
 # through the main form.
 # The core function and global variables of the Project Init system
 # are required to be available at the time the function is called.
@@ -39,7 +39,7 @@
 
 # Global var holding the name of the directory representing
 # the next init level after the main form was shown.
-# Represents the return value of the show_project_init_main_form() function.
+# Represents the return value of the project_init_show_main_form() function.
 FORM_MAIN_NEXT_DIR="";
 
 # Form callback function called by libinit when the project
@@ -82,7 +82,7 @@ function _validate_project_directory() {
 }
 
 # Shows and runs through the main Project Init form.
-function show_project_init_main_form() {
+function project_init_show_main_form() {
   _project_init_show_start_info;
   logI "";
   local specified_project_name="";

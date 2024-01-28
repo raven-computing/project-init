@@ -68,7 +68,7 @@ if ! source "libinit.sh"; then
   exit 1;
 fi
 
-# As we don't call the start_project_init() function from libinit,
+# As we don't call the project_init_start() function from libinit,
 # the global variable for the system properties and the global cmd
 # line arg flags are never declared in this scope. Thus, we have to
 # do it manually here to avoid problems when calling some of the

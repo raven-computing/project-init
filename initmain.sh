@@ -47,16 +47,16 @@ function main() {
     return $EXIT_FAILURE;
   fi
 
-  start_project_init "$@";
+  project_init_start "$@";
 
   if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
-    process_project_init_quickstart;
+    project_init_process_quickstart;
   else
-    show_project_init_main_form;
+    project_init_show_main_form;
     proceed_next_level "$FORM_MAIN_NEXT_DIR";
   fi
 
-  finish_project_init;
+  project_init_finish;
 
   return $?;
 }
