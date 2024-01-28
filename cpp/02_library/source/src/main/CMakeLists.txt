@@ -5,7 +5,12 @@ include(GenerateExportHeader)
 #==================================[ TARGET ]==================================
 # Library ${{VAR_PROJECT_NAME}}
 
-set(${{VAR_PROJECT_NAME_UPPER}}_TARGET_LIB_MAIN ${{VAR_ARTIFACT_BINARY_NAME}})
+set(${{VAR_PROJECT_NAME_UPPER}}_TARGET_LIB_MAIN
+    ${{VAR_ARTIFACT_BINARY_NAME}}
+    CACHE
+    STRING
+    "Target name for the ${{VAR_PROJECT_NAME}} library"
+)
 
 set(${{VAR_PROJECT_NAME_UPPER}}_CXX_STANDARD ${{VAR_CPP_VERSION}})
 
