@@ -1,4 +1,4 @@
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ include(FetchContent)
 # named "Config${DEPENDENCY_NAME}.cmake", where ${DEPENDENCY_NAME} is the
 # value of the mandatory dependency name argument. Please note that the
 # first character of the otherwise lowercase dependency name is always
-# capitalised, resulting in a camelcase-style file name. For example, if a
+# capitalised, resulting in a Pascal-case-style file name. For example, if a
 # concrete dependency is named "mydep", then the conventional config file
 # has to be named "ConfigMydep.cmake". The inclusion of any dependency config
 # file can be disabled by using the DEPENDENCY_NO_CONFIG option.
@@ -66,6 +66,22 @@ include(FetchContent)
 # the standard PROJECT_NAME CMake variable. The "DEBUG" scope is active if the
 # project is configured to produce a debug build. This is true when the
 # standard CMake variable CMAKE_BUILD_TYPE is equal to "Debug".
+#
+# By default, this function attempts to cache all dependency sources outside of
+# the build tree. This is so that subsequent clean builds can reuse the sources
+# without having to refetch them over a network connection. When a project has
+# numerous and/or large dependencies, this can significantly speed up its
+# build configure phase. Additionally, a project can potentially be rebuilt
+# without requiring a network connection. In order for a dependency source to
+# be cached, the DEPENDENCY_VERSION argument must be specified. All sources are
+# cached under the underlying user's home directory, which requires that
+# the HOME environment variable is set. Sources are cached under
+# the '${HOME}/.cache/cmake_deps_src' directory, although this should be
+# considered an implementation detail and may change in the future without
+# further notice. The caching of the sources for a specific dependency can be
+# disabled by using the DEPENDENCY_NO_CACHE option argument. To generally
+# disable the caching of all dependency sources, set the environment variable
+# A_CMAKE_DEPENDENCY_NO_CACHE to the value '1'.
 #
 # Arguments:
 #
@@ -132,6 +148,15 @@ include(FetchContent)
 #   DEPENDENCY_NO_CONFIG:
 #       Disables the inclusion of any dependency config files.
 #
+#   DEPENDENCY_NO_CACHE:
+#       Disables the source cache. This has the effect that if the dependency
+#       sources are not available in the build tree, they are fetched, stored
+#       within the build tree (as opposed to the user-specific cache) and
+#       reused in subsequent builds. When the project's build tree is cleaned,
+#       the sources of the dependency are also removed and need to be refetched
+#       in subsequent builds. When this option is specified, the user-specific
+#       source cache is never considered.
+#
 # Example usage:
 #
 # dependency(
@@ -147,6 +172,7 @@ function(dependency)
         DEPENDENCY_QUIET
         DEPENDENCY_NO_CONFIG
         DEPENDENCY_VERBOSE
+        DEPENDENCY_NO_CACHE
     )
     set(oneValueArgs
         DEPENDENCY_NAME
@@ -178,6 +204,7 @@ function(dependency)
     endif()
 
     string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
+    string(TOUPPER ${DEP_ARGS_DEPENDENCY_NAME} DEP_ARGS_DEPENDENCY_NAME_UPPER)
 
     # Check test scope
     if(${${PROJECT_NAME_UPPER}_BUILD_TESTS})
@@ -230,10 +257,6 @@ function(dependency)
         endif()
     endif()
 
-    if(NOT DEP_ARGS_DEPENDENCY_QUIET)
-        message(STATUS "Processing dependency ${DEP_ARGS_DEPENDENCY_NAME}")
-    endif()
-
     if(DEP_ARGS_DEPENDENCY_VERBOSE)
         set(FETCHCONTENT_QUIET OFF)
     endif()
@@ -256,12 +279,56 @@ function(dependency)
         set(DEP_ARGS_DEPENDENCY_RESOURCE "${_DEP_BASE_URL}/${_DEP_SRC_RES}")
     endif()
 
+    set(DEP_CACHE_SRC_PATH "")
+    set(DEP_CACHE_HINT_MSG "")
+
+    # Check whether to consider the source cache
+    if( NOT "$ENV{A_CMAKE_DEPENDENCY_NO_CACHE}" STREQUAL "1"
+        AND NOT DEP_ARGS_DEPENDENCY_NO_CACHE
+        AND DEP_ARGS_DEPENDENCY_VERSION
+        AND DEFINED ENV{HOME})
+
+        set(DEP_CACHE_SRC_BASE "$ENV{HOME}/.cache/cmake_deps_src")
+        set(DEP_CACHE_SRC_UNIT
+            "${DEP_ARGS_DEPENDENCY_NAME}/${DEP_ARGS_DEPENDENCY_VERSION}")
+
+        set(DEP_CACHE_SRC_PATH "${DEP_CACHE_SRC_BASE}/${DEP_CACHE_SRC_UNIT}")
+        file(TO_CMAKE_PATH "${DEP_CACHE_SRC_PATH}" DEP_CACHE_SRC_PATH)
+
+        # Check if dependency sources are in the cache
+        if(EXISTS "${DEP_CACHE_SRC_PATH}")
+            if(DEP_ARGS_DEPENDENCY_VERBOSE)
+                message(
+                    STATUS
+                    "Found cached dependency sources "
+                    "at '${DEP_CACHE_SRC_PATH}'"
+                )
+            endif()
+            set(FETCHCONTENT_SOURCE_DIR_${DEP_ARGS_DEPENDENCY_NAME_UPPER}
+                "${DEP_CACHE_SRC_PATH}" CACHE STRING "" FORCE
+            )
+           set(DEP_CACHE_HINT_MSG "(cached sources)")
+       endif()
+    else()
+        set(DEP_CACHE_HINT_MSG "(cache disabled)")
+    endif()
+
+    if(NOT DEP_ARGS_DEPENDENCY_QUIET)
+        message(
+            STATUS
+            "Processing dependency ${DEP_ARGS_DEPENDENCY_NAME} "
+            "${DEP_CACHE_HINT_MSG}"
+        )
+    endif()
+
     if(${DEP_ARGS_DEPENDENCY_RESOURCE} MATCHES "\.git$")
         # Git repository
         FetchContent_Declare(
             ${DEP_ARGS_DEPENDENCY_NAME}
             GIT_REPOSITORY ${DEP_ARGS_DEPENDENCY_RESOURCE}
             GIT_TAG        ${DEP_ARGS_DEPENDENCY_VERSION}
+            SOURCE_DIR     "${DEP_CACHE_SRC_PATH}"
+            GIT_SHALLOW ON
         )
     else()
         if(${DEP_ARGS_DEPENDENCY_RESOURCE} MATCHES "^(http|https|file)://")
@@ -277,6 +344,7 @@ function(dependency)
             FetchContent_Declare(
                 ${DEP_ARGS_DEPENDENCY_NAME}
                 URL ${DEP_ARGS_DEPENDENCY_RESOURCE}
+                SOURCE_DIR "${DEP_CACHE_SRC_PATH}"
                 URL_HASH SHA256=${DEP_ARGS_DEPENDENCY_FILE_HASH}
             )
         else()
