@@ -15,6 +15,8 @@ readonly CONTAINER_BUILD_DOCKERFILE="Dockerfile-build";
 readonly CONTAINER_BUILD_NAME="${{VAR_PROJECT_NAME_LOWER}}-build";
 # The version tag given to the image and container
 readonly CONTAINER_BUILD_VERSION="0.1";
+# The project name inside the container
+readonly CONTAINER_PROJECT_NAME="${{VAR_PROJECT_NAME_LOWER}}";
 
 
 # Checks that the docker command is available.
@@ -45,7 +47,7 @@ function _check_docker() {
 function _docker_build() {
   local uid=0;
   local gid=0;
-  local workdir="/${{VAR_PROJECT_NAME_LOWER}}";
+  local workdir="/root/${CONTAINER_PROJECT_NAME}";
   # When using non-rootless Docker, the user inside the container should be a
   # regular user. We assign him the same UID and GID as the underlying host
   # user so that there are no conflicts when bind-mounting the source tree.
@@ -55,7 +57,7 @@ function _docker_build() {
   if ! docker info 2>/dev/null |grep -q "rootless"; then
     uid=$(id -u);
     gid=$(id -g);
-    workdir="/home/user${workdir}";
+    workdir="/home/user/${CONTAINER_PROJECT_NAME}";
   fi
   logI "Building Docker image";
   docker build --build-arg UID=${uid}                                   \
@@ -94,11 +96,11 @@ function _run_isolated() {
 
   local uid=0;
   local gid=0;
-  local workdir="/${{VAR_PROJECT_NAME_LOWER}}";
+  local workdir="/root/${CONTAINER_PROJECT_NAME}";
   if ! docker info 2>/dev/null |grep -q "rootless"; then
     uid=$(id -u);
     gid=$(id -g);
-    workdir="/home/user${workdir}";
+    workdir="/home/user/${CONTAINER_PROJECT_NAME}";
   fi
   logI "Executing isolated $run_type";
   docker run --name ${CONTAINER_BUILD_NAME}                        \
@@ -139,11 +141,11 @@ function _start_interactive_isolated_tests() {
 
   local uid=0;
   local gid=0;
-  local workdir="/${{VAR_PROJECT_NAME_LOWER}}";
+  local workdir="/root/${CONTAINER_PROJECT_NAME}";
   if ! docker info 2>/dev/null |grep -q "rootless"; then
     uid=$(id -u);
     gid=$(id -g);
-    workdir="/home/user${workdir}";
+    workdir="/home/user/${CONTAINER_PROJECT_NAME}";
   fi
   logI "Starting isolated Docker container for interactive testing";
   docker run --name ${CONTAINER_BUILD_NAME}                        \

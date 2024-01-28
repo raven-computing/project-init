@@ -43,7 +43,8 @@ function _run_isolated() {
   local uid=0;
   local gid=0;
   local user_home="/root";
-  local workdir="/${{VAR_PROJECT_NAME_LOWER}}";
+  local workdir_name="${{VAR_PROJECT_NAME_LOWER}}";
+  local workdir="${user_home}/${workdir_name}";
   # When using non-rootless Docker, the user inside the container should be a
   # regular user. We assign him the same UID and GID as the underlying host
   # user so that there are no conflicts when bind-mounting the source tree.
@@ -54,7 +55,7 @@ function _run_isolated() {
     uid=$(id -u);
     gid=$(id -g);
     user_home="/home/user";
-    workdir="${user_home}${workdir}";
+    workdir="${user_home}/${workdir_name}";
   fi
   echo "Building Docker image";
   docker build --build-arg UID=${uid}                                   \
