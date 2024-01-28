@@ -2234,7 +2234,6 @@ function _after_addons_properties_loaded() {
   local addon_libs="$PROPERTY_VALUE";
   if [ -n "$addon_libs" ]; then
     _load_addon_declared_libs "$addon_libs";
-
   fi
   get_property "sys.user.hook.afterinit";
   local user_hook="$PROPERTY_VALUE";
