@@ -99,7 +99,8 @@ EOS
 
 # @CMD: find "resources/find" -mindepth 1 -maxdepth 1
 function test_find_with_minmaxdepth_args() {
-  local expected=$(cat << EOS
+  local expected="";
+  expected=$(cat << EOS
 resources/find/should_be_found1.txt
 resources/find/should_be_found2.txt
 resources/find/should_be_found3.txt

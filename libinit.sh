@@ -2053,13 +2053,13 @@ function get_boolean_property() {
 function _run_addon_load_hook() {
   if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
     # Ignore load-hook if script does not exist
-    if [ -f "$PROJECT_INIT_ADDONS_DIR/load-hook.sh" ]; then
+    if [ -f "${PROJECT_INIT_ADDONS_DIR}/load-hook.sh" ]; then
       # Check if hook is executable
-      if [ -x "$PROJECT_INIT_ADDONS_DIR/load-hook.sh" ]; then
+      if [ -x "${PROJECT_INIT_ADDONS_DIR}/load-hook.sh" ]; then
         # Run hook script, in a subshell-process,
         # redirect stdout and stderr to /dev/null
         (cd "$PROJECT_INIT_ADDONS_DIR" \
-            && exec "$PROJECT_INIT_ADDONS_DIR/load-hook.sh" > /dev/null 2>&1);
+            && exec "${PROJECT_INIT_ADDONS_DIR}/load-hook.sh" > /dev/null 2>&1);
 
         local hook_exit_status=$?;
         if (( hook_exit_status != 0 )); then
@@ -2068,7 +2068,7 @@ function _run_addon_load_hook() {
         fi
       else
         logW "The addons load hook is not marked as executable.";
-        logW "Please set as executable: '$PROJECT_INIT_ADDONS_DIR/load-hook.sh'";
+        logW "Please set as executable: '${PROJECT_INIT_ADDONS_DIR}/load-hook.sh'";
         _show_helptext "W" "Addons#hooks";
         warning "The load-hook of the Project Init script was not executed";
       fi
@@ -2085,9 +2085,9 @@ function _run_addon_load_hook() {
 function _run_addon_after_init_hook() {
   if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
     # Ignore hook if script does not exist
-    if [ -f "$PROJECT_INIT_ADDONS_DIR/after-init-hook.sh" ]; then
+    if [ -f "${PROJECT_INIT_ADDONS_DIR}/after-init-hook.sh" ]; then
       # Check if hook is executable
-      if [ -x "$PROJECT_INIT_ADDONS_DIR/after-init-hook.sh" ]; then
+      if [ -x "${PROJECT_INIT_ADDONS_DIR}/after-init-hook.sh" ]; then
         logI "Running after-init hook";
         local exported_project_dir="$var_project_dir";
         if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
@@ -2095,10 +2095,11 @@ function _run_addon_after_init_hook() {
         fi
         # Run hook script, in a subshell-process, define env var,
         # redirect stdout and stderr to /dev/null
+        # shellcheck disable=SC2030
         (cd "$PROJECT_INIT_ADDONS_DIR" \
             && export VAR_PROJECT_DIR="$exported_project_dir" \
             && export PROJECT_INIT_QUICKSTART_REQUESTED; \
-            exec "$PROJECT_INIT_ADDONS_DIR/after-init-hook.sh" > /dev/null 2>&1);
+            exec "${PROJECT_INIT_ADDONS_DIR}/after-init-hook.sh" > /dev/null 2>&1);
 
         local hook_exit_status=$?;
         if (( hook_exit_status != 0 )); then
@@ -2108,7 +2109,7 @@ function _run_addon_after_init_hook() {
       else
         logW "The addons after-init hook is not marked as executable.";
         logW "Please set as executable:" \
-             "'$PROJECT_INIT_ADDONS_DIR/after-init-hook.sh'";
+             "'${PROJECT_INIT_ADDONS_DIR}/after-init-hook.sh'";
         _show_helptext "W" "Addons#hooks";
 
         warning "The after-init-hook of the Project Init script was not executed";
@@ -2175,6 +2176,7 @@ function _run_user_after_init_hook() {
   fi
   # Run hook script, in a subshell-process, define env var,
   # redirect stdout and stderr to /dev/null
+  # shellcheck disable=SC2031
   (cd "$HOME" \
       && export VAR_PROJECT_DIR="$exported_project_dir" \
       && export PROJECT_INIT_QUICKSTART_REQUESTED; \
@@ -4856,7 +4858,7 @@ function expand_namespace_directories() {
   for project_path in "${arg_project_paths[@]}"; do
     if _is_absolute_path "$project_path"; then
       logW "Omitting expansion of invalid namespace template directory.";
-      logW "Path must not be absolute: '$project_path'";
+      logW "Path must not be absolute: '${project_path}'";
       continue;
     fi
     path_source="${var_project_dir}/${project_path}";
@@ -4872,15 +4874,15 @@ function expand_namespace_directories() {
     # directory, otherwise we would overwrite the same directory
     if [[ "${path_source##*/}" == "${arg_namespace%%/*}" ]]; then
       logW "Cannot expand namespace template directory:";
-      logW "at: '$path_source'";
-      logW "The specified namespace '$arg_namespace' begins with the end of this path.";
+      logW "at: '${path_source}'";
+      logW "The specified namespace '${arg_namespace}' begins with the end of this path.";
       continue;
     fi
 
     # Create the target namespace directory layout
     if ! mkdir -p "$path_target"; then
       logE "Failed to create namespace target directory structure:";
-      logE "at: '$path_target'";
+      logE "at: '${path_target}'";
       failure "Failed to create target namespace";
     fi
 
@@ -4889,15 +4891,15 @@ function expand_namespace_directories() {
     for f in $(find "$path_source" -mindepth 1 -maxdepth 1); do
       if ! mv "$f" "$path_target"; then
         logE "Failed to move file to namespace layout target directory:";
-        logE "Source: '$f'";
-        logE "Target: '$path_target'";
+        logE "Source: '${f}'";
+        logE "Target: '${path_target}'";
         failure "Failed to move source files to target namespace";
       fi
     done
     # Remove the original now empty placeholder namespace dir
     if ! rm -r "$path_source"; then
       logE "Failed to remove template source namespace placeholder directory:";
-      logE "at: '$path_source'";
+      logE "at: '${path_source}'";
       failure "Failed to expand namespace directory";
     fi
   done
