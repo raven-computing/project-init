@@ -9,6 +9,18 @@ on:
   workflow_call:
 
 jobs:
+  test-lint:
+    name: 'Lint'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v3
+
+      - name: 'Perform Static Code Analysis (ShellCheck)'
+        env:
+          TERMINAL_NO_USE_CNTRL_CHARS: '1'
+        run: bash test.sh --lint
+
   test-system-compat:
     name: 'System Compatibility'
     runs-on: ubuntu-latest
@@ -19,7 +31,7 @@ jobs:
       - name: 'Test System Compatibility'
         env:
           TERMINAL_NO_USE_CNTRL_CHARS: '1'
-        run: ./test.sh --compatibility
+        run: bash test.sh --compatibility
 
   test-functionality:
     name: 'Functionality'
