@@ -4,6 +4,7 @@ dependency(
     DEPENDENCY_NAME         imgui
     DEPENDENCY_RESOURCE     ocornut/imgui
     DEPENDENCY_VERSION      v1.89.8
+    DEPENDENCY_NO_CACHE
 )
 
 dependency(
