@@ -81,7 +81,7 @@ Execute the test suite by running the ```test.sh``` script:
 
 This will show you if the underlying system is compatible and perform functionality tests for the Project Init tool.
 
-See ```test.sh -?``` for available options.
+See ```test.sh --help``` for available options.
 
 ## License
 
