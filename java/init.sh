@@ -28,6 +28,7 @@
 # VAR_JAVA_VERSION_LABEL: The Java version label
 # VAR_JAVA_VERSION_POM: The Java version in the form as used inside a POM
 # VAR_NAMESPACE_DECLARATION: The namespace of the project, in dot notation
+# VAR_NAMESPACE_DECLARATION_PATH: The namespace of the project, in path notation
 # VAR_NAMESPACE_0: The first package name in the namespace hierarchy
 # VAR_NAMESPACE_DECLARATION_TRAILING_SEP: The namespace in dot notation, with a
 #                                         trailing dot at the end as
@@ -53,6 +54,7 @@ function process_files_lvl_1() {
   replace_var "JAVA_VERSION_LABEL"                 "$var_java_version_label";
   replace_var "NAMESPACE_DECLARATION"              "$var_namespace";
   replace_var "NAMESPACE_DECLARATION_0"            "$var_namespace_0";
+  replace_var "NAMESPACE_DECLARATION_PATH"         "$var_namespace_path";
   replace_var "NAMESPACE_DECLARATION_TRAILING_SEP" "$var_namespace_trailing_sep";
 
   # Check for Java 8 compatibility requirement and adjust the POM based on that.
@@ -72,53 +74,9 @@ function process_files_lvl_1() {
     replace_var "NAMESPACE_PACKAGE_DECLARATION" "";
   else
     replace_var "NAMESPACE_PACKAGE_DECLARATION" "package $var_namespace;";
-
-    # Create namespace directory layout and move source files
-    local dir_layout="";
-    dir_layout=$(echo "$var_namespace" |tr "." "/");
-    # shellcheck disable=SC2154
-    local path_ns_main="${var_project_dir}/src/main/java/${dir_layout}/";
-    local path_ns_tests="${var_project_dir}/src/test/java/${dir_layout}/";
-    # Create directory layout for main files
-    if [ -d "${var_project_dir}/src/main/java/namespace" ]; then
-      mkdir -p "$path_ns_main";
-      # shellcheck disable=SC2044
-      for f in $(find "${var_project_dir}/src/main/java/namespace" -type f); do
-        local f_name="";
-        f_name="$(basename "$f")";
-        # Only move files which are not blacklisted
-        # shellcheck disable=SC2076
-        if [[ ! "${FILES_NO_MOVE[*]}" =~ "${f_name}" ]]; then
-          mv "$f" "$path_ns_main";
-          if (( $? != 0 )); then
-            failure "Failed to move source file into namespace layout directory";
-          fi
-        fi
-      done
-      # Remove the original now empty placeholder namespace dir
-      rm -r "$var_project_dir/src/main/java/namespace/";
-      if (( $? != 0 )); then
-        failure "Failed to remove template source namespace directory";
-      fi
-    fi
-    # Create directory layout for test files
-    if [ -d "$var_project_dir/src/test/java/namespace" ]; then
-      mkdir -p "$path_ns_tests";
-      # shellcheck disable=SC2044
-      for f in $(find "$var_project_dir/src/test/java/namespace" -type f); do
-        mv "$f" "$path_ns_tests";
-        if (( $? != 0 )); then
-          failure "Failed to move source file into namespace layout directory";
-        fi
-      done
-      # Remove the original now empty placeholder namespace dir
-      rm -r "$var_project_dir/src/test/java/namespace/";
-      if (( $? != 0 )); then
-        failure "Failed to remove template source namespace directory";
-      fi
-    fi
-    # Update file cache
-    find_all_files;
+    expand_namespace_directories "$var_namespace_path"     \
+                                 "src/main/java/namespace" \
+                                 "src/test/java/namespace";
   fi
 }
 
@@ -207,6 +165,8 @@ function _validate_java_namespace() {
 # var_namespace_trailing_sep - The namespace in dot notation, with a
 #                              trailing dot at the end as the last character.
 #                              Is set by this function.
+# var_namespace_path         - The entire namespace in path notation
+#                              (with slashes). Is set by this function.
 #
 function form_java_namespace() {
   FORM_QUESTION_ID="java.namespace";
@@ -223,6 +183,7 @@ function form_java_namespace() {
     logI "No namespace will be used";
   fi
   var_namespace="$entered_namespace";
+  var_namespace_path="${var_namespace//.//}";
   var_namespace_trailing_sep="";
   if [ -n "$var_namespace" ]; then
     var_namespace_trailing_sep="$var_namespace.";

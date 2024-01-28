@@ -97,11 +97,30 @@ EOS
   return $?;
 }
 
+# @CMD: find "resources/find" -mindepth 1 -maxdepth 1
+function test_find_with_minmaxdepth_args() {
+  local expected=$(cat << EOS
+resources/find/should_be_found1.txt
+resources/find/should_be_found2.txt
+resources/find/should_be_found3.txt
+EOS
+)
+
+  local actual;
+  actual=$(find "resources/find" -mindepth 1 -maxdepth 1);
+  local exit_status=$?;
+  # Sort output of find
+  actual=$(echo "$actual" |sort);
+  assert_equal "$expected" "$actual" $exit_status;
+  return $?;
+}
+
 function test_command() {
-  test_find_one_file          &&
-  test_find_two_files         &&
-  test_find_all_files_by_name &&
-  test_find_all_files;
+  test_find_one_file               &&
+  test_find_two_files              &&
+  test_find_all_files_by_name      &&
+  test_find_all_files              &&
+  test_find_with_minmaxdepth_args;
   return $?;
 }
 

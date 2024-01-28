@@ -130,35 +130,12 @@ function process_files_lvl_1() {
   fi
 
   # We assume that Python source code files are in a 'package' directory.
-  # In the following we create the namespace directory layout or rename
-  # the main package to the user given name. If the project template root
-  # stores the *.py files in a different directory, or should have another
-  # package in the project root, then this must be handled
-  # by custom init code.
+  # If the project template root stores the *.py files in a different
+  # directory, or should have another package in the project root, then
+  # this must be handled by custom init code.
   if [ -n "$var_package" ]; then
-    if [ -d "$var_project_dir/package/" ]; then
-      # Create namespace directory layout and move source files
-      local path_ns_package="$var_project_dir/$var_namespace_path/";
-      mkdir -p "$path_ns_package";
-      if (( $? != 0 )); then
-        failure "Failed to create package directory layout";
-      fi
-
-      # Move source files into correct package
-      _find_files_impl "${var_project_dir}/package/" "f";
-      for f in "${_FOUND_FILES[@]}"; do
-        mv "$f" "$path_ns_package";
-        if (( $? != 0 )); then
-          failure "Failed to move source file into package directory";
-        fi
-      done
-      # Remove the original empty package dir
-      rm -r "$var_project_dir/package/";
-      if (( $? != 0 )); then
-        failure "Failed to remove template source package directory";
-      fi
-      # Update file cache
-      find_all_files;
+    if [ -d "$var_project_dir/package" ]; then
+      expand_namespace_directories "$var_namespace_path" "package";
     fi
   fi
 }
