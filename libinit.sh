@@ -4888,7 +4888,7 @@ function expand_namespace_directories() {
 
     # Move all files and subdirectories that are direct children of the
     # namespace template source to the created real namespace directory
-    for f in $(find "$path_source" -mindepth 1 -maxdepth 1); do
+    for f in "$path_source"/*; do
       if ! mv "$f" "$path_target"; then
         logE "Failed to move file to namespace layout target directory:";
         logE "Source: '${f}'";
