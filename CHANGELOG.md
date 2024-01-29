@@ -1,3 +1,23 @@
+#### 1.5.0
+* Added the expand_namespace_directories() API function. [[Issue#2]](https://github.com/raven-computing/project-init/issues/2)
+* Added addon mechanism to automatically load custom libraries. [[Issue#26]](https://github.com/raven-computing/project-init/issues/26)
+* Added mechanism to define user-specific after-init-hook. [[Issue#25]](https://github.com/raven-computing/project-init/issues/25)
+* Added the _cd_or_die() function to safely handle change directory operations.
+* Added the _array_contains() function.
+* Added linter integration for ShellCheck in test script with --lint option.
+* Fixed a bug where the _show_start_title() function would try to read and print the content of a 'title.txt' file under '/' when no addon resource was loaded and such a file actually existed at that location.
+* Improved Java init code by not allowing empty namespaces. [[Issue#11]](https://github.com/raven-computing/project-init/issues/11)
+* Improved C and C++ libraries project source templates CMake target exports. [[Issue#19]](https://github.com/raven-computing/project-init/issues/19)
+* Improved C and C++ project source templates build scripts by providing default configure step control options. [[Issue#21]](https://github.com/raven-computing/project-init/issues/21)
+* Improved project source template CMake dependency utility function for C and C++ projects by adding source cache layer. [[Issue#20]](https://github.com/raven-computing/project-init/issues/20)
+* Improved Docker integration project source templates by assimilating directory locations. [[Issue#13]](https://github.com/raven-computing/project-init/issues/13)
+* Improved how file search is handled in init code, using the _find_files_impl() function instead of calling find command directly.
+* Improved how file lists are iterated over, using shell globbing instead of calling ls command directly.
+* Refactored lifecycle functions. [[Issue#1]](https://github.com/raven-computing/project-init/issues/1)
+* Refactored input prompt definition to _READ_FN_INPUT_PROMPT global.
+* Refactored a lot of code by utilizing linter hints.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.4.7...v1.5.0)
+
 #### 1.4.7
 * Improved Java isolated builds with Maven cached dependencies when using Docker isolated builds. [[Issue#8]](https://github.com/raven-computing/project-init/issues/8)
 * Improved Java builds by adding compiler release option. [[Issue#15]](https://github.com/raven-computing/project-init/issues/15)
