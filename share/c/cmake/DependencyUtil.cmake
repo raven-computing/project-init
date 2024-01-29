@@ -279,6 +279,7 @@ function(dependency)
         set(DEP_ARGS_DEPENDENCY_RESOURCE "${_DEP_BASE_URL}/${_DEP_SRC_RES}")
     endif()
 
+    set(OPT_DEP_CACHE_SRC_PATH "")
     set(DEP_CACHE_SRC_PATH "")
     set(DEP_CACHE_HINT_MSG "")
 
@@ -292,6 +293,7 @@ function(dependency)
         set(DEP_CACHE_SRC_UNIT
             "${DEP_ARGS_DEPENDENCY_NAME}/${DEP_ARGS_DEPENDENCY_VERSION}")
 
+        set(OPT_DEP_CACHE_SRC_PATH SOURCE_DIR)
         set(DEP_CACHE_SRC_PATH "${DEP_CACHE_SRC_BASE}/${DEP_CACHE_SRC_UNIT}")
         file(TO_CMAKE_PATH "${DEP_CACHE_SRC_PATH}" DEP_CACHE_SRC_PATH)
 
@@ -325,10 +327,10 @@ function(dependency)
         # Git repository
         FetchContent_Declare(
             ${DEP_ARGS_DEPENDENCY_NAME}
-            GIT_REPOSITORY ${DEP_ARGS_DEPENDENCY_RESOURCE}
-            GIT_TAG        ${DEP_ARGS_DEPENDENCY_VERSION}
-            SOURCE_DIR     "${DEP_CACHE_SRC_PATH}"
-            GIT_SHALLOW ON
+            GIT_REPOSITORY            ${DEP_ARGS_DEPENDENCY_RESOURCE}
+            GIT_TAG                   ${DEP_ARGS_DEPENDENCY_VERSION}
+            GIT_SHALLOW               ON
+            ${OPT_DEP_CACHE_SRC_PATH} "${DEP_CACHE_SRC_PATH}"
         )
     else()
         if(${DEP_ARGS_DEPENDENCY_RESOURCE} MATCHES "^(http|https|file)://")
@@ -343,7 +345,7 @@ function(dependency)
             endif()
             FetchContent_Declare(
                 ${DEP_ARGS_DEPENDENCY_NAME}
-                URL ${DEP_ARGS_DEPENDENCY_RESOURCE}
+                URL "${DEP_ARGS_DEPENDENCY_RESOURCE}"
                 SOURCE_DIR "${DEP_CACHE_SRC_PATH}"
                 URL_HASH SHA256=${DEP_ARGS_DEPENDENCY_FILE_HASH}
             )
