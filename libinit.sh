@@ -2591,7 +2591,7 @@ function project_init_finish() {
 # the failure() function. All return values from called Quickstart
 # functions are handled by this function.
 #
-# # **WARNING:**
+# **WARNING:**
 #
 # This API function should **NOT** be called by an addon.
 # An addon is part of an already initialized lifecycle. This API function is
