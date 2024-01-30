@@ -155,7 +155,7 @@
 # project_init_process_quickstart() function to load and execute
 # the requested Quickstart function.
 #
-# The developer documentation is available under on GitHub:
+# The developer documentation is available on GitHub:
 # https://github.com/raven-computing/project-init/wiki
 #
 # Please consult the docs for further information on the Init System and
@@ -3496,12 +3496,12 @@ function read_user_input_selection() {
 # 
 # logI "What's your name?";
 # read_user_input_text;
-# name=$USER_INPUT_ENTERED_TEXT;
+# name="$USER_INPUT_ENTERED_TEXT";
 # logI "Hi ${name}! Nice to meet you.";
 # 
 # logI "What's the name of the other person?";
 # read_user_input_text _my_validation_name;
-# other_name=$USER_INPUT_ENTERED_TEXT;
+# other_name="$USER_INPUT_ENTERED_TEXT";
 # logI "So, the other person's name is ${other_name}.";
 #
 function read_user_input_text() {
