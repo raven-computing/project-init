@@ -3386,7 +3386,7 @@ function read_user_input_selection() {
       echo -e "${_READ_FN_INPUT_PROMPT}${selected_item}";
     else
       # Read user input
-      read -r -p "${_READ_FN_INPUT_PROMPT}" selected_item;
+      read -e -r -p "${_READ_FN_INPUT_PROMPT}" selected_item;
     fi
 
     # Check special case for "None" option
@@ -3518,7 +3518,7 @@ function read_user_input_text() {
       entered_text="$FORM_QUESTION_ANSWER";
       echo -e "${_READ_FN_INPUT_PROMPT}${entered_text}";
     else
-      read -r -p "${_READ_FN_INPUT_PROMPT}" entered_text;
+      read -e -r -p "${_READ_FN_INPUT_PROMPT}" entered_text;
     fi
     if [ -n "${_validation_function_arg}" ]; then
       if [[ $(type -t ${_validation_function_arg}) == function ]]; then
@@ -3609,7 +3609,7 @@ function read_user_input_yes_no() {
       entered_yes_no="$FORM_QUESTION_ANSWER";
       echo -e "${_READ_FN_INPUT_PROMPT}${entered_yes_no}";
     else
-      read -r -p "${_READ_FN_INPUT_PROMPT}" entered_yes_no;
+      read -e -r -p "${_READ_FN_INPUT_PROMPT}" entered_yes_no;
     fi
     # Validate user input
     if [ -z "$entered_yes_no" ]; then
