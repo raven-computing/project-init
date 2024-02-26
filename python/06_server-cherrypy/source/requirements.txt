@@ -1,4 +1,2 @@
+${{INCLUDE:python/requirements.txt}}
 CherryPy==18.8.0
-${{VAR_REQUIREMENTS_LINT}}
-${{VAR_REQUIREMENTS_DEPLOY}}
-

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ function test_functionality_result() {
   files+=("build.sh");
   files+=("test.sh");
   files+=("setup.py");
+  files+=("pyproject.toml");
   files+=("MANIFEST.in");
   files+=("requirements.txt");
   files+=(".docker/Dockerfile-build");

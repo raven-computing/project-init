@@ -124,6 +124,9 @@ function process_files_lvl_2() {
     replace_var "MANIFEST_WIZARD_DECL" "";
   fi
   replace_var "ODOO_MODULE_NAME" "$var_odoo_module_name";
+  # Remove unsupported lines from copied requirements.txt file.
+  replace_var "REQUIREMENTS_LINT"   "";
+  replace_var "REQUIREMENTS_DEPLOY" "";
 }
 
 # Validation function for the Odoo module name form question.

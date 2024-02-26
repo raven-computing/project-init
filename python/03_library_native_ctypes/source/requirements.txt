@@ -1,2 +1,1 @@
-${{VAR_REQUIREMENTS_LINT}}
-${{VAR_REQUIREMENTS_DEPLOY}}
+${{INCLUDE:python/requirements.txt}}

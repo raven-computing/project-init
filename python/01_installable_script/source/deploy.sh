@@ -51,7 +51,6 @@ if [[ $ARG_SHOW_HELP == true ]]; then
 fi
 
 # Source setup script
-SETUPSH_VIRTUALENV_AUTO_ACTIVATE="0";
 if ! source "setup.sh"; then
   exit 1;
 fi
@@ -69,7 +68,7 @@ if (( $? != 0 )); then
 fi
 
 logI "Running distribution checks";
-twine check dist/*;
+twine check build/dist/*;
 if (( $? != 0 )); then
   logE "Distribution checks have failed";
   exit 1;
@@ -78,14 +77,14 @@ logI "All distribution checks have passed";
 
 if [[ $ARG_TESTPYPI == true ]]; then
   logI "Uploading distributions to TestPyPI";
-  twine upload --repository testpypi dist/*;
+  twine upload --repository testpypi build/dist/*;
   if (( $? != 0 )); then
     logE "Failed to upload distributions";
     exit 1;
   fi
 else
   logI "Uploading distributions to PyPI";
-  twine upload dist/*;
+  twine upload build/dist/*;
   if (( $? != 0 )); then
     logE "Failed to upload distributions";
     exit 1;
