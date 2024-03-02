@@ -79,9 +79,6 @@ if [[ $ARG_CLEAN == true ]]; then
   if [ -d "build" ]; then
     rm -r "build";
   fi
-  if [ -d "dist" ]; then
-    rm -r "dist";
-  fi
   if [ -d *.egg-info ]; then
     rm -r *.egg-info;
   fi
@@ -112,7 +109,7 @@ if [[ $ARG_SKIP_TESTS == false ]]; then
 fi
 
 logI "Building source and binary distribution packages";
-${_PYTHON_EXEC} -m build;
+${_PYTHON_EXEC} -m build --outdir build/dist --no-isolation;
 if (( $? != 0 )); then
   logE "Failed to build distribution packages";
   exit 1;
