@@ -4620,7 +4620,8 @@ function project_init_process() {
   local max_lvl_number=$CURRENT_LVL_NUMBER;
   local max_lvl_path=$CURRENT_LVL_NUMBER;
   local _varname_script_lvl_path="";
-  for lvl in $(seq 1 $max_lvl_number); do
+  local lvl;
+  for (( lvl=1; lvl<=max_lvl_number; ++lvl )); do
     # Check if function in this level is declared
     if [[ $(type -t "process_files_lvl_${lvl}") == function ]]; then
       # Adjust global vars as functions are located in different levels
