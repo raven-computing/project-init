@@ -1,0 +1,25 @@
+if [[ $ARG_DOCS == true ]]; then
+  if ! command -v "mkdocs" &> /dev/null; then
+    if command -v "virtualenvwrapper.sh" &> /dev/null; then
+      source $(which virtualenvwrapper.sh);
+      if [ -n "$(lsvirtualenv |grep mkdocs)" ]; then
+        workon "mkdocs";
+      fi
+    fi
+  fi
+  if ! command -v "mkdocs" &> /dev/null; then
+    echo "Could not find the 'mkdocs' executable.";
+    echo "Please make sure that MkDocs is correctly installed";
+    echo "or set up a virtual environment for it";
+  ${{VAR_SCRIPT_BUILD_ISOLATED_HINT1}}
+    exit 1;
+  fi
+  echo "Building documentation";
+  mkdocs build --config-file "docs/mkdocs.yaml"
+  docs_status=$?;
+  if (( docs_status != 0 )); then
+    echo "Failed to build documentation";
+    echo "MkDocs finished with exit status $docs_status";
+  fi
+  exit $docs_status;
+fi

@@ -1,5 +1,15 @@
 ${{VAR_COPYRIGHT_HEADER}}
 
+/**
+ * @file example.h
+ * @author ${{VAR_PROJECT_ORGANISATION_NAME}}
+ * @brief This is an example header file.
+ *
+ * Here you can put a detailed explanation for what this header is used for.
+ *
+ * @see ${{VAR_PROJECT_ORGANISATION_URL}}
+ */
+
 #ifndef ${{VAR_PREFIX_INCLUDE_GUARD}}_EXAMPLE_H
 #define ${{VAR_PREFIX_INCLUDE_GUARD}}_EXAMPLE_H
 

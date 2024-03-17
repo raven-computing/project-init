@@ -44,6 +44,8 @@ function test_functionality_result() {
   files+=(".docker/controls.sh");
   files+=(".docker/Dockerfile-build");
   files+=(".docker/entrypoint.sh");
+  files+=("docs/mkdocs.yaml");
+  files+=("docs/index.md");
 
   local not_files=();
   not_files+=("LICENSE");
@@ -53,6 +55,7 @@ function test_functionality_result() {
   local dirs=();
   dirs+=("raven");
   dirs+=(".docker");
+  dirs+=("docs");
 
   local not_dirs=();
   not_dirs+=("package");

@@ -8,8 +8,8 @@ class Generator(ABC):
     """Dummy abstract base class.
 
     Attributes:
-        val: The base value used by the Generator, any type.
-        index: The index used by the Generator, as an int.
+        val (any): The base value used by the Generator.
+        index (int): The index used by the Generator.
     """
 
     def __init__(self, val):
@@ -21,6 +21,6 @@ class Generator(ABC):
         """Generates an object of the Generator.
 
         Returns:
-            An object of the Generator
+            any: An object of the Generator
         """
         pass

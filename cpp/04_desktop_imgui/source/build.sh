@@ -17,6 +17,7 @@ Options:
 
   [--debug]       Build the application with debug symbols and with
                   optimizations turned off.
+${{VAR_SCRIPT_BUILD_DOCS_OPT}}
 
   [--skip-config] Skip the build configuration step. If the build tree does not
                   exist yet, then this option has no effect and the build
@@ -32,6 +33,7 @@ EOS
 ARG_CLEAN=false;
 ARG_CONFIG=false;
 ARG_DEBUG=false;
+${{VAR_SCRIPT_BUILD_DOCS_ARGFLAG}}
 ARG_SKIP_CONFIG=false;
 ARG_SKIP_TESTS=false;
 ARG_SHOW_HELP=false;
@@ -51,6 +53,7 @@ for arg in "$@"; do
     ARG_DEBUG=true;
     shift
     ;;
+${{VAR_SCRIPT_BUILD_DOCS_ARGPARSE}}
     --skip-config)
     ARG_SKIP_CONFIG=true;
     shift
@@ -96,6 +99,8 @@ fi
 if ! [ -d "build" ]; then
   mkdir "build";
 fi
+
+${{VAR_SCRIPT_BUILD_DOCS_MAIN}}
 
 # Ensure the required executable is available
 if ! command -v "cmake" &> /dev/null; then

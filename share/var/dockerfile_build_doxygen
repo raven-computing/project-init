@@ -1,0 +1,7 @@
+# Install Doxygen
+RUN wget -q -O /tmp/doxygen.tar.gz \
+ https://github.com/doxygen/doxygen/releases/download/Release_1_10_0/doxygen-1.10.0.linux.bin.tar.gz && \
+ tar -C /tmp -xzf /tmp/doxygen.tar.gz && \
+ make -C /tmp/doxygen-* install && \
+ rm -r /tmp/doxygen-* && \
+ rm /tmp/doxygen.tar.gz

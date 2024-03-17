@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -47,6 +47,8 @@ function test_functionality_result() {
   files+=(".docker/controls.sh");
   files+=(".docker/Dockerfile-build");
   files+=(".docker/entrypoint.sh");
+  files+=("docs/mkdocs.yaml");
+  files+=("docs/index.md");
 
   local not_files=();
   not_files+=("deploy.sh");
@@ -54,6 +56,7 @@ function test_functionality_result() {
   local dirs=();
   dirs+=("raven");
   dirs+=(".docker");
+  dirs+=("docs");
 
   local not_dirs=();
   not_dirs+=("package");

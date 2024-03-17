@@ -1,0 +1,10 @@
+- mkdocstrings:
+    enable_inventory: true
+    handlers:
+      python:
+        paths: [../${{VAR_NAMESPACE_DECLARATION_PATH}}]
+        options:
+          docstring_style: google
+          show_source: false
+          docstring_options:
+            returns_named_value: false

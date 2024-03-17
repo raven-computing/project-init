@@ -8,9 +8,9 @@ class Finder(ABC):
     """Dummy abstract base class.
 
     Attributes:
-        data: The base value used by the Finder, any type.
-        ncalls: The number of calls to the find() method of
-            the Finder instance, as an int.
+        data (any): The base value used by the Finder.
+        ncalls (int): The number of calls to the find() method of
+            the Finder instance.
     """
 
     def __init__(self, data):
@@ -22,9 +22,9 @@ class Finder(ABC):
         """Finds the specified object in the set data object of this Finder.
 
         Args:
-            val: The object to find, as any type.
+            val (any): The object to find.
 
         Returns:
-            The found result, as any type.
+            any: The found result.
         """
         pass

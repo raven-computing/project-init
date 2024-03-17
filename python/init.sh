@@ -129,6 +129,16 @@ function process_files_lvl_1() {
     fi
   fi
 
+  # Check project documentation integration requirements
+  # shellcheck disable=SC2154
+  if [[ "$var_project_integration_docs_enabled" == "1" ]]; then
+    replace_var "REQUIREMENTS_DOCS";
+    replace_var "REQUIREMENTS_DOCS_DOCSTRINGS";
+  else
+    replace_var "REQUIREMENTS_DOCS"            "";
+    replace_var "REQUIREMENTS_DOCS_DOCSTRINGS" "";
+  fi
+
   # We assume that Python source code files are in a 'package' directory.
   # If the project template root stores the *.py files in a different
   # directory, or should have another package in the project root, then

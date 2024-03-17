@@ -45,6 +45,9 @@ FORM_MAIN_NEXT_DIR="";
 # Form callback function called by libinit when the project
 # initialization process is executed.
 function _project_init_process_forms() {
+  if [ -n "$var_project_integration_docs_enabled" ]; then
+    _project_init_process_docs_integration;
+  fi
   if [ -n "$var_project_integration_docker_enabled" ]; then
     _project_init_process_docker_integration;
   fi
@@ -460,6 +463,52 @@ function _project_init_process_docker_integration() {
   fi
 }
 
+# Processes the project source template 'docs' directory and replaces the
+# corresponding substitution variables for the project documentation integration.
+function _project_init_process_docs_integration() {
+  if [[ "$var_project_integration_docs_enabled" == "1" ]]; then
+    if [[ "$var_project_lang" == "C" || "$var_project_lang" == "C++" ]]; then
+      copy_shared "doxygen" "docs";
+      load_var_from_file "SCRIPT_BUILD_DOCS_DOXYGEN_MAIN";
+      var_script_build_docs_doxygen_main="$VAR_FILE_VALUE";
+      load_var_from_file "DOCKERFILE_BUILD_DOXYGEN";
+      var_dockerfile_build_doxygen="$VAR_FILE_VALUE";
+    elif [[ "$var_project_lang" == "Java" || "$var_project_lang" == "Python" ]]; then
+      copy_shared "mkdocs" "docs";
+      load_var_from_file "SCRIPT_BUILD_DOCS_MKDOCS_MAIN";
+      var_script_build_docs_mkdocs_main="$VAR_FILE_VALUE";
+      load_var_from_file "DOCKERFILE_BUILD_MKDOCS";
+      var_dockerfile_build_mkdocs="$VAR_FILE_VALUE";
+      load_var_from_file "DOCS_CONTENT_API_REFERENCE";
+      replace_var "DOCS_CONTENT_API_REFERENCE" "$VAR_FILE_VALUE";
+      load_var_from_file "DOCS_MKDOCS_PLUGIN_MKDOCSTRINGS";
+      replace_var "DOCS_MKDOCS_PLUGIN_MKDOCSTRINGS" "$VAR_FILE_VALUE";
+    else
+      logW "Cannot set up project documentation integration.";
+      logW "No docs template resource is available for ${var_project_lang}";
+      var_project_integration_docs_enabled="0";
+      var_script_build_docs_argflag="";
+      var_script_build_docs_argparse="";
+      var_script_build_docs_opt="";
+    fi
+  fi
+  replace_var "SCRIPT_BUILD_DOCS_ARGFLAG"  "$var_script_build_docs_argflag";
+  replace_var "SCRIPT_BUILD_DOCS_ARGPARSE" "$var_script_build_docs_argparse";
+  replace_var "SCRIPT_BUILD_DOCS_OPT"      "$var_script_build_docs_opt";
+  replace_var "SCRIPT_BUILD_DOCS_MAIN"     "$var_script_build_docs_doxygen_main";
+  replace_var "DOCKERFILE_BUILD_DOXYGEN"   "$var_dockerfile_build_doxygen";
+  replace_var "SCRIPT_BUILD_DOCS_MAIN"     "$var_script_build_docs_mkdocs_main";
+  replace_var "DOCKERFILE_BUILD_MKDOCS"    "$var_dockerfile_build_mkdocs";
+  # If Docker integration is generally not available for the underlying project type
+  # (i.e. form_docker_integration() is never called by any init script), then we must
+  # handle here the Docker-related Docs integration substitution variables ourselves,
+  # and remove them. Otherwise this is handled by _project_init_process_docker_integration()
+  if [ -z "$var_project_integration_docker_enabled" ]; then
+    replace_var "SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD" "";
+    replace_var "SCRIPT_BUILD_ISOLATED_HINT1"        "";
+  fi
+}
+
 # [API function]
 # Prompts the user to enter whether he wants Docker integration.
 #
@@ -519,5 +568,34 @@ function form_docker_integration() {
     var_script_run_isolated_hint1="$VAR_FILE_VALUE";
   else
     var_project_integration_docker_enabled="0";
+  fi
+}
+
+# Prompts the user to enter whether he wants project documentation integration.
+#
+# This function will set the `var_project_integration_docs_enabled` global variable
+# to either "1" or "0", depending on the user's choice.
+#
+# Globals:
+# FORM_QUESTION_ID                       - project.integration.docs
+# var_project_integration_docs_enabled   - Indicates whether the user wants to have
+#                                          project documentation integration.
+#                                          Is set by this function.
+#
+function form_docs_integration() {
+  FORM_QUESTION_ID="project.integration.docs";
+  logI "";
+  logI "Should the project have documentation resources? (Y/n)";
+  read_user_input_yes_no true;
+  if [[ "$USER_INPUT_ENTERED_BOOL" == "true" ]]; then
+    var_project_integration_docs_enabled="1";
+    load_var_from_file "SCRIPT_BUILD_DOCS_ARGFLAG";
+    var_script_build_docs_argflag="$VAR_FILE_VALUE";
+    load_var_from_file "SCRIPT_BUILD_DOCS_ARGPARSE";
+    var_script_build_docs_argparse="$VAR_FILE_VALUE";
+    load_var_from_file "SCRIPT_BUILD_DOCS_OPT";
+    var_script_build_docs_opt="$VAR_FILE_VALUE";
+  else
+    var_project_integration_docs_enabled="0";
   fi
 }

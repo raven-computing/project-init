@@ -20,6 +20,7 @@ RUN apt-get -y update && apt-get -y --no-install-recommends install \
  openjdk-21-jdk \
  maven
 
+${{VAR_DOCKERFILE_BUILD_MKDOCS}}
 
 # Conditionally add regular user and his primary group.
 # If both the GID and UID build arguments were specified to be non-zero,

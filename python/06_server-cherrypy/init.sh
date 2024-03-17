@@ -28,6 +28,7 @@
 
 function process_files_lvl_2() {
   replace_var "EXEC_SCRIPT_NAME" "$var_exec_script_name";
+  replace_var "DOCUMENTED_MODULE" "application";
 }
 
 # Prompts the user to enter the name of the executable script which
@@ -66,6 +67,8 @@ form_python_exec_script_name;
 form_python_use_linter;
 
 form_python_pypi_deployment;
+
+form_docs_integration;
 
 form_docker_integration;
 

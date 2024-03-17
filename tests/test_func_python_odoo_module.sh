@@ -57,6 +57,8 @@ function test_functionality_result() {
   files+=("the_test_module/wizard/__init__.py");
   files+=("the_test_module/wizard/create_new_model_views.xml");
   files+=("the_test_module/wizard/create_new_model.py");
+  files+=("docs/mkdocs.yaml");
+  files+=("docs/index.md");
 
   local not_files=();
   not_files+=("the_test_module/controllers/module.py");
@@ -64,6 +66,7 @@ function test_functionality_result() {
 
   local dirs=();
   dirs+=("the_test_module");
+  dirs+=("docs");
 
   local not_dirs=();
   not_dirs+=("module");

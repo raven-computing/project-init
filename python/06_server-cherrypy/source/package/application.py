@@ -15,7 +15,7 @@ def main():
     """Main function of the ${{VAR_PROJECT_NAME}} server application.
 
     Returns:
-        The exit code of the program.
+        int: The exit code of the program.
     """
     # Global configuration
     cherrypy.config.update({

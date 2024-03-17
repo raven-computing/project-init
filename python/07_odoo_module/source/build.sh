@@ -11,6 +11,7 @@ ${USAGE}
 Options:
 
   [--clean]         Remove the build data and related files and then exit.
+${{VAR_SCRIPT_BUILD_DOCS_OPT}}
 ${{VAR_SCRIPT_BUILD_ISOLATED_OPT}}
 
   [--no-virtualenv] Do not use a virtual environment for the build.
@@ -23,6 +24,7 @@ EOS
 
 # Arg flags
 ARG_CLEAN=false;
+${{VAR_SCRIPT_BUILD_DOCS_ARGFLAG}}
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGFLAG}}
 ARG_NO_VIRTUALENV=false;
 ARG_SKIP_TESTS=false;
@@ -37,6 +39,7 @@ for arg in "$@"; do
     ARG_CLEAN=true;
     shift
     ;;
+${{VAR_SCRIPT_BUILD_DOCS_ARGPARSE}}
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGPARSE}}
     --no-virtualenv)
     ARG_NO_VIRTUALENV=true;
@@ -94,6 +97,8 @@ if [[ $ARG_NO_VIRTUALENV == false ]]; then
     exit 1;
   fi
 fi
+
+${{VAR_SCRIPT_BUILD_DOCS_MAIN}}
 
 # Check skip-tests flag
 if [[ $ARG_SKIP_TESTS == false ]]; then

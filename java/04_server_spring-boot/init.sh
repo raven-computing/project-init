@@ -139,6 +139,8 @@ form_relational_database;
 
 form_spring_security;
 
+form_docs_integration;
+
 form_docker_integration;
 
 # Project setup

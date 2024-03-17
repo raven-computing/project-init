@@ -47,12 +47,15 @@ function test_functionality_result() {
   files+=(".docker/controls.sh");
   files+=(".docker/Dockerfile-build");
   files+=(".docker/entrypoint.sh");
+  files+=("docs/mkdocs.yaml");
+  files+=("docs/index.md");
 
   local dirs=();
   dirs+=("raven");
   dirs+=("raven/mylib");
   dirs+=("raven/mylib/c");
   dirs+=(".docker");
+  dirs+=("docs");
 
   local not_files=();
   not_files+=("package/c/string_comparator.c");

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -49,12 +49,15 @@ function test_functionality_result() {
   files+=("src/net/include/raven/util/Log.h");
   files+=("src/net/tests/CMakeLists.txt");
   files+=("src/net/tests/cpp/raven/net/NetTest.cpp");
+  files+=("docs/Doxyfile");
+  files+=("docs/page_main.md");
 
   local dirs=();
   dirs+=("src/main/cpp/raven");
   dirs+=("src/main/resources");
   dirs+=("src/main/tests/cpp/raven");
   dirs+=("src/main/tests/resources");
+  dirs+=("docs");
 
   local not_dirs=();
   not_dirs+=("src/main/cpp/namespace");

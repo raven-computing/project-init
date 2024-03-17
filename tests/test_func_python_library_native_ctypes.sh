@@ -44,14 +44,20 @@ function test_functionality_result() {
   files+=("tests/__init__.py");
   files+=("tests/test_string_comparator.py");
 
+  local not_files=();
+  not_files+=("docs/mkdocs.yaml");
+  not_files+=("docs/index.md");
+
   local dirs=();
   dirs+=("raven");
 
   local not_dirs=();
   not_dirs+=("package");
   not_dirs+=(".docker");
+  not_dirs+=("docs");
 
   assert_files_exist "${files[@]}"         &&
+  assert_files_not_exist "${not_files[@]}" &&
   assert_dirs_exist "${dirs[@]}"           &&
   assert_dirs_not_exist "${not_dirs[@]}";
   return $?;

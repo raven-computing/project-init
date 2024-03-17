@@ -127,6 +127,7 @@ function process_files_lvl_2() {
   # Remove unsupported lines from copied requirements.txt file.
   replace_var "REQUIREMENTS_LINT"   "";
   replace_var "REQUIREMENTS_DEPLOY" "";
+  replace_var "DOCUMENTED_MODULE" "models.new_model";
 }
 
 # Validation function for the Odoo module name form question.
@@ -173,6 +174,7 @@ function form_python_odoo_module_name() {
     _odoo_module_name="my_module";
   fi
   var_odoo_module_name="${_odoo_module_name}";
+  var_namespace="${_odoo_module_name}"; # Needed for generated docs
 }
 
 # Prompts the user to enter whether he wants the Odoo module to have a controller.
@@ -243,6 +245,8 @@ form_python_odoo_create_controller;
 form_python_odoo_create_model_and_views;
 
 form_python_odoo_create_wizard;
+
+form_docs_integration;
 
 form_docker_integration;
 

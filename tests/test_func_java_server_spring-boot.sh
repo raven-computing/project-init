@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ function test_functionality_result() {
   files+=("src/main/java/raven/mynsa/mynsb/Controller.java");
   files+=("src/main/resources/application.properties");
   files+=("src/test/java/raven/mynsa/mynsb/ApplicationTests.java");
+  files+=("docs/mkdocs.yaml");
+  files+=("docs/index.md");
 
   local dirs=();
   dirs+=("src/main/java/raven");
@@ -44,6 +46,7 @@ function test_functionality_result() {
   dirs+=("src/test/java/raven");
   dirs+=("src/test/java/raven/mynsa");
   dirs+=("src/test/java/raven/mynsa/mynsb");
+  dirs+=("docs");
 
   local not_dirs=();
   not_dirs+=("src/main/java/namespace");

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,10 +38,13 @@ function test_functionality_result() {
   files+=("src/main/include/example.h");
   files+=("src/main/tests/CMakeLists.txt");
   files+=("src/main/tests/c/test_example.c");
+  files+=("docs/Doxyfile");
+  files+=("docs/page_main.md");
 
   local dirs=();
   dirs+=("src/main/resources");
   dirs+=("src/main/tests/resources");
+  dirs+=("docs");
 
   local not_dirs=();
   not_dirs+=(".docker");

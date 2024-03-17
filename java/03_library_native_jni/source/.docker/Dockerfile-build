@@ -35,6 +35,7 @@ RUN wget -q -O /opt/cmake-installer.sh \
  ln -s /opt/cmake/bin/cpack /usr/local/bin/cpack && \
  rm /opt/cmake-installer.sh
 
+${{VAR_DOCKERFILE_BUILD_MKDOCS}}
 
 # Conditionally add regular user and his primary group.
 # If both the GID and UID build arguments were specified to be non-zero,

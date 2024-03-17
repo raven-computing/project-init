@@ -1,0 +1,16 @@
+if [[ $ARG_DOCS == true ]]; then
+  if ! command -v "doxygen" &> /dev/null; then
+    echo "Could not find the 'doxygen' executable.";
+    echo "Please make sure that Doxygen is correctly installed";
+  ${{VAR_SCRIPT_BUILD_ISOLATED_HINT1}}
+    exit 1;
+  fi
+  echo "Building documentation";
+  doxygen "docs/Doxyfile" &> /dev/null;
+  docs_status=$?;
+  if (( docs_status != 0 )); then
+    echo "Failed to build documentation";
+    echo "Doxygen finished with exit status $docs_status";
+  fi
+  exit $docs_status;
+fi

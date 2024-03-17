@@ -11,6 +11,7 @@ ${USAGE}
 Options:
 
   [--clean]    Remove all build-related directories and files and then exit.
+${{VAR_SCRIPT_BUILD_DOCS_OPT}}
 
   [-i|--image] Build an application image with jlink. This will also create
                a distributable ZIP archive from that image.
@@ -23,6 +24,7 @@ EOS
 
 # Arg flags
 ARG_CLEAN=false;
+${{VAR_SCRIPT_BUILD_DOCS_ARGFLAG}}
 ARG_BUILD_IMAGE=false;
 ARG_RUN=false;
 ARG_SHOW_HELP=false;
@@ -34,6 +36,7 @@ for arg in "$@"; do
     ARG_CLEAN=true;
     shift
     ;;
+${{VAR_SCRIPT_BUILD_DOCS_ARGPARSE}}
     -i|--image)
     ARG_BUILD_IMAGE=true;
     shift
@@ -62,6 +65,8 @@ if [[ $ARG_SHOW_HELP == true ]]; then
   echo "$HELP_TEXT";
   exit 0;
 fi
+
+${{VAR_SCRIPT_BUILD_DOCS_MAIN}}
 
 # Ensure the required executable is available
 if ! command -v "mvn" &> /dev/null; then

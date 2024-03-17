@@ -11,6 +11,7 @@ ${USAGE}
 Options:
 
   [--clean]             Remove all build-related directories and files and then exit.
+${{VAR_SCRIPT_BUILD_DOCS_OPT}}
 ${{VAR_SCRIPT_BUILD_ISOLATED_OPT}}
 
   [--no-native]         Do not build native shared libraries.
@@ -26,6 +27,7 @@ EOS
 
 # Arg flags
 ARG_CLEAN=false;
+${{VAR_SCRIPT_BUILD_DOCS_ARGFLAG}}
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGFLAG}}
 ARG_NO_NATIVE=false;
 ARG_SKIP_TESTS=false;
@@ -41,6 +43,7 @@ for arg in "$@"; do
     ARG_CLEAN=true;
     shift
     ;;
+${{VAR_SCRIPT_BUILD_DOCS_ARGPARSE}}
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGPARSE}}
     --no-native)
     ARG_NO_NATIVE=true;
@@ -87,6 +90,8 @@ if [[ $ARG_CLEAN == true ]]; then
 fi
 
 ${{VAR_SCRIPT_BUILD_ISOLATED_MAIN}}
+
+${{VAR_SCRIPT_BUILD_DOCS_MAIN}}
 
 # Ensure the required executable is available
 if ! command -v "mvn" &> /dev/null; then

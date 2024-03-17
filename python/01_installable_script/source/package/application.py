@@ -8,7 +8,7 @@ def main():
     """Main function of the ${{VAR_PROJECT_NAME}} application.
 
     Returns:
-        The exit code of the program.
+        int: The exit code of the program.
     """
     print("${{VAR_PROJECT_SLOGAN_STRING}}")
     if len(sys.argv) > 1:

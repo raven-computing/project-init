@@ -1,0 +1,32 @@
+site_name: "${{VAR_PROJECT_NAME}}"
+site_description: "${{VAR_PROJECT_DESCRIPTION}}"
+site_author: "${{VAR_PROJECT_ORGANISATION_NAME}}"
+copyright: "Copyright © ${{VAR_COPYRIGHT_YEAR}} ${{VAR_PROJECT_ORGANISATION_NAME}}"
+docs_dir: "."
+site_dir: "../build/site"
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      accent: blue
+      toggle:
+        icon: material/brightness-6
+        name: Switch to dark mode
+
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+extra:
+  generator: false
+
+plugins:
+- search
+${{VAR_DOCS_MKDOCS_PLUGIN_MKDOCSTRINGS}}

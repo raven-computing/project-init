@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2024 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,6 +38,10 @@ function test_functionality_result() {
   files+=("src/main/resources/css/styles.css");
   files+=("src/main/resources/layout/Scene.fxml");
 
+  local not_files=();
+  not_files+=("docs/mkdocs.yaml");
+  not_files+=("docs/index.md");
+
   local dirs=();
   dirs+=("src/main/java/raven");
   dirs+=("src/main/resources/css");
@@ -45,8 +49,10 @@ function test_functionality_result() {
 
   local not_dirs=();
   not_dirs+=("src/main/java/namespace");
+  not_dirs+=("docs");
 
   assert_files_exist "${files[@]}"         &&
+  assert_files_not_exist "${not_files[@]}" &&
   assert_dirs_exist "${dirs[@]}"           &&
   assert_dirs_not_exist "${not_dirs[@]}";
   return $?;

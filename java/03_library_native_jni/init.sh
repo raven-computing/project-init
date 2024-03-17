@@ -288,6 +288,8 @@ form_java_namespace;
 
 form_java_native_lib_jni_lang;
 
+form_docs_integration;
+
 form_docker_integration;
 
 # Project setup

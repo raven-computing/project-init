@@ -22,6 +22,10 @@
 # #***************************************************************************#
 
 
+function process_files_lvl_2() {
+  replace_var "DOCUMENTED_MODULE" "comparator";
+}
+
 # Form questions
 
 form_python_version;
@@ -33,6 +37,8 @@ form_python_package_name;
 form_python_use_linter;
 
 form_python_pypi_deployment;
+
+form_docs_integration;
 
 form_docker_integration;
 

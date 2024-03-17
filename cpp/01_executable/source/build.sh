@@ -17,6 +17,7 @@ Options:
 
   [--debug]       Build the application with debug symbols and with
                   optimizations turned off.
+${{VAR_SCRIPT_BUILD_DOCS_OPT}}
 ${{VAR_SCRIPT_BUILD_ISOLATED_OPT}}
 
   [--skip-config] Skip the build configuration step. If the build tree does not
@@ -33,6 +34,7 @@ EOS
 ARG_CLEAN=false;
 ARG_CONFIG=false;
 ARG_DEBUG=false;
+${{VAR_SCRIPT_BUILD_DOCS_ARGFLAG}}
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGFLAG}}
 ARG_SKIP_CONFIG=false;
 ARG_SKIP_TESTS=false;
@@ -57,6 +59,7 @@ ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;
+${{VAR_SCRIPT_BUILD_DOCS_ARGPARSE}}
     --skip-config)
     ARG_SKIP_CONFIG=true;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
@@ -107,6 +110,8 @@ if ! [ -d "build" ]; then
 fi
 
 ${{VAR_SCRIPT_BUILD_ISOLATED_MAIN}}
+
+${{VAR_SCRIPT_BUILD_DOCS_MAIN}}
 
 # Ensure the required executable is available
 if ! command -v "cmake" &> /dev/null; then
