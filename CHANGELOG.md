@@ -1,3 +1,12 @@
+#### 1.5.1
+* Added support for standard documentation integration in project source templates. [[Issue#34]](https://github.com/raven-computing/project-init/issues/34)
+* Fixed documentation text formatting and improved some minor things.
+* Improved user input text prompts by allowing line editing. [[Issue#32]](https://github.com/raven-computing/project-init/issues/32)
+* Improved Python project source templates by moving build artifacts into the build tree. [[Issue#35]](https://github.com/raven-computing/project-init/issues/35)
+* Improved Python project source templates by updating the used build system. [[Issue#10]](https://github.com/raven-computing/project-init/issues/10)
+* Refactored some internal seq loop.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.5.0...v1.5.1)
+
 #### 1.5.0
 * Added the expand_namespace_directories() API function. [[Issue#2]](https://github.com/raven-computing/project-init/issues/2)
 * Added addon mechanism to automatically load custom libraries. [[Issue#26]](https://github.com/raven-computing/project-init/issues/26)
