@@ -29,6 +29,7 @@ readonly GIT_TAG_LATEST_SUFFIX="latest";
 readonly GIT_ORIGIN="origin";
 readonly VERSION_SUFFIX_DEV="dev";
 readonly FILE_CHECK_CHANGELOG="CHANGELOG.md";
+readonly FILE_CHECK_RELEASE_NOTES=".github/release-notes.md";
 
 # Arg flags
 ARG_NO_BUMP=false;
@@ -132,6 +133,28 @@ else
   logW "Could not validate changelog file";
   logW "File not found: '$FILE_CHECK_CHANGELOG'";
 fi
+
+# Check release notes
+if [ -r "$FILE_CHECK_RELEASE_NOTES" ]; then
+  release_notes_top=$(head -n 1 $FILE_CHECK_RELEASE_NOTES);
+  if [[ "$release_notes_top" != "#### Release notes:" ]]; then
+    logW "Malformed release notes file.";
+    logW "Please check file '$FILE_CHECK_RELEASE_NOTES'";
+    exit $EXIT_FAILURE;
+  fi
+  release_notes_bottom=$(tail -n 1 $FILE_CHECK_RELEASE_NOTES);
+  if [[ "$release_notes_bottom" != *"/blob/v${version_release}/CHANGELOG.md)." ]]; then
+    logW "Release notes file is referring to wrong version.";
+    logW "Please check file '$FILE_CHECK_RELEASE_NOTES'";
+    exit $EXIT_FAILURE;
+  fi
+else
+  logW "Could not validate release notes file.";
+  logW "File not found: '$FILE_CHECK_RELEASE_NOTES'";
+  exit $EXIT_FAILURE;
+fi
+
+# Pre-release checks completed
 
 _vc="${COLOR_CYAN}${version_release}${COLOR_NC}";
 logI "";
