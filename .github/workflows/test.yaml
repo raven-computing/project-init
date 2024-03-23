@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 'Perform Static Code Analysis (ShellCheck)'
         env:
@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 'Test System Compatibility'
         env:
@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 'Test Functionality Using Default Bash'
         env:
@@ -54,7 +54,7 @@ jobs:
       image: ravencomputing/bash:4.0
     steps:
       - name: 'Checkout'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 'Test Functionality Using Bash 4.0'
         env:
