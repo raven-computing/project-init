@@ -82,6 +82,13 @@ if (( $? != 0 )); then
   exit $?;
 fi
 
+BUILD_CONFIGURATION="";
+# Determine the build configuration of the last build.
+if [ -f "CMakeCache.txt" ]; then
+  BUILD_CONFIGURATION="$(grep --max-count=1 CMAKE_BUILD_TYPE CMakeCache.txt \
+                         | cut  --delimiter='=' --fields=2)";
+fi
+
 # Run tests with CTest
-ctest --output-on-failure;
+ctest --output-on-failure --build-config "$BUILD_CONFIGURATION";
 exit $?;

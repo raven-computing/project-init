@@ -75,11 +75,18 @@ if (( $? != 0 )); then
   exit $?;
 fi
 
+BUILD_CONFIGURATION="";
+# Determine the build configuration of the last build.
+if [ -f "CMakeCache.txt" ]; then
+  BUILD_CONFIGURATION="$(grep --max-count=1 CMAKE_BUILD_TYPE CMakeCache.txt \
+                         | cut  --delimiter='=' --fields=2)";
+fi
+
 # By default, GTest does not use colourful output when logging
 # the test results to a file. But as we also show the tests
 # in a terminal, we explicitly activate colourful output.
 export GTEST_COLOR=1;
 
 # Run tests with CTest
-ctest --output-on-failure;
+ctest --output-on-failure --build-config "$BUILD_CONFIGURATION";
 exit $?;
