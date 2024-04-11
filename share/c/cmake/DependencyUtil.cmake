@@ -289,7 +289,7 @@ function(dependency)
     # hash, in which case we want to disable the Git shallow option.
     # CMake does not support regex quantifiers, so here we're matching
     # one or more hex digits instead of exactly 40 for the SHA-1 hash.
-    if(${DEP_ARGS_DEPENDENCY_VERSION} MATCHES ^[0-9a-f]+$)
+    if(${DEP_ARGS_DEPENDENCY_VERSION} MATCHES "^[0-9a-f]+$")
         set(OPT_DEP_GIT_SHALLOW "")
         set(DEP_USE_GIT_SHALLOW "")
     endif()
