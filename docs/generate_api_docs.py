@@ -189,7 +189,7 @@ def parse_obj_definition(src_lines, doc, doc_type):
         line_begin = doc.stop
         line_end = line_begin
         while not src_lines[line_end].strip().startswith("}"):
-                line_end += 1
+            line_end += 1
 
         line_end += 1
         definition = {
