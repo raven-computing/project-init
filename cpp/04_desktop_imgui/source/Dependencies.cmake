@@ -3,14 +3,14 @@ include(cmake/DependencyUtil.cmake)
 dependency(
     DEPENDENCY_NAME         imgui
     DEPENDENCY_RESOURCE     ocornut/imgui
-    DEPENDENCY_VERSION      v1.89.8
+    DEPENDENCY_VERSION      v1.90.5
     DEPENDENCY_NO_CACHE
 )
 
 dependency(
     DEPENDENCY_NAME         glfw
     DEPENDENCY_RESOURCE     glfw/glfw
-    DEPENDENCY_VERSION      3.3.8
+    DEPENDENCY_VERSION      3.4
 )
 
 ${{INCLUDE:cpp/cmake/DependenciesCommon.cmake}}
