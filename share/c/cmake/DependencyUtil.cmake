@@ -280,8 +280,19 @@ function(dependency)
     endif()
 
     set(OPT_DEP_CACHE_SRC_PATH "")
+    set(OPT_DEP_GIT_SHALLOW "GIT_SHALLOW")
+    set(DEP_USE_GIT_SHALLOW ON)
     set(DEP_CACHE_SRC_PATH "")
     set(DEP_CACHE_HINT_MSG "")
+
+    # Check if the dependency version was specified as a git commit
+    # hash, in which case we want to disable the Git shallow option.
+    # CMake does not support regex quantifiers, so here we're matching
+    # one or more hex digits instead of exactly 40 for the SHA-1 hash.
+    if(${DEP_ARGS_DEPENDENCY_VERSION} MATCHES "^[0-9a-f]+$")
+        set(OPT_DEP_GIT_SHALLOW "")
+        set(DEP_USE_GIT_SHALLOW "")
+    endif()
 
     # Check whether to consider the source cache
     if( NOT "$ENV{A_CMAKE_DEPENDENCY_NO_CACHE}" STREQUAL "1"
@@ -329,7 +340,7 @@ function(dependency)
             ${DEP_ARGS_DEPENDENCY_NAME}
             GIT_REPOSITORY            ${DEP_ARGS_DEPENDENCY_RESOURCE}
             GIT_TAG                   ${DEP_ARGS_DEPENDENCY_VERSION}
-            GIT_SHALLOW               ON
+            ${OPT_DEP_GIT_SHALLOW}    ${DEP_USE_GIT_SHALLOW}
             ${OPT_DEP_CACHE_SRC_PATH} "${DEP_CACHE_SRC_PATH}"
         )
     else()
