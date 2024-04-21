@@ -59,7 +59,7 @@ Alternatively, you can of course clone this repository and then simply run the *
 
 Project Init requires at least **Bash version 4**.
 
-Currently, we only officially support Linux/Debian-based systems. Although in principle it should be possible to run it on most Linux distributions.
+Currently, we only officially support Linux/Debian-based systems. Although in principle it should be possible to run it on most Linux distributions. If you would like to run Project Init on *Windows*, we do support it via [WSL](https://learn.microsoft.com/en-us/windows/wsl/about).
 
 The Project Init system requires some very common utilities, e.g. *awk* and *grep*, which should be available on pretty much any system. See the [dependencies.txt](dependencies.txt) file for a full list.
 
