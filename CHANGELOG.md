@@ -1,3 +1,11 @@
+#### 1.5.2
+* Improved shared CMake utility function for C and C++ project source templates. [[Issue#41]](https://github.com/raven-computing/project-init/issues/41)
+* Improved test scripts for C and C++ project source templates to better handle multi-config builds. [[Issue#42]](https://github.com/raven-computing/project-init/issues/42)
+* Improved internal infrastructure code.
+* Updated various dependency versions in project source templates.
+* Updated documentation to mention official support via WSL on Windows. [[Issue#43]](https://github.com/raven-computing/project-init/issues/43)
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.5.1...v1.5.2)
+
 #### 1.5.1
 * Added support for standard documentation integration in project source templates. [[Issue#34]](https://github.com/raven-computing/project-init/issues/34)
 * Fixed documentation text formatting and improved some minor things.
