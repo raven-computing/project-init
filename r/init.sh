@@ -115,11 +115,11 @@ function form_r_package_name() {
 }
 
 # Specify supported R versions
-add_lang_version "3.5.0" "R 3.5.0";
 add_lang_version "3.6.0" "R 3.6.0";
 add_lang_version "4.0.0" "R 4.0.0";
 add_lang_version "4.1.0" "R 4.1.0";
 add_lang_version "4.2.0" "R 4.2.0";
+add_lang_version "4.3.0" "R 4.3.0";
 
 # Let the user choose an R project type
 select_project_type "r" "R";
