@@ -3,7 +3,7 @@
 #     Docker image to build and test the ${{VAR_PROJECT_NAME}} project
 #                                                                             #
 ###############################################################################
-FROM r-base:4.2.2
+FROM r-base:4.3.3
 
 # Arguments
 ARG UID=0
@@ -23,6 +23,7 @@ RUN apt-get -y update && apt-get -y install \
  zlib1g-dev \
  libbz2-dev \
  liblzma-dev \
+ libcairo-gobject2=1.18.0-3+b1 \
  libpng-dev \
  libtiff5-dev \
  libjpeg-dev \
