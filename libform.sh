@@ -134,17 +134,21 @@ function project_init_show_main_form() {
   local license_name="";
   local all_license_dirs=();
   local fpath="";
-  for fpath in "${SCRIPT_LVL_0_BASE}/licenses"/*; do
-    if [ -d "$fpath" ]; then
-      license_name=$(basename "$fpath");
-      if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
-        if [ -f "${PROJECT_INIT_ADDONS_DIR}/licenses/${license_name}/DISABLE" ]; then
-          continue;
+  get_boolean_property "sys.baselicenses.disable" "false";
+  local baselicenses_disabled="$PROPERTY_VALUE";
+  if [[ "$baselicenses_disabled" == "false" ]]; then
+    for fpath in "${SCRIPT_LVL_0_BASE}/licenses"/*; do
+      if [ -d "$fpath" ]; then
+        license_name=$(basename "$fpath");
+        if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
+          if [ -f "${PROJECT_INIT_ADDONS_DIR}/licenses/${license_name}/DISABLE" ]; then
+            continue;
+          fi
         fi
+        all_license_dirs+=("$fpath");
       fi
-      all_license_dirs+=("$fpath");
-    fi
-  done
+    done
+  fi
 
   # Add the license directories from the addons to the list
   if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
@@ -197,55 +201,73 @@ function project_init_show_main_form() {
     fi
   done
 
+  local select_license=true;
+  if [[ "$baselicenses_disabled" == "true" ]]; then
+    if (( ${#project_licenses_dirs[@]} == 0 )); then
+      select_license=false;
+      var_project_license_dir="NONE";
+      var_project_license="None";
+      logI "";
+      if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
+        logW "Base licenses are disabled but the active addon has not provided any licenses.";
+      else
+        logW "Base licenses are disabled but no addon is active to provide alternative licenses.";
+      fi
+      logW "The project to be initialized will not be licensed.";
+    fi
+  fi
+
   # Add an option for no license
   project_licenses_dirs+=("NONE");
   project_licenses_names+=("None");
 
-  get_property "project.license" "ask";
-  if [[ "$PROPERTY_VALUE" == "ask" ]]; then
-    # Prompt to chosse a license
-    FORM_QUESTION_ID="project.license";
-    logI "";
-    logI "Choose a license for the project:";
-    read_user_input_selection "${project_licenses_names[@]}";
-
-    # Check whether to set default text
-    if [ -z "$USER_INPUT_ENTERED_INDEX" ]; then
+  if [[ $select_license == true ]]; then
+    get_property "project.license" "ask";
+    if [[ "$PROPERTY_VALUE" == "ask" ]]; then
+      # Prompt to chosse a license
+      FORM_QUESTION_ID="project.license";
       logI "";
-      logI "You have not selected a license. The project will not be licensed";
-      var_project_license_dir="NONE";
-      var_project_license="None";
-    else
-      # Either set the selected license or 'None' 
-      var_project_license="${project_licenses_names[USER_INPUT_ENTERED_INDEX]}";
-      var_project_license_dir="${project_licenses_dirs[USER_INPUT_ENTERED_INDEX]}";
+      logI "Choose a license for the project:";
+      read_user_input_selection "${project_licenses_names[@]}";
 
-      if [[ "$var_project_license_dir" == "NONE" ]]; then
+      # Check whether to set default text
+      if [ -z "$USER_INPUT_ENTERED_INDEX" ]; then
         logI "";
-        logI "The project will have no license";
+        logI "You have not selected a license. The project will not be licensed";
+        var_project_license_dir="NONE";
+        var_project_license="None";
+      else
+        # Either set the selected license or 'None' 
+        var_project_license="${project_licenses_names[USER_INPUT_ENTERED_INDEX]}";
+        var_project_license_dir="${project_licenses_dirs[USER_INPUT_ENTERED_INDEX]}";
+
+        if [[ "$var_project_license_dir" == "NONE" ]]; then
+          logI "";
+          logI "The project will have no license";
+        fi
       fi
-    fi
-  else
-    # License name was specified directly as property
-    var_project_license="$PROPERTY_VALUE";
-    # Find the corresponding license dir
-    local i;
-    for (( i=0; i<${#project_licenses_names[@]}; ++i )); do
-      if [[ "$var_project_license" == "${project_licenses_names[$i]}" ]]; then
-        var_project_license_dir="${project_licenses_dirs[$i]}";
-        break;
+    else
+      # License name was specified directly as property
+      var_project_license="$PROPERTY_VALUE";
+      # Find the corresponding license dir
+      local i;
+      for (( i=0; i<${#project_licenses_names[@]}; ++i )); do
+        if [[ "$var_project_license" == "${project_licenses_names[$i]}" ]]; then
+          var_project_license_dir="${project_licenses_dirs[$i]}";
+          break;
+        fi
+      done
+      # Check if license name was valid by checking whether we found a dir for it
+      if [ -z "$var_project_license_dir" ]; then
+        logE "No valid license specified for the new project";
+        local hint_prop_key="${COLOR_CYAN}project.license=ask${COLOR_NC}";
+        local hint_prop_file="${COLOR_CYAN}project.properties${COLOR_NC}";
+        failure \
+          "You have specified that new projects should use the license '$var_project_license'," \
+          "however, this license is not available. Either specify a valid license name"         \
+          "or set ${hint_prop_key} in your ${hint_prop_file} file to be able to select "        \
+          "an available license from a list.";
       fi
-    done
-    # Check if license name was valid by checking whether we found a dir for it
-    if [ -z "$var_project_license_dir" ]; then
-      logE "No valid license specified for the new project";
-      local hint_prop_key="${COLOR_CYAN}project.license=ask${COLOR_NC}";
-      local hint_prop_file="${COLOR_CYAN}project.properties${COLOR_NC}";
-      failure \
-        "You have specified that new projects should use the license '$var_project_license'," \
-        "however, this license is not available. Either specify a valid license name"         \
-        "or set ${hint_prop_key} in your ${hint_prop_file} file to be able to select "        \
-        "an available license from a list.";
     fi
   fi
 
