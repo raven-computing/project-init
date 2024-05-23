@@ -12,10 +12,10 @@
 #                                                                             #
 ###############################################################################
 
-# The Dockerfile to be used for creating images for isolated builds
-PROJECT_CONTAINER_BUILD_DOCKERFILE="Dockerfile-build";
+# The Dockerfile to be used for creating images for isolated runs
+ROJECT_CONTAINER_BUILD_DOCKERFILE="Dockerfile-run";
 # The name given to the image and container
-PROJECT_CONTAINER_BUILD_NAME="${{VAR_PROJECT_NAME_LOWER}}-build";
+PROJECT_CONTAINER_BUILD_NAME="${{VAR_PROJECT_NAME_LOWER}}";
 # The version tag given to the image and container
 PROJECT_CONTAINER_BUILD_VERSION="0.1";
 
