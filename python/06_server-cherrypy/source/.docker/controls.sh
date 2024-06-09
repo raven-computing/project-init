@@ -6,17 +6,20 @@
 # This shell script provides functions to handle isolated executions          #
 # via Docker. Users may source this file and call the provided functions to   #
 # either build or test the underlying project inside a Docker container.      #
+# This can also be used to run arbitrary commands inside an isolated          #
+# container or to get an interactive shell. Some execution parameters         #
+# can be controlled by setting various PROJECT_CONTAINER_* variables.         #
 #                                                                             #
 ###############################################################################
 
 # The Dockerfile to be used for creating images for isolated builds
-readonly CONTAINER_BUILD_DOCKERFILE="Dockerfile-build";
+PROJECT_CONTAINER_BUILD_DOCKERFILE="Dockerfile-build";
 # The name given to the image and container
-readonly CONTAINER_BUILD_NAME="${{VAR_PROJECT_NAME_LOWER}}-build";
+PROJECT_CONTAINER_BUILD_NAME="${{VAR_PROJECT_NAME_LOWER}}-build";
 # The version tag given to the image and container
-readonly CONTAINER_BUILD_VERSION="0.1";
+PROJECT_CONTAINER_BUILD_VERSION="0.1";
 # The project name inside the container
-readonly CONTAINER_PROJECT_NAME="${{VAR_PROJECT_NAME_LOWER}}";
+PROJECT_CONTAINER_PROJECT_NAME="${{VAR_PROJECT_NAME_LOWER}}";
 
 
 # Checks that the docker command is available.
@@ -41,13 +44,19 @@ function _check_docker() {
 
 # Builds the Docker image.
 #
+# The building of the Docker image can be suppressed by setting the
+# environment variable PROJECT_CONTAINER_IMAGE_BUILD to the value "0".
+#
 # Returns:
 # The exit status of the docker build command.
 #
 function _docker_build() {
+  if [[ "$PROJECT_CONTAINER_IMAGE_BUILD" == "0" ]]; then
+    return 0;
+  fi
   local uid=0;
   local gid=0;
-  local workdir="/root/${CONTAINER_PROJECT_NAME}";
+  local workdir="/root/${PROJECT_CONTAINER_PROJECT_NAME}";
   # When using non-rootless Docker, the user inside the container should be a
   # regular user. We assign him the same UID and GID as the underlying host
   # user so that there are no conflicts when bind-mounting the source tree.
@@ -57,14 +66,15 @@ function _docker_build() {
   if ! docker info 2>/dev/null |grep -q "rootless"; then
     uid=$(id -u);
     gid=$(id -g);
-    workdir="/home/user/${CONTAINER_PROJECT_NAME}";
+    workdir="/home/user/${PROJECT_CONTAINER_PROJECT_NAME}";
   fi
+  local name_tag="${PROJECT_CONTAINER_BUILD_NAME}:${PROJECT_CONTAINER_BUILD_VERSION}";
   logI "Building Docker image";
-  docker build --build-arg UID=${uid}                                   \
-               --build-arg GID=${gid}                                   \
-               --build-arg DWORKDIR="${workdir}"                        \
-               --tag ${CONTAINER_BUILD_NAME}:${CONTAINER_BUILD_VERSION} \
-               --file .docker/${CONTAINER_BUILD_DOCKERFILE} .
+  docker build --build-arg UID=${uid}                                \
+               --build-arg GID=${gid}                                \
+               --build-arg DWORKDIR="${workdir}"                     \
+               --tag "${name_tag}"                                   \
+               --file .docker/${PROJECT_CONTAINER_BUILD_DOCKERFILE} .
 
   return $?;
 }
@@ -82,10 +92,10 @@ function _docker_build() {
 # Either the exit status of the Docker-related commands, if unsuccessful,
 # or the exit status of the specified command.
 #
-function _run_isolated() {
-  local run_type="$1";
+function project_run_isolated() {
+  local isolated_command="$1";
   shift;
-  if ! _check_docker "If you want the $run_type to be executed in an isolated environment," \
+  if ! _check_docker "If you want a command to be executed in an isolated environment," \
                      "please make sure that Docker is correctly installed."; then
     return 1;
   fi
@@ -96,20 +106,22 @@ function _run_isolated() {
 
   local uid=0;
   local gid=0;
-  local workdir="/root/${CONTAINER_PROJECT_NAME}";
+  local workdir="/root/${PROJECT_CONTAINER_PROJECT_NAME}";
   if ! docker info 2>/dev/null |grep -q "rootless"; then
     uid=$(id -u);
     gid=$(id -g);
-    workdir="/home/user/${CONTAINER_PROJECT_NAME}";
+    workdir="/home/user/${PROJECT_CONTAINER_PROJECT_NAME}";
   fi
-  logI "Executing isolated $run_type";
-  docker run --name ${CONTAINER_BUILD_NAME}                        \
+  local name_tag="${PROJECT_CONTAINER_BUILD_NAME}:${PROJECT_CONTAINER_BUILD_VERSION}";
+  logI "Executing isolated $isolated_command";
+  docker run --name ${PROJECT_CONTAINER_BUILD_NAME}                \
              --mount type=bind,source="${PWD}",target="${workdir}" \
              --user ${uid}:${gid}                                  \
              --rm                                                  \
              --tty                                                 \
-             ${CONTAINER_BUILD_NAME}:${CONTAINER_BUILD_VERSION}    \
-             "$run_type"                                           \
+             --interactive                                         \
+             "$name_tag"                                           \
+             "$isolated_command"                                   \
              "$@";
 
   return $?;
@@ -141,14 +153,15 @@ function _start_interactive_isolated_tests() {
 
   local uid=0;
   local gid=0;
-  local workdir="/root/${CONTAINER_PROJECT_NAME}";
+  local workdir="/root/${PROJECT_CONTAINER_PROJECT_NAME}";
   if ! docker info 2>/dev/null |grep -q "rootless"; then
     uid=$(id -u);
     gid=$(id -g);
-    workdir="/home/user/${CONTAINER_PROJECT_NAME}";
+    workdir="/home/user/${PROJECT_CONTAINER_PROJECT_NAME}";
   fi
+  local name_tag="${PROJECT_CONTAINER_BUILD_NAME}:${PROJECT_CONTAINER_BUILD_VERSION}";
   logI "Starting isolated Docker container for interactive testing";
-  docker run --name ${CONTAINER_BUILD_NAME}                        \
+  docker run --name ${PROJECT_CONTAINER_BUILD_NAME}                \
              --interactive                                         \
              --tty                                                 \
              --init                                                \
@@ -156,30 +169,10 @@ function _start_interactive_isolated_tests() {
              --user ${uid}:${gid}                                  \
              --rm                                                  \
              --publish 8080:8080                                   \
-             ${CONTAINER_BUILD_NAME}:${CONTAINER_BUILD_VERSION}    \
+             "$name_tag"                                           \
              "tests"                                               \
              "$@";
 
-  return $?;
-}
-
-# Executes an isolated build process inside a Docker container.
-#
-# This function executes a 'docker build' followed by a 'docker run' command.
-# Returns the exit status of 'docker build', if it was not successful,
-# otherwise returns the exit status of 'docker run'.
-#
-# Args:
-# $@ - Arguments to be passed to the project's build.sh script
-#      to customise the build.
-#
-# Returns:
-# The exit status of the Docker-related commands. If the Docker commands are
-# all successful, then the exit status of the executed build.sh script
-# is returned instead.
-#
-function run_isolated_build() {
-  _run_isolated "build" "$@";
   return $?;
 }
 
@@ -207,7 +200,7 @@ function run_isolated_build() {
 # Returns the exit status of the server application process when using an
 # interactive test session.
 #
-function run_isolated_tests() {
+function project_run_isolated_tests() {
   local arg="";
   local run_interactive_session=false;
   for arg in "$@"; do
@@ -220,7 +213,7 @@ function run_isolated_tests() {
   if [[ $run_interactive_session == true ]]; then
     _start_interactive_isolated_tests "$@";
   else
-    _run_isolated "tests" "$@";
+    project_run_isolated "tests" "$@";
   fi
   return $?;
 }

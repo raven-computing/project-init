@@ -74,8 +74,9 @@ function project_run_isolated() {
                  --tag "$name_tag"                                     \
                  --file .docker/${PROJECT_CONTAINER_BUILD_DOCKERFILE} .
 
-    if (( $? != 0 )); then
-      return $?;
+    local docker_status=$?;
+    if (( docker_status != 0 )); then
+      return $docker_status;
     fi
   fi
 

@@ -13,7 +13,7 @@
 ###############################################################################
 
 # The Dockerfile to be used for creating images for isolated runs
-ROJECT_CONTAINER_BUILD_DOCKERFILE="Dockerfile-run";
+PROJECT_CONTAINER_BUILD_DOCKERFILE="Dockerfile-run";
 # The name given to the image and container
 PROJECT_CONTAINER_BUILD_NAME="${{VAR_PROJECT_NAME_LOWER}}";
 # The version tag given to the image and container
@@ -74,8 +74,9 @@ function project_run_isolated() {
                  --tag "$name_tag"                                     \
                  --file .docker/${PROJECT_CONTAINER_BUILD_DOCKERFILE} .
 
-    if (( $? != 0 )); then
-      return $?;
+    local docker_status=$?;
+    if (( docker_status != 0 )); then
+      return $docker_status;
     fi
   fi
 

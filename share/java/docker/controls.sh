@@ -70,14 +70,15 @@ function project_run_isolated() {
   local name_tag="${PROJECT_CONTAINER_BUILD_NAME}:${PROJECT_CONTAINER_BUILD_VERSION}";
   if [[ "$PROJECT_CONTAINER_IMAGE_BUILD" != "0" ]]; then
     echo "Building Docker image";
-    docker build --build-arg UID=${uid}                        \
-                 --build-arg GID=${gid}                        \
-                 --build-arg DWORKDIR="${workdir}"             \
-                 --tag "$name_tag"                             \
-                 --file .docker/${CONTAINER_BUILD_DOCKERFILE} .
+    docker build --build-arg UID=${uid}                               \
+                 --build-arg GID=${gid}                               \
+                 --build-arg DWORKDIR="${workdir}"                    \
+                 --tag "$name_tag"                                    \
+                 --file .docker/${PROJECT_CONTAINER_BUILD_DOCKERFILE} .
 
-    if (( $? != 0 )); then
-      return $?;
+    local docker_status=$?;
+    if (( docker_status != 0 )); then
+      return $docker_status;
     fi
   fi
 
