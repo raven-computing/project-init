@@ -360,6 +360,14 @@ VAR_FILE_VALUE="";
 PROJECT_INIT_SUCCESS_MESSAGE="Project has been initialized";
 
 # [API Global]
+# The name of the file which is generated for the legal text of
+# the selected license. A new value can be set to this variable to
+# change the file name.
+# Since:
+# 1.6.0
+PROJECT_INIT_LICENSE_FILE_NAME="LICENSE";
+
+# [API Global]
 # Indicates whether the user has requested a quickstart.
 # Is either true or false.  
 # This variable must be regarded as read-only.
@@ -4372,12 +4380,18 @@ function project_init_license() {
   # Check if a license was specified by the user
   if [ -n "$var_project_license_dir" ]; then
     if [ "$var_project_license_dir" != "NONE" ]; then
+      if [ -z "$PROJECT_INIT_LICENSE_FILE_NAME" ]; then
+        logW "Project license file name must not be empty.";
+        PROJECT_INIT_LICENSE_FILE_NAME="LICENSE";
+      fi
       # Copy the main license file
       if [ -r "${var_project_license_dir}/license.txt" ]; then
-        if ! cp "${var_project_license_dir}/license.txt" "${var_project_dir}/LICENSE"; then
+        local license_src="${var_project_license_dir}/license.txt";
+        local license_trgt="${var_project_dir}/${PROJECT_INIT_LICENSE_FILE_NAME}";
+        if ! cp "$license_src" "$license_trgt"; then
           logE "An error occurred while trying to copy the following file:";
-          logE "Source: '${var_project_license_dir}/license.txt'";
-          logE "Target: '${var_project_dir}/LICENSE'";
+          logE "Source: '${license_src}'";
+          logE "Target: '${license_trgt}'";
           failure "Failed to copy license file to project directory";
         fi
 
@@ -4390,7 +4404,7 @@ function project_init_license() {
         logW "Failed to find license legal text file for '$var_project_license'.";
         logW "Please add the legal text to the" \
              "file '$var_project_license_dir/license.txt'.";
-        warning "The initialized project has a missing 'LICENSE' file";
+        warning "The initialized project has a missing '${PROJECT_INIT_LICENSE_FILE_NAME}' file";
       fi
       # Set up copyright headers in all specified files
       _load_extension_map;
