@@ -131,79 +131,13 @@ function project_init_show_main_form() {
     var_project_description="$specified_project_description";
   fi
 
-  local license_name="";
-  local all_license_dirs=();
-  local fpath="";
-  get_boolean_property "sys.baselicenses.disable" "false";
-  local baselicenses_disabled="$PROPERTY_VALUE";
-  if [[ "$baselicenses_disabled" == "false" ]]; then
-    for fpath in "${SCRIPT_LVL_0_BASE}/licenses"/*; do
-      if [ -d "$fpath" ]; then
-        license_name=$(basename "$fpath");
-        if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
-          if [ -f "${PROJECT_INIT_ADDONS_DIR}/licenses/${license_name}/DISABLE" ]; then
-            continue;
-          fi
-        fi
-        all_license_dirs+=("$fpath");
-      fi
-    done
-  fi
-
-  # Add the license directories from the addons to the list
-  if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
-    if [ -d "$PROJECT_INIT_ADDONS_DIR/licenses" ]; then
-      for fpath in "${PROJECT_INIT_ADDONS_DIR}/licenses"/*; do
-        if [ -d "$fpath" ]; then
-          if ! [ -f "${fpath}/DISABLE" ]; then
-            all_license_dirs+=("$fpath");
-          fi
-        fi
-      done
-      # Check if the separator char used in the sort function
-      # is part of one of the path strings
-      for fpath in "${all_license_dirs[@]}"; do
-        if [[ "$fpath" == *"?"* ]]; then
-          logE "Invalid path encountered:";
-          logE "'${fpath}'";
-          logE "Path contains an invalid character: '?'";
-          failure "One or more paths to a component of an addon has an invalid character." \
-                  "Please make sure that the path to the addons directory does not"        \
-                  "contain '?' characters";
-        fi
-      done
-      mapfile -t all_license_dirs < <(_sort_file_paths "${all_license_dirs[@]}");
-    fi
-  fi
-
-  # Construct the list of license dirs and names
-  local project_licenses_dirs=();
-  local project_licenses_names=();
-
-  local dir="";
-  local name="";
-  local dir_name="";
-  for dir in "${all_license_dirs[@]}"; do
-    dir_name=$(basename "$dir");
-    if [ -r "${dir}/license.txt" ]; then
-      project_licenses_dirs+=("$dir");
-      if [ -r "${dir}/name.txt" ]; then
-        name=$(head -n 1 "${dir}/name.txt");
-        project_licenses_names+=("$name");
-      else
-        logW "The license directory '${dir_name}' has no name file";
-        name="$dir_name";
-        project_licenses_names+=("$name");
-      fi
-    else
-      logW "The license directory does not have a 'license.txt' file:";
-      logW "at: '${dir}'";
-    fi
-  done
+  _load_available_licenses;
 
   local select_license=true;
+  get_boolean_property "sys.baselicenses.disable" "false";
+  local baselicenses_disabled="$PROPERTY_VALUE";
   if [[ "$baselicenses_disabled" == "true" ]]; then
-    if (( ${#project_licenses_dirs[@]} == 0 )); then
+    if (( ${#_PROJECT_AVAILABLE_LICENSES_PATHS[@]} == 0 )); then
       select_license=false;
       var_project_license_dir="NONE";
       var_project_license="None";
@@ -217,10 +151,6 @@ function project_init_show_main_form() {
     fi
   fi
 
-  # Add an option for no license
-  project_licenses_dirs+=("NONE");
-  project_licenses_names+=("None");
-
   if [[ $select_license == true ]]; then
     get_property "project.license" "ask";
     if [[ "$PROPERTY_VALUE" == "ask" ]]; then
@@ -228,7 +158,7 @@ function project_init_show_main_form() {
       FORM_QUESTION_ID="project.license";
       logI "";
       logI "Choose a license for the project:";
-      read_user_input_selection "${project_licenses_names[@]}";
+      read_user_input_selection "${_PROJECT_AVAILABLE_LICENSES_NAMES[@]}";
 
       # Check whether to set default text
       if [ -z "$USER_INPUT_ENTERED_INDEX" ]; then
@@ -238,8 +168,8 @@ function project_init_show_main_form() {
         var_project_license="None";
       else
         # Either set the selected license or 'None' 
-        var_project_license="${project_licenses_names[USER_INPUT_ENTERED_INDEX]}";
-        var_project_license_dir="${project_licenses_dirs[USER_INPUT_ENTERED_INDEX]}";
+        var_project_license="${_PROJECT_AVAILABLE_LICENSES_NAMES[USER_INPUT_ENTERED_INDEX]}";
+        var_project_license_dir="${_PROJECT_AVAILABLE_LICENSES_PATHS[USER_INPUT_ENTERED_INDEX]}";
 
         if [[ "$var_project_license_dir" == "NONE" ]]; then
           logI "";
@@ -251,9 +181,9 @@ function project_init_show_main_form() {
       var_project_license="$PROPERTY_VALUE";
       # Find the corresponding license dir
       local i;
-      for (( i=0; i<${#project_licenses_names[@]}; ++i )); do
-        if [[ "$var_project_license" == "${project_licenses_names[$i]}" ]]; then
-          var_project_license_dir="${project_licenses_dirs[$i]}";
+      for (( i=0; i<${#_PROJECT_AVAILABLE_LICENSES_NAMES[@]}; ++i )); do
+        if [[ "$var_project_license" == "${_PROJECT_AVAILABLE_LICENSES_NAMES[i]}" ]]; then
+          var_project_license_dir="${_PROJECT_AVAILABLE_LICENSES_PATHS[i]}";
           break;
         fi
       done
@@ -270,6 +200,9 @@ function project_init_show_main_form() {
       fi
     fi
   fi
+
+  _PROJECT_SELECTED_LICENSE_PATH="$var_project_license_dir";
+  _PROJECT_SELECTED_LICENSE_NAME="$var_project_license";
 
   # Prepare reading of project target directory path
   local project_dir_name="$var_project_name_lower";

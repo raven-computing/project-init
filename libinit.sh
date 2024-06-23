@@ -415,6 +415,22 @@ declare -A PROPERTIES;
 # The associative array for the data in extension_map.txt files.
 declare -A COPYRIGHT_HEADER_EXT_MAP;
 
+# The paths to the directories of all available project licenses.
+# Is set by the _load_available_licenses() function.
+# The order of the paths is in sync with the names.
+_PROJECT_AVAILABLE_LICENSES_PATHS=();
+
+# The names of all project licenses.
+# Is set by the _load_available_licenses() function.
+# The order of the names is in sync with the paths.
+_PROJECT_AVAILABLE_LICENSES_NAMES=();
+
+# The path to the license resource selected in the active process.
+_PROJECT_SELECTED_LICENSE_PATH="";
+
+# The name of the license resource selected in the active process.
+_PROJECT_SELECTED_LICENSE_NAME="";
+
 # An array holding names of commands that are required
 # by the init system. Is filled by the _read_dependencies() function.
 SYS_DEPENDENCIES=();
@@ -4312,6 +4328,227 @@ function replace_var() {
   done
 }
 
+# Loads all available project licenses.
+#
+# Searches in the 'licenses' resource directories of both the base
+# resource directory and, if active, of the addon and populates
+# the _PROJECT_AVAILABLE_LICENSES_* global arrays with the paths to the
+# license resource and the names of the licenses, respectively.
+# The arrays are populated in sync. The last item in both arrays will be set
+# to 'NONE' for the path and 'None' for the name, to represent the choice of
+# using no license for a project.
+#
+# Globals:
+# _PROJECT_AVAILABLE_LICENSES_PATHS - Is reset and filled by this function.
+# _PROJECT_AVAILABLE_LICENSES_NAMES - Is reset and filled by this function.
+#
+function _load_available_licenses() {
+  local license_name="";
+  local all_license_dirs=();
+  local fpath="";
+  get_boolean_property "sys.baselicenses.disable" "false";
+  local baselicenses_disabled="$PROPERTY_VALUE";
+  if [[ "$baselicenses_disabled" == "false" ]]; then
+    for fpath in "${SCRIPT_LVL_0_BASE}/licenses"/*; do
+      if [ -d "$fpath" ]; then
+        license_name=$(basename "$fpath");
+        if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
+          if [ -f "${PROJECT_INIT_ADDONS_DIR}/licenses/${license_name}/DISABLE" ]; then
+            continue;
+          fi
+        fi
+        all_license_dirs+=("$fpath");
+      fi
+    done
+  fi
+
+  # Add the license directories from the addons to the list
+  if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
+    if [ -d "$PROJECT_INIT_ADDONS_DIR/licenses" ]; then
+      for fpath in "${PROJECT_INIT_ADDONS_DIR}/licenses"/*; do
+        if [ -d "$fpath" ]; then
+          if ! [ -f "${fpath}/DISABLE" ]; then
+            all_license_dirs+=("$fpath");
+          fi
+        fi
+      done
+      # Check if the separator char used in the sort function
+      # is part of one of the path strings
+      for fpath in "${all_license_dirs[@]}"; do
+        if [[ "$fpath" == *"?"* ]]; then
+          logE "Invalid path encountered:";
+          logE "'${fpath}'";
+          logE "Path contains an invalid character: '?'";
+          failure "One or more paths to a component of an addon has an invalid character." \
+                  "Please make sure that the path to the addons directory does not"        \
+                  "contain '?' characters";
+        fi
+      done
+      mapfile -t all_license_dirs < <(_sort_file_paths "${all_license_dirs[@]}");
+    fi
+  fi
+
+  # Construct the list of license dirs and names
+  _PROJECT_AVAILABLE_LICENSES_PATHS=();
+  _PROJECT_AVAILABLE_LICENSES_NAMES=();
+
+  local dir="";
+  local name="";
+  local dir_name="";
+  for dir in "${all_license_dirs[@]}"; do
+    dir_name=$(basename "$dir");
+    if [ -r "${dir}/license.txt" ]; then
+      _PROJECT_AVAILABLE_LICENSES_PATHS+=("$dir");
+      if [ -r "${dir}/name.txt" ]; then
+        name=$(head -n 1 "${dir}/name.txt");
+        _PROJECT_AVAILABLE_LICENSES_NAMES+=("$name");
+      else
+        logW "The license directory '${dir_name}' has no name file";
+        _PROJECT_AVAILABLE_LICENSES_NAMES+=("$dir_name");
+      fi
+    else
+      logW "The license directory does not have a 'license.txt' file:";
+      logW "at: '${dir}'";
+    fi
+  done
+
+  # Add an option for no license
+  _PROJECT_AVAILABLE_LICENSES_PATHS+=("NONE");
+  _PROJECT_AVAILABLE_LICENSES_NAMES+=("None");
+}
+
+# Processes copyright substitution variables.
+#
+# Substitutes all copyright header variables with the copyright text applicable
+# according to the file extension of the underlying file. If the active license
+# is set to 'NONE', then copyright header substitution variables are removed
+# from the files.
+#
+# Args:
+# $@ - A series of file extensions representing the project source
+#      files in which copyright information should be processed.
+#
+# Globals:
+# _PROJECT_SELECTED_LICENSE_PATH - The path to the active license resource.
+# _PROJECT_SELECTED_LICENSE_NAME - The name of the active license resource.
+# var_copyright_year             - The copyright year used in substitutions.
+# var_copyright_holder           - The copyright holder info used in substitutions.
+#
+function _process_copyright_headers() {
+  local all_file_ext=("$@");
+  local active_license_dir="${_PROJECT_SELECTED_LICENSE_PATH}";
+  local active_license_name="${_PROJECT_SELECTED_LICENSE_NAME}";
+  if [ -n "$active_license_dir" ]; then
+    if [[ "$active_license_dir" != "NONE" ]]; then
+      _load_extension_map;
+      local file_ext="";
+      local header_ext="";
+      local copyright_header_file="";
+      local copyright_header_value="";
+      for file_ext in "${all_file_ext[@]}"; do
+        header_ext="$file_ext";
+        # Check if the file extension is mapped to some other extension
+        if [[ "${COPYRIGHT_HEADER_EXT_MAP[$header_ext]+1}" == "1" ]]; then
+          header_ext="${COPYRIGHT_HEADER_EXT_MAP[${header_ext}]}";
+        fi
+        copyright_header_value="";
+        copyright_header_file="${active_license_dir}/header.${header_ext}";
+        if [ -r "$copyright_header_file" ]; then
+          # Read in the license declaration legal text from the file
+          copyright_header_value=$(cat "$copyright_header_file");
+        else
+          logW "License header template file not found for '${active_license_name}'";
+          logW "Please create a template" \
+               "file '${active_license_dir}/header.${header_ext}'";
+        fi
+        # First substitute the header var and then later the
+        # year and copyright holder vars inside the header
+        replace_var "COPYRIGHT_HEADER" "$copyright_header_value" "$file_ext";
+      done
+    fi
+  fi
+
+  # Replace additional copyright info vars, which also might be
+  # part of the copyright boilerplate text already inserted
+  replace_var "COPYRIGHT_YEAR"   "$var_copyright_year";
+  replace_var "COPYRIGHT_HOLDER" "$var_copyright_holder";
+  if [[ "$active_license_dir" == "NONE" ]]; then
+    # Remove all copyright vars
+    replace_var "COPYRIGHT_HEADER" "";
+  fi
+}
+
+# [API function]
+# Processes the copyright information for created project files.
+#
+# This function can only be used in Quickstart mode. Based on the given
+# license name, this function will process and replace the copyright-related
+# substitution variables in all files generated by the Quickstart process up
+# to this point. Only files with an appropriate file extension in their name
+# are considered for processing.
+# The special license name argument 'None' will cause all copyright header
+# substitution variables to be removed.
+#
+# Since:
+# 1.6.0
+#
+# Args:
+# $1 - The canonical name of the license for which to handle copyright headers.
+#      May be specified as 'None' to remove copyright headers.
+#
+# Returns:
+# 0  - In the case of success.
+# nz - In the case of any failures.
+#
+# Examples:
+# project_init_copyright_headers "Apache License 2.0";
+#
+function project_init_copyright_headers() {
+  local license_name="$1";
+  if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == false ]]; then
+    _make_func_hl "project_init_copyright_headers";
+    logW "Calling $HYPERLINK_VALUE while not in Quickstart mode has no effect";
+    logW "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    _make_func_hl "project_init_license";
+    logW "Use the $HYPERLINK_VALUE function instead";
+    return 1;
+  fi
+  _load_available_licenses;
+  local license_path="";
+  local i;
+  for (( i=0; i<${#_PROJECT_AVAILABLE_LICENSES_NAMES}; ++i )); do
+    if [[ "${_PROJECT_AVAILABLE_LICENSES_NAMES[i]}" == "$license_name" ]]; then
+      license_path="${_PROJECT_AVAILABLE_LICENSES_PATHS[i]}";
+      break;
+    fi
+  done
+  if [[ "$license_path" == "" ]]; then
+    _make_func_hl "project_init_copyright_headers";
+    local _hl_project_init_license="$HYPERLINK_VALUE";
+    logW "Invalid license name specified: '${license_name}'";
+    logW "in the call to the $HYPERLINK_VALUE function";
+    logW "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    return 2;
+  fi
+  _PROJECT_SELECTED_LICENSE_PATH="$license_path";
+  _PROJECT_SELECTED_LICENSE_NAME="$license_name";
+
+  # Get all unique applicable file extensions
+  local all_file_ext=();
+  local _file="";
+  local _file_ext="";
+  for _file in "${CACHE_ALL_FILES[@]}"; do
+    _file="$(basename "${_file}")";
+    _file_ext="${_file##*.}";
+    if [[ "${_file_ext}" != "" && "${_file_ext}" != "${_file}" ]]; then
+      all_file_ext+=("${_file_ext}");
+    fi
+  done
+  mapfile -t all_file_ext < <(_unique_items "${all_file_ext[@]}");
+  _process_copyright_headers "${all_file_ext[@]}";
+  return 0;
+}
+
 # [API function]
 # Processes the license and copyright information for the
 # project to be initialized.
@@ -4379,7 +4616,7 @@ function project_init_license() {
   fi
   # Check if a license was specified by the user
   if [ -n "$var_project_license_dir" ]; then
-    if [ "$var_project_license_dir" != "NONE" ]; then
+    if [[ "$var_project_license_dir" != "NONE" ]]; then
       if [ -z "$PROJECT_INIT_LICENSE_FILE_NAME" ]; then
         logW "Project license file name must not be empty.";
         PROJECT_INIT_LICENSE_FILE_NAME="LICENSE";
@@ -4406,45 +4643,18 @@ function project_init_license() {
              "file '$var_project_license_dir/license.txt'.";
         warning "The initialized project has a missing '${PROJECT_INIT_LICENSE_FILE_NAME}' file";
       fi
-      # Set up copyright headers in all specified files
-      _load_extension_map;
-      local file_ext="";
-      for file_ext in "${all_file_ext[@]}"; do
-        local header_ext="$file_ext";
-        # Check if the file extension is mapped to some other extension
-        if [[ "${COPYRIGHT_HEADER_EXT_MAP[$header_ext]+1}" == "1" ]]; then
-          header_ext="${COPYRIGHT_HEADER_EXT_MAP[${header_ext}]}";
-        fi
-        local var_copyright_header="";
-        local copyright_header_file="${var_project_license_dir}/header.${header_ext}";
-        if [ -r "$copyright_header_file" ]; then
-          # Read in the license declaration legal text from the file
-          var_copyright_header=$(cat "$copyright_header_file");
-        else
-          logW "License header template file not found for '${var_project_license}'";
-          logW "Please create a template" \
-               "file '${var_project_license_dir}/header.${header_ext}'";
-        fi
-        # First substitute the header var and then later the
-        # year and copyright holder vars inside the header
-        replace_var "COPYRIGHT_HEADER" "$var_copyright_header" "$file_ext";
-      done
     fi
 
-    # Replace additional copyright info vars, which also might be
-    # part of the copyright boilerplate text already inserted
-    replace_var "COPYRIGHT_YEAR"   "$var_copyright_year";
-    replace_var "COPYRIGHT_HOLDER" "$var_copyright_holder";
     replace_var "PROJECT_LICENSE"  "$var_project_license";
-    if [[ $var_project_license_dir == "NONE" ]]; then
+    if [[ "$var_project_license_dir" == "NONE" ]]; then
       replace_var "LICENSE_README_NOTE" "This project has not been licensed.";
-      # Remove all copyright vars
-      replace_var "COPYRIGHT_HEADER" "";
     else
       replace_var "LICENSE_README_NOTE" \
                   "This project is licensed under $var_project_license.";
     fi
   fi
+
+  _process_copyright_headers "${all_file_ext[@]}";
   # Signal license is set up
   _FLAG_PROJECT_LICENSE_PROCESSED=true;
 }
