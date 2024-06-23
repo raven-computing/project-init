@@ -4477,6 +4477,9 @@ function _process_copyright_headers() {
 # The special license name argument 'None' will cause all copyright header
 # substitution variables to be removed.
 #
+# Since:
+# 1.6.0
+#
 # Args:
 # $1 - The canonical name of the license for which to handle copyright headers.
 #      May be specified as 'None' to remove copyright headers.
