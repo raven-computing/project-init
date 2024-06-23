@@ -1,3 +1,15 @@
+#### 1.6.0
+* Added the project_init_copyright_headers() API function. [[Issue#46]](https://github.com/raven-computing/project-init/issues/46)
+* Added the 'sys.baselicenses.disable' project property option to allow addons to disable base licenses. [[Issue#38]](https://github.com/raven-computing/project-init/issues/38)
+* Added the PROJECT_INIT_LICENSE_FILE_NAME API global to make license file name configurable. [[Issue#45]](https://github.com/raven-computing/project-init/issues/45)
+* Added the internal _load_available_licenses() and _process_copyright_headers() functions.
+* Added the internal _PROJECT_AVAILABLE_LICENSES\_* and _PROJECT_SELECTED_LICENSE\_* globals.
+* Improved Docker-related project control code to better support arbitrary commands. [[Issue#12]](https://github.com/raven-computing/project-init/issues/12)
+* Improved Docker-related project control code by standardising a mechanism for skipping Docker image builds. [[Issue#14]](https://github.com/raven-computing/project-init/issues/14)
+* Refactored the project_init_license() and project_init_show_main_form() function implementations.
+* Updated supported R versions.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.5.2...v1.6.0)
+
 #### 1.5.2
 * Improved shared CMake utility function for C and C++ project source templates. [[Issue#41]](https://github.com/raven-computing/project-init/issues/41)
 * Improved test scripts for C and C++ project source templates to better handle multi-config builds. [[Issue#42]](https://github.com/raven-computing/project-init/issues/42)
