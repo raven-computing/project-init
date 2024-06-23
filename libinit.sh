@@ -4336,7 +4336,8 @@ function replace_var() {
 # license resource and the names of the licenses, respectively.
 # The arrays are populated in sync. The last item in both arrays will be set
 # to 'NONE' for the path and 'None' for the name, to represent the choice of
-# using no license for a project.
+# using no license for a project, but only if other license choices
+# are available.
 #
 # Globals:
 # _PROJECT_AVAILABLE_LICENSES_PATHS - Is reset and filled by this function.
@@ -4412,9 +4413,12 @@ function _load_available_licenses() {
     fi
   done
 
-  # Add an option for no license
-  _PROJECT_AVAILABLE_LICENSES_PATHS+=("NONE");
-  _PROJECT_AVAILABLE_LICENSES_NAMES+=("None");
+  # Do not add 'None' option if nothing else is available
+  if (( ${#_PROJECT_AVAILABLE_LICENSES_PATHS[@]} > 0 )); then
+    # Add an option for no license
+    _PROJECT_AVAILABLE_LICENSES_PATHS+=("NONE");
+    _PROJECT_AVAILABLE_LICENSES_NAMES+=("None");
+  fi
 }
 
 # Processes copyright substitution variables.
