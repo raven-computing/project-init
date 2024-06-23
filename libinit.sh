@@ -4496,7 +4496,7 @@ function project_init_copyright_headers() {
   if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == false ]]; then
     _make_func_hl "project_init_copyright_headers";
     logW "Calling $HYPERLINK_VALUE while not in Quickstart mode has no effect";
-    logW "at: '${BASH_SOURCE[2]}' (line ${BASH_LINENO[1]})";
+    logW "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
     _make_func_hl "project_init_license";
     logW "Use the $HYPERLINK_VALUE function instead";
     return 1;
