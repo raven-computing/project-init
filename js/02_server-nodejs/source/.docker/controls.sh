@@ -6,22 +6,28 @@
 # This shell script provides functions to handle isolated executions          #
 # via Docker. Users may source this file and call the provided functions to   #
 # run the underlying project inside a Docker container.                       #
+# This can also be used to run arbitrary commands inside an isolated          #
+# container or to get an interactive shell. Some execution parameters         #
+# can be controlled by setting various PROJECT_CONTAINER_* variables.         #
 #                                                                             #
 ###############################################################################
 
 # The Dockerfile to be used for creating images for isolated runs
-readonly CONTAINER_BUILD_DOCKERFILE="Dockerfile-run";
+PROJECT_CONTAINER_BUILD_DOCKERFILE="Dockerfile-run";
 # The name given to the image and container
-readonly CONTAINER_BUILD_NAME="${{VAR_PROJECT_NAME_LOWER}}";
+PROJECT_CONTAINER_BUILD_NAME="${{VAR_PROJECT_NAME_LOWER}}";
 # The version tag given to the image and container
-readonly CONTAINER_BUILD_VERSION="0.1";
+PROJECT_CONTAINER_BUILD_VERSION="0.1";
 
 
 # Executes an isolated command inside a Docker container.
 #
 # This function builds the image, creates a container from it
 # and then runs that container. The container is removed after
-# the execution has completed
+# the execution has completed.
+#
+# The building of the Docker image can be suppressed by setting the
+# environment variable PROJECT_CONTAINER_IMAGE_BUILD to the value "0".
 #
 # Args:
 # $@ - The arguments to be passed to the container's entrypoint.
@@ -30,12 +36,16 @@ readonly CONTAINER_BUILD_VERSION="0.1";
 # Either the exit status of the Docker-related commands, if unsuccessful,
 # or the exit status of the specified command.
 #
-function _run_isolated() {
-  local run_type="$1";
+function project_run_isolated() {
+  local isolated_command="$1";
   shift;
+  if [ -z "$isolated_command" ]; then
+    echo "ERROR: Must provide a command to run in isolation";
+    return 1;
+  fi
   if ! command -v "docker" &> /dev/null; then
     echo "ERROR: Could not find the 'docker' executable.";
-    echo "If you want the $run_type to be executed in an isolated environment,";
+    echo "If you want a command to be executed in an isolated environment,";
     echo "please make sure that Docker is correctly installed ";
     return 1;
   fi
@@ -55,19 +65,23 @@ function _run_isolated() {
     gid=$(id -g);
     workdir="/home/user/${workdir_name}";
   fi
-  echo "Building Docker image";
-  docker build --build-arg UID=${uid}                                   \
-               --build-arg GID=${gid}                                   \
-               --build-arg DWORKDIR="${workdir}"                        \
-               --tag ${CONTAINER_BUILD_NAME}:${CONTAINER_BUILD_VERSION} \
-               --file .docker/${CONTAINER_BUILD_DOCKERFILE} .
+  local name_tag="${PROJECT_CONTAINER_BUILD_NAME}:${PROJECT_CONTAINER_BUILD_VERSION}";
+  if [[ "$PROJECT_CONTAINER_IMAGE_BUILD" != "0" ]]; then
+    echo "Building Docker image";
+    docker build --build-arg UID=${uid}                                \
+                 --build-arg GID=${gid}                                \
+                 --build-arg DWORKDIR="${workdir}"                     \
+                 --tag "$name_tag"                                     \
+                 --file .docker/${PROJECT_CONTAINER_BUILD_DOCKERFILE} .
 
-  if (( $? != 0 )); then
-    return $?;
+    local docker_status=$?;
+    if (( docker_status != 0 )); then
+      return $docker_status;
+    fi
   fi
 
-  echo "Executing isolated $run_type";
-  docker run --name ${CONTAINER_BUILD_NAME}                        \
+  echo "Executing isolated $isolated_command";
+  docker run --name ${PROJECT_CONTAINER_BUILD_NAME}                \
              --interactive                                         \
              --tty                                                 \
              --init                                                \
@@ -75,29 +89,9 @@ function _run_isolated() {
              --user ${uid}:${gid}                                  \
              --rm                                                  \
              --publish 8080:8080                                   \
-             ${CONTAINER_BUILD_NAME}:${CONTAINER_BUILD_VERSION}    \
-             "$run_type"                                           \
+             "$name_tag"                                           \
+             "$isolated_command"                                   \
              "$@";
 
-  return $?;
-}
-
-# Executes the application in an isolated process inside a Docker container.
-#
-# This function executes a 'docker build' followed by a 'docker run' command.
-# Returns the exit status of 'docker build', if it was not successful,
-# otherwise returns the exit status of 'docker run'.
-#
-# Args:
-# $@ - Arguments to be passed to the project's run.sh script
-#      to customise the execution.
-#
-# Returns:
-# The exit status of the Docker-related commands. If the Docker commands are
-# all successful, then the exit status of the executed run.sh script
-# is returned instead.
-#
-function run_isolated_app() {
-  _run_isolated "app" "$@";
   return $?;
 }

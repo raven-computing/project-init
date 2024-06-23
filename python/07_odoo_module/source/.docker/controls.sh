@@ -6,25 +6,31 @@
 # This shell script provides functions to handle isolated executions          #
 # via Docker. Users may source this file and call the provided functions to   #
 # either build or test the underlying project inside a Docker container.      #
+# This can also be used to run arbitrary commands inside an isolated          #
+# container or to get an interactive shell. Some execution parameters         #
+# can be controlled by setting various PROJECT_CONTAINER_* variables.         #
 #                                                                             #
 ###############################################################################
 
 # The Dockerfile to be used for creating images for isolated builds
-readonly CONTAINER_BUILD_DOCKERFILE="Dockerfile-build";
+PROJECT_CONTAINER_BUILD_DOCKERFILE="Dockerfile-build";
 # The name given to the image and container
-readonly CONTAINER_BUILD_NAME="${{VAR_PROJECT_NAME_LOWER}}-build";
+PROJECT_CONTAINER_BUILD_NAME="${{VAR_PROJECT_NAME_LOWER}}-build";
 # The version tag given to the image and container
-readonly CONTAINER_BUILD_VERSION="0.1";
+PROJECT_CONTAINER_BUILD_VERSION="0.1";
 
 # The docker-compose file to be used for isolated interactive tests
-readonly CONTAINER_TEST_DOCKER_COMPOSE="docker-compose-test.yaml";
+PROJECT_CONTAINER_TEST_DOCKER_COMPOSE="docker-compose-test.yaml";
 
 
 # Executes an isolated command inside a Docker container.
 #
 # This function builds the image, creates a container from it
 # and then runs that container. The container is removed after
-# the execution has completed
+# the execution has completed.
+#
+# The building of the Docker image can be suppressed by setting the
+# environment variable PROJECT_CONTAINER_IMAGE_BUILD to the value "0".
 #
 # Args:
 # $@ - The arguments to be passed to the container's entrypoint.
@@ -33,12 +39,12 @@ readonly CONTAINER_TEST_DOCKER_COMPOSE="docker-compose-test.yaml";
 # Either the exit status of the Docker-related commands, if unsuccessful,
 # or the exit status of the specified command.
 #
-function _run_isolated() {
-  local run_type="$1";
+function project_run_isolated() {
+  local isolated_command="$1";
   shift;
   if ! command -v "docker" &> /dev/null; then
     logE "ERROR: Could not find the 'docker' executable.";
-    logE "If you want the $run_type to be executed in an isolated environment,";
+    logE "If you want a command to be executed in an isolated environment,";
     logE "please make sure that Docker is correctly installed";
     return 1;
   fi
@@ -58,25 +64,30 @@ function _run_isolated() {
     gid=$(id -g);
     workdir="/home/user/${workdir_name}";
   fi
-  logI "Building Docker image";
-  docker build --build-arg UID=${uid}                                   \
-               --build-arg GID=${gid}                                   \
-               --build-arg DWORKDIR="${workdir}"                        \
-               --tag ${CONTAINER_BUILD_NAME}:${CONTAINER_BUILD_VERSION} \
-               --file .docker/${CONTAINER_BUILD_DOCKERFILE} .
+  local name_tag="${PROJECT_CONTAINER_BUILD_NAME}:${PROJECT_CONTAINER_BUILD_VERSION}";
+  if [[ "$PROJECT_CONTAINER_IMAGE_BUILD" != "0" ]]; then
+    logI "Building Docker image";
+    docker build --build-arg UID=${uid}                                \
+                 --build-arg GID=${gid}                                \
+                 --build-arg DWORKDIR="${workdir}"                     \
+                 --tag "$name_tag"                                     \
+                 --file .docker/${PROJECT_CONTAINER_BUILD_DOCKERFILE} .
 
-  if (( $? != 0 )); then
-    return $?;
+    local docker_status=$?;
+    if (( docker_status != 0 )); then
+      return $docker_status;
+    fi
   fi
 
-  logI "Executing isolated $run_type";
-  docker run --name ${CONTAINER_BUILD_NAME}                        \
+  logI "Executing isolated $isolated_command";
+  docker run --name ${PROJECT_CONTAINER_BUILD_NAME}                \
              --mount type=bind,source="${PWD}",target="${workdir}" \
              --user ${uid}:${gid}                                  \
              --rm                                                  \
              --tty                                                 \
-             ${CONTAINER_BUILD_NAME}:${CONTAINER_BUILD_VERSION}    \
-             "$run_type"                                           \
+             --interactive                                         \
+             "$name_tag"                                           \
+             "$isolated_command"                                   \
              "$@";
 
   return $?;
@@ -103,33 +114,13 @@ function _start_interactive_isolated_tests() {
     return 1;
   fi
   logI "Starting isolated Docker containers for interactive testing";
-  docker compose --file .docker/${CONTAINER_TEST_DOCKER_COMPOSE} \
-                 --project-directory "${PWD}"                    \
-                 run                                             \
-                 --service-ports                                 \
-                 web                                             \
+  docker compose --file .docker/${PROJECT_CONTAINER_TEST_DOCKER_COMPOSE} \
+                 --project-directory "${PWD}"                            \
+                 run                                                     \
+                 --service-ports                                         \
+                 web                                                     \
                  "$@";
 
-  return $?;
-}
-
-# Executes an isolated build process inside a Docker container.
-#
-# This function executes a 'docker build' followed by a 'docker run' command.
-# Returns the exit status of 'docker build', if it was not successful,
-# otherwise returns the exit status of 'docker run'.
-#
-# Args:
-# $@ - Arguments to be passed to the project's build.sh script
-#      to customise the build.
-#
-# Returns:
-# The exit status of the Docker-related commands. If the Docker commands are
-# all successful, then the exit status of the executed build.sh script
-# is returned instead.
-#
-function run_isolated_build() {
-  _run_isolated "build" "$@";
   return $?;
 }
 
@@ -157,7 +148,7 @@ function run_isolated_build() {
 # Returns the exit status of the odoo process when using an
 # interactive test session.
 #
-function run_isolated_tests() {
+function project_run_isolated_tests() {
   local arg="";
   local run_interactive_session=false;
   local odoo_args=();
@@ -177,7 +168,7 @@ function run_isolated_tests() {
   if [[ $run_interactive_session == true ]]; then
     _start_interactive_isolated_tests "${odoo_args[@]}";
   else
-    _run_isolated "tests" "$@";
+    project_run_isolated "tests" "$@";
   fi
   return $?;
 }
