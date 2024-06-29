@@ -4626,25 +4626,19 @@ function project_init_license() {
         PROJECT_INIT_LICENSE_FILE_NAME="LICENSE";
       fi
       # Copy the main license file
-      if [ -r "${var_project_license_dir}/license.txt" ]; then
-        local license_src="${var_project_license_dir}/license.txt";
-        local license_trgt="${var_project_dir}/${PROJECT_INIT_LICENSE_FILE_NAME}";
-        if ! cp "$license_src" "$license_trgt"; then
-          logE "An error occurred while trying to copy the following file:";
+      local license_src="${var_project_license_dir}/license.txt";
+      if [ -r "$license_src" ]; then
+        if ! copy_resource "$license_src" "$PROJECT_INIT_LICENSE_FILE_NAME"; then
+          logE "An error occurred while trying to copy the license source file:";
           logE "Source: '${license_src}'";
-          logE "Target: '${license_trgt}'";
+          logE "Copy to target project as: '${PROJECT_INIT_LICENSE_FILE_NAME}'";
           failure "Failed to copy license file to project directory";
         fi
-
-        # The content of the target directory has changed.
-        # Update the list of relevant files
-        find_all_files;
       else
         logW "License file could not be created.";
         # shellcheck disable=SC2154
         logW "Failed to find license legal text file for '$var_project_license'.";
-        logW "Please add the legal text to the" \
-             "file '$var_project_license_dir/license.txt'.";
+        logW "Please add the legal text to the file '${license_src}'.";
         warning "The initialized project has a missing '${PROJECT_INIT_LICENSE_FILE_NAME}' file";
       fi
     fi
