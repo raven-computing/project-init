@@ -3776,16 +3776,16 @@ function copy_resource() {
     # In regular form-based mode #
     #----------------------------#
     if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
-    _make_func_hl "copy_resource";
-    local _hl_copy_res="$HYPERLINK_VALUE";
-    _make_func_hl "project_init_copy";
-    local _hl_pic="$HYPERLINK_VALUE";
-    logE "Programming error in init script:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Missing call to project_init_copy() function:"                           \
-            "When calling the ${_hl_copy_res} function, the target project directory" \
-            "must already be created. "                                               \
-            "Make sure you first call the ${_hl_pic} function in your init script";
+      _make_func_hl "copy_resource";
+      local _hl_copy_res="$HYPERLINK_VALUE";
+      _make_func_hl "project_init_copy";
+      local _hl_pic="$HYPERLINK_VALUE";
+      logE "Programming error in init script:";
+      logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+      failure "Missing call to project_init_copy() function:"                           \
+              "When calling the ${_hl_copy_res} function, the target project directory" \
+              "must already be created. "                                               \
+              "Make sure you first call the ${_hl_pic} function in your init script";
     fi
     if ! _is_absolute_path "$arg_src"; then
       arg_src="${PROJECT_INIT_USED_SOURCE}/${arg_src}";
