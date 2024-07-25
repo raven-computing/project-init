@@ -1,3 +1,9 @@
+#### 1.6.1
+* Improved implementation of the project_init_license() function.
+* Updated various dependency versions in project source templates.
+* Updated supported R versions.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.6.0...v1.6.1)
+
 #### 1.6.0
 * Added the project_init_copyright_headers() API function. [[Issue#46]](https://github.com/raven-computing/project-init/issues/46)
 * Added the 'sys.baselicenses.disable' project property option to allow addons to disable base licenses. [[Issue#38]](https://github.com/raven-computing/project-init/issues/38)
