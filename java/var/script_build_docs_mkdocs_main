@@ -1,9 +1,16 @@
 if [[ $ARG_DOCS == true ]]; then
   if ! command -v "mkdocs" &> /dev/null; then
-    if command -v "virtualenvwrapper.sh" &> /dev/null; then
-      source $(which virtualenvwrapper.sh);
-      if [ -n "$(lsvirtualenv |grep mkdocs)" ]; then
-        workon "mkdocs";
+    virtualenvwrapper_script="$(which virtualenvwrapper.sh)";
+    if [ -z "$virtualenvwrapper_script" ]; then
+      if [ -n "$VIRTUALENVWRAPPER_SCRIPT" ] && [ -r "$VIRTUALENVWRAPPER_SCRIPT" ]; then
+        virtualenvwrapper_script="$VIRTUALENVWRAPPER_SCRIPT";
+      fi
+    fi
+    if [ -n "$virtualenvwrapper_script" ]; then
+      if source "$virtualenvwrapper_script"; then
+        if [ -n "$(lsvirtualenv -b |grep mkdocs)" ]; then
+          workon "mkdocs";
+        fi
       fi
     fi
   fi
