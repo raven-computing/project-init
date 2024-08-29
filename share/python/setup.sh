@@ -43,7 +43,8 @@ function setup_virtual_env() {
       virtualenvwrapper_script="$VIRTUALENVWRAPPER_SCRIPT";
     else
       logE "Could not find the virtualenvwrapper utility.";
-      logE "The setup.sh script requires that the virtualenvwrapper shell functions are available.";
+      logE "The ${BASH_SOURCE} script requires that the virtualenvwrapper shell functions" \
+           "are available.";
       logE "Please see the following documentation on how to install virtualenvwrapper:";
       logE "https://virtualenvwrapper.readthedocs.io/en/latest/install.html";
       return 1;
