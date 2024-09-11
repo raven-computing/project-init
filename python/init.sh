@@ -197,17 +197,18 @@ function _validate_python_version() {
 #
 function form_python_version() {
   FORM_QUESTION_ID="python.version";
+  local min_py_version="3.8";
   logI "";
   logI "Specify the minimum version of Python required by the project.";
-  logI "Please enter the major and minor version numbers, e.g. '3.8'";
-  logI "The default is '3.5'";
+  logI "Please enter the major and minor version numbers.";
+  logI "The default is '${min_py_version}'";
   read_user_input_text _validate_python_version;
   var_python_version="$USER_INPUT_ENTERED_TEXT";
 
   # Validate Python version string
   if [ -z "$var_python_version" ]; then
-    logI "The minimum Python version will be set to 3.5";
-    var_python_version="3.5";
+    logI "The minimum Python version will be set to ${min_py_version}";
+    var_python_version="$min_py_version";
   fi
 }
 
