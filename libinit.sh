@@ -3352,7 +3352,7 @@ function _get_form_answer() {
 #
 # Since 1.7.0 a caller can use the $USER_INPUT_DEFAULT_INDEX variable
 # to specify a default item for the case in which the user does not enter
-# anything when promted and simply hits enter.
+# anything when prompted and simply hits enter.
 #
 # Args:
 # $@ - A series of selection items.
@@ -3433,11 +3433,11 @@ function read_user_input_selection() {
     fi
 
     local default_index_used=false;
-    local re="^[0-9]+$";
+    local is_number="^[0-9]+$";
     # Check special case for "None" option
     if [ -z "$selected_item" ]; then
       if [ -n "$USER_INPUT_DEFAULT_INDEX" ]; then
-        if [[ $USER_INPUT_DEFAULT_INDEX =~ $re ]]; then
+        if [[ $USER_INPUT_DEFAULT_INDEX =~ $is_number ]]; then
           selected_item=$((USER_INPUT_DEFAULT_INDEX+1));
           default_index_used=true;
         else
@@ -3455,7 +3455,7 @@ function read_user_input_selection() {
     fi
 
     # Validate user input
-    if ! [[ $selected_item =~ $re ]]; then
+    if ! [[ $selected_item =~ $is_number ]]; then
       # Input is not a number.
       # Check if it matches one of the selection items
       local is_valid=false;
@@ -3492,6 +3492,10 @@ function read_user_input_selection() {
   USER_INPUT_ENTERED_INDEX=$index;
   USER_INPUT_DEFAULT_INDEX=""; # Reset
 
+  if [[ $default_index_used == true ]]; then
+    return 1;
+  fi
+
   get_boolean_property "sys.input.selection.numsubst" "true";
   if [[ "$PROPERTY_VALUE" == "true" ]]; then
     local selection_item="${selection_names[index]}";
@@ -3500,9 +3504,6 @@ function read_user_input_selection() {
     echo -e "${_READ_FN_INPUT_PROMPT}${selection_item}";
   fi
 
-  if [[ $default_index_used == true ]]; then
-    return 1;
-  fi
   return 0;
 }
 
