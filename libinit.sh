@@ -3505,14 +3505,14 @@ function read_user_input_selection() {
 # When in test mode and an invalid answer is provided, then this function
 # exits the program by means of the failure() function.
 #
-# Args:
-# $1 - The input validation function to use. This is an optional argument.
-#
 # Since 1.7.0 a caller can use the $USER_INPUT_DEFAULT_TEXT variable
 # to specify a default value for the case in which the user does not enter
-# anything when promted and simply hits enter. When the default value applies,
-# any validation function is not used and the $USER_INPUT_ENTERED_TEXT variable
+# anything when prompted and simply hits enter. When the default value applies,
+# a validation function is not used and the $USER_INPUT_ENTERED_TEXT variable
 # is assigned the default value as is.
+#
+# Args:
+# $1 - The input validation function to use. This is an optional argument.
 #
 # Returns:
 # 0 - In the case of a valid text input.
