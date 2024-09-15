@@ -3350,8 +3350,6 @@ function _get_form_answer() {
 # an invalid input, such as an out of range selection number, this function
 # will let the user reenter his answer until he provides a valid input or
 # otherwise cancels the program.
-# When in test mode and an invalid answer is provided, then this function
-# exits the program by means of the failure() function.
 #
 # A special case for the selection item is the occurrence of the "None" string.
 # If the last specified item equals "None", then if the user chooses that item
@@ -3537,9 +3535,6 @@ function read_user_input_selection() {
 # function logs some information in the case of a detected invalid input such
 # that a user is informed about the cause of the invalidity.
 #
-# When in test mode and an invalid answer is provided, then this function
-# exits the program by means of the failure() function.
-#
 # Since 1.7.0 a caller can use the $USER_INPUT_DEFAULT_TEXT variable
 # to specify a default value for the case in which the user does not enter
 # anything when prompted and simply hits enter. When the default value applies,
@@ -3641,8 +3636,7 @@ function read_user_input_text() {
 # entered text represents or can be converted to a valid boolean.
 # If the entered input is invalid, then this function will let the user
 # reenter his answer until he provides a valid input or otherwise cancels
-# the program. When in test mode and an invalid answer is provided, then
-# this function exits the program by means of the failure() function.
+# the program.
 #
 # Supported text values for the boolean value of true:
 # "true", "yes", "y", "1"
