@@ -276,6 +276,13 @@ CURRENT_LVL_NUMBER=0;
 USER_INPUT_ENTERED_TEXT="";
 
 # [API Global]
+# Used by the read_user_input_text() function to determine the text value to use
+# by default when a user does not provide an answer in the text prompt.
+# Since:
+# 1.7.0
+USER_INPUT_DEFAULT_TEXT="";
+
+# [API Global]
 # Contains the selection index of the user choice from
 # the last call to the read_user_input_selection() function.
 # Please note that this index is always zero-based, even when
@@ -3533,15 +3540,25 @@ function read_user_input_selection() {
 # When in test mode and an invalid answer is provided, then this function
 # exits the program by means of the failure() function.
 #
+# Since 1.7.0 a caller can use the $USER_INPUT_DEFAULT_TEXT variable
+# to specify a default value for the case in which the user does not enter
+# anything when prompted and simply hits enter. When the default value applies,
+# a validation function is not used and the $USER_INPUT_ENTERED_TEXT variable
+# is assigned the default value as is.
+#
 # Args:
 # $1 - The input validation function to use. This is an optional argument.
 #
 # Returns:
 # 0 - In the case of a valid text input.
+# 1 - In the case of a default text value due to non-provided input by the user.
 #
 # Globals:
-# USER_INPUT_ENTERED_TEXT  - Will be set by this function to contain the text
-#                            entered by the user.
+# USER_INPUT_ENTERED_TEXT - Will be set by this function to contain the text
+#                           entered by the user, or the default value if specified.
+# USER_INPUT_DEFAULT_TEXT - Can be set by the caller to contain the text value
+#                           which should be assigned by default if the user
+#                           does not enter anything when prompted.
 #
 # Examples:
 # function _my_validation_name() {
@@ -3554,6 +3571,7 @@ function read_user_input_selection() {
 # }
 # 
 # logI "What's your name?";
+# USER_INPUT_DEFAULT_TEXT="Hans";
 # read_user_input_text;
 # name="$USER_INPUT_ENTERED_TEXT";
 # logI "Hi ${name}! Nice to meet you.";
@@ -3567,7 +3585,8 @@ function read_user_input_text() {
   local _validation_function_arg=$1;
   local entered_text="";
   local entered_text="";
-  local valid_answer_given=false;
+  local user_input_default_text="$USER_INPUT_DEFAULT_TEXT";
+  USER_INPUT_DEFAULT_TEXT=""; # Reset
   local retry_prompt=true;
 
   while [[ $retry_prompt == true ]]; do
@@ -3579,13 +3598,16 @@ function read_user_input_text() {
     else
       read -e -r -p "${_READ_FN_INPUT_PROMPT}" entered_text;
     fi
+    if [ -z "$entered_text" ] && [ -n "$user_input_default_text" ]; then
+      USER_INPUT_ENTERED_TEXT="$user_input_default_text";
+      return 1;
+    fi
     if [ -n "${_validation_function_arg}" ]; then
       if [[ $(type -t ${_validation_function_arg}) == function ]]; then
         # Call given input validation function
         ${_validation_function_arg} "$entered_text";
         if (( $? == 0 )); then
           retry_prompt=false;
-          valid_answer_given=true;
         elif [[ "$PROJECT_INIT_TESTS_ACTIVE" == "1" ]]; then
           # For invalid input in test mode: terminate to avoid further
           # execution of the program with potentially unsafe values.
