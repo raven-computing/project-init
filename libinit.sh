@@ -284,6 +284,14 @@ USER_INPUT_ENTERED_TEXT="";
 USER_INPUT_ENTERED_INDEX="";
 
 # [API Global]
+# Used by the read_user_input_selection() function to determine the
+# zero-based index of the item to use by default when a user does not
+# provide an answer in the item selection prompt.
+# Since:
+# 1.7.0
+USER_INPUT_DEFAULT_INDEX="";
+
+# [API Global]
 # Contains the boolean user answer of the yes/no question
 # from the last call to the read_user_input_yes_no() function.
 # This variable contains either true or false.
@@ -3342,6 +3350,10 @@ function _get_form_answer() {
 # If the last specified item equals "None", then if the user chooses that item
 # the $USER_INPUT_ENTERED_INDEX variable will be set to an empty string.
 #
+# Since 1.7.0 a caller can use the $USER_INPUT_DEFAULT_INDEX variable
+# to specify a default item for the case in which the user does not enter
+# anything when prompted and simply hits enter.
+#
 # Args:
 # $@ - A series of selection items.
 #
@@ -3349,16 +3361,23 @@ function _get_form_answer() {
 # A selection list is printed.
 #
 # Returns:
-# 0 - In the case of a valid item selection.
+# 0 - In the case of a valid item selection made by the user.
+# 1 - In the case of a default item selection due to the user
+#     having hit enter.
 #
 # Globals:
 # USER_INPUT_ENTERED_INDEX - Will be set by this function to contain
 #                            the zero-based index of the item selected
-#                            by the user.
+#                            by the user, or the default index if specified.
+# USER_INPUT_DEFAULT_INDEX - Can be set by the caller to contain the zero-based
+#                            index of the item which should be selected by
+#                            default if the user does not enter
+#                            anything when prompted.
 #
 # Examples:
 # my_list=("Item A" "Item B" "Item C");
 # logI "Choose an item out of the list:";
+# USER_INPUT_DEFAULT_INDEX=1; # Default to "Item B"
 # read_user_input_selection "${my_list[@]}";
 # index=$USER_INPUT_ENTERED_INDEX;
 # logI "Selected Item: ${my_list[index]}";
@@ -3413,19 +3432,30 @@ function read_user_input_selection() {
       read -e -r -p "${_READ_FN_INPUT_PROMPT}" selected_item;
     fi
 
+    local default_index_used=false;
+    local is_number="^[0-9]+$";
     # Check special case for "None" option
     if [ -z "$selected_item" ]; then
+      if [ -n "$USER_INPUT_DEFAULT_INDEX" ]; then
+        if [[ $USER_INPUT_DEFAULT_INDEX =~ $is_number ]]; then
+          selected_item=$((USER_INPUT_DEFAULT_INDEX+1));
+          default_index_used=true;
+        else
+          logE "Expected numeric value for variable USER_INPUT_DEFAULT_INDEX" \
+               "but found '${USER_INPUT_DEFAULT_INDEX}'";
+        fi
+      fi
       local last_item_index=$((length-1));
       local last_item="${selection_names[last_item_index]}";
       if [[ "$last_item" == "None" ]]; then
         USER_INPUT_ENTERED_INDEX="";
+        USER_INPUT_DEFAULT_INDEX=""; # Reset
         return 0;
       fi
     fi
 
     # Validate user input
-    local re="^[0-9]+$";
-    if ! [[ $selected_item =~ $re ]]; then
+    if ! [[ $selected_item =~ $is_number ]]; then
       # Input is not a number.
       # Check if it matches one of the selection items
       local is_valid=false;
@@ -3460,6 +3490,11 @@ function read_user_input_selection() {
 
   local index=$((selected_item-1));
   USER_INPUT_ENTERED_INDEX=$index;
+  USER_INPUT_DEFAULT_INDEX=""; # Reset
+
+  if [[ $default_index_used == true ]]; then
+    return 1;
+  fi
 
   get_boolean_property "sys.input.selection.numsubst" "true";
   if [[ "$PROPERTY_VALUE" == "true" ]]; then
