@@ -1,3 +1,12 @@
+#### 1.7.0
+* Added the USER_INPUT_DEFAULT_TEXT variable to set a default text value when using the read_user_input_text() API function. [[Issue#53]](https://github.com/raven-computing/project-init/issues/53)
+* Added the USER_INPUT_DEFAULT_INDEX variable to specify a default item index when using the read_user_input_selection() API function. [[Issue#51]](https://github.com/raven-computing/project-init/issues/51)
+* Improved documentation. [[Issue#55]](https://github.com/raven-computing/project-init/issues/55)
+* Improved setup script for Python project source templates.
+* Updated default minimum Python version to 3.8 for all Python project source templates.
+* Updated various dependency versions in project source templates.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.6.1...v1.7.0)
+
 #### 1.6.1
 * Improved implementation of the project_init_license() function.
 * Updated various dependency versions in project source templates.
