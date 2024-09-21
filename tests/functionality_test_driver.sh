@@ -98,15 +98,6 @@ function main() {
   project_init_start "$@";
 
   if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
-    # Override the target directory for Quickstart output files
-    local qs_base="$TESTS_OUTPUT_DIR_QUICKSTART";
-    _PROJECT_INIT_QUICKSTART_OUTPUT_DIR="${qs_base}/${ARG_QUICKSTART_NAMES_NORM[0]}";
-    # Ensure output directory exists
-    if ! mkdir -p "${_PROJECT_INIT_QUICKSTART_OUTPUT_DIR}"; then
-      logE "Failed to create Quickstart test output directory:";
-      logE "at: '${_PROJECT_INIT_QUICKSTART_OUTPUT_DIR}'";
-      return $EXIT_FAILURE;
-    fi
     project_init_process_quickstart;
   else
     project_init_show_main_form;

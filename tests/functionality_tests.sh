@@ -126,9 +126,9 @@ function _test_functionality_driver() {
       if (( $? != 0 )); then
         test_status=3;
       fi
-      _cd_or_die "$TESTPATH";
     fi
   fi
+  _cd_or_die "$TESTPATH";
 
   if (( test_status != 0 )); then
     echo -e "${LABEL_FAILED}\n";
@@ -253,6 +253,7 @@ function test_functionality_with() {
     ASSERT_FILE_PATH_PREFIX="${_FORM_ANSWERS[project.dir]}";
   fi
 
+  _cd_or_die "${TESTS_OUTPUT_DIR}";
   _test_functionality_driver "$title" "$config_file";
   return $?;
 }
@@ -325,6 +326,16 @@ function test_functionality_quickstart() {
   quickstart_name_norm=$(_normalise_quickstart_name "$quickstart_name");
 
   ASSERT_FILE_PATH_PREFIX="quickstart/${quickstart_name_norm}";
+
+  local quickstart_output_dir="${TESTS_OUTPUT_DIR_QUICKSTART}/${quickstart_name_norm}";
+
+  # Ensure output directory exists
+  if ! mkdir -p "$quickstart_output_dir"; then
+    logE "Failed to create Quickstart test output directory:";
+    logE "at: '${quickstart_output_dir}'";
+    return 7;
+  fi
+  _cd_or_die "$quickstart_output_dir";
 
   # Test run title
   quickstart_name="Quickstart function for $quickstart_name";
