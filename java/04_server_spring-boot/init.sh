@@ -34,6 +34,8 @@
 #                                 for Spring Security usage
 # VAR_SPRING_DEPENDENCY_SECURITY_TEST: Maven dependency information
 #                                      for Spring Security test framework usage
+# VAR_POM_DEPENDENCY_H2_TEST: Maven dependency information for the H2 in-memory
+#                             database used for testing
 
 
 function process_files_lvl_2() {
@@ -53,6 +55,8 @@ function process_files_lvl_2() {
               "$var_spring_dependency_security";
   replace_var "SPRING_DEPENDENCY_SECURITY_TEST"                \
               "$var_spring_dependency_security_test";
+  replace_var "POM_DEPENDENCY_H2_TEST"                         \
+              "$var_pom_dependency_h2_test";
 }
 
 # Prompts the user to specify whether to use a relational database.
@@ -75,6 +79,8 @@ function form_relational_database() {
     logI "A dependency to JPA via Spring Data will be added";
     load_var_from_file "SPRING_DEPENDENCY_DATA_JPA";
     var_spring_dependency_data_jpa="$VAR_FILE_VALUE";
+    load_var_from_file "POM_DEPENDENCY_H2_TEST";
+    var_pom_dependency_h2_test="$VAR_FILE_VALUE";
     FORM_QUESTION_ID="java.server.relationaldb.name";
     logI "";
     logI "A database driver needs to be provided at runtime.";

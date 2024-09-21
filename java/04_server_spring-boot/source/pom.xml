@@ -33,6 +33,7 @@ ${{VAR_SPRING_DEPENDENCY_DATA_DRIVER_POSTGRESQL}}
       <scope>test</scope>
     </dependency>
 ${{VAR_SPRING_DEPENDENCY_SECURITY_TEST}}
+${{VAR_POM_DEPENDENCY_H2_TEST}}
   </dependencies>
   <build>
     <directory>build</directory>
