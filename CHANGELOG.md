@@ -1,3 +1,8 @@
+#### 1.7.1
+* Fixed a wrong working directory with the USER_CWD variable when in test mode. [[Issue#57]](https://github.com/raven-computing/project-init/issues/57)
+* Fixed failing tests for Java Spring Boot applications when using a database.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.7.0...v1.7.1)
+
 #### 1.7.0
 * Added the USER_INPUT_DEFAULT_TEXT variable to set a default text value when using the read_user_input_text() API function. [[Issue#53]](https://github.com/raven-computing/project-init/issues/53)
 * Added the USER_INPUT_DEFAULT_INDEX variable to specify a default item index when using the read_user_input_selection() API function. [[Issue#51]](https://github.com/raven-computing/project-init/issues/51)
