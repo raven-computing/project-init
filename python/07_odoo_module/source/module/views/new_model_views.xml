@@ -2,18 +2,18 @@
 ${{VAR_COPYRIGHT_HEADER}}
 <odoo>
   <data>
-    <record id="view_new_model_tree" model="ir.ui.view">
-      <field name="name">rc.new.model.tree</field>
+    <record id="new_model_view_list" model="ir.ui.view">
+      <field name="name">rc.new.model.list</field>
       <field name="model">rc.new.model</field>
       <field name="arch" type="xml">
-        <tree string="New Model List">
+        <list string="New Model List">
           <field name="field_a" string="Characters"/>
           <field name="field_b" string="Integers"/>
           <field name="field_c" string="Floats"/>
-        </tree>
+        </list>
       </field>
     </record>
-    <record id="view_new_model_form" model="ir.ui.view">
+    <record id="new_model_view_form" model="ir.ui.view">
       <field name="name">rc.new.model.form</field>
       <field name="model">rc.new.model</field>
       <field name="arch" type="xml">
