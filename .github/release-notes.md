@@ -1,5 +1,5 @@
 #### Release notes:
 
-* Fixed some issues in the testing-related code.
+* Updates to project source templates.
 
-See [Changelog](https://github.com/raven-computing/project-init/blob/v1.7.1/CHANGELOG.md).
+See [Changelog](https://github.com/raven-computing/project-init/blob/v1.7.2/CHANGELOG.md).
