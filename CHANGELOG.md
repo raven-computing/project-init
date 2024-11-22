@@ -1,3 +1,9 @@
+#### 1.7.2
+* Updated ImGui dependency version.
+* Updated Gtest dependency version.
+* Updated Python Odoo module project source template to use Odoo v18.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.7.1...v1.7.2)
+
 #### 1.7.1
 * Fixed a wrong working directory with the USER_CWD variable when in test mode. [[Issue#57]](https://github.com/raven-computing/project-init/issues/57)
 * Fixed failing tests for Java Spring Boot applications when using a database.
