@@ -1,2 +1,3 @@
+${{INCLUDE:python/MANIFEST.in}}
 global-include **/*.xml
 global-include **/*.csv

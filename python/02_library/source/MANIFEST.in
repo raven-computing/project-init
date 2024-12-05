@@ -1,2 +1,1 @@
 ${{INCLUDE:python/MANIFEST.in}}
-global-include *.pyx
