@@ -1,3 +1,10 @@
+#### 1.7.3
+* Updated Maven plugin versions.
+* Updated Pylint dependency version.
+* Updated Python setuptools and related toolchain dependency versions.
+* Updated Python packaging source templates.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.7.2...v1.7.3)
+
 #### 1.7.2
 * Updated ImGui dependency version.
 * Updated Gtest dependency version.
