@@ -170,7 +170,6 @@ fi
 
 # Automatically activate the virtual env unless this
 # behaviour is suppressed by specifying the env var
-if [[ "$SETUPSH_VIRTUALENV_AUTO_ACTIVATE" != "0" ]]; then
+if [[ "$PROJECT_VIRTUALENV_AUTO_ACTIVATE" != "0" ]]; then
   setup_virtual_env;
 fi
-
