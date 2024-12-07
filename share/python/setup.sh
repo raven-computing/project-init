@@ -3,7 +3,7 @@
 # This script will create and initialize a virtual environment
 # for the project and set up the python path for you.
 
-function __b_in_subshell() {
+function __project_in_subshell() {
   if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
     echo "0";
   else
@@ -11,7 +11,7 @@ function __b_in_subshell() {
   fi
 }
 
-function __b_confirm_setup() {
+function __project_confirm_setup() {
   local answer="";
   logI "The virtual environment for this project is not set up.";
   logI "Would you like to create the '${_VIRTENV_NAME}' virtual environment";
@@ -96,7 +96,7 @@ function setup_virtual_env() {
     return 0;
   fi
 
-  __b_confirm_setup;
+  __project_confirm_setup;
   if (( $? != 0 )); then
     logI "Abort";
     return 1;
@@ -163,7 +163,7 @@ if ! source ".global.sh"; then
 fi
 
 # Determine whether this script is sourced or executed in a subshell
-if [[ $(__b_in_subshell) == "1" ]]; then
+if [[ $(__project_in_subshell) == "1" ]]; then
   logE "Please run this script by sourcing it";
   exit 1;
 fi
