@@ -35,7 +35,7 @@ function __project_confirm_setup() {
   esac
 }
 
-function setup_virtual_env() {
+function project_setup_virtual_env() {
   # Check for prerequisites
   local virtualenvwrapper_script="$(which virtualenvwrapper.sh)";
   if [ -z "$virtualenvwrapper_script" ]; then
@@ -171,5 +171,5 @@ fi
 # Automatically activate the virtual env unless this
 # behaviour is suppressed by specifying the env var
 if [[ "$PROJECT_VIRTUALENV_AUTO_ACTIVATE" != "0" ]]; then
-  setup_virtual_env;
+  project_setup_virtual_env;
 fi

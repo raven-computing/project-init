@@ -93,7 +93,7 @@ ${{VAR_SCRIPT_BUILD_ISOLATED_MAIN}}
 
 if [[ $ARG_NO_VIRTUALENV == false ]]; then
   # Setup and activate virtual environment
-  if ! setup_virtual_env; then
+  if ! project_setup_virtual_env; then
     exit 1;
   fi
 fi
