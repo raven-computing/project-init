@@ -5664,7 +5664,7 @@ function move_file() {
 
   mv "$source_file" "$target_file" 2>/dev/null;
   local mv_stat=$?;
-  if (( $mv_stat != 0 )); then
+  if (( mv_stat != 0 )); then
     logE "Failed to move file inside project directory";
     logE "Command mv returned non-zero exit status ${mv_stat}";
     logE "Source: '${arg_source}'";
