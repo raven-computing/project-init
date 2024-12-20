@@ -5329,13 +5329,13 @@ function select_project_type() {
     _make_func_hl "select_project_type";
     logE "Programming error: Illegal function call:";
     logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
+    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
             "No language ID argument specified";
   fi
   if [ -z "$lang_name" ]; then
     _make_func_hl "select_project_type";
     logW "No language name argument specified in call" \
-         "to $HYPERLINK_VALUE function:";
+         "to ${HYPERLINK_VALUE} function:";
     logW "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
     lang_name="$lang_id";
   fi
@@ -5343,10 +5343,10 @@ function select_project_type() {
   if (( CURRENT_LVL_NUMBER != 1 )); then
     _make_func_hl "select_project_type";
     logE "Project types can only be selected at init level 1.";
-    logE "The call to the $HYPERLINK_VALUE function was made:";
-    logE "at init level: $CURRENT_LVL_NUMBER";
-    logE "at: '$CURRENT_LVL_PATH'";
-    failure "Programming error: Invalid call to $HYPERLINK_VALUE function."      \
+    logE "The call to the ${HYPERLINK_VALUE} function was made:";
+    logE "at init level: ${CURRENT_LVL_NUMBER}";
+    logE "at: '${CURRENT_LVL_PATH}'";
+    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function."    \
             "Project types under a given language can only be selected while at" \
             "init level 1";
   fi
@@ -5362,7 +5362,7 @@ function select_project_type() {
         if [ -d "$dir" ]; then
           if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
             ptype_id="$(basename $dir)";
-            if [ -f "$PROJECT_INIT_ADDONS_DIR/${lang_id}/${ptype_id}/DISABLE" ]; then
+            if [ -f "${PROJECT_INIT_ADDONS_DIR}/${lang_id}/${ptype_id}/DISABLE" ]; then
               continue;
             fi
           fi
@@ -5381,7 +5381,7 @@ function select_project_type() {
       for fpath in "${all_ptypes[@]}"; do
         if [[ "$fpath" == *"?"* ]]; then
           logE "Invalid path encountered:";
-          logE "'$fpath'";
+          logE "'${fpath}'";
           logE "Path contains an invalid character: '?'";
           failure "One or more paths to a component of an addon has an invalid character." \
                   "Please make sure that the path to the addons directory does not"        \
@@ -5421,11 +5421,11 @@ function select_project_type() {
   local n_ptypes=${#project_type_dirs[@]};
   if (( n_ptypes == 0 )); then
     logE "Cannot prompt for project type selection. No options available";
-    failure "You have chosen to create a project using $lang_name,"     \
-            "however, no type of $lang_name project can be initialized" \
-            "because no project template files could be found."         \
-            "Please add at least one project type directory under"      \
-            "the '$lang_id' folder.";
+    failure "You have chosen to create a project using ${lang_name},"     \
+            "however, no type of ${lang_name} project can be initialized" \
+            "because no project template files could be found."           \
+            "Please add at least one project type directory under"        \
+            "the '${lang_id}' folder.";
   fi
 
   # Either prompt for a selection or automatically pick the
@@ -5433,7 +5433,7 @@ function select_project_type() {
   if (( n_ptypes > 1 )); then
     FORM_QUESTION_ID="project.type";
     logI "";
-    logI "Select the type of $lang_name project to be created:";
+    logI "Select the type of ${lang_name} project to be created:";
     read_user_input_selection "${project_type_names[@]}";
     local selected_name=${project_type_names[USER_INPUT_ENTERED_INDEX]};
     local selected_dir=${project_type_dirs[USER_INPUT_ENTERED_INDEX]};
