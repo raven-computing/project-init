@@ -1,3 +1,9 @@
+#### 1.7.4
+* Added support for Node.js 22 and removed support for Node.js 16.
+* Improved Python project control code source templates.
+* Improved implementation of the select_project_type() function.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.7.3...v1.7.4)
+
 #### 1.7.3
 * Updated Maven plugin versions.
 * Updated Pylint dependency version.
