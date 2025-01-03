@@ -82,9 +82,12 @@ if [[ $ARG_CLEAN == true ]]; then
   if [ -d "build" ]; then
     rm -r "build";
   fi
-  if [ -d *.egg-info ]; then
-    rm -r *.egg-info;
-  fi
+  egg_info_dirs=(*.egg-info);
+  for egg_info_dir in "${egg_info_dirs[@]}"; do
+    if [ -d "$egg_info_dir" ]; then
+      rm -r "$egg_info_dir";
+    fi
+  done
   logI "Removed build data";
   exit 0;
 fi
