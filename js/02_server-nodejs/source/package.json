@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "${{VAR_PROJECT_NAME_LOWER}}",
   "description": "${{VAR_PROJECT_DESCRIPTION}}",
   "version": "0.0.1",

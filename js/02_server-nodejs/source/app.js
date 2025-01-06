@@ -1,8 +1,8 @@
 ${{VAR_COPYRIGHT_HEADER}}
 
-var express = require("express");
-var logger = require("morgan");
-var cookieParser = require("cookie-parser");
+import express from "express";
+import logger from "morgan";
+import cookieParser from "cookie-parser";
 
 var app = express();
 
