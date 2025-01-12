@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ function test_functionality_result() {
   files+=("package.json");
   files+=("app.js");
   files+=("public/index.html");
-  files+=("run.sh");
+  files+=("test.sh");
   files+=(".docker/controls.sh");
   files+=(".docker/Dockerfile-run");
   files+=(".docker/entrypoint.sh");

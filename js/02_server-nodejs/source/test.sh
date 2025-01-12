@@ -1,10 +1,10 @@
 #!/bin/bash
-# Run script for the ${{VAR_PROJECT_NAME}} server application.
+# Test script for the ${{VAR_PROJECT_NAME}} server application.
 
-USAGE="Usage: run.sh [options]";
+USAGE="Usage: test.sh [options]";
 
 HELP_TEXT=$(cat << EOS
-Runs the ${{VAR_PROJECT_NAME}} server application.
+Tests the ${{VAR_PROJECT_NAME}} server application.
 
 ${USAGE}
 
@@ -34,7 +34,7 @@ ${{VAR_SCRIPT_BUILD_ISOLATED_ARGPARSE}}
     echo "Unknown argument: '$arg'";
     echo "$USAGE";
     echo "";
-    echo "Run 'run.sh --help' for more information";
+    echo "Run 'test.sh --help' for more information";
     exit 1;
     ;;
   esac

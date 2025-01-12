@@ -3,16 +3,16 @@
 #                                                                             #
 #                   The Entrypoint for the Docker Container                   #
 #                                                                             #
-# The (first) argument 'app' is handled in a special way. It is used to       #
-# launch the underlying project's run.sh script. All subsequent arguments     #
+# The (first) argument 'tests' is handled in a special way. It is used to     #
+# launch the underlying project's test.sh script. All subsequent arguments    #
 # are passed to that script transparently. If the first argument is           #
-# not 'app', then all arguments are passed to the exec command as is.         #
+# not 'tests', then all arguments are passed to the exec command as is.       #
 #                                                                             #
 ###############################################################################
 
-if [[ "$1" == "app" ]]; then
+if [[ "$1" == "tests" ]]; then
   shift;
-  exec ./run.sh "$@";
+  exec ./test.sh "$@";
 else
   exec "$@";
 fi
