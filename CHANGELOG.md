@@ -1,3 +1,10 @@
+#### 1.7.5
+* Fixed prematurely committed version updates to packages in Python projects to stay compatible with Python 3.8.
+* Improved Node.js project source templates. [[Issue#69]](https://github.com/raven-computing/project-init/issues/69)
+* Improved Node.js project control code. [[Issue#70]](https://github.com/raven-computing/project-init/issues/70)
+* Improved Python project control code.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.7.4...v1.7.5)
+
 #### 1.7.4
 * Added support for Node.js 22 and removed support for Node.js 16.
 * Improved Python project control code source templates.
