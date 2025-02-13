@@ -165,25 +165,6 @@ function _validate_exec_script_name() {
   return 0;
 }
 
-# # Validation function for the Python version form question.
-# function _validate_python_version() {
-#   local input="$1";
-#   if [ -z "$input" ]; then
-#     return 0;
-#   fi
-#   local re="^3\.[0-9]+$";
-#   if ! [[ $input =~ $re ]]; then
-#     if [[ $input =~ ^([0-2]|[4-9])\.? ]]; then
-#       logI "Unsupported Python major vesion.";
-#       logI "Only Python 3 versions are supported at this time.";
-#     else
-#       logI "The version must be specified as 'major.minor', e.g. '3.7' ";
-#     fi
-#     return 1;
-#   fi
-#   return 0;
-# }
-
 # [API function]
 # Prompts the user to select the Python version to use for the project.
 #
