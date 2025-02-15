@@ -388,11 +388,11 @@ fi
 # Specify supported Python versions
 _PYTHON_MIN_VERSION="3.8";
 _PYTHON_MIN_VERSION_IDX=0;
-add_lang_version "3.8" "Python 3.8";
-add_lang_version "3.9" "Python 3.9";
-add_lang_version "3.10" "Python 3.10";
-add_lang_version "3.11" "Python 3.11";
-add_lang_version "3.12" "Python 3.12";
+add_lang_version "3.8" "3.8";
+add_lang_version "3.9" "3.9";
+add_lang_version "3.10" "3.10";
+add_lang_version "3.11" "3.11";
+add_lang_version "3.12" "3.12";
 
 # Let the user choose a Python project type
 select_project_type "python" "Python";
