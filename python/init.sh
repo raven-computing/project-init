@@ -178,14 +178,15 @@ function _validate_exec_script_name() {
 #
 function form_python_version() {
   FORM_QUESTION_ID="python.version";
+  local py_min_version="${SUPPORTED_LANG_VERSIONS_LABELS[${_PYTHON_MIN_VERSION_IDX}]}";
   logI "";
   logI "Select the minimum version of Python required by the project.";
-  logI "The default is '${_PYTHON_MIN_VERSION}'";
+  logI "The default is '${py_min_version}'";
   USER_INPUT_DEFAULT_INDEX=${_PYTHON_MIN_VERSION_IDX};
   read_user_input_selection "${SUPPORTED_LANG_VERSIONS_LABELS[@]}";
   if (( $? == 1 )); then
     logI "";
-    logI "The minimum Python version will be set to ${_PYTHON_MIN_VERSION}";
+    logI "The minimum Python version will be set to ${py_min_version}";
   fi
   var_python_version="${SUPPORTED_LANG_VERSIONS_IDS[USER_INPUT_ENTERED_INDEX]}";
   var_python_version_label="${SUPPORTED_LANG_VERSIONS_LABELS[USER_INPUT_ENTERED_INDEX]}";
@@ -386,7 +387,6 @@ else
 fi
 
 # Specify supported Python versions
-_PYTHON_MIN_VERSION="3.8";
 _PYTHON_MIN_VERSION_IDX=0;
 add_lang_version "3.8" "3.8";
 add_lang_version "3.9" "3.9";
