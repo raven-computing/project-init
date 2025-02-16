@@ -178,11 +178,29 @@ function _validate_exec_script_name() {
 #
 function form_python_version() {
   FORM_QUESTION_ID="python.version";
-  local py_min_version="${SUPPORTED_LANG_VERSIONS_LABELS[${_PYTHON_MIN_VERSION_IDX}]}";
   logI "";
   logI "Select the minimum version of Python required by the project.";
-  logI "The default is '${py_min_version}'";
-  USER_INPUT_DEFAULT_INDEX=${_PYTHON_MIN_VERSION_IDX};
+  if get_property "python.version.min.default"; then
+    local py_min_version="$PROPERTY_VALUE";
+    if [[ "$py_min_version" != "false" ]]; then
+      local py_min_version_idx=0;
+      local py_min_version_is_supported=false;
+      local py_version;
+      for py_version in "${SUPPORTED_LANG_VERSIONS_IDS[@]}"; do
+        if [[ "$py_version" == "$py_min_version" ]]; then
+          py_min_version_is_supported=true;
+          USER_INPUT_DEFAULT_INDEX=$py_min_version_idx;
+          logI "The default is '${py_min_version}'";
+          break
+        fi
+        ((++py_min_version_idx));
+      done
+      if [[ $py_min_version_is_supported == false ]]; then
+        logW "Invalid value for property with key 'python.version.min.default'";
+        logW "The specified default minimum Python version '${py_min_version}' is not supported";
+      fi
+    fi
+  fi
   read_user_input_selection "${SUPPORTED_LANG_VERSIONS_LABELS[@]}";
   if (( $? == 1 )); then
     logI "";
@@ -387,7 +405,6 @@ else
 fi
 
 # Specify supported Python versions
-_PYTHON_MIN_VERSION_IDX=0;
 add_lang_version "3.8" "3.8";
 add_lang_version "3.9" "3.9";
 add_lang_version "3.10" "3.10";
