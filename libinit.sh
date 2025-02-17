@@ -5579,10 +5579,10 @@ function proceed_next_level() {
 # Both the source path and target path arguments are interpreted as relative to the
 # project target directory.
 #
-# When in the regular (form-based) application mode, the project target directory must
-# have already been created by means of the project_init_copy() function before a file
+# When in regular (form-based) application mode, the project target directory must have
+# already been created by means of the project_init_copy() function before a file
 # can be moved.
-# 
+#
 # When in Quickstart mode, the project target directory is the underlying Quickstart
 # current working directory, i.e. where the Quickstart was initiated. If a file at
 # the specified destination already exists, it is not overwritten and this function
@@ -5593,12 +5593,13 @@ function proceed_next_level() {
 #
 # Args:
 # $1 - The relative path of the source file to move in the project target directory.
-#      This is a mandatory argument.
+#      The source path must not be absolute. This is a mandatory argument.
 # $2 - The relative path to the target file where to move the source file to
-#      in the project target directory. This is a mandatory argument.
+#      in the project target directory. The target path must not be absolute.
+#      This is a mandatory argument.
 #
 # Examples:
-# move_file "the_src_file.txt" "subdirA/subdirB/trgt_file.txt";
+# move_file "a_src_file.txt" "subdirA/subdirB/trgt_file.txt";
 #
 function move_file() {
   local arg_source="$1";
@@ -5662,7 +5663,7 @@ function move_file() {
     target_file="${var_project_dir}/${arg_target}";
   fi
 
-  mv "$source_file" "$target_file" 2>/dev/null;
+  mv "${source_file}" "${target_file}" 2>/dev/null;
   local mv_stat=$?;
   if (( mv_stat != 0 )); then
     logE "Failed to move file inside project directory";
@@ -5672,7 +5673,6 @@ function move_file() {
     _cancel_quickstart $EXIT_FAILURE;
     failure "Failed to move source files";
   fi
-  # Update file cache
   find_all_files;
   return 0;
 }
