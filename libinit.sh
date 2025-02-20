@@ -5576,12 +5576,13 @@ function proceed_next_level() {
 # [API function]
 # Moves a file within the project target directory.
 #
-# Both the source path and target path arguments are interpreted as relative to the
-# project target directory.
+# The file specified by the first argument is moved to the target destination
+# specified by the second argument. Both the source path and target path
+# arguments are interpreted as relative to the project target directory.
 #
 # When in regular (form-based) application mode, the project target directory must have
 # already been created by means of the project_init_copy() function before a file
-# can be moved.
+# can be moved. If a file at the specified destination already exists, it is overwritten.
 #
 # When in Quickstart mode, the project target directory is the underlying Quickstart
 # current working directory, i.e. where the Quickstart was initiated. If a file at
@@ -5594,7 +5595,7 @@ function proceed_next_level() {
 # Args:
 # $1 - The relative path of the source file to move in the project target directory.
 #      The source path must not be absolute. This is a mandatory argument.
-# $2 - The relative path to the target file where to move the source file to
+# $2 - The relative path to the destination where to move the source file to
 #      in the project target directory. The target path must not be absolute.
 #      This is a mandatory argument.
 #
