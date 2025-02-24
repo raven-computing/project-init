@@ -5585,8 +5585,8 @@ function proceed_next_level() {
 # 
 # When in Quickstart mode, the project target directory is the underlying Quickstart
 # current working directory, i.e. where the Quickstart was initiated. If the specified
-# file or directory does not exist, or if it was not previously created by the same
-# Quickstart function, then this function will cause the application to cancel the
+# file or directory does not exist, or if it was not previously created by a Quickstart
+# function, then this function will cause the application to cancel the
 # entire Quickstart operation.
 #
 # Since:
@@ -5594,7 +5594,7 @@ function proceed_next_level() {
 #
 # Args:
 # $1 - The relative path of the file or directory to remove in the project
-#      target directory. This is a mandatory argument.
+#      target directory. The path must not be absolute. This is a mandatory argument.
 #
 # Examples:
 # remove_file "subdirA/the_src_file.txt";
