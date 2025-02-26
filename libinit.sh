@@ -5654,8 +5654,7 @@ function write_file() {
     fi
     file_path="${var_project_dir}/${arg_file_path}";
   fi
-  echo -ne "$arg_file_data" > "$file_path";
-  if (( $? != 0 )); then
+  if ! echo -ne "$arg_file_data" > "$file_path"; then
     logW "Could not write to file '${file_path}'";
     return 1;
   fi
