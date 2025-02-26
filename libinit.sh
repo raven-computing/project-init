@@ -5591,6 +5591,9 @@ function proceed_next_level() {
 # a Quickstart function, otherwise the entire Quickstart operation is cancelled
 # by this function. The file is created if it does not already exists.
 #
+# Since:
+# 1.8.0
+#
 # Args:
 # $1 - The relative path of the source file to write to in the project
 #      target directory. The path must not be absolute. This is a mandatory argument
