@@ -5616,7 +5616,7 @@ function write_file() {
   fi
   if _is_absolute_path "$arg_file_path"; then
     _make_func_hl "write_file";
-    logE "Programming error: Illegal argument '${arg_target}'";
+    logE "Programming error: Illegal argument '${arg_file_path}'";
     logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
     failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
             "The file argument must not be absolute";
