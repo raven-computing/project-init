@@ -1228,7 +1228,7 @@ function _handle_util_args() {
       version_dev="(Development Version)";
     fi
     echo "Project Init v${PROJECT_INIT_VERSION} ${version_dev}";
-    echo "Copyright (C) 2024 Raven Computing";
+    echo "Copyright (C) 2025 Raven Computing";
     echo "This software is licensed under the Apache License, Version 2.0";
     exit $EXIT_SUCCESS;
   fi
