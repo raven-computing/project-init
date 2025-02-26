@@ -31,7 +31,7 @@ Options:
                        Subsequent runs will still remove any residue files prior to
                        the next execution.
 
-  [--lint]             Perform static code analysis with a linter.
+  [-l|--lint]          Perform static code analysis with a linter.
 
   [--test-path]        TEST_PATH
                        The path to the source root directory of the instance to test.
@@ -93,7 +93,7 @@ for arg in "$@"; do
     ARG_TEST_FUNCT_ARGS+=("--keep-output");
     shift
     ;;
-    --lint)
+    -l|--lint)
     ARG_LINT=true;
     shift
     ;;
