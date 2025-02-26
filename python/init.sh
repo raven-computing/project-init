@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -165,27 +165,8 @@ function _validate_exec_script_name() {
   return 0;
 }
 
-# Validation function for the Python version form question.
-function _validate_python_version() {
-  local input="$1";
-  if [ -z "$input" ]; then
-    return 0;
-  fi
-  local re="^3\.[0-9]+$";
-  if ! [[ $input =~ $re ]]; then
-    if [[ $input =~ ^([0-2]|[4-9])\.? ]]; then
-      logI "Unsupported Python major vesion.";
-      logI "Only Python 3 versions are supported at this time.";
-    else
-      logI "The version must be specified as 'major.minor', e.g. '3.7' ";
-    fi
-    return 1;
-  fi
-  return 0;
-}
-
 # [API function]
-# Prompts the user to enter the Python version to use for the project.
+# Prompts the user to select the Python version to use for the project.
 #
 # The provided answer can be queried in source template files via the
 # VAR_PYTHON_VERSION substitution variable.
@@ -197,19 +178,36 @@ function _validate_python_version() {
 #
 function form_python_version() {
   FORM_QUESTION_ID="python.version";
-  local min_py_version="3.8";
   logI "";
-  logI "Specify the minimum version of Python required by the project.";
-  logI "Please enter the major and minor version numbers.";
-  logI "The default is '${min_py_version}'";
-  read_user_input_text _validate_python_version;
-  var_python_version="$USER_INPUT_ENTERED_TEXT";
-
-  # Validate Python version string
-  if [ -z "$var_python_version" ]; then
-    logI "The minimum Python version will be set to ${min_py_version}";
-    var_python_version="$min_py_version";
+  logI "Select the minimum version of Python required by the project.";
+  if get_property "python.version.min.default"; then
+    local py_min_version="$PROPERTY_VALUE";
+    if [[ "$py_min_version" != "false" ]]; then
+      local py_min_version_idx=0;
+      local py_min_version_is_supported=false;
+      local py_version;
+      for py_version in "${SUPPORTED_LANG_VERSIONS_IDS[@]}"; do
+        if [[ "$py_version" == "$py_min_version" ]]; then
+          py_min_version_is_supported=true;
+          USER_INPUT_DEFAULT_INDEX=$py_min_version_idx;
+          logI "The default is '${py_min_version}'";
+          break
+        fi
+        ((++py_min_version_idx));
+      done
+      if [[ $py_min_version_is_supported == false ]]; then
+        logW "Invalid value for property with key 'python.version.min.default'";
+        logW "The specified default minimum Python version '${py_min_version}' is not supported";
+      fi
+    fi
   fi
+  read_user_input_selection "${SUPPORTED_LANG_VERSIONS_LABELS[@]}";
+  if (( $? == 1 )); then
+    logI "";
+    logI "The minimum Python version will be set to ${py_min_version}";
+  fi
+  var_python_version="${SUPPORTED_LANG_VERSIONS_IDS[USER_INPUT_ENTERED_INDEX]}";
+  var_python_version_label="${SUPPORTED_LANG_VERSIONS_LABELS[USER_INPUT_ENTERED_INDEX]}";
 }
 
 # Validation function for the Python virtenv name form question.
@@ -405,6 +403,13 @@ elif [[ "$var_project_license" == "GNU General Public License 2.0" ]]; then
 else
   var_license_classifier_setup_py="License :: Other/Proprietary License";
 fi
+
+# Specify supported Python versions
+add_lang_version "3.8" "3.8";
+add_lang_version "3.9" "3.9";
+add_lang_version "3.10" "3.10";
+add_lang_version "3.11" "3.11";
+add_lang_version "3.12" "3.12";
 
 # Let the user choose a Python project type
 select_project_type "python" "Python";
