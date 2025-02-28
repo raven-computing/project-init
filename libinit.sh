@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -5571,4 +5571,148 @@ function proceed_next_level() {
   fi
 
   source "$next_lvl_script";
+}
+
+# [API function]
+# Checks whether a regular file exists within the project target directory.
+#
+# The file path argument is interpreted as relative to the project target directory.
+# When in regular (form-based) application mode, the project target directory must have
+# already been created by means of the project_init_copy() function before this check
+# can be done. When in Quickstart mode, the project target directory is the underlying
+# Quickstart current working directory, i.e. where the Quickstart was initiated.
+# This function only checks for regular files and will report nonexistence for a file
+# of any other file type.
+#
+# Since:
+# 1.8.0
+#
+# Args:
+# $1 - The relative path of the file to check in the project target directory.
+#      The path must not be absolute. This is a mandatory argument.
+#
+# Returns:
+# 0 - If the specified regular file exists.
+# 1 - If the specified regular file does not exist.
+#
+# Examples:
+# if file_exists "myfolder/my_src_file.txt"; then
+#   echo "File does exist";
+# fi
+#
+# if ! file_exists "main.py"; then
+#   echo "Main file does not exist";
+# fi
+#
+function file_exists() {
+  local arg_file_path="$1";
+  if [ -z "$arg_file_path" ]; then
+    _make_func_hl "file_exists";
+    logE "Programming error: Illegal function call:";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
+            "No file argument specified";
+  fi
+  if _is_absolute_path "$arg_file_path"; then
+    _make_func_hl "file_exists";
+    logE "Programming error: Illegal argument '${arg_file_path}'";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
+            "The file argument must not be absolute";
+  fi
+
+  local file_path="";
+  if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
+    file_path="${_PROJECT_INIT_QUICKSTART_OUTPUT_DIR}/${arg_file_path}";
+  else
+    if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
+      _make_func_hl "file_exists";
+      local _hl_file_exists="$HYPERLINK_VALUE";
+      _make_func_hl "project_init_copy";
+      local _hl_pic="$HYPERLINK_VALUE";
+      logE "Programming error in init script:";
+      logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+      failure "Missing call to project_init_copy() function:"                              \
+              "When calling the ${_hl_file_exists} function, the target project directory" \
+              "must already be created. "                                                  \
+              "Make sure you first call the ${_hl_pic} function in your init script";
+    fi
+    file_path="${var_project_dir}/${arg_file_path}";
+  fi
+  if [ -f "$file_path" ]; then
+    return 0;
+  fi
+  return 1;
+}
+
+# [API function]
+# Checks whether a directory exists within the project target directory.
+#
+# The file path argument is interpreted as relative to the project target directory.
+# When in regular (form-based) application mode, the project target directory must have
+# already been created by means of the project_init_copy() function before this check
+# can be done. When in Quickstart mode, the project target directory is the underlying
+# Quickstart current working directory, i.e. where the Quickstart was initiated.
+# This function only checks for directory files and will report nonexistence for a file
+# of any other file type.
+#
+# Since:
+# 1.8.0
+#
+# Args:
+# $1 - The relative path of the file to check in the project target directory.
+#      The path must not be absolute. This is a mandatory argument.
+#
+# Returns:
+# 0 - If the specified directory exists.
+# 1 - If the specified directory does not exist.
+#
+# Examples:
+# if directory_exists "myfolder/other_subfolder"; then
+#   echo "Directory does exist";
+# fi
+#
+# if ! directory_exists "tests"; then
+#   echo "Tests directory not found";
+# fi
+#
+function directory_exists() {
+  local arg_file_path="$1";
+  if [ -z "$arg_file_path" ]; then
+    _make_func_hl "directory_exists";
+    logE "Programming error: Illegal function call:";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
+            "No file argument specified";
+  fi
+  if _is_absolute_path "$arg_file_path"; then
+    _make_func_hl "directory_exists";
+    logE "Programming error: Illegal argument '${arg_file_path}'";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
+            "The file argument must not be absolute";
+  fi
+
+  local file_path="";
+  if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
+    file_path="${_PROJECT_INIT_QUICKSTART_OUTPUT_DIR}/${arg_file_path}";
+  else
+    if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
+      _make_func_hl "directory_exists";
+      local _hl_directory_exists="$HYPERLINK_VALUE";
+      _make_func_hl "project_init_copy";
+      local _hl_pic="$HYPERLINK_VALUE";
+      logE "Programming error in init script:";
+      logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+      failure "Missing call to project_init_copy() function:"                                   \
+              "When calling the ${_hl_directory_exists} function, the target project directory" \
+              "must already be created. "                                                       \
+              "Make sure you first call the ${_hl_pic} function in your init script";
+    fi
+    file_path="${var_project_dir}/${arg_file_path}";
+  fi
+  if [ -d "$file_path" ]; then
+    return 0;
+  fi
+  return 1;
 }
