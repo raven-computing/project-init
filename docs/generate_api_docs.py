@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -303,7 +303,7 @@ def parse_obj_key_list_args(key_lines):
     key_lines = [line.strip() for line in key_lines]
     key_text = "\n".join(key_lines)
     key_list = []
-    pattern = "(\$\d+|\$\*|\$\@)"
+    pattern = r"(\$\d+|\$\*|\$\@)"
     tokens = list(filter(bool, re.split(pattern, key_text)))
     iargs = [i for i, token in enumerate(tokens) if re.match(pattern, token)]
     if len(iargs) > 0:
@@ -876,7 +876,7 @@ def get_project_init_version():
         if version_str:
             version_str = version_str.replace("\n", "")
             # Check is valid version string
-            is_valid = re.match("^[0-9]+\.[0-9]+\.[0-9]+(-dev)?$", version_str)
+            is_valid = re.match(r"^[0-9]+\.[0-9]+\.[0-9]+(-dev)?$", version_str)
             if not is_valid:
                 warn(f"Invalid version string: '{version_str}'")
                 _PROJECT_INIT_VERSION = None
