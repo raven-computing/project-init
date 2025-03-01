@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -97,6 +97,7 @@ function form_c_binary_name() {
 add_lang_version "90" "C89/90 (ANSI C)"; # CMake expects the identifier as '90'
 add_lang_version "99" "C99";
 add_lang_version "11" "C11";
+add_lang_version "23" "C23";
 
 # Let the user choose a C project type
 select_project_type "c" "C";
