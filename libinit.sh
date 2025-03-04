@@ -701,10 +701,12 @@ function _show_notif_success() {
     if [[ ${_has_icon} == true ]]; then
       notify-send -i "${_STR_NOTIF_SUCCESS_ICON}"  \
                   -t ${_INT_NOTIF_SUCCESS_TIMEOUT} \
+                  --app-name "Project Init"        \
                   "${_project_name}"               \
                   "${PROJECT_INIT_SUCCESS_MESSAGE}";
     else
       notify-send -t ${_INT_NOTIF_SUCCESS_TIMEOUT} \
+                  --app-name "Project Init"        \
                   "${_project_name}"               \
                   "${PROJECT_INIT_SUCCESS_MESSAGE}";
     fi
