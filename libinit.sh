@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -679,38 +679,59 @@ function _log_success() {
   fi
 }
 
+# Invokes notify-send to show a desktop notification.
+#
+# This implementation function also handles the optional notification actions.
+#
+# Args:
+# $@ - All arguments to be passed to notify-send.
+#
+function _show_notif_success_impl() {
+  local act;
+  act=$(notify-send "$@");
+  if [[ "$act" == "Open" ]]; then
+    nautilus --new-window "${var_project_dir}" &> /dev/null;
+  elif [[ "$act" == "Term" ]]; then
+    gnome-terminal --window \
+                   --working-directory="${var_project_dir}" &> /dev/null;
+  fi
+}
+
 # Shows a system notification indicating a successful operation.
 #
-# This function will try to display a desktop notification if
-# the notify-send command is available. It returns exit status 1
-# if the notify-send command is not available, otherwise it returns
-# the exit status of notify-send.
+# This function will try to display a desktop notification if the
+# notify-send command is available. It returns exit status 1 if
+# the notify-send command is not available, otherwise it returns 0 (zero).
 #
 function _show_notif_success() {
   if _command_dependency "notify-send"; then
+    local notif_args=();
     local _project_name="New Project";
     if [ -n "$var_project_name" ]; then
       _project_name="$var_project_name";
     fi
-    local _has_icon=false;
     if [ -n "${_STR_NOTIF_SUCCESS_ICON}" ]; then
       if [ -r "${_STR_NOTIF_SUCCESS_ICON}" ]; then
-        _has_icon=true;
+        notif_args+=("--icon");
+        notif_args+=("${_STR_NOTIF_SUCCESS_ICON}");
       fi
     fi
-    if [[ ${_has_icon} == true ]]; then
-      notify-send -i "${_STR_NOTIF_SUCCESS_ICON}"  \
-                  -t ${_INT_NOTIF_SUCCESS_TIMEOUT} \
-                  --app-name "Project Init"        \
-                  "${_project_name}"               \
-                  "${PROJECT_INIT_SUCCESS_MESSAGE}";
-    else
-      notify-send -t ${_INT_NOTIF_SUCCESS_TIMEOUT} \
-                  --app-name "Project Init"        \
-                  "${_project_name}"               \
-                  "${PROJECT_INIT_SUCCESS_MESSAGE}";
+    notif_args+=("--expire-time");
+    notif_args+=("${_INT_NOTIF_SUCCESS_TIMEOUT}");
+    notif_args+=("--app-name");
+    notif_args+=("Project Init");
+    if _command_dependency "nautilus"; then
+      notif_args+=("--action");
+      notif_args+=("Open=Show Source Files");
     fi
-    return $?;
+    if _command_dependency "gnome-terminal"; then
+      notif_args+=("--action");
+      notif_args+=("Term=Open in Terminal");
+    fi
+    notif_args+=("${_project_name}");
+    notif_args+=("${PROJECT_INIT_SUCCESS_MESSAGE}");
+    _show_notif_success_impl "${notif_args[@]}" &
+    return 0;
   fi
   return 1;
 }
