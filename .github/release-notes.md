@@ -1,7 +1,9 @@
 #### Release notes:
 
-* Fixed an issue where a generated Python project requiring compatibility with Python 3.8 would not build.
-* Improvements to the Node.js project source templates.
-* Minor improvements to Python project source templates.
+* Added support for C17 and C23, former was already officially supported but not selectable.
+* Added support for C++23.
+* Updates to dependency versions in project source templates.
+* Minor improvements to the UX.
+* Minor internal improvements.
 
-See [Changelog](https://github.com/raven-computing/project-init/blob/v1.7.5/CHANGELOG.md).
+See [Changelog](https://github.com/raven-computing/project-init/blob/v1.7.6/CHANGELOG.md).
