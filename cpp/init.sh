@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -237,6 +237,7 @@ function form_cpp_namespace() {
 add_lang_version "14" "C++14";
 add_lang_version "17" "C++17";
 add_lang_version "20" "C++20";
+add_lang_version "23" "C++23";
 
 # Let the user choose a C++ project type
 select_project_type "cpp" "C++";
