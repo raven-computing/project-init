@@ -188,21 +188,16 @@ function form_cpp_namespace() {
   local cpp_namespace_default="$PROPERTY_VALUE";
 
   FORM_QUESTION_ID="cpp.namespace";
+  USER_INPUT_DEFAULT_TEXT="$cpp_namespace_default";
   logI "";
   logI "Enter the namespace for the project source code in dot notation.";
   logI "For example: '$cpp_namespace_example'";
   logI "(Defaults to '$cpp_namespace_default')";
 
   read_user_input_text _validate_cpp_namespace;
-  local _namespace_name="$USER_INPUT_ENTERED_TEXT";
-
-  # Validate given namespace string
-  if [ -z "${_namespace_name}" ]; then
-    _namespace_name="$cpp_namespace_default";
-  fi
 
   # Set global vars
-  var_namespace="${_namespace_name}";
+  var_namespace="$USER_INPUT_ENTERED_TEXT";
   if [[ $var_namespace == *"."* ]]; then
     var_namespace_0="${var_namespace%%.*}";
   else
