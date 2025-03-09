@@ -101,14 +101,11 @@ function form_cpp_binary_name() {
   logI "";
   logI "Enter the name of the binary file that this project produces:";
   # shellcheck disable=SC2154
-  logI "(Defaults to '$var_project_name_lower')";
+  USER_INPUT_DEFAULT_TEXT="$var_project_name_lower";
+  logI "(Defaults to '$USER_INPUT_DEFAULT_TEXT')";
   read_user_input_text;
-  local entered_binary_name="$USER_INPUT_ENTERED_TEXT";
-  if [ -z "$entered_binary_name" ]; then
-    entered_binary_name="$var_project_name_lower";
-  fi
-  var_artifact_binary_name="$entered_binary_name";
-  var_artifact_binary_name_upper=$(echo "$entered_binary_name" \
+  var_artifact_binary_name="$USER_INPUT_ENTERED_TEXT";
+  var_artifact_binary_name_upper=$(echo "$var_artifact_binary_name" \
                                     |tr '[:lower:]' '[:upper:]');
 }
 
