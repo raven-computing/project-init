@@ -1,3 +1,17 @@
+#### 1.7.6
+* Added support for C language standard C17 which was previously held back since it did not introduce any new language features compared to C11 which was already supported. [[Issue#82]](https://github.com/raven-computing/project-init/issues/82)
+* Added support for C language standard C23.
+* Added support for C++ language standard C++23.
+* Added short option '-l' to test script for linter usage, short for '--lint'.
+* Improved desktop notifications by showing the app name in the title.
+* Improved documentation generator script.
+* Refactored the form_cpp_binary_name() and form_c_binary_name() functions.
+* Updated Unity dependency version for C projects.
+* Updated Gtest dependency version for C++ projects.
+* Updated Poco dependency version.
+* Updated ImGui dependency version.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.7.5...v1.7.6)
+
 #### 1.7.5
 * Fixed prematurely committed version updates to packages in Python projects to stay compatible with Python 3.8.
 * Improved Node.js project source templates. [[Issue#69]](https://github.com/raven-computing/project-init/issues/69)
