@@ -184,9 +184,10 @@ fi
 
 # First create release-commit and tag
 logI "Committing release-version and adding tag";
-git add "VERSION"                         &&
-git commit -m "Release v$version_release" &&
-git tag "$tag_this_version";
+commit_msg="Release v$version_release";
+git add "VERSION"           &&
+git commit -m "$commit_msg" &&
+git tag -s -m "$commit_msg" "$tag_this_version";
 if (( $? != 0 )); then
   failure "Failed to commit and tag release-version";
 fi
@@ -205,7 +206,7 @@ if [[ "$(git tag -l $tag_v_latest)" != "" ]]; then
 else
   logW "Tag '$tag_v_latest' does not exist yet. It will be created";
 fi
-git tag $tag_v_latest;
+git tag -s -m "$commit_msg" "$tag_v_latest";
 if (( $? != 0 )); then
   failure "Failed to create new tag '$tag_v_latest'";
 fi
@@ -231,9 +232,9 @@ fi
 
 logI "Pushing release-commits and tags";
 
-git push                               &&
-git push $GIT_ORIGIN $tag_this_version &&
-git push $GIT_ORIGIN $tag_v_latest;
+git push                                   &&
+git push "$GIT_ORIGIN" "$tag_this_version" &&
+git push "$GIT_ORIGIN" "$tag_v_latest";
 
 if (( $? != 0 )); then
   failure "Failed to push release-commits";
