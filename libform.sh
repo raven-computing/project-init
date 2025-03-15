@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -220,11 +220,11 @@ function project_init_show_main_form() {
     project_workdir="workspace";
   fi
   if [[ "$config_use_cwd" == "true" ]]; then
-    var_project_dir="$USER_CWD/$project_dir_name";
+    var_project_dir="${USER_CWD}/${project_dir_name}";
   else
     if [ -n "$HOME" ]; then
       # Set as default value
-      var_project_dir="$HOME/$project_workdir/$project_dir_name";
+      var_project_dir="${HOME}/${project_workdir}/${project_dir_name}";
     fi
   fi
 
@@ -232,7 +232,7 @@ function project_init_show_main_form() {
   logI "";
   logI "Enter the path to the project directory:";
   if [ -n "$var_project_dir" ]; then
-    logI "(Defaults to '$var_project_dir')";
+    logI "(Defaults to '${var_project_dir}')";
   fi
   read_user_input_text _validate_project_directory;
   local entered_project_dir="$USER_INPUT_ENTERED_TEXT";
@@ -256,16 +256,16 @@ function project_init_show_main_form() {
   # Convert to absolute path if necessary
   if ! _is_absolute_path "$var_project_dir"; then
     if [[ "$config_use_cwd" == "true" ]]; then
-      var_project_dir="$USER_CWD/$var_project_dir";
+      var_project_dir="${USER_CWD}/${var_project_dir}";
     else
-      var_project_dir="$HOME/$project_workdir/$var_project_dir";
+      var_project_dir="${HOME}/${project_workdir}/${var_project_dir}";
     fi
     logI "";
-    logI "Project will be initialized at '$var_project_dir'";
+    logI "Project will be initialized at '${var_project_dir}'";
   fi
 
   if ! _check_is_valid_project_dir "$var_project_dir"; then
-    failure "Invalid project directory: '$var_project_dir'";
+    failure "Invalid project directory: '${var_project_dir}'";
   fi
 
   # Check whether the project directory already
