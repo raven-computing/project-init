@@ -261,7 +261,7 @@ function project_init_show_main_form() {
       var_project_dir="$HOME/$project_workdir/$var_project_dir";
     fi
     logI "";
-    logI "Project will be initialized under '$var_project_dir'";
+    logI "Project will be initialized at '$var_project_dir'";
   fi
 
   if ! _check_is_valid_project_dir "$var_project_dir"; then
