@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -85,8 +85,8 @@ EOS
 )
   local actual;
   # shellcheck disable=SC2030
-  actual="$(export value="${_var_value}" &&              \
-            awk -v key='\\${{VAR_'"${_var_key}"'}}'      \
+  actual="$(export value="${_var_value}" &&               \
+            awk -v key='\\${{VAR_'"${_var_key}"'}}'       \
                 '{ gsub(key, ENVIRON["value"]); print; }' \
                 "resources/awk_replace_var.txt")";
 
@@ -129,6 +129,109 @@ EOS
   return $?;
 }
 
+function test_replace_all_strings_in_file() {
+  local input_file="resources/awk_replace_strings.txt";
+  local source_str="The_Source_\\(<\\)\\[_String";
+  local target_str="";
+  target_str=$(cat << EOS
+A multi-line replacement string
+;\'\\:&/%~\`\\.$}_-#|^@,"\\{]?+!\\>*[=)<(
+With special chars
+The END.
+EOS
+)
+
+  target_str="${target_str//&/\\&}";
+  local expected="";
+  expected=$(cat << EOS
+Line A
+Line B A multi-line replacement string
+;\'\\:&/%~\`\\.$}_-#|^@,"\\{]?+!\\>*[=)<(
+With special chars
+The END.DataA multi-line replacement string
+;\'\\:&/%~\`\\.$}_-#|^@,"\\{]?+!\\>*[=)<(
+With special chars
+The END.
+Line C
+( 2 < F P Z d n x
+) 3 = G Q [ e o y
+* 4 > H R \ f p z
+! + 5 ? I S ] g q {
+" , 6 @ J T ^ h r |
+# - 7 A K U _ i s }
+$ . 8 B L V \` j t ~
+% / 9 C M W a k u
+& 0 : D N X b l v
+' 1 ; E O Y c m w
+A multi-line replacement string
+;\'\\:&/%~\`\\.$}_-#|^@,"\\{]?+!\\>*[=)<(
+With special chars
+The END.
+Line D
+EOS
+)
+
+  local actual;
+  # shellcheck disable=SC2030
+  actual=$(export replacement="$target_str" &&                \
+            awk -v str="$source_str"                          \
+              '{ gsub(str, ENVIRON["replacement"]); print; }' \
+              "$input_file");
+
+  assert_equal "$expected" "$actual" $?;
+  return $?;
+}
+
+function test_replace_n_string_occurrences_in_file() {
+  local input_file="resources/awk_replace_strings.txt";
+  local repl_count=1;
+  local source_str="The_Source_\\(<\\)\\[_String";
+  local target_str="";
+  target_str=$(cat << EOS
+A multi-line replacement string
+;\'\\:&/%~\`\\.$}_-#|^@,"\\{]?+!\\>*[=)<(
+With special chars
+The END.
+EOS
+)
+
+  target_str="${target_str//&/\\&}";
+  local expected="";
+  expected=$(cat << EOS
+Line A
+Line B A multi-line replacement string
+;\'\\:&/%~\`\\.$}_-#|^@,"\\{]?+!\\>*[=)<(
+With special chars
+The END.DataThe_Source_(<)[_String
+Line C
+( 2 < F P Z d n x
+) 3 = G Q [ e o y
+* 4 > H R \ f p z
+! + 5 ? I S ] g q {
+" , 6 @ J T ^ h r |
+# - 7 A K U _ i s }
+$ . 8 B L V \` j t ~
+% / 9 C M W a k u
+& 0 : D N X b l v
+' 1 ; E O Y c m w
+The_Source_(<)[_String
+Line D
+EOS
+)
+
+  local actual;
+  # shellcheck disable=SC2031
+  actual=$(
+    export replacement="$target_str" &&                                       \
+      awk -v limit=$repl_count                                                \
+          -v str="$source_str"                                                \
+          'limit>0 && sub(str, ENVIRON["replacement"]){limit-=1}; { print; }' \
+          "$input_file");
+
+  assert_equal "$expected" "$actual" $?;
+  return $?;
+}
+
 function test_command() {
   test_single_delimiter_first              &&
   test_single_delimiter_second             &&
@@ -136,7 +239,9 @@ function test_command() {
   test_multichar_delimiter_second          &&
   test_remove_line_from_file               &&
   test_replace_variable_from_file          &&
-  test_replace_include_directive_from_file;
+  test_replace_include_directive_from_file &&
+  test_replace_all_strings_in_file         &&
+  test_replace_n_string_occurrences_in_file;
   return $?;
 }
 
