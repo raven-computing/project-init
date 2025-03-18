@@ -4220,6 +4220,7 @@ function _replace_max_n_str_impl() {
   local arg_limit="$4";
   local replaced_data;
   local awk_stat;
+  arg_source="${arg_source//\\/\\\\}";
   arg_target="${arg_target//&/\\&}";
   # shellcheck disable=SC2031
   replaced_data=$(
