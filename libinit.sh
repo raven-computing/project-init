@@ -4160,6 +4160,86 @@ function load_var_from_file() {
   fi
 }
 
+# Replaces all string occurrences in the given file.
+#
+# Args:
+# $1 - The string to replace.
+# $2 - The replacement string.
+# $3 - The file to process.
+#
+# Returns:
+# n - The exit status of the awk command.
+#
+# Stdout:
+# The processed file content if in test mode.
+#
+function _replace_all_str_impl() {
+  local arg_source="$1";
+  local arg_target="$2";
+  local arg_file="$3";
+  local replaced_data;
+  local awk_stat;
+  arg_source="${arg_source//\\/\\\\}";
+  arg_target="${arg_target//&/\\&}";
+  # shellcheck disable=SC2030
+  replaced_data=$(
+      export replacement="$arg_target" &&                   \
+        awk -v str="$arg_source"                            \
+            '{ gsub(str, ENVIRON["replacement"]); print; }' \
+            "$arg_file");
+
+  awk_stat=$?
+  if (( awk_stat == 0 )); then
+    if [[ "$PROJECT_INIT_TESTS_ACTIVE" == "1" ]]; then
+      echo "$replaced_data";
+    else
+      echo "$replaced_data" > "$arg_file";
+    fi
+  fi
+  return $awk_stat;
+}
+
+# Replaces maximum the specified number of found occurrences in the given file.
+#
+# Args:
+# $1 - The string to replace.
+# $2 - The replacement string.
+# $3 - The file to process.
+# $4 - The maximum number of occurrences to replace.
+#
+# Returns:
+# n - The exit status of the awk command.
+#
+# Stdout:
+# The processed file content if in test mode.
+#
+function _replace_max_n_str_impl() {
+  local arg_source="$1";
+  local arg_target="$2";
+  local arg_file="$3";
+  local arg_limit="$4";
+  local replaced_data;
+  local awk_stat;
+  arg_target="${arg_target//&/\\&}";
+  # shellcheck disable=SC2031
+  replaced_data=$(
+      export replacement="$arg_target" && \
+        awk -v limit=$arg_limit           \
+            -v str="$arg_source"          \
+            'limit>0 && sub(str, ENVIRON["replacement"]){limit-=1}; { print; }' \
+            "$arg_file");
+
+  awk_stat=$?
+  if (( awk_stat == 0 )); then
+    if [[ "$PROJECT_INIT_TESTS_ACTIVE" == "1" ]]; then
+      echo "$replaced_data";
+    else
+      echo "$replaced_data" > "$arg_file";
+    fi
+  fi
+  return $awk_stat;
+}
+
 # [API function]
 # Replaces strings in source files with the specified string.
 #
@@ -4303,44 +4383,25 @@ function replace_str() {
     files_to_scan=("${CACHE_ALL_FILES[@]}");
   fi
 
-  local replaced_data;
-  local awk_stat;
-  arg_target_str="${arg_target_str//&/\\&}";
   # Search and replace in all relevant files
+  local awk_stat;
   for file in "${files_to_scan[@]}"; do
     if [ -z "$arg_file_count" ]; then
-      # Replace all found occurrences
-      # shellcheck disable=SC2030
-      replaced_data=$(
-          export replacement="$arg_target_str" &&               \
-            awk -v str="$arg_source_str"                        \
-                '{ gsub(str, ENVIRON["replacement"]); print; }' \
-                "$file");
-
+      _replace_all_str_impl "$arg_source_str" "$arg_target_str" "$file";
       awk_stat=$?
       if (( awk_stat != 0 )); then
         logE "Failed to replace occurrences of strings in file '${file}'"
         logE "Command awk returned non-zero exit status ${awk_stat}"
         failure "An error has occurred during source file processing";
       fi
-      echo "$replaced_data" > "$file";
     else
-      # Replace max. the specified number of found occurrences
-      # shellcheck disable=SC2031
-      replaced_data=$(
-          export replacement="$arg_target_str" && \
-            awk -v limit=$arg_file_count          \
-                -v str="$arg_source_str"          \
-                'limit>0 && sub(str, ENVIRON["replacement"]){limit-=1}; { print; }' \
-                "$file");
-
+      _replace_max_n_str_impl "$arg_source_str" "$arg_target_str" "$file" $arg_file_count;
       awk_stat=$?
       if (( awk_stat != 0 )); then
         logE "Failed to replace string in file '${file}'"
         logE "Command awk returned non-zero exit status ${awk_stat}"
         failure "An error has occurred during source file processing";
       fi
-      echo "$replaced_data" > "$file";
     fi
   done
   return 0;
