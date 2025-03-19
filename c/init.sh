@@ -30,14 +30,31 @@
 # VAR_ARTIFACT_BINARY_NAME_UPPER: The name of the binary file to be produced
 #                                 by the project, in all upper-case.
 # VAR_PREFIX_INCLUDE_GUARD: The prefix to be used in all header include guards
+# VAR_C_HEADER_BEGIN: The code at the beginning of a C header file
+# VAR_C_HEADER_END: The code at the end of a C header file
 
 function process_files_lvl_1() {
   replace_var "C_VERSION"                  "$var_c_version";
   replace_var "C_VERSION_LABEL"            "$var_c_version_label";
   replace_var "ARTIFACT_BINARY_NAME"       "$var_artifact_binary_name";
   replace_var "ARTIFACT_BINARY_NAME_UPPER" "$var_artifact_binary_name_upper";
+
+  local var_c_header_begin="#pragma once";
+  local var_c_header_end="";
+  get_boolean_property "c.headers.include.guards.enable" "false";
+  if [[ "$PROPERTY_VALUE" == "true" ]]; then
+    # shellcheck disable=SC2154
+    var_c_header_begin="#ifndef ${var_project_name_upper}_EXAMPLE_H";
+    var_c_header_begin+="${_NL}";
+    var_c_header_begin+="#define ${var_project_name_upper}_EXAMPLE_H";
+    var_c_header_end="#endif // ${var_project_name_upper}_EXAMPLE_H";
+  fi
+  replace_var "C_HEADER_BEGIN" "$var_c_header_begin" "h";
+  replace_var "C_HEADER_END"   "$var_c_header_end"   "h";
+
+  # Kept for backwards compatibility
   # shellcheck disable=SC2154
-  replace_var "PREFIX_INCLUDE_GUARD"       "$var_project_name_upper";
+  replace_var "PREFIX_INCLUDE_GUARD" "$var_project_name_upper" "h";
 }
 
 # [API function]

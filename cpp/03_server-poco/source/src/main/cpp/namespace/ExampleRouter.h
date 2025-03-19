@@ -1,7 +1,6 @@
 ${{VAR_COPYRIGHT_HEADER}}
 
-#ifndef ${{VAR_NAMESPACE_INCLUDE_GUARD}}_EXAMPLE_ROUTER_H
-#define ${{VAR_NAMESPACE_INCLUDE_GUARD}}_EXAMPLE_ROUTER_H
+${{VAR_CPP_HEADER_BEGIN}}
 
 #include "raven/net/RouterHTTP.h"
 #include "${{VAR_NAMESPACE_PATH}}/ExampleControllerHTTP.h"
@@ -24,4 +23,4 @@ public:
 }; // END CLASS ExampleRouter
 
 ${{VAR_NAMESPACE_DECL_END}}
-#endif // ${{VAR_NAMESPACE_INCLUDE_GUARD}}_EXAMPLE_ROUTER_H
+${{VAR_CPP_HEADER_END}}

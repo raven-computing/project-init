@@ -1,6 +1,6 @@
 ${{VAR_COPYRIGHT_HEADER}}
 
-#include "application.h"
+#include "example.h"
 
 
 int main(int argc, char** argv){
