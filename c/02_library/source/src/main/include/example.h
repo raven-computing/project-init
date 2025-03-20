@@ -10,8 +10,7 @@ ${{VAR_COPYRIGHT_HEADER}}
  * @see ${{VAR_PROJECT_ORGANISATION_URL}}
  */
 
-#ifndef ${{VAR_PREFIX_INCLUDE_GUARD}}_EXAMPLE_H
-#define ${{VAR_PREFIX_INCLUDE_GUARD}}_EXAMPLE_H
+${{VAR_C_HEADER_BEGIN}}
 
 #include "${{VAR_ARTIFACT_BINARY_NAME}}_export.h"
 
@@ -32,4 +31,4 @@ ${{VAR_ARTIFACT_BINARY_NAME_UPPER}}_EXPORT int addFortyTwo(const int number);
  */
 ${{VAR_ARTIFACT_BINARY_NAME_UPPER}}_EXPORT const char* getText();
 
-#endif // ${{VAR_PREFIX_INCLUDE_GUARD}}_EXAMPLE_H
+${{VAR_C_HEADER_END}}
