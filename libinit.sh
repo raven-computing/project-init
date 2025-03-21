@@ -4227,7 +4227,7 @@ function _replace_max_n_str_impl() {
       export replacement="$arg_target" && \
         awk -v limit=$arg_limit           \
             -v str="$arg_source"          \
-            'limit>0 && sub(str, ENVIRON["replacement"]){limit-=1}; { print; }' \
+            '{ while (limit>0 && sub(str, ENVIRON["replacement"])){limit-=1} }; { print; }' \
             "$arg_file");
 
   awk_stat=$?
