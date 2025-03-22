@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,6 +28,9 @@ TESTS_OUTPUT_DIR="";
 # external addons. Please note that this does not include the addons tests
 # under BASEPATH/addons, for which this is still false
 IS_ADDON_TESTS=false;
+# Boolean flag indicating whether to print the captured standard output
+# after a single successful test run
+PRINT_CAPTURED_STDOUT=false;
 # The associative array for the form answer data.
 declare -A _FORM_ANSWERS;
 
@@ -195,6 +198,12 @@ function _test_functionality_driver() {
     logE "";
   else
     echo -e "${LABEL_PASSED}\n";
+    if [[  $PRINT_CAPTURED_STDOUT == true ]]; then
+      logI "Captured output (stdout):";
+      logI "";
+      echo "$output_stdout";
+      logI "";
+    fi
   fi
   return $test_status;
 }
@@ -346,6 +355,7 @@ function test_functionality_quickstart() {
 
 function main() {
   local arg_keep_output=false;
+  local arg_show_stdout=false;
   local arg_filter_runs="";
   local filter_runs=();
   local arg_test_path="";
@@ -353,6 +363,10 @@ function main() {
     case $arg in
       --keep-output)
       arg_keep_output=true;
+      shift
+      ;;
+      --show-stdout)
+      arg_show_stdout=true;
       shift
       ;;
       --filter=*)
@@ -454,13 +468,23 @@ function main() {
     addon_mention="addon ";
   fi
   local shell_version="${BASH_VERSINFO[0]}.${BASH_VERSINFO[1]}.${BASH_VERSINFO[2]}";
-  logI "Testing functionality of Project Init ${addon_mention}with Bash ${shell_version}";
-  echo "";
 
   export PROJECT_INIT_TESTS_ACTIVE="1";
 
   local exit_status=0;
   local n_filter_runs=${#filter_runs[@]};
+  if [[ $arg_show_stdout == true ]]; then
+    if (( n_filter_runs == 1 )); then
+      PRINT_CAPTURED_STDOUT=true;
+    else
+      logW "Ignoring option '--show-stdout'";
+      logW "It can only be used with a single functionality test case";
+      arg_show_stdout=false;
+    fi
+  fi
+
+  logI "Testing functionality of Project Init ${addon_mention}with Bash ${shell_version}";
+  echo "";
   if (( n_filter_runs > 0 )); then
     # Only run specified test runs
     local testname="";
