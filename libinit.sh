@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -676,6 +676,51 @@ function _log_success() {
       logW "$warning_msg";
       logI "";
     done
+  fi
+}
+
+# Triggers a program failure with the specified error message.
+#
+# This function can be used to fail due to an illegal function call.
+#
+# Args:
+# $1 - The error message to print.
+#
+function _fail_illegal_call() {
+  local error_message="$1";
+  local func="${FUNCNAME[1]}";
+  local source_file="${BASH_SOURCE[2]}";
+  local lineno="${BASH_LINENO[1]}";
+  if [[ "$func" == "_require_arg" ]]; then
+    func="${FUNCNAME[2]}";
+    source_file="${BASH_SOURCE[3]}";
+    lineno="${BASH_LINENO[2]}";
+  fi
+  _make_func_hl "$func";
+  logE "Programming error: Illegal function call:";
+  logE "at: '${source_file}' (line ${lineno})";
+  failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
+          "$error_message";
+}
+
+# Ensures that the specified argument is non-empty.
+#
+# This function will perform the argument check and exit the program with
+# a failure and the specified error message if the argument is empty
+# or left unspecified.
+#
+# Args:
+# $1 - The argument value to check.
+# $2 - The error message to print (optional).
+#
+function _require_arg() {
+  local required_arg="$1";
+  local error_message="$2";
+  if [ -z "$error_message" ]; then
+    error_message="Missing required argument";
+  fi
+  if [ -z "$required_arg" ]; then
+    _fail_illegal_call "$error_message";
   fi
 }
 
