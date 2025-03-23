@@ -2,7 +2,7 @@ ${{VAR_COPYRIGHT_HEADER}}
 
 #include <stdio.h>
 
-#include "application.h"
+#include "example.h"
 
 
 int getFortyTwo(){

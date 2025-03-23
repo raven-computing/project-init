@@ -1,7 +1,6 @@
 ${{VAR_COPYRIGHT_HEADER}}
 
-#ifndef ${{VAR_PREFIX_INCLUDE_GUARD}}_APPLICATION_H
-#define ${{VAR_PREFIX_INCLUDE_GUARD}}_APPLICATION_H
+${{VAR_C_HEADER_BEGIN}}
 
 /**
  * Gets the number 42.
@@ -15,4 +14,4 @@ int getFortyTwo();
  */
 void printText();
 
-#endif // ${{VAR_PREFIX_INCLUDE_GUARD}}_APPLICATION_H
+${{VAR_C_HEADER_END}}

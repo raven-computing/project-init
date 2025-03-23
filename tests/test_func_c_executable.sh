@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,8 +35,10 @@ function test_functionality_result() {
   files+=("cmake/DependencyUtil.cmake");
   files+=("src/main/CMakeLists.txt");
   files+=("src/main/c/main.c");
+  files+=("src/main/c/example.h");
+  files+=("src/main/c/example.c");
   files+=("src/main/tests/CMakeLists.txt");
-  files+=("src/main/tests/c/test_application.c");
+  files+=("src/main/tests/c/test_example.c");
   files+=(".docker/controls.sh");
   files+=(".docker/Dockerfile-build");
   files+=(".docker/entrypoint.sh");
