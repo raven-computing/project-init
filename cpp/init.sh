@@ -79,14 +79,18 @@ function process_files_lvl_1() {
 }
 
 # Replaces the VAR_IG_FILENAME substitution variable in all C++ headers files.
+#
+# Globals:
+# CACHE_ALL_FILES - Read access.
+#
 function _cpp_adjust_header_include_guard_names() {
   local ig_filename;
-  local f;
-  for f in "${CACHE_ALL_FILES[@]}"; do
-    if [[ "$f" == *".h" ]]; then
-      f="$(basename "$f")";
-      ig_filename="$(echo "$f" |tr "." "_" |tr '[:lower:]' '[:upper:]')";
-      replace_var "IG_FILENAME" "$ig_filename" "$f";
+  local file;
+  for file in "${CACHE_ALL_FILES[@]}"; do
+    if [[ "$file" == *".h" ]]; then
+      file="$(basename "$file")";
+      ig_filename="$(echo "$file" |tr "." "_" |tr '[:lower:]' '[:upper:]')";
+      replace_var "IG_FILENAME" "$ig_filename" "$file";
     fi
   done
 }
