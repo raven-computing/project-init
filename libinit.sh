@@ -5674,6 +5674,15 @@ function move_file() {
     _cancel_quickstart $EXIT_FAILURE;
     failure "Failed to move source files";
   fi
-  find_all_files;
+  # Update file cache: Remove source file, add target file
+  local updated_files=();
+  local file="";
+  for file in "${CACHE_ALL_FILES[@]}"; do
+    if [[ "$file" != "$source_file" ]]; then
+      updated_files+=("$file");
+    fi
+  done
+  updated_files+=("$target_file");
+  CACHE_ALL_FILES=("${updated_files[@]}");
   return 0;
 }
