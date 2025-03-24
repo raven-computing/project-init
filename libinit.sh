@@ -5576,8 +5576,8 @@ function proceed_next_level() {
 # [API function]
 # Writes text to a file within the project target directory.
 #
-# The file to write is specified by the first argument. The file path argument
-# is interpreted as relative to the project target directory. The content to write
+# The file to write is specified by the first argument. The path is interpreted as
+# relative to the project target directory. The content to write
 # is specified by the second argument.
 #
 # When in regular (form-based) application mode, the project target directory must have
@@ -5596,7 +5596,7 @@ function proceed_next_level() {
 #
 # Args:
 # $1 - The relative path of the source file to write to in the project
-#      target directory. The path must not be absolute. This is a mandatory argument
+#      target directory. The path must not be absolute. This is a mandatory argument.
 # $2 - The file content to write to the specified file. Can be an empty string
 #      or omitted. This is an optional argument.
 #
