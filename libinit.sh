@@ -5657,9 +5657,16 @@ function append_file() {
     fi
     file_path="${var_project_dir}/${arg_file_path}";
   fi
+  local add_file_to_cache=false;
+  if ! [ -e "$file_path" ]; then
+    add_file_to_cache=true;
+  fi
   if ! echo -ne "$arg_file_data" >> "$file_path"; then
     logW "Could not append to file '${file_path}'";
     return 1;
+  fi
+  if [[ $add_file_to_cache == true ]]; then
+    CACHE_ALL_FILES+=("$file_path");
   fi
   return 0;
 }
