@@ -5664,6 +5664,13 @@ function move_file() {
     target_file="${var_project_dir}/${arg_target}";
   fi
 
+  if ! [ -e "$source_file" ]; then
+    logE "Failed to move file inside project directory";
+    logE "Source file does not exist: '${arg_source}'";
+    _cancel_quickstart $EXIT_FAILURE;
+    failure "Failed to move source files";
+  fi
+
   mv "${source_file}" "${target_file}" 2>/dev/null;
   local mv_stat=$?;
   if (( mv_stat != 0 )); then
