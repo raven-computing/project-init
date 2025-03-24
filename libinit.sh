@@ -5588,7 +5588,7 @@ function proceed_next_level() {
 # 1.8.0
 #
 # Args:
-# $1 - The relative path of the file to check in the project target directory.
+# $1 - The relative path of the regular file to check in the project target directory.
 #      The path must not be absolute. This is a mandatory argument.
 #
 # Returns:
@@ -5660,7 +5660,7 @@ function file_exists() {
 # 1.8.0
 #
 # Args:
-# $1 - The relative path of the file to check in the project target directory.
+# $1 - The relative path of the directory to check under the project target directory.
 #      The path must not be absolute. This is a mandatory argument.
 #
 # Returns:
