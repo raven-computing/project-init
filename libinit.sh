@@ -681,7 +681,7 @@ function _log_success() {
 
 # Triggers a program failure with the specified error message.
 #
-# This function can be used to fail due to an illegal function call.
+# This function can be used to stop the program due to an illegal function call.
 #
 # Args:
 # $1 - The error message to print. This argument is mandatory.
