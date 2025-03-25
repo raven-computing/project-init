@@ -5646,6 +5646,12 @@ function remove_file() {
               "Make sure you first call the ${_hl_pic} function in your init script";
     fi
     target_file="${var_project_dir}/${arg_target}";
+    if ! [ -e "$target_file" ]; then
+      logW "Cannot remove file '${arg_target}'";
+      logW "File or directory does not exist:";
+      logW "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+      return 1;
+    fi
   fi
   local file_type="file";
   if [ -d "$target_file" ]; then
