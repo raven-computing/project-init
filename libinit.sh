@@ -5669,6 +5669,14 @@ function remove_file() {
     _cancel_quickstart $EXIT_FAILURE;
     failure "Failed to remove source files";
   fi
-  find_all_files;
+  # Update file cache: Remove target file and possibly its dir children
+  local updated_files=();
+  local file="";
+  for file in "${CACHE_ALL_FILES[@]}"; do
+    if [[ "$file" != "$target_file" && "$file" != "${target_file}/"* ]]; then
+      updated_files+=("$file");
+    fi
+  done
+  CACHE_ALL_FILES=("${updated_files[@]}");
   return 0;
 }
