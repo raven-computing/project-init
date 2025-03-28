@@ -33,6 +33,11 @@ Options:
 
   [-l|--lint]          Perform static code analysis with a linter.
 
+  [--show-stdout]      Prints the data from standard output captured by a single functionality
+                       test case to the standard output of the user. This option only has an
+                       effect together with '--functionality' and can only be used when a
+                       single test case is specified.
+
   [--test-path]        TEST_PATH
                        The path to the source root directory of the instance to test.
                        This option is used to instruct the testing facility to run tests for
@@ -50,6 +55,7 @@ ARG_TEST_FUNCT=false;
 ARG_TEST_FUNCT_ARGS=();
 ARG_KEEP_OUTPUT=false;
 ARG_LINT=false;
+ARG_SHOW_STDOUT=false;
 ARG_TEST_PATH=false;
 ARG_SHOW_HELP=false;
 
@@ -95,6 +101,11 @@ for arg in "$@"; do
     ;;
     -l|--lint)
     ARG_LINT=true;
+    shift
+    ;;
+    --show-stdout)
+    ARG_SHOW_STDOUT=true;
+    ARG_TEST_FUNCT_ARGS+=("--show-stdout");
     shift
     ;;
     --test-path)
