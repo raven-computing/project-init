@@ -37,6 +37,8 @@
 # VAR_NAMESPACE_INCLUDE_GUARD: The namespace as used in include guards
 # VAR_NAMESPACE_DECL_BEGIN: The namespace declaration start part
 # VAR_NAMESPACE_DECL_END: The namespace declaration end part
+# VAR_CPP_HEADER_BEGIN: The code at the beginning of a C++ header file
+# VAR_CPP_HEADER_END: The code at the end of a C++ header file
 
 function process_files_lvl_1() {
   replace_var "CPP_VERSION"                "$var_cpp_version";
@@ -47,9 +49,26 @@ function process_files_lvl_1() {
   replace_var "NAMESPACE_0"                "$var_namespace_0";
   replace_var "NAMESPACE_PATH"             "$var_namespace_path";
   replace_var "NAMESPACE_COLON"            "$var_namespace_colon";
-  replace_var "NAMESPACE_INCLUDE_GUARD"    "$var_namespace_include_guard";
   replace_var "NAMESPACE_DECL_BEGIN"       "$var_namespace_decl_begin";
   replace_var "NAMESPACE_DECL_END"         "$var_namespace_decl_end";
+
+  local var_cpp_header_begin="#pragma once";
+  local var_cpp_header_end="";
+  get_boolean_property "cpp.headers.include.guards.enable" "false";
+  local use_header_include_guards="$PROPERTY_VALUE";
+  if [[ "$use_header_include_guards" == "true" ]]; then
+    var_cpp_header_begin='#ifndef ${{VAR_NAMESPACE_INCLUDE_GUARD}}_${{VAR_IG_FILENAME}}';
+    var_cpp_header_begin+="${_NL}";
+    var_cpp_header_begin+='#define ${{VAR_NAMESPACE_INCLUDE_GUARD}}_${{VAR_IG_FILENAME}}';
+    var_cpp_header_end='#endif // ${{VAR_NAMESPACE_INCLUDE_GUARD}}_${{VAR_IG_FILENAME}}';
+  fi
+  replace_var "CPP_HEADER_BEGIN" "$var_cpp_header_begin" "h";
+  replace_var "CPP_HEADER_END" "$var_cpp_header_end" "h";
+  # Always replace include guard namespace for backwards compatibility
+  replace_var "NAMESPACE_INCLUDE_GUARD" "$var_namespace_include_guard" "h";
+  if [[ "$use_header_include_guards" == "true" ]]; then
+    _cpp_adjust_header_include_guard_names;
+  fi
 
   if [ -n "$var_namespace_path" ]; then
     expand_namespace_directories "$var_namespace_path"        \
@@ -57,6 +76,23 @@ function process_files_lvl_1() {
                                  "src/main/include/namespace" \
                                  "src/main/tests/cpp/namespace";
   fi
+}
+
+# Replaces the VAR_IG_FILENAME substitution variable in all C++ headers files.
+#
+# Globals:
+# CACHE_ALL_FILES - Read access.
+#
+function _cpp_adjust_header_include_guard_names() {
+  local ig_filename;
+  local file;
+  for file in "${CACHE_ALL_FILES[@]}"; do
+    if [[ "$file" == *".h" ]]; then
+      file="$(basename "$file")";
+      ig_filename="$(echo "$file" |tr "." "_" |tr '[:lower:]' '[:upper:]')";
+      replace_var "IG_FILENAME" "$ig_filename" "$file";
+    fi
+  done
 }
 
 # [API function]

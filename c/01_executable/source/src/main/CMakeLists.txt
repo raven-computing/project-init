@@ -8,7 +8,7 @@ set(${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE ${{VAR_ARTIFACT_BINARY_N
 add_library(
     ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE}
     STATIC
-    c/application.c
+    c/example.c
 )
 
 target_include_directories(
