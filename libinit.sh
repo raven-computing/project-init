@@ -5963,3 +5963,124 @@ function append_file() {
   fi
   return 0;
 }
+
+# [API function]
+# Moves a file within the project target directory.
+#
+# The file specified by the first argument is moved to the target destination
+# specified by the second argument. Both the source path and target path
+# arguments are interpreted as relative to the project target directory.
+#
+# When in regular (form-based) application mode, the project target directory must have
+# already been created by means of the project_init_copy() function before a file
+# can be moved. If a file at the specified destination already exists, it is overwritten.
+#
+# When in Quickstart mode, the project target directory is the underlying Quickstart
+# current working directory, i.e. where the Quickstart was initiated. If a file at
+# the specified destination already exists, it is not overwritten and this function
+# will cause the application to cancel the entire Quickstart operation.
+#
+# Since:
+# 1.8.0
+#
+# Args:
+# $1 - The relative path of the source file to move in the project target directory.
+#      The source path must not be absolute. This is a mandatory argument.
+# $2 - The relative path to the destination where to move the source file to
+#      in the project target directory. The target path must not be absolute.
+#      This is a mandatory argument.
+#
+# Examples:
+# move_file "a_src_file.txt" "subdirA/subdirB/trgt_file.txt";
+#
+function move_file() {
+  local arg_source="$1";
+  local arg_target="$2";
+  if [ -z "$arg_source" ]; then
+    _make_func_hl "move_file";
+    logE "Programming error: Illegal function call:";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
+            "No source file argument specified";
+  fi
+  if [ -z "$arg_target" ]; then
+    _make_func_hl "move_file";
+    logE "Programming error: Illegal function call:";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
+            "No target file argument specified";
+  fi
+  if _is_absolute_path "$arg_source"; then
+    _make_func_hl "move_file";
+    logE "Programming error: Illegal argument '${arg_source}'";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
+            "The source file argument must not be absolute";
+  fi
+  if _is_absolute_path "$arg_target"; then
+    _make_func_hl "move_file";
+    logE "Programming error: Illegal argument '${arg_target}'";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
+            "The target file argument must not be absolute";
+  fi
+
+  # Absolute path arguments passed to mv command
+  local source_file="";
+  local target_file="";
+
+  if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
+    source_file="${_PROJECT_INIT_QUICKSTART_OUTPUT_DIR}/${arg_source}";
+    target_file="${_PROJECT_INIT_QUICKSTART_OUTPUT_DIR}/${arg_target}";
+    if [ -e "$target_file" ]; then
+      logW "Cannot move file '${arg_source}'";
+      logW "File or directory already exists at destination and would be overwritten:";
+      logW "at: '${arg_target}'";
+      _cancel_quickstart $EXIT_FAILURE;
+    fi
+  else
+    if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
+      _make_func_hl "move_file";
+      local _hl_move_file="$HYPERLINK_VALUE";
+      _make_func_hl "project_init_copy";
+      local _hl_pic="$HYPERLINK_VALUE";
+      logE "Programming error in init script:";
+      logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+      failure "Missing call to project_init_copy() function:"                            \
+              "When calling the ${_hl_move_file} function, the target project directory" \
+              "must already be created. "                                                \
+              "Make sure you first call the ${_hl_pic} function in your init script";
+    fi
+    source_file="${var_project_dir}/${arg_source}";
+    target_file="${var_project_dir}/${arg_target}";
+  fi
+
+  if ! [ -e "$source_file" ]; then
+    logE "Failed to move file inside project directory";
+    logE "Source file does not exist: '${arg_source}'";
+    _cancel_quickstart $EXIT_FAILURE;
+    failure "Failed to move source files";
+  fi
+
+  mv "${source_file}" "${target_file}" 2>/dev/null;
+  local mv_stat=$?;
+  if (( mv_stat != 0 )); then
+    logE "Failed to move file inside project directory";
+    logE "Command mv returned non-zero exit status ${mv_stat}";
+    logE "Source: '${arg_source}'";
+    logE "Target: '${arg_target}'";
+    _cancel_quickstart $EXIT_FAILURE;
+    failure "Failed to move source files";
+  fi
+  # Update file cache: Remove source file, add target file
+  local updated_files=();
+  local file="";
+  for file in "${CACHE_ALL_FILES[@]}"; do
+    if [[ "$file" != "$source_file" ]]; then
+      updated_files+=("$file");
+    fi
+  done
+  updated_files+=("$target_file");
+  CACHE_ALL_FILES=("${updated_files[@]}");
+  return 0;
+}
