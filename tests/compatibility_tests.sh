@@ -181,7 +181,7 @@ function main() {
   export -f assert_equal;
   # Allow test code to dynamically load required lib functions
   export -f require_libraries;
-  export PROJECT_INIT_TESTS_ACTIVE="1";
+  export PROJECT_INIT_COMPAT_TESTS_ACTIVE="1";
   local testfile;
   local testcmd;
   local path_base_len;

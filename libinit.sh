@@ -4190,7 +4190,7 @@ function _replace_all_str_impl() {
 
   awk_stat=$?
   if (( awk_stat == 0 )); then
-    if [[ "$PROJECT_INIT_TESTS_ACTIVE" == "1" ]]; then
+    if [[ "$PROJECT_INIT_COMPAT_TESTS_ACTIVE" == "1" ]]; then
       echo "$replaced_data";
     else
       echo "$replaced_data" > "$arg_file";
@@ -4232,7 +4232,7 @@ function _replace_max_n_str_impl() {
 
   awk_stat=$?
   if (( awk_stat == 0 )); then
-    if [[ "$PROJECT_INIT_TESTS_ACTIVE" == "1" ]]; then
+    if [[ "$PROJECT_INIT_COMPAT_TESTS_ACTIVE" == "1" ]]; then
       echo "$replaced_data";
     else
       echo "$replaced_data" > "$arg_file";
