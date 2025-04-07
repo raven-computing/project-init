@@ -4205,6 +4205,254 @@ function load_var_from_file() {
   fi
 }
 
+# Replaces all string occurrences in the given file.
+#
+# Args:
+# $1 - The string to replace.
+# $2 - The replacement string.
+# $3 - The file to process.
+#
+# Returns:
+# n - The exit status of the awk command.
+#
+# Stdout:
+# The processed file content if in test mode.
+#
+function _replace_all_str_impl() {
+  local arg_source="$1";
+  local arg_target="$2";
+  local arg_file="$3";
+  local replaced_data;
+  local awk_stat;
+  arg_source="${arg_source//\\/\\\\}";
+  arg_target="${arg_target//&/\\&}";
+  # shellcheck disable=SC2030
+  replaced_data=$(
+      export replacement="$arg_target" &&                   \
+        awk -v str="$arg_source"                            \
+            '{ gsub(str, ENVIRON["replacement"]); print; }' \
+            "$arg_file");
+
+  awk_stat=$?
+  if (( awk_stat == 0 )); then
+    if [[ "$PROJECT_INIT_COMPAT_TESTS_ACTIVE" == "1" ]]; then
+      echo "$replaced_data";
+    else
+      echo "$replaced_data" > "$arg_file";
+    fi
+  fi
+  return $awk_stat;
+}
+
+# Replaces maximum the specified number of found occurrences in the given file.
+#
+# Args:
+# $1 - The string to replace.
+# $2 - The replacement string.
+# $3 - The file to process.
+# $4 - The maximum number of occurrences to replace.
+#
+# Returns:
+# n - The exit status of the awk command.
+#
+# Stdout:
+# The processed file content if in test mode.
+#
+function _replace_max_n_str_impl() {
+  local arg_source="$1";
+  local arg_target="$2";
+  local arg_file="$3";
+  local arg_limit="$4";
+  local replaced_data;
+  local awk_stat;
+  arg_source="${arg_source//\\/\\\\}";
+  arg_target="${arg_target//&/\\&}";
+  # shellcheck disable=SC2031
+  replaced_data=$(
+      export replacement="$arg_target" && \
+        awk -v limit=$arg_limit           \
+            -v str="$arg_source"          \
+            '{ while (limit>0 && sub(str, ENVIRON["replacement"])){limit-=1} }; { print; }' \
+            "$arg_file");
+
+  awk_stat=$?
+  if (( awk_stat == 0 )); then
+    if [[ "$PROJECT_INIT_COMPAT_TESTS_ACTIVE" == "1" ]]; then
+      echo "$replaced_data";
+    else
+      echo "$replaced_data" > "$arg_file";
+    fi
+  fi
+  return $awk_stat;
+}
+
+# [API function]
+# Replaces strings in source files with the specified string.
+#
+# This function can be used in all modes. It searches for the text string pattern
+# as specified by the first argument and replaces found occurrences with the text
+# string of the second argument. The search pattern is interpreted as a regular
+# expression, so character escaping might need to be applied by the caller if
+# certain characters (e.g. '[' and ']') should be matched literally. If left
+# unspecified, all files eligible for variable substitution are searched, otherwise
+# the third argument may specify a concrete source file or a file extension pattern
+# to limit the search process to the specified files. A file extension pattern must
+# be indicated by the presence of a wildcard ('*') character in the argument. If the
+# argument is a single wildcard character, then all files are matched (the default).
+# By default, all found occurrences in each considered file are replaced with the
+# specified string. This can be adjusted by the fourth argument, which can be a
+# positive integer number specifying the maximum number of occurrences that should
+# be replaced per file.
+#
+# When in regular (form-based) application mode, the project target directory must
+# have already been created by means of the project_init_copy() function.
+# When in Quickstart mode, the project target directory is the underlying
+# Quickstart current working directory, i.e. where the Quickstart was initiated.
+#
+# Since:
+# 1.8.0
+#
+# Args:
+# $1 - The string to replace. This is interpreted as a regular expression.
+#      This is a mandatory argument.
+# $2 - The replacement string to use. This is a mandatory argument.
+# $3 - The files or file extension to consider. This is an optional argument.
+# $4 - The maximum number of times to replace a found string per processed file.
+#      This is an optional argument.
+#
+# Returns:
+# 0 - If all relevant files were successfully processed.
+# 1 - If a specified source file does not exist or is not a regular file.
+#
+# Examples:
+# # Replace all found strings everywhere in all files:
+# replace_str "MyConstString" "The_Replacement_String";
+#
+# # Replace all occurrences of the pattern only in a specific file:
+# replace_str "My[0-9].*A" "OtherB" "src/main/raven/Main.java";
+#
+# # Replace all occurrences only in all .java files:
+# replace_str "MyA" "OtherB" "*.java";
+#
+# # Replace only the first occurrence in all files:
+# replace_str "MyA" "OtherB" "*" 1;
+#
+function replace_str() {
+  local arg_count=$#;
+  local arg_source_str="$1";
+  local arg_target_str="$2";
+  local arg_file_spec="$3";
+  local arg_file_count="$4";
+  if [ -z "$arg_source_str" ]; then
+    _make_func_hl "replace_str";
+    logE "Programming error: Illegal function call:";
+    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
+            "No source string argument specified";
+  fi
+  if [ -z "$arg_target_str" ]; then
+    if (( arg_count == 1 )); then
+      _make_func_hl "replace_str";
+      logE "Programming error: Illegal function call:";
+      logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+      failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
+              "No replacement string argument specified";
+    fi
+  fi
+  if [ -n "$arg_file_spec" ]; then
+    if _is_absolute_path "$arg_file_spec"; then
+      _make_func_hl "replace_str";
+      logE "Programming error: Illegal argument '${arg_file_spec}'";
+      logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+      failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
+              "The file filter argument must not be absolute";
+    fi
+  fi
+  if [ -n "$arg_file_count" ]; then
+    local is_number='^[0-9]+$';
+    if ! [[ $arg_file_count =~ $is_number ]]; then
+      _make_func_hl "replace_str";
+      logE "Programming error: Illegal argument '${arg_file_count}'";
+      logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+      failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
+              "The file count argument must be numeric";
+    fi
+  fi
+  local scan_base_dir="";
+  if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
+    scan_base_dir="${_PROJECT_INIT_QUICKSTART_OUTPUT_DIR}";
+  else
+    if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
+      _make_func_hl "replace_str";
+      local _hl_replace_str="$HYPERLINK_VALUE";
+      _make_func_hl "project_init_copy";
+      local _hl_pic="$HYPERLINK_VALUE";
+      logE "Programming error in init script:";
+      logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+      failure "Missing call to project_init_copy() function:"                              \
+              "When calling the ${_hl_replace_str} function, the target project directory" \
+              "must already be created. "                                                  \
+              "Make sure you first call the ${_hl_pic} function in your init script";
+    fi
+    scan_base_dir="${var_project_dir}";
+  fi
+
+  # Determine the files to be searched
+  local files_to_scan=();
+  local file="";
+  if [ -n "$arg_file_spec" ]; then
+    if [[ "$arg_file_spec" == *'*'* ]]; then
+      for file in "${CACHE_ALL_FILES[@]}"; do
+        if [[ "$file" == "${scan_base_dir}/"${arg_file_spec} ]]; then
+          files_to_scan+=("$file");
+        fi
+      done
+    else
+      file="${scan_base_dir}/${arg_file_spec}";
+      if ! [ -e "$file" ]; then
+        logW "Cannot replace strings in file '${arg_file_spec}': File does not exist";
+        _make_func_hl "replace_str";
+        logW "Cannot handle argument given to ${HYPERLINK_VALUE} function:";
+        logW "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+        return 1;
+      fi
+      if [ -d "$file" ]; then
+        logW "Cannot replace strings in file '${arg_file_spec}': File is a directory";
+        _make_func_hl "replace_str";
+        logW "Cannot handle argument given to ${HYPERLINK_VALUE} function:";
+        logW "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
+        return 1;
+      fi
+      files_to_scan+=("$file");
+    fi
+  else
+    files_to_scan=("${CACHE_ALL_FILES[@]}");
+  fi
+
+  # Search and replace in all relevant files
+  local awk_stat;
+  for file in "${files_to_scan[@]}"; do
+    if [ -z "$arg_file_count" ]; then
+      _replace_all_str_impl "$arg_source_str" "$arg_target_str" "$file";
+      awk_stat=$?
+      if (( awk_stat != 0 )); then
+        logE "Failed to replace occurrences of strings in file '${file}'"
+        logE "Command awk returned non-zero exit status ${awk_stat}"
+        failure "An error has occurred during source file processing";
+      fi
+    else
+      _replace_max_n_str_impl "$arg_source_str" "$arg_target_str" "$file" $arg_file_count;
+      awk_stat=$?
+      if (( awk_stat != 0 )); then
+        logE "Failed to replace string in file '${file}'"
+        logE "Command awk returned non-zero exit status ${awk_stat}"
+        failure "An error has occurred during source file processing";
+      fi
+    fi
+  done
+  return 0;
+}
+
 # [API function]
 # Replaces all occurrences of the specified variable with the specified value.
 #

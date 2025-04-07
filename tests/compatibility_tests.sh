@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -137,6 +137,13 @@ function run_test_file() {
   fi
 }
 
+function require_libraries() {
+  if ! source "../libinit.sh"; then
+    return 127;
+  fi
+  return 0;
+}
+
 function show_test_results() {
   if (( n_failed_cmds > 0 )); then
     if (( n_failed_cmds == 1 )); then
@@ -162,7 +169,7 @@ function show_test_results() {
 function main() {
   TESTPATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)";
   cd "$TESTPATH" || return 1;
-  if ! source "../libinit.sh"; then
+  if ! require_libraries; then
     echo "ERROR: Could not source libinit.sh library"
     return 1;
   fi
@@ -172,6 +179,9 @@ function main() {
   fi
   # Make assert function available to test code
   export -f assert_equal;
+  # Allow test code to dynamically load required lib functions
+  export -f require_libraries;
+  export PROJECT_INIT_COMPAT_TESTS_ACTIVE="1";
   local testfile;
   local testcmd;
   local path_base_len;
