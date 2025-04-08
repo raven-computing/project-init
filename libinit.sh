@@ -3831,13 +3831,7 @@ function read_user_input_yes_no() {
 function copy_resource() {
   local arg_src="$1";
   local arg_dest="$2";
-  if [ -z "$arg_src" ]; then
-    _make_func_hl "copy_resource";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
-            "No arguments specified";
-  fi
+  _require_arg "$arg_src" "No arguments specified";
   if [ -z "$arg_dest" ]; then
     arg_dest=$(basename "$arg_src");
   fi
@@ -3968,14 +3962,7 @@ function copy_resource() {
 function copy_shared() {
   local arg_shared_name="$1";
   local arg_dest_path="$2";
-  # Check args
-  if [ -z "$arg_shared_name" ]; then
-    _make_func_hl "copy_shared";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
-            "No arguments specified";
-  fi
+  _require_arg "$arg_shared_name" "No arguments specified";
   if _is_absolute_path "$arg_shared_name"; then
     _make_func_hl "copy_shared";
     logE "Programming error: Illegal function call:";
@@ -3983,13 +3970,7 @@ function copy_shared() {
     failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
             "The shared resource name must not be an absolute path";
   fi
-  if [ -z "$arg_dest_path" ]; then
-    _make_func_hl "copy_shared";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
-            "No destination path argument specified";
-  fi
+  _require_arg "$arg_dest_path" "No destination path argument specified";
   if _is_absolute_path "$arg_dest_path"; then
     _make_func_hl "copy_shared";
     logE "Programming error: Illegal function call:";
@@ -4149,13 +4130,7 @@ function load_var() {
 #
 function load_var_from_file() {
   local arg_file="$1";
-  if [ -z "$arg_file" ]; then
-    _make_func_hl "load_var_from_file";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
-            "No argument specified";
-  fi
+  _require_arg "$arg_file" "No argument specified";
   # Convert to lower case
   arg_file=$(echo "$arg_file" |tr '[:upper:]' '[:lower:]');
   # Check for variable prefix and remove if necessary
@@ -4343,13 +4318,7 @@ function replace_str() {
   local arg_target_str="$2";
   local arg_file_spec="$3";
   local arg_file_count="$4";
-  if [ -z "$arg_source_str" ]; then
-    _make_func_hl "replace_str";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
-            "No source string argument specified";
-  fi
+  _require_arg "$arg_source_str" "No source string argument specified";
   if [ -z "$arg_target_str" ]; then
     if (( arg_count == 1 )); then
       _make_func_hl "replace_str";
@@ -4513,13 +4482,7 @@ function replace_var() {
     failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
             "No arguments specified";
   fi
-  if [ -z "${_var_key}" ]; then
-    _make_func_hl "replace_var";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
-            "Key argument cannot be an empty string";
-  fi
+  _require_arg "${_var_key}" "Key argument cannot be an empty string";
   if (( ${#CACHE_ALL_FILES[@]} == 0 )); then
     if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
       return 1;
@@ -5250,20 +5213,8 @@ function project_init_process() {
 function add_lang_version() {
   local _lang_version_num="$1";
   local _lang_version_str="$2";
-  if [ -z "${_lang_version_num}" ]; then
-    _make_func_hl "add_lang_version";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
-            "No version number specified";
-  fi
-  if [ -z "${_lang_version_str}" ]; then
-    _make_func_hl "add_lang_version";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
-            "No version label specified";
-  fi
+  _require_arg "${_lang_version_num}" "No version number specified";
+  _require_arg "${_lang_version_str}" "No version label specified";
   if ! _array_contains "${_lang_version_num}" "${SUPPORTED_LANG_VERSIONS_IDS[@]}"; then
     SUPPORTED_LANG_VERSIONS_IDS+=("${_lang_version_num}");
     SUPPORTED_LANG_VERSIONS_LABELS+=("${_lang_version_str}");
@@ -5294,13 +5245,7 @@ function add_lang_version() {
 #
 function remove_lang_version() {
   local _lang_version="$1";
-  if [ -z "${_lang_version}" ]; then
-    _make_func_hl "remove_lang_version";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
-            "No arguments specified";
-  fi
+  _require_arg "${_lang_version}" "No arguments specified";
   for i in "${!SUPPORTED_LANG_VERSIONS_IDS[@]}"; do
     if [[ "${SUPPORTED_LANG_VERSIONS_IDS[$i]}" == "${_lang_version}" ]]; then
       unset 'SUPPORTED_LANG_VERSIONS_IDS[$i]';
@@ -5397,13 +5342,7 @@ function expand_namespace_directories() {
           "Make sure you first call the ${_hl_pic} function in your init script";
   fi
 
-  if [ -z "$arg_namespace" ]; then
-    _make_func_hl "expand_namespace_directories";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
-            "No namespace argument specified";
-  fi
+  _require_arg "$arg_namespace" "No namespace argument specified";
   if _is_absolute_path "$arg_namespace"; then
     _make_func_hl "expand_namespace_directories";
     logE "Programming error: Illegal function call:";
@@ -5620,13 +5559,7 @@ function select_project_type() {
   if ! _check_no_quickstart; then
     return 1;
   fi
-  if [ -z "$lang_id" ]; then
-    _make_func_hl "select_project_type";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
-            "No language ID argument specified";
-  fi
+  _require_arg "$lang_id" "No language ID argument specified";
   if [ -z "$lang_name" ]; then
     _make_func_hl "select_project_type";
     logW "No language name argument specified in call" \
@@ -5901,13 +5834,7 @@ function proceed_next_level() {
 #
 function file_exists() {
   local arg_file_path="$1";
-  if [ -z "$arg_file_path" ]; then
-    _make_func_hl "file_exists";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
-            "No file argument specified";
-  fi
+  _require_arg "$arg_file_path" "No file argument specified";
   if _is_absolute_path "$arg_file_path"; then
     _make_func_hl "file_exists";
     logE "Programming error: Illegal argument '${arg_file_path}'";
@@ -5973,13 +5900,7 @@ function file_exists() {
 #
 function directory_exists() {
   local arg_file_path="$1";
-  if [ -z "$arg_file_path" ]; then
-    _make_func_hl "directory_exists";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
-            "No file argument specified";
-  fi
+  _require_arg "$arg_file_path" "No file argument specified";
   if _is_absolute_path "$arg_file_path"; then
     _make_func_hl "directory_exists";
     logE "Programming error: Illegal argument '${arg_file_path}'";
@@ -6049,13 +5970,7 @@ function directory_exists() {
 function write_file() {
   local arg_file_path="$1";
   local arg_file_data="$2";
-  if [ -z "$arg_file_path" ]; then
-    _make_func_hl "write_file";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
-            "No file argument specified";
-  fi
+  _require_arg "$arg_file_path" "No file argument specified";
   if _is_absolute_path "$arg_file_path"; then
     _make_func_hl "write_file";
     logE "Programming error: Illegal argument '${arg_file_path}'";
@@ -6149,13 +6064,7 @@ function write_file() {
 function append_file() {
   local arg_file_path="$1";
   local arg_file_data="$2";
-  if [ -z "$arg_file_path" ]; then
-    _make_func_hl "append_file";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
-            "No file argument specified";
-  fi
+  _require_arg "$arg_file_path" "No file argument specified";
   if _is_absolute_path "$arg_file_path"; then
     _make_func_hl "append_file";
     logE "Programming error: Illegal argument '${arg_file_path}'";
@@ -6244,20 +6153,8 @@ function append_file() {
 function move_file() {
   local arg_source="$1";
   local arg_target="$2";
-  if [ -z "$arg_source" ]; then
-    _make_func_hl "move_file";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
-            "No source file argument specified";
-  fi
-  if [ -z "$arg_target" ]; then
-    _make_func_hl "move_file";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
-            "No target file argument specified";
-  fi
+  _require_arg "$arg_source" "No source file argument specified";
+  _require_arg "$arg_target" "No target file argument specified";
   if _is_absolute_path "$arg_source"; then
     _make_func_hl "move_file";
     logE "Programming error: Illegal argument '${arg_source}'";
@@ -6361,13 +6258,7 @@ function move_file() {
 #
 function remove_file() {
   local arg_target="$1";
-  if [ -z "$arg_target" ]; then
-    _make_func_hl "remove_file";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
-            "No file argument specified";
-  fi
+  _require_arg "$arg_target" "No file argument specified";
   if _is_absolute_path "$arg_target"; then
     _make_func_hl "remove_file";
     logE "Programming error: Illegal argument '${arg_target}'";
