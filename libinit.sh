@@ -3439,11 +3439,7 @@ function read_user_input_selection() {
   local length=${#selection_names[@]};
   # Check that we have something to select
   if (( length == 0 )); then
-    _make_func_hl "read_user_input_selection";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
-            "No selection items specified";
+    _fail_illegal_call "No selection items specified";
   fi
   echo "";
   # Print all selectable options.
@@ -3836,11 +3832,7 @@ function copy_resource() {
     arg_dest=$(basename "$arg_src");
   fi
   if _is_absolute_path "$arg_dest"; then
-    _make_func_hl "copy_resource";
-    logE "Programming error: Illegal argument '$arg_dest'";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
-            "The resource destination argument must not be absolute";
+    _fail_illegal_call "The resource destination argument must not be absolute";
   fi
   # Mode-dependent path argument handling
   if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
@@ -3964,19 +3956,11 @@ function copy_shared() {
   local arg_dest_path="$2";
   _require_arg "$arg_shared_name" "No arguments specified";
   if _is_absolute_path "$arg_shared_name"; then
-    _make_func_hl "copy_shared";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
-            "The shared resource name must not be an absolute path";
+    _fail_illegal_call "The shared resource name must not be an absolute path";
   fi
   _require_arg "$arg_dest_path" "No destination path argument specified";
   if _is_absolute_path "$arg_dest_path"; then
-    _make_func_hl "copy_shared";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
-            "The file destination must not be an absolute path";
+    _fail_illegal_call "The file destination must not be an absolute path";
   fi
   if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == false ]]; then
     # Project dir must already exist
@@ -4321,30 +4305,18 @@ function replace_str() {
   _require_arg "$arg_source_str" "No source string argument specified";
   if [ -z "$arg_target_str" ]; then
     if (( arg_count == 1 )); then
-      _make_func_hl "replace_str";
-      logE "Programming error: Illegal function call:";
-      logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-      failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
-              "No replacement string argument specified";
+      _fail_illegal_call "No replacement string argument specified";
     fi
   fi
   if [ -n "$arg_file_spec" ]; then
     if _is_absolute_path "$arg_file_spec"; then
-      _make_func_hl "replace_str";
-      logE "Programming error: Illegal argument '${arg_file_spec}'";
-      logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-      failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
-              "The file filter argument must not be absolute";
+      _fail_illegal_call "The file filter argument must not be absolute";
     fi
   fi
   if [ -n "$arg_file_count" ]; then
     local is_number='^[0-9]+$';
     if ! [[ $arg_file_count =~ $is_number ]]; then
-      _make_func_hl "replace_str";
-      logE "Programming error: Illegal argument '${arg_file_count}'";
-      logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-      failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
-              "The file count argument must be numeric";
+      _fail_illegal_call "The file count argument must be numeric";
     fi
   fi
   local scan_base_dir="";
@@ -4476,11 +4448,7 @@ function replace_var() {
   local _var_file_ext="$3";
   # Check given args
   if (( _arg_count == 0 )); then
-    _make_func_hl "replace_var";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to $HYPERLINK_VALUE function: " \
-            "No arguments specified";
+    _fail_illegal_call "No arguments specified";
   fi
   _require_arg "${_var_key}" "Key argument cannot be an empty string";
   if (( ${#CACHE_ALL_FILES[@]} == 0 )); then
@@ -5344,18 +5312,10 @@ function expand_namespace_directories() {
 
   _require_arg "$arg_namespace" "No namespace argument specified";
   if _is_absolute_path "$arg_namespace"; then
-    _make_func_hl "expand_namespace_directories";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
-            "Namespace argument must not start with '/'";
+    _fail_illegal_call "Namespace argument must not start with '/'";
   fi
   if (( ${#arg_project_paths[@]} == 0 )); then
-    _make_func_hl "expand_namespace_directories";
-    logE "Programming error: Illegal function call:";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
-            "No project directory paths specified";
+    _fail_illegal_call "No project directory paths specified";
   fi
 
   local path_source="";
@@ -5836,11 +5796,7 @@ function file_exists() {
   local arg_file_path="$1";
   _require_arg "$arg_file_path" "No file argument specified";
   if _is_absolute_path "$arg_file_path"; then
-    _make_func_hl "file_exists";
-    logE "Programming error: Illegal argument '${arg_file_path}'";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
-            "The file argument must not be absolute";
+    _fail_illegal_call "The file argument must not be absolute";
   fi
 
   local file_path="";
@@ -5902,11 +5858,7 @@ function directory_exists() {
   local arg_file_path="$1";
   _require_arg "$arg_file_path" "No file argument specified";
   if _is_absolute_path "$arg_file_path"; then
-    _make_func_hl "directory_exists";
-    logE "Programming error: Illegal argument '${arg_file_path}'";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
-            "The file argument must not be absolute";
+    _fail_illegal_call "The file argument must not be absolute";
   fi
 
   local file_path="";
@@ -5972,11 +5924,7 @@ function write_file() {
   local arg_file_data="$2";
   _require_arg "$arg_file_path" "No file argument specified";
   if _is_absolute_path "$arg_file_path"; then
-    _make_func_hl "write_file";
-    logE "Programming error: Illegal argument '${arg_file_path}'";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
-            "The file argument must not be absolute";
+    _fail_illegal_call "The file argument must not be absolute";
   fi
 
   local file_path="";
@@ -6066,11 +6014,7 @@ function append_file() {
   local arg_file_data="$2";
   _require_arg "$arg_file_path" "No file argument specified";
   if _is_absolute_path "$arg_file_path"; then
-    _make_func_hl "append_file";
-    logE "Programming error: Illegal argument '${arg_file_path}'";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
-            "The file argument must not be absolute";
+    _fail_illegal_call "The file argument must not be absolute";
   fi
 
   local file_path="";
@@ -6156,18 +6100,10 @@ function move_file() {
   _require_arg "$arg_source" "No source file argument specified";
   _require_arg "$arg_target" "No target file argument specified";
   if _is_absolute_path "$arg_source"; then
-    _make_func_hl "move_file";
-    logE "Programming error: Illegal argument '${arg_source}'";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
-            "The source file argument must not be absolute";
+    _fail_illegal_call "The source file argument must not be absolute";
   fi
   if _is_absolute_path "$arg_target"; then
-    _make_func_hl "move_file";
-    logE "Programming error: Illegal argument '${arg_target}'";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
-            "The target file argument must not be absolute";
+    _fail_illegal_call "The target file argument must not be absolute";
   fi
 
   # Absolute path arguments passed to mv command
@@ -6260,11 +6196,7 @@ function remove_file() {
   local arg_target="$1";
   _require_arg "$arg_target" "No file argument specified";
   if _is_absolute_path "$arg_target"; then
-    _make_func_hl "remove_file";
-    logE "Programming error: Illegal argument '${arg_target}'";
-    logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-    failure "Programming error: Invalid call to ${HYPERLINK_VALUE} function: " \
-            "The file argument must not be absolute";
+    _fail_illegal_call "The file argument must not be absolute";
   fi
 
   local target_file="";
