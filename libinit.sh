@@ -1054,7 +1054,7 @@ function _load_version_base() {
   if [ -z "$SCRIPT_LVL_0_BASE" ]; then
     SCRIPT_LVL_0_BASE="$(_get_script_path "${BASH_SOURCE[0]}")";
   fi
-  local path_version_base="$SCRIPT_LVL_0_BASE/VERSION";
+  local path_version_base="${SCRIPT_LVL_0_BASE}/VERSION";
   local version_base="?.?.?";
   local ret_val=0;
   # Read from version file
@@ -1067,7 +1067,7 @@ function _load_version_base() {
     # Do not print warning if the '-#' arg was specified
     if [[ $ARG_VERSION_STR == false ]]; then
       logW "Invalid version string specified:";
-      logW "at: '$path_version_base'";
+      logW "at: '${path_version_base}'";
     fi
     version_base="?.?.?";
     ret_val=1;
@@ -1092,7 +1092,7 @@ function _load_version_base() {
 # 1 - If the loaded version string is formally INVALID.
 #
 function _load_version_addons() {
-  local path_version_addons="$PROJECT_INIT_ADDONS_DIR/VERSION";
+  local path_version_addons="${PROJECT_INIT_ADDONS_DIR}/VERSION";
   local version_addons="";
   local ret_val=0;
   # Read from version file
@@ -1106,7 +1106,7 @@ function _load_version_addons() {
     local re="^[0-9]+\.[0-9]+\.[0-9]+(-dev)?$";
     if ! [[ $version_addons =~ $re ]]; then
       logW "Invalid version string specified in addons resource:";
-      logW "at: '$path_version_addons'";
+      logW "at: '${path_version_addons}'";
       _show_helptext "W" "Addons#versioning";
       version_addons="?.?.?";
       ret_val=1;
@@ -1244,7 +1244,7 @@ function _parse_args() {
       ;;
       *)
       # Unknown argument
-      echo "Unknown argument: '$arg'";
+      echo "Unknown argument: '${arg}'";
       echo "";
       echo "Use the '--help' option for more information.";
       echo "";
@@ -1392,11 +1392,11 @@ function _print_text_from_file() {
 # An existing file in the addons directory takes precedence over the base icon.
 #
 function _show_start_icon() {
-  local ficon="$SCRIPT_LVL_0_BASE/icon.ascii.txt";
+  local ficon="${SCRIPT_LVL_0_BASE}/icon.ascii.txt";
   # Check for addons overwrite
   if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
-    if [ -r "$PROJECT_INIT_ADDONS_DIR/icon.ascii.txt" ]; then
-      ficon="$PROJECT_INIT_ADDONS_DIR/icon.ascii.txt";
+    if [ -r "${PROJECT_INIT_ADDONS_DIR}/icon.ascii.txt" ]; then
+      ficon="${PROJECT_INIT_ADDONS_DIR}/icon.ascii.txt";
     fi
   fi
   # Read and show icon
