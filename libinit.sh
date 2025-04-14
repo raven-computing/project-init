@@ -3898,18 +3898,7 @@ function copy_resource() {
     #----------------------------#
     # In regular form-based mode #
     #----------------------------#
-    if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
-      _make_func_hl "copy_resource";
-      local _hl_copy_res="$HYPERLINK_VALUE";
-      _make_func_hl "project_init_copy";
-      local _hl_pic="$HYPERLINK_VALUE";
-      logE "Programming error in init script:";
-      logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-      failure "Missing call to project_init_copy() function:"                           \
-              "When calling the ${_hl_copy_res} function, the target project directory" \
-              "must already be created. "                                               \
-              "Make sure you first call the ${_hl_pic} function in your init script";
-    fi
+    _ensure_project_files_copied;
     if ! _is_absolute_path "$arg_src"; then
       arg_src="${PROJECT_INIT_USED_SOURCE}/${arg_src}";
     fi
@@ -4002,19 +3991,7 @@ function copy_shared() {
     _fail_illegal_call "The file destination must not be an absolute path";
   fi
   if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == false ]]; then
-    # Project dir must already exist
-    if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
-      _make_func_hl "copy_shared";
-      local _hl_copy_shared="$HYPERLINK_VALUE";
-      _make_func_hl "project_init_copy";
-      local _hl_pic="$HYPERLINK_VALUE";
-      logE "Programming error in init script:";
-      logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-      failure "Missing call to project_init_copy() function:"                              \
-              "When calling the ${_hl_copy_shared} function, the target project directory" \
-              "must already be created. "                                                  \
-              "Make sure you first call the ${_hl_pic} function in your init script";
-    fi
+    _ensure_project_files_copied;
   fi
   # Check which file to load (from addon or base)
   local shared_res_file="${SCRIPT_LVL_0_BASE}/share/${arg_shared_name}";
@@ -4362,18 +4339,7 @@ function replace_str() {
   if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
     scan_base_dir="${_PROJECT_INIT_QUICKSTART_OUTPUT_DIR}";
   else
-    if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
-      _make_func_hl "replace_str";
-      local _hl_replace_str="$HYPERLINK_VALUE";
-      _make_func_hl "project_init_copy";
-      local _hl_pic="$HYPERLINK_VALUE";
-      logE "Programming error in init script:";
-      logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-      failure "Missing call to project_init_copy() function:"                              \
-              "When calling the ${_hl_replace_str} function, the target project directory" \
-              "must already be created. "                                                  \
-              "Make sure you first call the ${_hl_pic} function in your init script";
-    fi
+    _ensure_project_files_copied;
     scan_base_dir="${var_project_dir}";
   fi
 
@@ -5335,20 +5301,7 @@ function expand_namespace_directories() {
   local arg_namespace="$1";
   shift;
   local arg_project_paths=("$@");
-
-  if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
-  _make_func_hl "expand_namespace_directories";
-  local _hl_this="$HYPERLINK_VALUE";
-  _make_func_hl "project_init_copy";
-  local _hl_pic="$HYPERLINK_VALUE";
-  logE "Programming error in init script:";
-  logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-  failure "Missing call to project_init_copy() function:"                       \
-          "When calling the ${_hl_this} function, the target project directory" \
-          "must already be created. "                                           \
-          "Make sure you first call the ${_hl_pic} function in your init script";
-  fi
-
+  _ensure_project_files_copied;
   _require_arg "$arg_namespace" "No namespace argument specified";
   if _is_absolute_path "$arg_namespace"; then
     _fail_illegal_call "Namespace argument must not start with '/'";
@@ -5842,18 +5795,7 @@ function file_exists() {
   if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
     file_path="${_PROJECT_INIT_QUICKSTART_OUTPUT_DIR}/${arg_file_path}";
   else
-    if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
-      _make_func_hl "file_exists";
-      local _hl_file_exists="$HYPERLINK_VALUE";
-      _make_func_hl "project_init_copy";
-      local _hl_pic="$HYPERLINK_VALUE";
-      logE "Programming error in init script:";
-      logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-      failure "Missing call to project_init_copy() function:"                              \
-              "When calling the ${_hl_file_exists} function, the target project directory" \
-              "must already be created. "                                                  \
-              "Make sure you first call the ${_hl_pic} function in your init script";
-    fi
+    _ensure_project_files_copied;
     file_path="${var_project_dir}/${arg_file_path}";
   fi
   if [ -f "$file_path" ]; then
@@ -5904,18 +5846,7 @@ function directory_exists() {
   if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
     file_path="${_PROJECT_INIT_QUICKSTART_OUTPUT_DIR}/${arg_file_path}";
   else
-    if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
-      _make_func_hl "directory_exists";
-      local _hl_directory_exists="$HYPERLINK_VALUE";
-      _make_func_hl "project_init_copy";
-      local _hl_pic="$HYPERLINK_VALUE";
-      logE "Programming error in init script:";
-      logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-      failure "Missing call to project_init_copy() function:"                                   \
-              "When calling the ${_hl_directory_exists} function, the target project directory" \
-              "must already be created. "                                                       \
-              "Make sure you first call the ${_hl_pic} function in your init script";
-    fi
+    _ensure_project_files_copied;
     file_path="${var_project_dir}/${arg_file_path}";
   fi
   if [ -d "$file_path" ]; then
@@ -5979,18 +5910,7 @@ function write_file() {
       fi
     fi
   else
-    if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
-      _make_func_hl "write_file";
-      local _hl_write_file="$HYPERLINK_VALUE";
-      _make_func_hl "project_init_copy";
-      local _hl_pic="$HYPERLINK_VALUE";
-      logE "Programming error in init script:";
-      logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-      failure "Missing call to project_init_copy() function:"                             \
-              "When calling the ${_hl_write_file} function, the target project directory" \
-              "must already be created. "                                                 \
-              "Make sure you first call the ${_hl_pic} function in your init script";
-    fi
+    _ensure_project_files_copied;
     file_path="${var_project_dir}/${arg_file_path}";
   fi
   local add_file_to_cache=false;
@@ -6069,18 +5989,7 @@ function append_file() {
       fi
     fi
   else
-    if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
-      _make_func_hl "append_file";
-      local _hl_append_file="$HYPERLINK_VALUE";
-      _make_func_hl "project_init_copy";
-      local _hl_pic="$HYPERLINK_VALUE";
-      logE "Programming error in init script:";
-      logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-      failure "Missing call to project_init_copy() function:"                              \
-              "When calling the ${_hl_append_file} function, the target project directory" \
-              "must already be created. "                                                  \
-              "Make sure you first call the ${_hl_pic} function in your init script";
-    fi
+    _ensure_project_files_copied;
     file_path="${var_project_dir}/${arg_file_path}";
   fi
   local add_file_to_cache=false;
@@ -6159,18 +6068,7 @@ function move_file() {
       _cancel_quickstart $EXIT_FAILURE;
     fi
   else
-    if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
-      _make_func_hl "move_file";
-      local _hl_move_file="$HYPERLINK_VALUE";
-      _make_func_hl "project_init_copy";
-      local _hl_pic="$HYPERLINK_VALUE";
-      logE "Programming error in init script:";
-      logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-      failure "Missing call to project_init_copy() function:"                            \
-              "When calling the ${_hl_move_file} function, the target project directory" \
-              "must already be created. "                                                \
-              "Make sure you first call the ${_hl_pic} function in your init script";
-    fi
+    _ensure_project_files_copied;
     source_file="${var_project_dir}/${arg_source}";
     target_file="${var_project_dir}/${arg_target}";
   fi
@@ -6255,18 +6153,7 @@ function remove_file() {
       _cancel_quickstart $EXIT_FAILURE;
     fi
   else
-    if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
-      _make_func_hl "remove_file";
-      local _hl_remove_file="$HYPERLINK_VALUE";
-      _make_func_hl "project_init_copy";
-      local _hl_pic="$HYPERLINK_VALUE";
-      logE "Programming error in init script:";
-      logE "at: '${BASH_SOURCE[1]}' (line ${BASH_LINENO[0]})";
-      failure "Missing call to project_init_copy() function:"                              \
-              "When calling the ${_hl_remove_file} function, the target project directory" \
-              "must already be created. "                                                  \
-              "Make sure you first call the ${_hl_pic} function in your init script";
-    fi
+    _ensure_project_files_copied;
     target_file="${var_project_dir}/${arg_target}";
     if ! [ -e "$target_file" ]; then
       logW "Cannot remove file '${arg_target}'";
