@@ -724,6 +724,24 @@ function _require_arg() {
   fi
 }
 
+# Checks that an init script has called project_init_copy() before
+# requesting any file operations.
+function _ensure_project_files_copied() {
+  if [[ ${_FLAG_PROJECT_FILES_COPIED} == false ]]; then
+    local func="${FUNCNAME[1]}";
+    _make_func_hl "$func";
+    local _hl_f="$HYPERLINK_VALUE";
+    _make_func_hl "project_init_copy";
+    local _hl_pic="$HYPERLINK_VALUE";
+    logE "Programming error in init script:";
+    logE "at: '${BASH_SOURCE[2]}' (line ${BASH_LINENO[1]})";
+    failure "Missing call to project_init_copy() function:"                     \
+            "When calling the ${_hl_f} function, the target project directory " \
+            "must already be created. "                                         \
+            "Make sure you first call the ${_hl_pic} function in your init script";
+  fi
+}
+
 # Shows a system notification indicating a successful operation.
 #
 # This function will try to display a desktop notification if
