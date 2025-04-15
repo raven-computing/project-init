@@ -477,6 +477,10 @@ _FOUND_FILES=();
 # the found substitution variables.
 _FOUND_SUBST_VARS=();
 
+# Used by the _array_contains() function to store the
+# index of a found array member. May be empty.
+_FOUND_ARRAY_MEMBER_IDX="";
+
 # A literal new line character. Can be used in values
 # for variable substitutions.
 readonly _NL="
@@ -3070,16 +3074,26 @@ function _unique_items() {
 # 0 - If the specified element is in the specified array.
 # 1 - If the specified element is not in the specified array.
 #
+# Globals:
+# _FOUND_ARRAY_MEMBER_IDX - The array index at which the specified element was found.
+#                           This variable is set by this function. If the array
+#                           does not contain the specified element, this variable is
+#                           set to an empty string.
+#
 function _array_contains() {
   local element="$1";
   shift;
   local array=("$@");
+  local item_idx=0;
   local item="";
   for item in "${array[@]}"; do
     if [[ "$item" == "$element" ]]; then
+      _FOUND_ARRAY_MEMBER_IDX=$item_idx;
       return 0;
     fi
-  done;
+    ((++item_idx));
+  done
+  _FOUND_ARRAY_MEMBER_IDX="";
   return 1;
 }
 
