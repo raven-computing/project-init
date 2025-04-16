@@ -183,19 +183,9 @@ function form_python_version() {
   if get_property "python.version.min.default"; then
     local py_min_version="$PROPERTY_VALUE";
     if [[ "$py_min_version" != "false" ]]; then
-      local py_min_version_idx=0;
-      local py_min_version_is_supported=false;
-      local py_version;
-      for py_version in "${SUPPORTED_LANG_VERSIONS_IDS[@]}"; do
-        if [[ "$py_version" == "$py_min_version" ]]; then
-          py_min_version_is_supported=true;
-          USER_INPUT_DEFAULT_INDEX=$py_min_version_idx;
-          logI "The default is '${py_min_version}'";
-          break
-        fi
-        ((++py_min_version_idx));
-      done
-      if [[ $py_min_version_is_supported == false ]]; then
+      if _array_contains "$py_min_version" "${SUPPORTED_LANG_VERSIONS_IDS[@]}"; then
+        USER_INPUT_DEFAULT_INDEX=${_FOUND_ARRAY_MEMBER_IDX};
+      else
         logW "Invalid value for property with key 'python.version.min.default'";
         logW "The specified default minimum Python version '${py_min_version}' is not supported";
       fi
