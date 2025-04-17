@@ -1523,7 +1523,7 @@ function _check_system_compat() {
                     |cut -d: -f2 |xargs   \
                     |tr '[:upper:]' '[:lower:]')";
       if [[ "$os_version" == "20.04" ]]; then
-        logW "You are running Ubuntu ${os_version} which reaches its EoL on 1st of June 2025.";
+        logW "You are using Ubuntu ${os_version} which reaches its EoL on 1st of June 2025.";
         logW "Future versions of project-init might not support this operating system version";
         logW "and generated projects might not build as Raven Computing will drop support";
         logW "for Ubuntu ${os_version} after the EoL is reached.";
