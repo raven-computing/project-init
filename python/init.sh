@@ -168,6 +168,8 @@ function _validate_exec_script_name() {
 # [API function]
 # Prompts the user to select the Python version to use for the project.
 #
+# In version 1.8.0 this was changed from free text input to a selection.
+#
 # The provided answer can be queried in source template files via the
 # VAR_PYTHON_VERSION substitution variable.
 # The associated shell global variable is set by this function.
