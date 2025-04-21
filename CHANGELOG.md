@@ -1,3 +1,27 @@
+#### 1.8.0
+* Added the move_file() API function. [[Issue#63]](https://github.com/raven-computing/project-init/issues/63)
+* Added the remove_file() API function. [[Issue#64]](https://github.com/raven-computing/project-init/issues/64)
+* Added the write_file() API function. [[Issue#65]](https://github.com/raven-computing/project-init/issues/65)
+* Added the append_file() API function. [[Issue#77]](https://github.com/raven-computing/project-init/issues/77)
+* Added the file_exists() API function. [[Issue#78]](https://github.com/raven-computing/project-init/issues/78)
+* Added the directory_exists() API function. [[Issue#78]](https://github.com/raven-computing/project-init/issues/78)
+* Added the replace_str() API function. [[Issue#66]](https://github.com/raven-computing/project-init/issues/66)
+* Added support for Python 3.13.
+* Added user warning for operating system end of support.
+* Added the internal _require_arg() function. [[Issue#80]](https://github.com/raven-computing/project-init/issues/80)
+* Added the internal _fail_illegal_call() function. [[Issue#80]](https://github.com/raven-computing/project-init/issues/80)
+* Added the internal _ensure_project_files_copied() function.
+* Added the _FOUND_ARRAY_MEMBER_IDX variable to the internal _array_contains() utility function.
+* Added the '--show-stdout' option to the test.sh script. [[Issue#86]](https://github.com/raven-computing/project-init/issues/86)
+* Added the internal PROJECT_INIT_COMPAT_TESTS_ACTIVE variable to distinguish compatibility tests.
+* Added a project property to make the default Python version configurable. [[Issue#59]](https://github.com/raven-computing/project-init/issues/59)
+* Changed Python version prompt to selection in the form_python_version() API function. [[Issue#73]](https://github.com/raven-computing/project-init/issues/73)
+* Changed C and C++ source templates to use pragma once directive instead of header include guards. [[Issue#75]](https://github.com/raven-computing/project-init/issues/75)
+* Improved function implementations to adhere to coding conventions.
+* Refactored boilerplate checks to use internal functions.
+* Removed the now unused _validate_python_version() function and _PYTHON_MIN_VERSION variable. See [[Issue#73]](https://github.com/raven-computing/project-init/issues/73).
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.7.6...v1.8.0)
+
 #### 1.7.6
 * Added support for C language standard C17 which was previously held back since it did not introduce any new language features compared to C11 which was already supported. [[Issue#82]](https://github.com/raven-computing/project-init/issues/82)
 * Added support for C language standard C23.
