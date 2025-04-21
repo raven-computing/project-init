@@ -1,9 +1,10 @@
 #### Release notes:
 
-* Added support for C17 and C23, former was already officially supported but not selectable.
-* Added support for C++23.
-* Updates to dependency versions in project source templates.
-* Minor improvements to the UX.
-* Minor internal improvements.
+* Added the [write_file()](https://github.com/raven-computing/project-init/wiki/API-Reference-v1#write_file), [append_file()](https://github.com/raven-computing/project-init/wiki/API-Reference-v1#append_file), [move_file()](https://github.com/raven-computing/project-init/wiki/API-Reference-v1#move_file) and [remove_file()](https://github.com/raven-computing/project-init/wiki/API-Reference-v1#remove_file) API functions to facilitate file operations on source template files within the project target directory. We've also added the [file_exists()](https://github.com/raven-computing/project-init/wiki/API-Reference-v1#file_exists) and [directory_exists()](https://github.com/raven-computing/project-init/wiki/API-Reference-v1#directory_exists) API functions to allow checking for the existence of files and directories within the project target directory. With this new API introduced it is now recommended to use those functions to do file operations instead of manually assembling absolute file paths.
+* The [replace_str()](https://github.com/raven-computing/project-init/wiki/API-Reference-v1#replace_str) API function can now be used to replace regex-matched strings inside project source templates, which is independent from substitution variables.
+* Added support for Python 3.13 projects.
+* The implementation of the [form_python_version()](https://github.com/raven-computing/project-init/wiki/API-Reference-v1#form_python_version) API function was changed to use a selection prompt instead of a text pattern. The newly introduced project property '*python.version.min.default*' can be used to specify a Python version to be used by default for the prompt.
+* Provided *C* and *C++* source templates now use '*#pragma once*' compiler directives in source headers instead of header include guards. The old behaviour can still be enabled by setting the '*c.headers.include.guards.enable*' and '*cpp.headers.include.guards.enable*' project properties to '*true*', respectively.
+* Various internal improvements.
 
-See [Changelog](https://github.com/raven-computing/project-init/blob/v1.7.6/CHANGELOG.md).
+See [Changelog](https://github.com/raven-computing/project-init/blob/v1.8.0/CHANGELOG.md).
