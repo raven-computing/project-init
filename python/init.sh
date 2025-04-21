@@ -182,7 +182,6 @@ function _validate_exec_script_name() {
 # var_python_version - The Python version string. Is set by this function.
 #
 function form_python_version() {
-  FORM_QUESTION_ID="python.version";
   logI "";
   logI "Select the minimum version of Python required by the project.";
   if get_property "python.version.min.default"; then
@@ -196,6 +195,7 @@ function form_python_version() {
       fi
     fi
   fi
+  FORM_QUESTION_ID="python.version";
   read_user_input_selection "${SUPPORTED_LANG_VERSIONS_LABELS[@]}";
   if (( $? == 1 )); then
     logI "";
