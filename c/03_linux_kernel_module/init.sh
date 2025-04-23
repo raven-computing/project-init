@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,14 +28,8 @@ function process_files_lvl_2() {
   replace_var "KERNEL_MODULE_NAME" "$var_kernel_module_name";
   # Rename source file
   if [ -n "$var_kernel_module_name" ]; then
-    # shellcheck disable=SC2154
-    if [ -f "${var_project_dir}/src/module.c" ]; then
-      mv "${var_project_dir}/src/module.c" "${var_project_dir}/src/${var_kernel_module_name}.c";
-      if (( $? != 0 )); then
-        failure "Failed to rename kernel module source file";
-      fi
-      # Update file cache
-      find_all_files;
+    if file_exists "src/module.c"; then
+      move_file "src/module.c" "src/${var_kernel_module_name}.c";
     fi
   fi
 }
