@@ -40,6 +40,10 @@ function _validate_kernel_module_name() {
   if [ -z "$input" ]; then
     return 0;
   fi
+  if [[ "$input" == "module" ]]; then
+    logI "Disallowed kernel module name: '${input}'";
+    return 1;
+  fi
   input=$(echo "$input" |tr '[:upper:]' '[:lower:]');
   input=$(echo "$input" |tr '-' '_');
   # Validate name
