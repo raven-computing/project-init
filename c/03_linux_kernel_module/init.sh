@@ -70,11 +70,9 @@ function form_c_kernel_module_name() {
   logI "";
   logI "Enter the name of the Linux kernel module that this project produces:";
   logI "(Defaults to '${default_name}')";
+  USER_INPUT_DEFAULT_TEXT="$default_name";
   read_user_input_text _validate_kernel_module_name;
   local entered_module_name="$USER_INPUT_ENTERED_TEXT";
-  if [ -z "$entered_module_name" ]; then
-    entered_module_name="$default_name";
-  fi
   # Make sure name is lowercase
   entered_module_name=$(echo "$entered_module_name" |tr '[:upper:]' '[:lower:]');
   entered_module_name=$(echo "$entered_module_name" |tr '-' '_');
