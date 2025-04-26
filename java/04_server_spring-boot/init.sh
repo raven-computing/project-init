@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -132,14 +132,6 @@ function form_spring_security() {
 form_java_version;
 
 form_java_namespace;
-
-if [ -z "$var_namespace" ]; then
-  logW "No namespace has been specified.";
-  logW "It is not recommended to use the default package" \
-       "for classes in a Spring Boot application";
-  logW "Your project might not compile";
-  warning "The initialized Spring Boot application does not have a namespace";
-fi
 
 form_relational_database;
 
