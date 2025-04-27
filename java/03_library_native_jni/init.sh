@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -54,27 +54,14 @@ function process_files_lvl_2() {
   local c_or_cpp="";  # Source file extension
   if [[ "$var_java_lib_jni_native_lang" == "C" ]]; then
     c_or_cpp="c";
-    # shellcheck disable=SC2154
-    rm "$var_project_dir/cmake/ConfigGtest.cmake"        &&
-    rm "$var_project_dir/cmake/cpp_DependencyUtil.cmake" &&
-    rm "$var_project_dir/cmake/cpp_TestUtil.cmake";
-    if (( $? != 0 )); then
-      failure "Failed to remove unselected template sources in $var_project_dir/cmake";
-    fi
-    mv "$var_project_dir/cmake/c_DependencyUtil.cmake" \
-       "$var_project_dir/cmake/DependencyUtil.cmake"  &&
-    mv "$var_project_dir/cmake/c_TestUtil.cmake" \
-       "$var_project_dir/cmake/TestUtil.cmake";
-    if (( $? != 0 )); then
-      failure "Failed to rename selected template sources in $var_project_dir/cmake";
-    fi
-    rm -r "$var_project_dir/src/main/cpp" &&
-    rm -r "$var_project_dir/src/test/cpp" &&
-    rm "$var_project_dir/src/main/include/namespace/StringComparator.h";
-    if (( $? != 0 )); then
-      failure "Failed to remove unselected template sources in $var_project_dir/src";
-    fi
-    find_all_files;
+    remove_file "cmake/ConfigGtest.cmake";
+    remove_file "cmake/cpp_DependencyUtil.cmake";
+    remove_file "cmake/cpp_TestUtil.cmake";
+    move_file "cmake/c_DependencyUtil.cmake" "cmake/DependencyUtil.cmake";
+    move_file "cmake/c_TestUtil.cmake" "cmake/TestUtil.cmake";
+    remove_file "src/main/cpp";
+    remove_file "src/test/cpp";
+    remove_file "src/main/include/namespace/StringComparator.h";
     load_var_from_file "CMAKE_LANG_SPEC_C";
     replace_var "CMAKE_LANG_SPEC"           "$VAR_FILE_VALUE";
     replace_var "NATIVE_LANG_VERSION"       "$var_native_lang_version";
@@ -88,26 +75,14 @@ function process_files_lvl_2() {
     replace_var "CMAKE_TEST_SOURCE_FILE"    "test_string_comparator.c";
   else
     c_or_cpp="cpp";
-    rm "$var_project_dir/cmake/ConfigUnity.cmake"      &&
-    rm "$var_project_dir/cmake/c_DependencyUtil.cmake" &&
-    rm "$var_project_dir/cmake/c_TestUtil.cmake";
-    if (( $? != 0 )); then
-      failure "Failed to remove unselected template sources in $var_project_dir/cmake";
-    fi
-    mv "$var_project_dir/cmake/cpp_DependencyUtil.cmake" \
-       "$var_project_dir/cmake/DependencyUtil.cmake"  &&
-    mv "$var_project_dir/cmake/cpp_TestUtil.cmake" \
-       "$var_project_dir/cmake/TestUtil.cmake";
-    if (( $? != 0 )); then
-      failure "Failed to rename selected template sources in $var_project_dir/cmake";
-    fi
-    rm -r "$var_project_dir/src/main/c" &&
-    rm -r "$var_project_dir/src/test/c" &&
-    rm "$var_project_dir/src/main/include/namespace/string_comparator.h";
-    if (( $? != 0 )); then
-      failure "Failed to remove unselected template sources in $var_project_dir/src";
-    fi
-    find_all_files;
+    remove_file "cmake/ConfigUnity.cmake";
+    remove_file "cmake/c_DependencyUtil.cmake";
+    remove_file "cmake/c_TestUtil.cmake";
+    move_file "cmake/cpp_DependencyUtil.cmake" "cmake/DependencyUtil.cmake";
+    move_file "cmake/cpp_TestUtil.cmake" "cmake/TestUtil.cmake";
+    remove_file "src/main/c";
+    remove_file "src/test/c";
+    remove_file "src/main/include/namespace/string_comparator.h";
     load_var_from_file "CMAKE_LANG_SPEC_CPP";
     replace_var "CMAKE_LANG_SPEC"           "$VAR_FILE_VALUE";
     replace_var "NATIVE_LANG_VERSION"       "$var_native_lang_version";
@@ -120,140 +95,51 @@ function process_files_lvl_2() {
     replace_var "CMAKE_TEST_SOURCE_FILE"    "StringComparatorTest.cpp";
   fi
 
-  if [ -n "$var_namespace" ]; then
-    # Set the namespace variables for the C++ part of the project
-    var_namespace_path=$(echo "$var_namespace" |tr "." "/");
-    var_namespace_colon="${var_namespace//./::}";
-    var_namespace_underscore="${var_namespace//./_}";
-    var_namespace_include_guard=$(echo "$var_namespace"         \
-                                  |tr "." "_"                   \
-                                  |tr '[:lower:]' '[:upper:]');
+  # Set the namespace variables for the C++ part of the project
+  # shellcheck disable=SC2154
+  var_namespace_colon="${var_namespace//./::}";
+  var_namespace_underscore="${var_namespace//./_}";
+  var_namespace_include_guard=$(echo "$var_namespace"         \
+                                |tr "." "_"                   \
+                                |tr '[:lower:]' '[:upper:]');
 
-    var_namespace_decl_begin="";
-    var_namespace_decl_end="";
-    # Put namespace items in an array.
-    # Intentional word split on spaces.
-    # shellcheck disable=SC2207
-    local _ns_items=($(echo "$var_namespace" |tr '.' ' '));
-    # Concatenate namespace items in proper order
-    for (( i=0; i<${#_ns_items[@]}; i++ )); do
-      var_namespace_decl_begin="${var_namespace_decl_begin}namespace ${_ns_items[$i]} {${_NL}";
-    done
-    # Concatenate namespace items in reverse order for the closing braces
-    for (( i=${#_ns_items[@]}-1; i>=0; i-- )); do
-      var_namespace_decl_end="${var_namespace_decl_end}} // END NAMESPACE ${_ns_items[$i]}${_NL}";
-    done
+  var_namespace_decl_begin="";
+  var_namespace_decl_end="";
+  # Put namespace items in an array.
+  # Intentional word split on spaces.
+  # shellcheck disable=SC2207
+  local _ns_items=($(echo "$var_namespace" |tr '.' ' '));
+  # Concatenate namespace items in proper order
+  for (( i=0; i<${#_ns_items[@]}; i++ )); do
+    var_namespace_decl_begin="${var_namespace_decl_begin}namespace ${_ns_items[$i]} {${_NL}";
+  done
+  # Concatenate namespace items in reverse order for the closing braces
+  for (( i=${#_ns_items[@]}-1; i>=0; i-- )); do
+    var_namespace_decl_end="${var_namespace_decl_end}} // END NAMESPACE ${_ns_items[$i]}${_NL}";
+  done
 
-    replace_var "NAMESPACE_PATH"          "$var_namespace_path";
-    replace_var "NAMESPACE_COLON"         "$var_namespace_colon";
-    replace_var "NAMESPACE_UNDERSCORE"    "$var_namespace_underscore";
-    replace_var "NAMESPACE_INCLUDE_GUARD" "$var_namespace_include_guard";
-    replace_var "NAMESPACE_DECL_BEGIN"    "$var_namespace_decl_begin";
-    replace_var "NAMESPACE_DECL_END"      "$var_namespace_decl_end";
+  # shellcheck disable=SC2154
+  replace_var "NAMESPACE_PATH"          "$var_namespace_path";
+  replace_var "NAMESPACE_COLON"         "$var_namespace_colon";
+  replace_var "NAMESPACE_UNDERSCORE"    "$var_namespace_underscore";
+  replace_var "NAMESPACE_INCLUDE_GUARD" "$var_namespace_include_guard";
+  replace_var "NAMESPACE_DECL_BEGIN"    "$var_namespace_decl_begin";
+  replace_var "NAMESPACE_DECL_END"      "$var_namespace_decl_end";
 
-    # Create namespace directory layout and move source files
-    local dir_layout="";
-    dir_layout=$(echo "$var_namespace" |tr "." "/");
-    local path_ns_include="${var_project_dir}/src/main/include/${dir_layout}/";
-    local path_ns_native="${var_project_dir}/src/main/${c_or_cpp}/${dir_layout}/";
-    local path_ns_test="${var_project_dir}/src/test/${c_or_cpp}/${dir_layout}/";
-    mkdir -p "$path_ns_include";
-    mkdir -p "$path_ns_native";
-    mkdir -p "$path_ns_test";
-    # Create directory layout for include header files
-    if [ -d "${var_project_dir}/src/main/include/namespace" ]; then
-      if ! _find_files_impl "${var_project_dir}/src/main/include/namespace" "f"; then
-        failure "Internal error: Function _find_files_impl() returned non-zero exit status";
-      fi
-      local f_name="";
-      for f in "${_FOUND_FILES[@]}"; do
-        f_name="$(basename "$f")";
-        mv "$f" "$path_ns_include";
-        if (( $? != 0 )); then
-          failure "Failed to move source file into namespace layout directory";
-        fi
-      done
-      # Remove the original now empty placeholder namespace dir
-      rm -r "${var_project_dir}/src/main/include/namespace/";
-      if (( $? != 0 )); then
-        failure "Failed to remove template source namespace directory";
-      fi
-    fi
-    # Create directory layout for cpp files
-    if [ -d "${var_project_dir}/src/main/${c_or_cpp}/namespace" ]; then
-      if ! _find_files_impl "${var_project_dir}/src/main/${c_or_cpp}/namespace" "f"; then
-        failure "Internal error: Function _find_files_impl() returned non-zero exit status";
-      fi
-      local f_name="";
-      for f in "${_FOUND_FILES[@]}"; do
-        f_name="$(basename "$f")";
-        mv "$f" "$path_ns_native";
-        if (( $? != 0 )); then
-          failure "Failed to move source file into namespace layout directory";
-        fi
-      done
-      # Remove the original now empty placeholder namespace dir
-      rm -r "${var_project_dir}/src/main/${c_or_cpp}/namespace/";
-      if (( $? != 0 )); then
-        failure "Failed to remove template source namespace directory";
-      fi
-    fi
-    # Create directory layout for test cpp files
-    if [ -d "${var_project_dir}/src/test/${c_or_cpp}/namespace" ]; then
-      if ! _find_files_impl "${var_project_dir}/src/test/${c_or_cpp}/namespace" "f"; then
-        failure "Internal error: Function _find_files_impl() returned non-zero exit status";
-      fi
-      local f_name="";
-      for f in "${_FOUND_FILES[@]}"; do
-        f_name="$(basename "$f")";
-        mv "$f" "$path_ns_test";
-        if (( $? != 0 )); then
-          failure "Failed to move source file into namespace layout directory";
-        fi
-      done
-      # Remove the original now empty placeholder namespace dir
-      rm -r "${var_project_dir}/src/test/${c_or_cpp}/namespace/";
-      if (( $? != 0 )); then
-        failure "Failed to remove template source namespace directory";
-      fi
-    fi
+  # Create namespace directory layout and move source files
+  local dir_layout="";
+  dir_layout=$(echo "$var_namespace" |tr "." "/");
 
-    # Rename JNI-related files
-    if [ -d "${var_project_dir}/src/main/include/jni" ]; then
-      if ! _find_files_impl "${var_project_dir}/src/main/include/jni" "f"; then
-        failure "Internal error: Function _find_files_impl() returned non-zero exit status";
-      fi
-      local f_name="";
-      for f in "${_FOUND_FILES[@]}"; do
-        f_name="$(basename "$f")";
-        if [[ "$f_name" == namespace_* ]]; then
-          mv "$f" "${var_project_dir}/src/main/include/jni/${var_namespace_underscore}${f_name:9}";
-          if (( $? != 0 )); then
-            failure "Failed to rename include header source file in jni directory";
-          fi
-        fi
-      done
-    fi
-    if [ -d "${var_project_dir}/src/main/${c_or_cpp}/jni" ]; then
-      if ! _find_files_impl "${var_project_dir}/src/main/${c_or_cpp}/jni" "f"; then
-        failure "Internal error: Function _find_files_impl() returned non-zero exit status";
-      fi
-      local f_name="";
-      for f in "${_FOUND_FILES[@]}"; do
-        f_name="$(basename "$f")";
-        if [[ "$f_name" == namespace_* ]]; then
-          mv "$f" \
-             "${var_project_dir}/src/main/${c_or_cpp}/jni/${var_namespace_underscore}${f_name:9}";
-          if (( $? != 0 )); then
-            failure "Failed to rename ${c_or_cpp} source file in jni directory";
-          fi
-        fi
-      done
-    fi
+  expand_namespace_directories "$dir_layout" "src/main/include/namespace"      \
+                                              "src/main/${c_or_cpp}/namespace" \
+                                              "src/test/${c_or_cpp}/namespace";
 
-    # Update file cache
-    find_all_files;
-  fi
+  # Rename JNI-related files
+  move_file "src/main/include/jni/namespace_StringComparator.h" \
+            "src/main/include/jni/${var_namespace_underscore}_StringComparator.h";
+
+  move_file "src/main/${c_or_cpp}/jni/namespace_StringComparator.${c_or_cpp}" \
+            "src/main/${c_or_cpp}/jni/${var_namespace_underscore}_StringComparator.${c_or_cpp}";
 }
 
 # Prompts the user to select the language to use for the JNI-based library.
