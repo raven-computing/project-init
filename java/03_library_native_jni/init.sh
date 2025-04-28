@@ -130,9 +130,9 @@ function process_files_lvl_2() {
   local dir_layout="";
   dir_layout=$(echo "$var_namespace" |tr "." "/");
 
-  expand_namespace_directories "$dir_layout" "src/main/include/namespace"      \
-                                              "src/main/${c_or_cpp}/namespace" \
-                                              "src/test/${c_or_cpp}/namespace";
+  expand_namespace_directories "$dir_layout" "src/main/include/namespace"     \
+                                             "src/main/${c_or_cpp}/namespace" \
+                                             "src/test/${c_or_cpp}/namespace";
 
   # Rename JNI-related files
   move_file "src/main/include/jni/namespace_StringComparator.h" \
