@@ -101,13 +101,8 @@ function process_files_lvl_1() {
     replace_var "SCRIPT_TEST_LINT_CODE"      "";
     replace_var "REQUIREMENTS_LINT"          "";
     replace_var "README_DEV_LINT"            "";
-    # Remove pylintrc file
-    # shellcheck disable=SC2154
-    if [ -f "${var_project_dir}/pylintrc" ]; then
-      rm "${var_project_dir}/pylintrc";
-      if (( $? != 0 )); then
-        failure "Failed to remove template source pylintrc file";
-      fi
+    if file_exists "pylintrc"; then
+      remove_file "pylintrc";
     fi
   fi
 
@@ -118,14 +113,8 @@ function process_files_lvl_1() {
   else
     replace_var "REQUIREMENTS_DEPLOY" "";
     replace_var "README_DEV_DEPLOY"   "";
-    # Remove the deploy script
-    if [ -f "$var_project_dir/deploy.sh" ]; then
-      rm "$var_project_dir/deploy.sh";
-      if (( $? != 0 )); then
-        failure "Failed to remove template source deploy script";
-      fi
-      # Update file cache
-      find_all_files;
+    if file_exists "deploy.sh"; then
+      remove_file "deploy.sh";
     fi
   fi
 
@@ -144,7 +133,7 @@ function process_files_lvl_1() {
   # directory, or should have another package in the project root, then
   # this must be handled by custom init code.
   if [ -n "$var_package" ]; then
-    if [ -d "$var_project_dir/package" ]; then
+    if directory_exists "package"; then
       expand_namespace_directories "$var_namespace_path" "package";
     fi
   fi
