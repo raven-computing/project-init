@@ -346,7 +346,7 @@ function form_python_package_name() {
     var_namespace_0="$var_namespace";
     var_package="$var_namespace";
   fi
-  var_namespace_path=$(echo "$var_namespace" |tr "." "/");
+  var_namespace_path="${var_namespace//.//}";
 }
 
 # [API function]
