@@ -143,7 +143,7 @@ function process_files_lvl_1() {
 function _validate_exec_script_name() {
   local input="$1";
   if [ -z "$input" ]; then
-    return 0;
+    return 1;
   fi
   local re="^[0-9a-zA-Z_-]+$";
   if ! [[ "$input" =~ $re ]]; then

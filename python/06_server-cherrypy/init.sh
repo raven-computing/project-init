@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -45,14 +45,12 @@ function form_python_exec_script_name() {
   logI "This is the command by which the server application can be" \
        "started on the command line.";
   # shellcheck disable=SC2154
-  logI "Or press enter to use the default name '${var_project_name_lower}'";
+  USER_INPUT_DEFAULT_TEXT="$var_project_name_lower";
+  logI "Or press enter to use the default name '${USER_INPUT_DEFAULT_TEXT}'";
   read_user_input_text _validate_exec_script_name;
   var_exec_script_name="$USER_INPUT_ENTERED_TEXT";
-
-  if [ -z "$var_exec_script_name" ]; then
-    var_exec_script_name="$var_project_name_lower";
-  fi
 }
+
 
 # Form questions
 
