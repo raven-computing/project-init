@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,61 +37,35 @@ function process_files_lvl_2() {
     # customisations to module structure first, then afterwards
     # substitution variable replacement so that file cache only
     # needs to be updated once
-    # shellcheck disable=SC2154
-    if [ -d "${var_project_dir}/module" ]; then
-      local module_path="${var_project_dir}/$var_odoo_module_name";
-      mv "${var_project_dir}/module" "$module_path";
-      if (( $? != 0 )); then
-        failure "Failed to rename Odoo module directory";
-      fi
-
+    if directory_exists "module"; then
+      move_file "module" "$var_odoo_module_name";
       # Odoo web controller
       if [[ $var_odoo_create_controller == true ]]; then
-        mv "$module_path/controllers/module.py" \
-           "$module_path/controllers/${var_odoo_module_name}.py";
-
-        if (( $? != 0 )); then
-          failure "Failed to rename Odoo web controller";
-        fi
+        move_file "${var_odoo_module_name}/controllers/module.py" \
+                  "${var_odoo_module_name}/controllers/${var_odoo_module_name}.py";
       else
-        rm -r "$module_path/controllers";
-        if (( $? != 0 )); then
-          failure "Failed to remove Odoo web controller";
-        fi
+        remove_file "${var_odoo_module_name}/controllers";
       fi
 
       # Odoo model
       if [[ $var_odoo_create_model == false ]]; then
-        rm -r "$module_path/models";
-        rm -r "$module_path/security";
-        if (( $? != 0 )); then
-          failure "Failed to remove Odoo model";
-        fi
+        remove_file "${var_odoo_module_name}/models";
+        remove_file "${var_odoo_module_name}/security";
       else
-        if [ -f "$module_path/security/module_groups.xml" ]; then
-          mv "$module_path/security/module_groups.xml" \
-             "$module_path/security/${var_odoo_module_name}_groups.xml"
-
-          if (( $? != 0 )); then
-            failure "Failed to rename Odoo security group file";
-          fi
+        if file_exists "${var_odoo_module_name}/security/module_groups.xml"; then
+          move_file "${var_odoo_module_name}/security/module_groups.xml" \
+                    "${var_odoo_module_name}/security/${var_odoo_module_name}_groups.xml";
         fi
       fi
 
       # Odoo model views
       if [[ $var_odoo_create_model_views == false ]]; then
-        rm -r "$module_path/views";
-        if (( $? != 0 )); then
-          failure "Failed to remove Odoo model views";
-        fi
+        remove_file "${var_odoo_module_name}/views";
       fi
 
       # Odoo wizard
       if [[ $var_odoo_create_wizard == false ]]; then
-        rm -r "$module_path/wizard";
-        if (( $? != 0 )); then
-          failure "Failed to remove Odoo wizard";
-        fi
+        remove_file "${var_odoo_module_name}/wizard";
       fi
 
       # Update file cache
