@@ -1405,7 +1405,7 @@ function _file_cache_add() {
         CACHE_ALL_FILES+=("$dir_child");
       done
     else
-      logE "Failed to add directory to internal file cache";
+      logE "Failed to add directory to internal file cache: '${arg_file}'";
     fi
   fi
 }
