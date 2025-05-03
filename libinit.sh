@@ -1399,7 +1399,7 @@ function _file_cache_add() {
   local arg_file="$1";
   CACHE_ALL_FILES+=("$arg_file");
   if [ -d "$arg_file" ]; then
-    if ! _find_files_impl "$arg_file" "f" "${LIST_FILES_TXT[@]}"; then
+    if ! _find_files_impl "$arg_file" "f,d" "${LIST_FILES_TXT[@]}"; then
       logE "Failed to add directory to internal file cache";
     fi
     local dir_child="";
