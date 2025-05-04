@@ -1399,15 +1399,21 @@ function _file_cache_add() {
   local arg_file="$1";
   CACHE_ALL_FILES+=("$arg_file");
   if [ -d "$arg_file" ]; then
-    if _find_files_impl "$arg_file" "f,d" "${LIST_FILES_TXT[@]}"; then
-      local dir_child;
-      for dir_child in "${_FOUND_FILES[@]}"; do
-        CACHE_ALL_FILES+=("$dir_child");
-      done
+    if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
+      _find_files_impl "$arg_file" "f,d";
     else
-      logE "Failed to add directory to internal file cache: '${arg_file}'";
+      _find_files_impl "$arg_file" "f" "${LIST_FILES_TXT[@]}";
     fi
+    if (( $? != 0 )); then
+      logE "Failed to add directory to internal file cache: '${arg_file}'";
+      return 1;
+    fi
+    local dir_child;
+    for dir_child in "${_FOUND_FILES[@]}"; do
+      CACHE_ALL_FILES+=("$dir_child");
+    done
   fi
+  return 0;
 }
 
 # Removes the specified file from the internal file cache.
