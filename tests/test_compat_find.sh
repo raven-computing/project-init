@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -97,6 +97,26 @@ EOS
   return $?;
 }
 
+# @CMD: find resources/find -type f,d
+function test_find_all_files_and_directories() {
+  local expected="";
+  expected=$(cat << EOS
+resources/find
+resources/find/should_be_found1.txt
+resources/find/should_be_found2.txt
+resources/find/should_be_found3.txt
+EOS
+)
+  local dir="resources/find";
+  local actual;
+  actual=$(find "$dir" -type f,d);
+  local exit_status=$?;
+  # Sort output of find
+  actual=$(echo "$actual" |sort);
+  assert_equal "$expected" "$actual" $exit_status;
+  return $?;
+}
+
 # @CMD: find "resources/find" -mindepth 1 -maxdepth 1
 function test_find_with_minmaxdepth_args() {
   local expected="";
@@ -117,10 +137,11 @@ EOS
 }
 
 function test_command() {
-  test_find_one_file               &&
-  test_find_two_files              &&
-  test_find_all_files_by_name      &&
-  test_find_all_files              &&
+  test_find_one_file                  &&
+  test_find_two_files                 &&
+  test_find_all_files_by_name         &&
+  test_find_all_files                 &&
+  test_find_all_files_and_directories &&
   test_find_with_minmaxdepth_args;
   return $?;
 }

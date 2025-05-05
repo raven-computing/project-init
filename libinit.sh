@@ -1383,6 +1383,64 @@ function _command_dependency() {
   return 0;
 }
 
+# Adds the specified file to the internal file cache.
+#
+# The given path may point to a regular file or directory. In latter case,
+# all files in the directory are also added to the file cache. No checks for
+# duplicate entries with regards to the argument file are performed.
+#
+# Args:
+# $1 - The absolute path of the file or directory to add to the file cache.
+#
+# Globals:
+# CACHE_ALL_FILES - The file cache which will be updated.
+#
+function _file_cache_add() {
+  local arg_file="$1";
+  CACHE_ALL_FILES+=("$arg_file");
+  if [ -d "$arg_file" ]; then
+    if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
+      _find_files_impl "$arg_file" "f,d";
+    else
+      _find_files_impl "$arg_file" "f" "${LIST_FILES_TXT[@]}";
+    fi
+    if (( $? != 0 )); then
+      logE "Failed to add directory to internal file cache: '${arg_file}'";
+      return 1;
+    fi
+    local dir_child;
+    for dir_child in "${_FOUND_FILES[@]}"; do
+      if [[ "$dir_child" != "$arg_file" ]]; then
+        CACHE_ALL_FILES+=("$dir_child");
+      fi
+    done
+  fi
+  return 0;
+}
+
+# Removes the specified file from the internal file cache.
+#
+# The given path may point to a regular file or directory. In latter case,
+# all files in the directory are also removed from the file cache.
+#
+# Args:
+# $1 - The absolute path of the file or directory to remove from the file cache.
+#
+# Globals:
+# CACHE_ALL_FILES - The file cache which will be updated.
+#
+function _file_cache_remove() {
+  local arg_file="$1";
+  local file_cache_update=();
+  local file="";
+  for file in "${CACHE_ALL_FILES[@]}"; do
+    if [[ "$file" != "$arg_file" && "$file" != "${arg_file}/"* ]]; then
+      file_cache_update+=("$file");
+    fi
+  done
+  CACHE_ALL_FILES=("${file_cache_update[@]}");
+}
+
 # Prints the content of the specified text file.
 #
 # If the specified file cannot be read, this function does nothing.
