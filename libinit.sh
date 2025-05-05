@@ -1387,7 +1387,7 @@ function _command_dependency() {
 #
 # The given path may point to a regular file or directory. In latter case,
 # all files in the directory are also added to the file cache. No checks for
-# duplicate entries are performed.
+# duplicate entries with regards to the argument file are performed.
 #
 # Args:
 # $1 - The absolute path of the file or directory to add to the file cache.
@@ -1410,7 +1410,9 @@ function _file_cache_add() {
     fi
     local dir_child;
     for dir_child in "${_FOUND_FILES[@]}"; do
-      CACHE_ALL_FILES+=("$dir_child");
+      if [[ "$dir_child" != "$arg_file" ]]; then
+        CACHE_ALL_FILES+=("$dir_child");
+      fi
     done
   fi
   return 0;
