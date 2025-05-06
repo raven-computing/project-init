@@ -108,7 +108,7 @@ function process_files_lvl_2() {
 function _validate_odoo_module_name() {
   local input="$1";
   if [ -z "$input" ]; then
-    return 0;
+    return 1;
   fi
   local re="^[a-z][a-z_]*[a-z]*$";
   if ! [[ "$input" =~ $re ]]; then
