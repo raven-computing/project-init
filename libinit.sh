@@ -4426,10 +4426,10 @@ function replace_str() {
 # [API function]
 # Replaces all occurrences of the specified variable with the specified value.
 #
-# This function will go through every file listed in the $CACHE_ALL_FILES
-# global variable, find all occurrences of the substitution variable and replace
-# them with the specified value. The variable key can be specified in its full
-# canonical form or in an abbreviated form without the "VAR_"-prefix.
+# This function will go through every generated regular file, find all occurrences
+# of the substitution variable and replace them with the specified value.
+# The variable key can be specified in its full canonical form or in an
+# abbreviated form without the "VAR_"-prefix.
 #
 # The variable value can be any arbitrary string, including an empty string.
 # Using an empty string will effectively remove the variable from the
@@ -4446,11 +4446,11 @@ function replace_str() {
 # var file, then the value argument ($2) must be specified as an empty string.
 #
 # Besides the key and value, a third argument can be passed to this function.
-# That argument represents the file ending by which all present files in the
-# $CACHE_ALL_FILES global variable will be filtered by. That way, it is
-# possible to replace the same variable with different values in
-# different files. Only one file ending can be specified in each function call.
-# A full file name (e.g. Readme.txt) may also be used as such an argument.
+# That argument represents the file ending by which all present files will be
+# filtered by. That way, it is possible to replace the same variable with
+# different values in different files. Only one file ending can be specified
+# in each function call. A full file name (e.g. Readme.txt) may also be used
+# as such an argument.
 #
 # Args:
 # $1 - The name of the variable to replace. The "VAR_" prefix is optional
@@ -4459,10 +4459,6 @@ function replace_str() {
 #      This argument is optional.
 # $3 - The file extension or file name to match files against. Only files which
 #      are matched are processed by this function. This argument is optional.
-#
-# Globals:
-# CACHE_ALL_FILES - The entries of all files that will
-#                   be processed by this function.
 #
 # Examples:
 # replace_var "MY_KEY";
