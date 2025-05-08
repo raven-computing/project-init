@@ -5315,6 +5315,9 @@ function expand_namespace_directories() {
   local arg_namespace="$1";
   shift;
   local arg_project_paths=("$@");
+  if ! _check_no_quickstart; then
+    return 1;
+  fi
   _ensure_project_files_copied;
   _require_arg "$arg_namespace" "No namespace argument specified";
   if _is_absolute_path "$arg_namespace"; then
