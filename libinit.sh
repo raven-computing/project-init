@@ -2923,11 +2923,14 @@ function _find_files_impl() {
 #
 # This function should be called every time the files in the project target
 # directory are changed, i.e. files are added, moved, or deleted manually
-# without the usage of the copy_resource() or copy_shared() functions.
-# Changes of the file contents are irrelevant. Calling this function ensures
-# that the internally used file cache is up-to-date after the project
-# structure has changed. In Quickstart mode this function is not applicable
-# as files should only be copied by the respective API functions.
+# without the usage of the file processing functions, e.g. the move_file()
+# or copy_resource() function. Changes of the file contents are irrelevant.
+# Calling this function ensures that the internally used file cache is
+# up-to-date after the project structure has changed. The file processing API
+# functions handle this for the user so usually this function only has to be
+# called when init code changes the project files manually, e.g. by directly
+# using the mv or cp commands, etc. In Quickstart mode this function is not
+# applicable as files should only be copied by the respective API functions.
 #
 function find_all_files() {
   if ! _check_no_quickstart; then
