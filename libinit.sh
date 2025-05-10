@@ -984,17 +984,17 @@ function _cancel_quickstart() {
     return 1;
   fi
   if (( ${#CACHE_ALL_FILES[@]} > 0 )); then
-    local f="";
-    for f in "${CACHE_ALL_FILES[@]}"; do
-      if [ -d "$f" ]; then
-        if ! rm -rf "$f"; then
+    local file="";
+    for file in "${CACHE_ALL_FILES[@]}"; do
+      if [ -d "$file" ]; then
+        if ! rm -rf "$file"; then
           logW "Failed to clean up directory created by quickstart function.";
-          logW "Check directory '$f'";
+          logW "Check directory '${file}'";
         fi
-      elif [ -f "$f" ]; then
-        if ! rm "$f"; then
+      elif [ -f "$file" ]; then
+        if ! rm "$file"; then
           logW "Failed to clean up file created by quickstart function.";
-          logW "Check file '$f'";
+          logW "Check file '${file}'";
         fi
       fi
     done
@@ -2934,9 +2934,9 @@ function find_all_files() {
             "Your system might be using an incompatible version of 'find'";
   fi
   # Copy found files to cache
-  local f="";
-  for f in "${_FOUND_FILES[@]}"; do
-    CACHE_ALL_FILES+=("$f");
+  local found_file="";
+  for found_file in "${_FOUND_FILES[@]}"; do
+    CACHE_ALL_FILES+=("$found_file");
   done
 }
 
