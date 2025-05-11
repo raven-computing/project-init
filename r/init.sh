@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ function process_files_lvl_1() {
 function form_r_version() {
   FORM_QUESTION_ID="r.version";
   logI "";
-  logI "Specify the R language to be used by the project:";
+  logI "Specify the R language standard to be used by the project:";
   read_user_input_selection "${SUPPORTED_LANG_VERSIONS_LABELS[@]}";
   var_r_version=${SUPPORTED_LANG_VERSIONS_IDS[USER_INPUT_ENTERED_INDEX]};
   var_r_version_label=${SUPPORTED_LANG_VERSIONS_LABELS[USER_INPUT_ENTERED_INDEX]};
