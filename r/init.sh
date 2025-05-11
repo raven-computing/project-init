@@ -105,13 +105,10 @@ function form_r_package_name() {
   logI "";
   logI "Specify the R package name for the library.";
   # shellcheck disable=SC2154
-  logI "(Defaults to '$var_project_name_lower')";
+  logI "(Defaults to '${var_project_name_lower}')";
+  USER_INPUT_DEFAULT_TEXT="$var_project_name_lower";
   read_user_input_text _validate_r_package_name;
   var_r_library_package_name="$USER_INPUT_ENTERED_TEXT";
-
-  if [ -z "$var_r_library_package_name" ]; then
-    var_r_library_package_name="$var_project_name_lower";
-  fi
 }
 
 # Specify supported R versions
