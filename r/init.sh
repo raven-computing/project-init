@@ -118,6 +118,7 @@ add_lang_version "4.1.0" "R 4.1.0";
 add_lang_version "4.2.0" "R 4.2.0";
 add_lang_version "4.3.0" "R 4.3.0";
 add_lang_version "4.4.0" "R 4.4.0";
+add_lang_version "4.5.0" "R 4.5.0";
 
 # Let the user choose an R project type
 select_project_type "r" "R";
