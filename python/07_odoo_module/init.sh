@@ -139,11 +139,12 @@ function form_python_odoo_module_name() {
   logI "";
   logI "Enter the name for the Odoo module:";
 
-  USER_INPUT_DEFAULT_TEXT="my_module";
+  local default_name="my_module";
+  USER_INPUT_DEFAULT_TEXT="$default_name";
   read_user_input_text _validate_odoo_module_name;
   if (( $? == 1 )); then
     logI "";
-    logI "No module name specified. Using default name '${USER_INPUT_DEFAULT_TEXT}'";
+    logI "No module name specified. Using default name '${default_name}'";
   fi
   local _odoo_module_name="$USER_INPUT_ENTERED_TEXT";
   var_odoo_module_name="${_odoo_module_name}";
