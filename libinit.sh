@@ -4896,6 +4896,9 @@ function project_init_copyright_headers() {
   local _file="";
   local _file_ext="";
   for _file in "${CACHE_ALL_FILES[@]}"; do
+    if [ -d "${_file}" ]; then
+      continue;
+    fi
     _file="$(basename "${_file}")";
     _file_ext="${_file##*.}";
     if [[ "${_file_ext}" != "" && "${_file_ext}" != "${_file}" ]]; then
