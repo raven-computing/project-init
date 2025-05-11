@@ -6014,7 +6014,7 @@ function write_file() {
     return 1;
   fi
   if [[ $add_file_to_cache == true ]]; then
-    CACHE_ALL_FILES+=("$file_path");
+    _file_cache_add "$file_path";
   fi
   return 0;
 }
@@ -6093,7 +6093,7 @@ function append_file() {
     return 1;
   fi
   if [[ $add_file_to_cache == true ]]; then
-    CACHE_ALL_FILES+=("$file_path");
+    _file_cache_add "$file_path";
   fi
   return 0;
 }
@@ -6175,16 +6175,8 @@ function move_file() {
     _cancel_quickstart $EXIT_FAILURE;
     failure "Failed to move source files";
   fi
-  # Update file cache: Remove source file, add target file
-  local updated_files=();
-  local file="";
-  for file in "${CACHE_ALL_FILES[@]}"; do
-    if [[ "$file" != "$source_file" ]]; then
-      updated_files+=("$file");
-    fi
-  done
-  updated_files+=("$target_file");
-  CACHE_ALL_FILES=("${updated_files[@]}");
+  _file_cache_remove "$source_file";
+  _file_cache_add "$target_file";
   return 0;
 }
 
@@ -6263,14 +6255,6 @@ function remove_file() {
     _cancel_quickstart $EXIT_FAILURE;
     failure "Failed to remove source files";
   fi
-  # Update file cache: Remove target file and possibly its dir children
-  local updated_files=();
-  local file="";
-  for file in "${CACHE_ALL_FILES[@]}"; do
-    if [[ "$file" != "$target_file" && "$file" != "${target_file}/"* ]]; then
-      updated_files+=("$file");
-    fi
-  done
-  CACHE_ALL_FILES=("${updated_files[@]}");
+  _file_cache_remove "$target_file";
   return 0;
 }
