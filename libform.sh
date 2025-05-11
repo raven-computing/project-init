@@ -397,20 +397,16 @@ function _project_init_process_docker_integration() {
   replace_var "SCRIPT_RUN_ISOLATED_HINT1"          "$var_script_run_isolated_hint1";
   if [[ "$var_project_integration_docker_enabled" == "0" ]]; then
     # Remove entire .docker dir in source root
-    if [ -d "$var_project_dir/.docker" ]; then
-      rm -r "$var_project_dir/.docker";
-      if (( $? != 0 )); then
-        failure "Failed to remove template source docker integration directory";
-      fi
-      find_all_files;
+    if directory_exists ".docker"; then
+      remove_file ".docker";
     else
-      logW "Cannot remove: '$var_project_dir/.docker'";
+      logW "Cannot remove: '.docker'";
       logW "The project Docker integration was disabled but the project directory does not";
       logW "have a '.docker' directory in the root of the source tree.";
       warning "Docker integration was disabled but project had no '.docker' directory";
     fi
   elif [[ "$var_project_integration_docker_enabled" == "1" ]]; then
-    if ! [ -d "$var_project_dir/.docker" ]; then
+    if ! directory_exists ".docker"; then
       logW "The project Docker integration was enabled but the project directory does not";
       logW "have a '.docker' directory in the root of the source tree.";
       warning "Docker integration was enabled but could not find the '.docker' directory";
