@@ -67,9 +67,6 @@ function process_files_lvl_2() {
       if [[ $var_odoo_create_wizard == false ]]; then
         remove_file "${var_odoo_module_name}/wizard";
       fi
-
-      # Update file cache
-      find_all_files;
     fi
   fi
 
