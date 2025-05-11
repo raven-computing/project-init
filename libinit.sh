@@ -4005,16 +4005,6 @@ function copy_resource() {
       logW "Target: '$arg_dest'";
       return 2;
     fi
-    # Update internal file cache
-    CACHE_ALL_FILES+=("$arg_dest");
-    if ! _find_files_impl "$arg_dest" "f"; then
-      logE "Failed to list files in target directory: '$arg_dest'";
-      failure "Internal error.";
-    fi
-    local f="";
-    for f in "${_FOUND_FILES[@]}"; do
-      CACHE_ALL_FILES+=("$f");
-    done
   else
     #-------------------#
     # Copy regular file #
@@ -4026,8 +4016,8 @@ function copy_resource() {
       logW "Target: '$arg_dest'";
       return 2;
     fi
-    CACHE_ALL_FILES+=("$arg_dest");
   fi
+  _file_cache_add "$arg_dest";
   return 0;
 }
 
