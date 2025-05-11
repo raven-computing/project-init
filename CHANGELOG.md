@@ -1,3 +1,20 @@
+#### 1.8.1
+* Added support for R 4.5.0 language standard.
+* Added the _file_cache_add() function to add a new file or directory to the file cache array variable. [[Issue#90]](https://github.com/raven-computing/project-init/issues/90)
+* Added the _file_cache_remove() function to remove an existing file or directory from the file cache array variable. [[Issue#90]](https://github.com/raven-computing/project-init/issues/90)
+* Fixed wrong log warning when directory has dot in filename. [[Issue#92]](https://github.com/raven-computing/project-init/issues/92)
+* Fixed minor code formatting issues.
+* Improved documentation of file cache usage. [[Issue#93]](https://github.com/raven-computing/project-init/issues/93)
+* Improved Linux kernel module project init code.
+* Improved Java project init code.
+* Improved Python project init code.
+* Improved R init code.
+* Improved the expand_namespace_direcotory() function implementation.
+* Refactored init code to use file processing API functions.
+* Refactored file cache updates in copy_resource() function.
+* Refactored Docker integration file processing.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.8.0...v1.8.1)
+
 #### 1.8.0
 * Added the move_file() API function. [[Issue#63]](https://github.com/raven-computing/project-init/issues/63)
 * Added the remove_file() API function. [[Issue#64]](https://github.com/raven-computing/project-init/issues/64)
