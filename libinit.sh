@@ -2853,7 +2853,7 @@ function project_init_process_quickstart() {
     fi
     _replace_default_subst_vars;
     # Check for unreplaced substitution variables
-    if _find_subst_vars "${CACHE_ALL_FILES[@]}"; then
+    if _find_subst_vars; then
       local substvar="";
       for substvar in "${_FOUND_SUBST_VARS[@]}"; do
         logW "Substitution variable was not replaced: '${substvar}'";
@@ -3166,41 +3166,38 @@ function _array_contains() {
   return 1;
 }
 
-# Finds all substitution variables contained in the specified files.
+# Finds all substitution variables contained in the tracked files.
 #
-# This function searches all given files for any unreplaced substitution variable
-# and stores the unique names of all such found items
-# (without the leading '${{' and trailing '}}') in the $_FOUND_SUBST_VARS
-# global variable.
-#
-# Args:
-# $@ - The list of files to be scanned for unreplaced substitution variables.
+# This function searches all files within the cache for any unreplaced substitution
+# variable and stores the unique names of all such found items (without the
+# leading '${{' and trailing '}}') in the $_FOUND_SUBST_VARS global variable.
 #
 # Returns:
 # 0 - If the search operation found at least one unreplaced substitution variable.
 # 1 - If no unreplaced substitution variable was found.
 #
 # Globals:
+# CACHE_ALL_FILES   - The list of files to be scanned for unreplaced
+#                     substitution variables.
 # _FOUND_SUBST_VARS - The array variable in which the names of all found
 #                     substitution variable will be stored.
 #
 function _find_subst_vars() {
-  local files_to_search=("$@");
   _FOUND_SUBST_VARS=(); # Reset
-  local subvar="";
+  local subvar;
   local subvar_len=0;
-  local f="";
-  for f in "${files_to_search[@]}"; do
-    if [ -d "$f" ]; then
+  local file;
+  for file in "${CACHE_ALL_FILES[@]}"; do
+    if [ -d "$file" ]; then
       continue; # Ignore directories
     fi
-    if ! [ -r "$f" ]; then
+    if ! [ -r "$file" ]; then
       continue; # Ignore non-existing/non-readable regular files
     fi
     # Subst vars cannot have IFS chars or special chars used
     # in glob expansion, so here one line equals one word.
     # shellcheck disable=SC2013
-    for subvar in $(grep -o '\${{VAR_[0-9A-Z_]\+}}' "$f"); do
+    for subvar in $(grep -o '\${{VAR_[0-9A-Z_]\+}}' "$file"); do
       subvar_len=$(( ${#subvar}-5 ));
       _FOUND_SUBST_VARS+=("${subvar:3:subvar_len}");
     done
