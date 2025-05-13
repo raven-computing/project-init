@@ -645,13 +645,16 @@ function logE() {
 # This function adds the given warning message to the list of warnings
 # shown at the end after a project has been successfully initialized.
 # Only one string can be given to this function per call. Each message
-# will be shown on a separate line.
+# will be shown on a separate line. Duplicate warning messages will be ignored.
 #
 # Args:
 # $1 - A string message to log
 #
 function warning() {
-  _WARNING_LOG+=("$1");
+  local warning_message="$1";
+  if ! _array_contains "$warning_message" "${_WARNING_LOG[@]}"; then
+    _WARNING_LOG+=("$warning_message");
+  fi
 }
 
 # Prints a statement indicating a successful operation.
