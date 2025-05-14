@@ -691,7 +691,7 @@ function _log_success() {
     for warning_msg in "${_WARNING_LOG[@]}"; do
       logW "${COLOR_ORANGE}Warning:${COLOR_NC}";
       logW "$warning_msg";
-      logI "";
+      logW "";
     done
   fi
 }
