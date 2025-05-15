@@ -1580,24 +1580,26 @@ function _check_system_compat() {
     logW "This program requires at least Bash version $REQUIREMENT_BASH_VERSION";
     failure "Unsupported interpreter version";
   fi
-  # Check for EoL OS
-  if _command_dependency "lsb_release"; then
-    local os_name;
-    os_name="$(lsb_release --id       \
-               |grep "Distributor ID" \
-               |cut -d: -f2 |xargs    \
-               |tr '[:upper:]' '[:lower:]')";
-    if [[ "$os_name" == "ubuntu" ]]; then
-      local os_version;
-      os_version="$(lsb_release --release \
-                    |grep "Release"       \
-                    |cut -d: -f2 |xargs   \
-                    |tr '[:upper:]' '[:lower:]')";
-      if [[ "$os_version" == "20.04" ]]; then
-        logW "You are using Ubuntu ${os_version} which reaches its EoL on 1st of June 2025.";
-        logW "Future versions of project-init might not support this operating system version";
-        logW "and generated projects might not build as Raven Computing will drop support";
-        logW "for Ubuntu ${os_version} after the EoL is reached.";
+  if [[ "$PROJECT_INIT_TESTS_ACTIVE" != "1" ]]; then
+    # Check for EoL OS
+    if _command_dependency "lsb_release"; then
+      local os_name;
+      os_name="$(lsb_release --id       \
+                |grep "Distributor ID" \
+                |cut -d: -f2 |xargs    \
+                |tr '[:upper:]' '[:lower:]')";
+      if [[ "$os_name" == "ubuntu" ]]; then
+        local os_version;
+        os_version="$(lsb_release --release \
+                      |grep "Release"       \
+                      |cut -d: -f2 |xargs   \
+                      |tr '[:upper:]' '[:lower:]')";
+        if [[ "$os_version" == "20.04" ]]; then
+          logW "You are using Ubuntu ${os_version} which reaches its EoL on 1st of June 2025.";
+          logW "Future versions of project-init might not support this operating system version";
+          logW "and generated projects might not build as Raven Computing will drop support";
+          logW "for Ubuntu ${os_version} after the EoL is reached.";
+        fi
       fi
     fi
   fi
