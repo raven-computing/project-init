@@ -6254,6 +6254,19 @@ function remove_file() {
 # [API function]
 # Creates a subdirectory within the project target directory.
 #
+# The subdirectory is specified by the first argument. The path is interpreted as
+# relative to the project target directory. It may contain one or more
+# subdirectories hierarchically. Any nonexistent parent directories are
+# also implicitly created.
+#
+# When in regular (form-based) application mode, the project target directory must have
+# already been created by means of the project_init_copy() function before a file
+# can be written. If the specified subdirectory structure already exists, then
+# this function has no effect.
+#
+# When in Quickstart mode, the project target directory is the underlying Quickstart
+# current working directory, i.e. where the Quickstart was initiated.
+#
 # Since:
 # 1.9.0
 #
