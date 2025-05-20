@@ -6260,9 +6260,11 @@ function remove_file() {
 # also implicitly created.
 #
 # When in regular (form-based) application mode, the project target directory must have
-# already been created by means of the project_init_copy() function before a file
-# can be written. If the specified subdirectory structure already exists, then
-# this function has no effect.
+# already been created by means of the project_init_copy() function before a directory
+# can be created.
+#
+# If the specified subdirectory structure already exists, then this function
+# has no effect.
 #
 # When in Quickstart mode, the project target directory is the underlying Quickstart
 # current working directory, i.e. where the Quickstart was initiated.
