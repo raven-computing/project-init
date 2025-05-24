@@ -103,7 +103,7 @@ function build_docs() {
   run_R_cmd "document()";
   if (( $? != 0)); then
     logE "Failed to build documentation";
-    exit 1;
+    return 1;
   fi
   return 0;
 }
@@ -111,7 +111,7 @@ function build_docs() {
 # Check docs flag
 if [[ $ARG_DOCS == true ]]; then
   build_docs;
-  exit 0;
+  exit $?;
 fi
 
 # Check skip-tests flag
@@ -123,7 +123,9 @@ if [[ $ARG_SKIP_TESTS == false ]]; then
   fi
 fi
 
-build_docs;
+if ! build_docs; then
+  exit 1;
+fi
 
 # Build
 logI "Building distribution package";
@@ -131,7 +133,7 @@ run_R_cmd "build(path=\"build\")";
 
 if (( $? != 0 )); then
   logE "Failed to build distribution package";
-  exit $?;
+  exit 1;
 fi
 
 logI "Build successful";
