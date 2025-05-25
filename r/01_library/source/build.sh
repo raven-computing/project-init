@@ -137,3 +137,4 @@ if (( $? != 0 )); then
 fi
 
 logI "Build successful";
+exit 0;

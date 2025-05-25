@@ -73,8 +73,11 @@ fi
 # Check flag
 if [[ $ARG_CHECK == true ]]; then
   logI "Performing distribution checks";
-  run_R_cmd "check()";
-  exit 0;
+  if ! run_R_cmd "check()"; then
+    echo "";
+    logE "Distribution checks have failed";
+    exit 1;
+  fi
 fi
 
 logI "Running unit tests";
