@@ -92,7 +92,7 @@ if [[ $ARG_NO_VIRTUALENV == false ]]; then
 fi
 
 if [[ $ARG_INTERACTIVE == true ]]; then
-  python main.py ${app_args[@]};
+  python -m ${{VAR_NAMESPACE_DECLARATION}} ${app_args[@]};
   exit $?;
 fi
 
