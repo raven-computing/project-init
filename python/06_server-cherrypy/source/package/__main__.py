@@ -4,4 +4,4 @@ import sys
 
 from .application import main
 
-sys.exit(main())
+sys.exit(main(len(sys.argv), sys.argv))

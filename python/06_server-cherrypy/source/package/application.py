@@ -11,8 +11,12 @@ import cherrypy
 from ${{VAR_NAMESPACE_DECLARATION}}.controller import Controller
 
 
-def main():
+def main(argc: int, argv: list[str]) -> int:
     """Main function of the ${{VAR_PROJECT_NAME}} server application.
+
+    Args:
+        argc (int): The argument count.
+        argv (list[str]): The list of program arguments.
 
     Returns:
         int: The exit code of the program.
@@ -37,12 +41,12 @@ def main():
     }
 
     cherrypy.log(f"Running on Python {platform.python_version()}")
-    if len(sys.argv) > 1:
-        cherrypy.log("Args: " + str(sys.argv[1:]))
+    if argc > 1:
+        cherrypy.log("Args: " + str(argv[1:]))
 
     cherrypy.quickstart(Controller(), "/", config)
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(len(sys.argv), sys.argv))
