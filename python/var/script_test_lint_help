@@ -1,1 +1,1 @@
-  [--lint]          Perform static code analysis with a linter.
+  [-l|--lint]       Perform static code analysis with a linter.
