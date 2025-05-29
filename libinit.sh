@@ -1789,16 +1789,16 @@ function _load_addons_resource_git() {
 function _load_addons_resource() {
   # First check if addons res is specified by config file, as that should
   # take precedence when available over the env var
-  if [ -r "$HOME/project-init-addons-res" ]; then
-    PROJECT_INIT_ADDONS_RES=$(head -n 1 "$HOME/project-init-addons-res");
-  elif [ -r "$HOME/.project-init-addons-res" ]; then
-    PROJECT_INIT_ADDONS_RES=$(head -n 1 "$HOME/.project-init-addons-res");
+  if [ -r "${HOME}/project-init-addons-res" ]; then
+    PROJECT_INIT_ADDONS_RES=$(head -n 1 "${HOME}/project-init-addons-res");
+  elif [ -r "${HOME}/.project-init-addons-res" ]; then
+    PROJECT_INIT_ADDONS_RES=$(head -n 1 "${HOME}/.project-init-addons-res");
   fi
   # Also check for branch/tag specification in file
-  if [ -r "$HOME/project-init-addons-res-branch" ]; then
-    PROJECT_INIT_ADDONS_RES_BRANCH=$(head -n 1 "$HOME/project-init-addons-res-branch");
-  elif [ -r "$HOME/.project-init-addons-res-branch" ]; then
-    PROJECT_INIT_ADDONS_RES_BRANCH=$(head -n 1 "$HOME/.project-init-addons-res-branch");
+  if [ -r "${HOME}/project-init-addons-res-branch" ]; then
+    PROJECT_INIT_ADDONS_RES_BRANCH=$(head -n 1 "${HOME}/project-init-addons-res-branch");
+  elif [ -r "${HOME}/.project-init-addons-res-branch" ]; then
+    PROJECT_INIT_ADDONS_RES_BRANCH=$(head -n 1 "${HOME}/.project-init-addons-res-branch");
   fi
   # Process environment variable
   if [ -n "$PROJECT_INIT_ADDONS_RES" ]; then
@@ -1814,18 +1814,18 @@ function _load_addons_resource() {
     fi
     # Check set dir var
     if [ -d "$PROJECT_INIT_ADDONS_DIR" ]; then
-      if ! [ -r "$PROJECT_INIT_ADDONS_DIR/INIT_ADDONS" ]; then
+      if ! [ -r "${PROJECT_INIT_ADDONS_DIR}/INIT_ADDONS" ]; then
         # Do not show warnings when in test mode
         if [[ "$PROJECT_INIT_TESTS_ACTIVE" != "1" ]]; then
           if [[ $addons_is_git_res == true ]]; then
             logW "Repository is not marked as a Project Init addons resource:";
-            logW "Accessed via: '$PROJECT_INIT_ADDONS_RES'";
+            logW "Accessed via: '${PROJECT_INIT_ADDONS_RES}'";
             logW "Please add an empty file named 'INIT_ADDONS' in the repository root";
             logW "in order to use it as a Project Init addons resource.";
           else
             logW "Directory is not marked as a Project Init addons resource:";
-            logW "at: '$PROJECT_INIT_ADDONS_DIR'";
-            logW "Please create an empty file '$PROJECT_INIT_ADDONS_DIR/INIT_ADDONS'";
+            logW "at: '${PROJECT_INIT_ADDONS_DIR}'";
+            logW "Please create an empty file '${PROJECT_INIT_ADDONS_DIR}/INIT_ADDONS'";
             logW "in order to use the directory as a Project Init addons resource.";
           fi
           logW "";
@@ -1835,7 +1835,7 @@ function _load_addons_resource() {
       fi
     else
       logW "Cannot use Project Init addons resource:";
-      logW "at: '$PROJECT_INIT_ADDONS_DIR'";
+      logW "at: '${PROJECT_INIT_ADDONS_DIR}'";
       if [[ "$PROJECT_INIT_ADDONS_DIR" =~ ^http*|^https* \
            || "$PROJECT_INIT_ADDONS_DIR" == *"@"* ]]; then
 
