@@ -1536,7 +1536,7 @@ function _read_dependencies() {
         if [[ "$line" != *" "* ]]; then
           # Avoid duplicates
           if ! _array_contains "$line" "${SYS_DEPENDENCIES[@]}"; then
-            SYS_DEPENDENCIES+=( "$line" );
+            SYS_DEPENDENCIES+=("$line");
           fi
         else
           invalid_format=true;
@@ -1551,7 +1551,7 @@ function _read_dependencies() {
   fi
   if [[ $invalid_format == true ]]; then
     logW "The dependencies file is incorrectly formatted:";
-    logW "at: '$dependencies_file' (at line $invalid_line)";
+    logW "at: '${dependencies_file}' (at line ${invalid_line})";
     return 1;
   fi
   return 0;
