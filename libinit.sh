@@ -1584,7 +1584,7 @@ function _check_system_compat() {
     # Check for EoL OS
     if _command_dependency "lsb_release"; then
       local os_name;
-      os_name="$(lsb_release --id       \
+      os_name="$(lsb_release --id      \
                 |grep "Distributor ID" \
                 |cut -d: -f2 |xargs    \
                 |tr '[:upper:]' '[:lower:]')";
