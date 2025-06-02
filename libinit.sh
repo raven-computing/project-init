@@ -828,7 +828,7 @@ function _show_helptext() {
     return 1;
   fi
   make_hyperlink "${DOCS_BASE_URL}/${_doc_res}" "documentation";
-  local _helptext="[HELP]: See the $HYPERLINK_VALUE for more information";
+  local _helptext="[HELP]: See the ${HYPERLINK_VALUE} for more information";
   if [[ "${_log_lvl}" == "I" ]]; then
     logI "";
     logI "${_helptext}";
