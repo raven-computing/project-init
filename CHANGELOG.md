@@ -1,3 +1,11 @@
+#### 1.8.2
+* Changed _find_subst_vars() function, removed parameter.
+* Fixed some issues in build scripts of R project source templates.
+* Improved warning() function to ignore duplicate messages.
+* Improved Python project source templates.
+* Improved code formatting.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.8.1...v1.8.2)
+
 #### 1.8.1
 * Added support for R 4.5.0 language standard.
 * Added the _file_cache_add() function to add a new file or directory to the file cache array variable. [[Issue#90]](https://github.com/raven-computing/project-init/issues/90)
