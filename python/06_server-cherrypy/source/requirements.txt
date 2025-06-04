@@ -1,2 +1,2 @@
 ${{INCLUDE:python/requirements.txt}}
-CherryPy==18.8.0
+CherryPy==18.10.0
