@@ -36,7 +36,6 @@ setup(
     classifiers=[
        "Programming Language :: Python :: 3",
        "Programming Language :: C",
-       "${{VAR_LICENSE_CLASSIFIER_SETUP_PY}}",
        "Operating System :: POSIX :: Linux"  # Adjust as needed
     ],
     python_requires=">=${{VAR_PYTHON_VERSION}}",

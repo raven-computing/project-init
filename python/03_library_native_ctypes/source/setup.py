@@ -24,7 +24,6 @@ setup(
     ${{VAR_SETUP_PY_FIND_PACKAGES}}
     classifiers=[
         "Programming Language :: Python :: 3",
-        "${{VAR_LICENSE_CLASSIFIER_SETUP_PY}}",
         "Operating System :: OS Independent"
     ],
     python_requires=">=${{VAR_PYTHON_VERSION}}",
