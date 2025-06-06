@@ -30,7 +30,7 @@
 #                                 path notation (with slashes instead of dots)
 # VAR_PACKAGE_DECLARATION: The module package name. Not any namespace package
 # VAR_LICENSE_CLASSIFIER_SETUP_PY: The 'classifiers' arg in the setup() function
-#                                  of the setup.py script
+#                                  of the setup.py script. (Deprecated)
 # VAR_SETUP_PY_SETUPTOOLS_IMPORT: The import statement for setuptools in
 #                                 the setup.py script
 # VAR_SETUP_PY_FIND_PACKAGES: The 'packages' arg in the setup() function of
@@ -55,6 +55,7 @@
 function process_files_lvl_1() {
   replace_var "PROJECT_VIRTENV_NAME"        "$var_project_virtenv_name";
   replace_var "PYTHON_VERSION"              "$var_python_version";
+  # Kept for backwards compatibility
   replace_var "LICENSE_CLASSIFIER_SETUP_PY" "$var_license_classifier_setup_py";
 
   # Check whether the source code is placed in a normal module package
@@ -371,7 +372,8 @@ function form_python_pypi_deployment() {
   var_use_deploy=$USER_INPUT_ENTERED_BOOL;
 }
 
-# Create the mapping for the setup.py license classifier
+# Create the mapping for the setup.py license classifier.
+# To be removed. License_classifier are deprecated and kept for backwards compatibility.
 var_license_classifier_setup_py="";
 # shellcheck disable=SC2154
 if [[ "$var_project_license" == "Apache License 2.0" ]]; then
