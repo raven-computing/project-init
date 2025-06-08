@@ -262,7 +262,6 @@ function form_cpp_namespace() {
 }
 
 # Specify supported C++ versions
-add_lang_version "14" "C++14";
 add_lang_version "17" "C++17";
 add_lang_version "20" "C++20";
 add_lang_version "23" "C++23";
