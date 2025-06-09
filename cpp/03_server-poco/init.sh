@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,10 +22,6 @@
 
 
 # Form questions
-
-# Currently we do not support C++14
-# anymore for this project type.
-remove_lang_version "14";
 
 form_cpp_version;
 
