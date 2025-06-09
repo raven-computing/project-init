@@ -6281,6 +6281,7 @@ function remove_file() {
 # 1 - If the create operation has failed.
 #
 # Examples:
+# create_directory "data";
 # create_directory "src/main/my_new_dir";
 #
 function create_directory() {
