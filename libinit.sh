@@ -6317,7 +6317,7 @@ function create_directory() {
     fi
   fi
   if ! mkdir -p "$file_path"; then
-    logW "Failed to create directory: '${arg_dir_path}'";
+    logE "Failed to create directory or one of its parents: '${arg_dir_path}'";
     return 1;
   fi
   if [[ $add_file_to_cache == true ]]; then
