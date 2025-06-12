@@ -391,7 +391,6 @@ else
 fi
 
 # Specify supported Python versions
-add_lang_version "3.8" "3.8";
 add_lang_version "3.9" "3.9";
 add_lang_version "3.10" "3.10";
 add_lang_version "3.11" "3.11";
