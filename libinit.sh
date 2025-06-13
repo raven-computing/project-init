@@ -5293,10 +5293,11 @@ function add_lang_version() {
 function remove_lang_version() {
   local _lang_version="$1";
   _require_arg "${_lang_version}" "No arguments specified";
-  for i in "${!SUPPORTED_LANG_VERSIONS_IDS[@]}"; do
-    if [[ "${SUPPORTED_LANG_VERSIONS_IDS[$i]}" == "${_lang_version}" ]]; then
-      unset 'SUPPORTED_LANG_VERSIONS_IDS[$i]';
-      unset 'SUPPORTED_LANG_VERSIONS_LABELS[$i]';
+  local lang_id;
+  for lang_id in "${!SUPPORTED_LANG_VERSIONS_IDS[@]}"; do
+    if [[ "${SUPPORTED_LANG_VERSIONS_IDS[$lang_id]}" == "${_lang_version}" ]]; then
+      unset 'SUPPORTED_LANG_VERSIONS_IDS[$lang_id]';
+      unset 'SUPPORTED_LANG_VERSIONS_LABELS[$lang_id]';
       # We need to recreate both arrays as their indices might not
       # match anymore because of the unset operation
       SUPPORTED_LANG_VERSIONS_IDS=("${SUPPORTED_LANG_VERSIONS_IDS[@]}");
