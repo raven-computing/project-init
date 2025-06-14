@@ -3235,19 +3235,19 @@ function _find_subst_vars() {
 #
 function _check_unreplaced_vars() {
   local found_subvars=();
-  local subvar="";
+  local subvar;
   local subvar_len=0;
-  local f="";
-  for f in "${CACHE_ALL_FILES[@]}"; do
-    if [ -d "$f" ]; then
+  local cached_file;
+  for cached_file in "${CACHE_ALL_FILES[@]}"; do
+    if [ -d "$cached_file" ]; then
       continue; # Ignore directories
     fi
     # Check if file still exists
-    if ! [ -f "$f" ]; then
+    if ! [ -f "$cached_file" ]; then
       _make_func_hl "find_all_files";
       logW "Project file was removed but is still present in the file cache:";
-      logW "at: '$f'";
-      logW "Please call the $HYPERLINK_VALUE function after" \
+      logW "at: '${cached_file}'";
+      logW "Please call the ${HYPERLINK_VALUE} function after" \
            "adding/moving/deleting files";
 
       continue;
@@ -3256,7 +3256,7 @@ function _check_unreplaced_vars() {
     # Subst vars cannot have IFS chars or special chars used
     # in glob expansion, so here one line equals one word.
     # shellcheck disable=SC2013
-    for subvar in $(grep -o '\${{VAR_[0-9A-Z_]\+}}' "$f"); do
+    for subvar in $(grep -o '\${{VAR_[0-9A-Z_]\+}}' "$cached_file"); do
       found_subvars+=("$subvar");
     done
   done
