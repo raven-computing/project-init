@@ -1,3 +1,15 @@
+#### 1.8.3
+* Deprecated the VAR_LICENSE_CLASSIFIER_SETUP_PY substitution variable.
+* Improved code formatting.
+* Refactored some internal code.
+* Removed the license classifier usage from Python project source templates.
+* Removed support for the C++14 language standard.
+* Removed support for the Python 3.8 interpreter.
+* Removed remnant references to now unsupported EoL Ubuntu 20.04 OS.
+* Updated C++ project source template dependency versions.
+* Updated Python project source template dependency versions.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.8.2...v1.8.3)
+
 #### 1.8.2
 * Changed _find_subst_vars() function, removed parameter.
 * Fixed some issues in build scripts of R project source templates.
