@@ -4672,7 +4672,7 @@ function replace_var() {
             |awk -F ":" '{print $1}')";
 
     # Convert to zero-based index
-    index=$((index-1));
+    ((--index));
     # Trim the file content string
     replaced="${replaced:index}";
 
