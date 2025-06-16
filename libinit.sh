@@ -2474,8 +2474,8 @@ function _load_configuration() {
 
   # Check for addons properties
   if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
-    if [ -f "$PROJECT_INIT_ADDONS_DIR/project.properties" ]; then
-      _read_properties "$PROJECT_INIT_ADDONS_DIR/project.properties";
+    if [ -f "${PROJECT_INIT_ADDONS_DIR}/project.properties" ]; then
+      _read_properties "${PROJECT_INIT_ADDONS_DIR}/project.properties";
       _after_addons_properties_loaded;
     fi
   fi
@@ -2488,10 +2488,10 @@ function _load_configuration() {
   else
     # Check user home directory
     if [ -n "$HOME" ]; then
-      if [ -r "$HOME/project.properties" ]; then
-        _read_properties "$HOME/project.properties";
-      elif [ -r "$HOME/.project.properties" ]; then
-        _read_properties "$HOME/.project.properties";
+      if [ -r "${HOME}/project.properties" ]; then
+        _read_properties "${HOME}/project.properties";
+      elif [ -r "${HOME}/.project.properties" ]; then
+        _read_properties "${HOME}/.project.properties";
       fi
     fi
   fi
@@ -2501,9 +2501,9 @@ function _load_configuration() {
 
   # Check for addons files
   if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
-    if [ -f "$PROJECT_INIT_ADDONS_DIR/files.txt" ]; then
+    if [ -f "${PROJECT_INIT_ADDONS_DIR}/files.txt" ]; then
       # Load file declarations from the addons configuration
-      _fill_files_list_from "$PROJECT_INIT_ADDONS_DIR/files.txt";
+      _fill_files_list_from "${PROJECT_INIT_ADDONS_DIR}/files.txt";
     fi
   fi
 
