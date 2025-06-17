@@ -2421,7 +2421,7 @@ function _fill_files_list_from() {
     done < "$fpath";
   else
     logW "Cannot load file list from file:";
-    logW "at: '$fpath'";
+    logW "at: '${fpath}'";
     logW "File does not exist or is not readable";
   fi
 }
