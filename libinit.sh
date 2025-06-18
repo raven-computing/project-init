@@ -367,6 +367,13 @@ HYPERLINK_VALUE="";
 VAR_FILE_VALUE="";
 
 # [API Global]
+# The application name to display to the user. This is shown, for example,
+# in desktop notifications. A different value may be set by addons.
+# Since:
+# 1.9.0
+PROJECT_INIT_APPLICATION_NAME="Project Init";
+
+# [API Global]
 # The message to show when a project is successfully initialized.
 # This text is shown in the terminal and in the desktop notification.
 # A new value can be set to this variable to change the success message.
@@ -719,7 +726,7 @@ function _show_notif_success() {
     notif_args+=("--expire-time");
     notif_args+=("${_INT_NOTIF_SUCCESS_TIMEOUT}");
     notif_args+=("--app-name");
-    notif_args+=("Project Init");
+    notif_args+=("$PROJECT_INIT_APPLICATION_NAME");
     if _command_dependency "nautilus"; then
       notif_args+=("--action");
       notif_args+=("Open=Show Source Files");
