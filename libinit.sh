@@ -729,7 +729,7 @@ function _show_notif_success() {
     notif_args+=("$PROJECT_INIT_APPLICATION_NAME");
     if _command_dependency "nautilus"; then
       notif_args+=("--action");
-      notif_args+=("Open=Show Source Files");
+      notif_args+=("Open=Show Files");
     fi
     if _command_dependency "gnome-terminal"; then
       notif_args+=("--action");
