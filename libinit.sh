@@ -704,6 +704,32 @@ function _show_notif_success_impl() {
   fi
 }
 
+# Checks if the installed version of notify-send supports notification actions.
+# Notification actions are supported in notify-send version 0.7.10 and above.
+#
+# Returns:
+# 0 - If notification actions are supported.
+# 1 - If notification actions are not supported.
+#
+function _can_add_notif_actions() {
+  local version=$(notify-send --version |cut -d ' ' -f2);
+  version=(${version//./ });
+  local major="${version[0]}";
+  local minor="${version[1]}";
+  local patch="${version[2]}";
+  if (( major == 0 )); then
+    if (( minor < 7 )); then
+      return 1;
+    fi
+    if (( minor == 7 )); then
+      if (( patch < 10 )); then
+        return 1;
+      fi
+    fi
+  fi
+  return 0;
+}
+
 # Shows a system notification indicating a successful operation.
 #
 # This function will try to display a desktop notification if the
@@ -727,13 +753,15 @@ function _show_notif_success() {
     notif_args+=("${_INT_NOTIF_SUCCESS_TIMEOUT}");
     notif_args+=("--app-name");
     notif_args+=("$PROJECT_INIT_APPLICATION_NAME");
-    if _command_dependency "nautilus"; then
-      notif_args+=("--action");
-      notif_args+=("Open=Show Files");
-    fi
-    if _command_dependency "gnome-terminal"; then
-      notif_args+=("--action");
-      notif_args+=("Term=Open in Terminal");
+    if _can_add_notif_actions; then
+      if _command_dependency "nautilus"; then
+        notif_args+=("--action");
+        notif_args+=("Open=Show Files");
+      fi
+      if _command_dependency "gnome-terminal"; then
+        notif_args+=("--action");
+        notif_args+=("Term=Open in Terminal");
+      fi
     fi
     notif_args+=("${_project_name}");
     notif_args+=("${PROJECT_INIT_SUCCESS_MESSAGE}");
