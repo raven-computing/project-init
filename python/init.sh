@@ -44,6 +44,8 @@
 # VAR_SCRIPT_TEST_LINT_CODE: The script code block for calling the linter
 #                            in the test.sh script
 # VAR_REQUIREMENTS_LINT: The requirements.txt item for the linter dependency
+# VAR_REQUIREMENTS_TYPE_CHECK: The requirements.txt item for the
+#                              type checker dependency
 # VAR_README_DEV_LINT: The Readme text block for informing about how to
 #                      use the linter
 # VAR_REQUIREMENTS_DEPLOY: The requirements.txt item for the
@@ -105,6 +107,23 @@ function process_files_lvl_1() {
     if file_exists "pylintrc"; then
       remove_file "pylintrc";
     fi
+  fi
+
+  # Check usage of type checker
+  if [[ $var_use_typechecker == true ]]; then
+    replace_var "SCRIPT_TEST_TYPE_CHECK_HELP";
+    replace_var "SCRIPT_TEST_TYPE_CHECK_ARG";
+    replace_var "SCRIPT_TEST_TYPE_CHECK_ARG_PARSE";
+    replace_var "SCRIPT_TEST_TYPE_CHECK_CODE";
+    replace_var "REQUIREMENTS_TYPE_CHECK";
+    replace_var "SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD" \
+                "$var_script_build_isolated_argarray_add";
+  else
+    replace_var "SCRIPT_TEST_TYPE_CHECK_HELP"      "";
+    replace_var "SCRIPT_TEST_TYPE_CHECK_ARG"       "";
+    replace_var "SCRIPT_TEST_TYPE_CHECK_ARG_PARSE" "";
+    replace_var "SCRIPT_TEST_TYPE_CHECK_CODE"      "";
+    replace_var "REQUIREMENTS_TYPE_CHECK"          "";
   fi
 
   # Check usage of deployment script
@@ -354,6 +373,23 @@ function form_python_use_linter() {
   logI "Would you like to use a linter for static code analysis? (Y/n)";
   read_user_input_yes_no true;
   var_use_linter=$USER_INPUT_ENTERED_BOOL;
+}
+
+# [API function]
+# Prompts the user to enter whether he wants to use a type checker during the
+# project development.
+#
+# Globals:
+# FORM_QUESTION_ID    - python.use.typechecker
+# var_use_typechecker - A boolean flag indicating whether to use a type checker.
+#                       Is set by this function.
+#
+function form_python_use_type_checker() {
+  FORM_QUESTION_ID="python.use.typechecker";
+  logI "";
+  logI "Would you like to use a type checker for static code analysis? (Y/n)";
+  read_user_input_yes_no true;
+  var_use_typechecker=$USER_INPUT_ENTERED_BOOL;
 }
 
 # [API function]
