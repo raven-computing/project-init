@@ -712,7 +712,13 @@ function _show_notif_success_impl() {
 # 1 - If notification actions are not supported.
 #
 function _can_add_notif_actions() {
-  local version=$(notify-send --version |cut -d ' ' -f2);
+  local version;
+  version=$(notify-send --version |cut -d ' ' -f2);
+  if (( $? != 0 )); then
+    return 1;
+  fi
+  # The format is known to be e.g.: '0.1.2'
+  # shellcheck disable=SC2206
   version=(${version//./ });
   local major="${version[0]}";
   local minor="${version[1]}";
