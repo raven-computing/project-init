@@ -116,8 +116,7 @@ function process_files_lvl_1() {
     replace_var "SCRIPT_TEST_TYPE_CHECK_ARG_PARSE";
     replace_var "SCRIPT_TEST_TYPE_CHECK_CODE";
     replace_var "REQUIREMENTS_TYPE_CHECK";
-    replace_var "SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD" \
-                "$var_script_build_isolated_argarray_add";
+    replace_var "SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD" "$var_script_build_isolated_argarray_add";
   else
     replace_var "SCRIPT_TEST_TYPE_CHECK_HELP"      "";
     replace_var "SCRIPT_TEST_TYPE_CHECK_ARG"       "";
