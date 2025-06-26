@@ -154,7 +154,7 @@ function _validate_cpp_namespace() {
   # Check for expected pattern
   local re="^[a-zA-Z.]*$";
   if ! [[ ${input} =~ $re ]]; then
-    logI "Only lower-case a-z and '.' characters are allowed";
+    logI "Only the letters a-z (case insensitive) and '.' characters are allowed";
     return 1;
   fi
   if (( ${#input} == 1 )); then
