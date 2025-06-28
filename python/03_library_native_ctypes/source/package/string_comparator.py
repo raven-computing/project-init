@@ -9,11 +9,11 @@ from ctypes.util import find_library
 from ${{VAR_NAMESPACE_DECLARATION}}.comparator import Comparator
 
 
-def _load_native_library():
+def _load_native_library() -> ctypes.CDLL:
     """Loads the native library on which this module depends on.
 
     Returns:
-        The ctypes CDLL native library object.
+        CDLL: The ctypes CDLL native library object.
     """
     libname = "msvcrt" if sys.platform.lower().startswith("win") else "c"
     lib = find_library(libname)
@@ -80,5 +80,6 @@ class StringComparator(Comparator):
         _cfunc.restype = ctypes.c_int
         # Call C function and convert arguments to corresponding C types
         res = _cfunc(ctypes.c_char_p(arg1), ctypes.c_char_p(arg2))
-        # As the return type is a c_int, we get a Python int and return it as is
+        # As the return type is a c_int, we get a Python int
+        # and return it as is
         return res
