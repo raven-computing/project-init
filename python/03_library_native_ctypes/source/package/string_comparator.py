@@ -9,11 +9,11 @@ from ctypes.util import find_library
 from ${{VAR_NAMESPACE_DECLARATION}}.comparator import Comparator
 
 
-def _load_native_library():
+def _load_native_library() -> ctypes.CDLL:
     """Loads the native library on which this module depends on.
 
     Returns:
-        The ctypes CDLL native library object.
+        CDLL: The ctypes CDLL native library object.
     """
     libname = "msvcrt" if sys.platform.lower().startswith("win") else "c"
     lib = find_library(libname)
@@ -26,18 +26,18 @@ class StringComparator(Comparator):
 
     This implementation only supports comparing strings containing
     ASCII characters.
-    This class uses the native strcmp() C function for string comparisons.
+    This class uses the native `strcmp()` C function for string comparisons.
     """
 
     # Object representing the loaded native DLL/shared library
     _CDLL_LIB_C = _load_native_library()
 
-    def __init__(self, val="${{VAR_PROJECT_SLOGAN_STRING}}"):
-        """Constructs a new StringComparator object for comparing
+    def __init__(self, val: str = "${{VAR_PROJECT_SLOGAN_STRING}}"):
+        """Initializes a new StringComparator object for comparing
         strings with the specified string object.
 
         Args:
-            val: The str used for all comparisons. May not be None
+            val (str): The str used for all comparisons. May not be `None`.
         """
         if val is None:
             raise TypeError("Invalid argument. None is not allowed")
@@ -49,15 +49,15 @@ class StringComparator(Comparator):
         of this StringComparator.
 
         Args:
-            val: The string with which to compare, as a str.
+            val (str): The string with which to compare.
 
         Returns:
-            An int indicating the result of the comparison.
-            Returns 0 (zero) if both strings are equal.
-            Returns a negative int value if the set string is less than
-            the specified string.
-            Returns a positive int value if the set string is greater
-            than the specified string.
+            int: An int indicating the result of the comparison.
+                Returns 0 (zero) if both strings are equal.
+                Returns a negative int value if the set string is less than
+                the specified string.
+                Returns a positive int value if the set string is greater
+                than the specified string.
 
         Raises:
             ValueError: If either the internal or specified string
@@ -70,14 +70,7 @@ class StringComparator(Comparator):
         return self._compare_native_0(val)
 
     def _compare_native_0(self, val):
-        """Implementation of compare() method using native function calls.
-
-        Args:
-            val: The string with which to compare, as a str.
-
-        Returns:
-            An int indicating the result of the strcmp() comparison.
-        """
+        """Implementation of compare() method using native function calls."""
         # Convert str to bytes objects
         arg1 = str(self.val).encode(encoding="ascii")
         arg2 = str(val).encode(encoding="ascii")
@@ -87,5 +80,6 @@ class StringComparator(Comparator):
         _cfunc.restype = ctypes.c_int
         # Call C function and convert arguments to corresponding C types
         res = _cfunc(ctypes.c_char_p(arg1), ctypes.c_char_p(arg2))
-        # As the return type is a c_int, we get a Python int and return it as is
+        # As the return type is a c_int, we get a Python int
+        # and return it as is
         return res

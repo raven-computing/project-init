@@ -64,6 +64,8 @@ form_python_exec_script_name;
 
 form_python_use_linter;
 
+form_python_use_type_checker;
+
 form_python_pypi_deployment;
 
 form_docs_integration;

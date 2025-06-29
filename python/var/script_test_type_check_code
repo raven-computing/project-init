@@ -1,0 +1,11 @@
+
+# Check type checker flag
+if [[ $ARG_TYPE_CHECK == true ]]; then
+  if ! command -v "pyright" &> /dev/null; then
+    logE "Could not find requirement 'pyright'";
+    exit 1;
+  fi
+  logI "Performing static type checking";
+  pyright "${_PROJECT_SRC_PACKAGE_MAIN}";
+  exit $?;
+fi
