@@ -28,4 +28,6 @@ include(Dependencies.cmake)
 # Enable testing project-wide
 include(cmake/TestUtil.cmake)
 
+include(cmake/SanitizerUtil.cmake)
+
 add_subdirectory(src/main main)
