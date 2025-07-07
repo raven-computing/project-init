@@ -1,1 +1,1 @@
-${{INCLUDE:cpp/cmake/SanitizerUtil.cmake}}
+${{INCLUDE:c/cmake/SanitizerUtil.cmake}}
