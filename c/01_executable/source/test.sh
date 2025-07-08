@@ -89,6 +89,9 @@ if [ -f "CMakeCache.txt" ]; then
                          | cut  --delimiter='=' --fields=2)";
 fi
 
+# UB-Sanitizer options.
+export UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1";
+
 # Run tests with CTest
 ctest --output-on-failure --build-config "$BUILD_CONFIGURATION";
 exit $?;
