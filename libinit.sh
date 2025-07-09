@@ -6251,3 +6251,78 @@ function remove_file() {
   _file_cache_remove "$target_file";
   return 0;
 }
+
+# [API function]
+# Creates a subdirectory within the project target directory.
+#
+# The subdirectory is specified by the first argument. The path is interpreted as
+# relative to the project target directory. It may contain one or more
+# subdirectories hierarchically. Any nonexistent parent directories are
+# also implicitly created.
+#
+# When in regular (form-based) application mode, the project target directory must have
+# already been created by means of the project_init_copy() function before a directory
+# can be created.
+#
+# If the specified subdirectory structure already exists, then this function
+# has no effect.
+#
+# When in Quickstart mode, the project target directory is the underlying Quickstart
+# current working directory, i.e. where the Quickstart was initiated.
+#
+# Since:
+# 1.9.0
+#
+# Args:
+# $1 - The relative path of the subdirectory to create in the project target directory.
+#      The path must not be absolute. This is a mandatory argument.
+#
+# Returns:
+# 0 - If the create operation was successful.
+# 1 - If the create operation has failed.
+#
+# Examples:
+# create_directory "data";
+# create_directory "src/main/my_new_dir";
+#
+function create_directory() {
+  local arg_dir_path="$1";
+  _require_arg "$arg_dir_path" "No path argument specified";
+  if _is_absolute_path "$arg_dir_path"; then
+    _fail_illegal_call "The path argument must not be absolute";
+  fi
+  local file_path="";
+  if [[ $PROJECT_INIT_QUICKSTART_REQUESTED == true ]]; then
+    file_path="${_PROJECT_INIT_QUICKSTART_OUTPUT_DIR}/${arg_dir_path}";
+    if [ -e "$file_path" ]; then
+      if ! _array_contains "$file_path" "${CACHE_ALL_FILES[@]}"; then
+        _make_func_hl "create_directory";
+        logW "Cannot create directory at '${arg_dir_path}'";
+        logW "A file at that location already exists";
+        _cancel_quickstart $EXIT_FAILURE;
+      fi
+    fi
+  else
+    _ensure_project_files_copied;
+    file_path="${var_project_dir}/${arg_dir_path}";
+  fi
+  local add_file_to_cache=false;
+  if ! [ -e "$file_path" ]; then
+    add_file_to_cache=true;
+  else
+    if ! [ -d "$file_path" ]; then
+      logW "Cannot create directory at '${arg_dir_path}'";
+      logW "A file at that location already exists but is not a directory";
+      _cancel_quickstart $EXIT_FAILURE;
+      return 1;
+    fi
+  fi
+  if ! mkdir -p "$file_path"; then
+    logE "Failed to create directory or one of its parents: '${arg_dir_path}'";
+    return 1;
+  fi
+  if [[ $add_file_to_cache == true ]]; then
+    _file_cache_add "$file_path";
+  fi
+  return 0;
+}
