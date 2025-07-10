@@ -367,6 +367,13 @@ HYPERLINK_VALUE="";
 VAR_FILE_VALUE="";
 
 # [API Global]
+# The application name to display to the user. This is shown, for example,
+# in desktop notifications. A different value may be set by addons.
+# Since:
+# 1.9.0
+PROJECT_INIT_APPLICATION_NAME="Project Init";
+
+# [API Global]
 # The message to show when a project is successfully initialized.
 # This text is shown in the terminal and in the desktop notification.
 # A new value can be set to this variable to change the success message.
@@ -759,38 +766,93 @@ function _ensure_project_files_copied() {
   fi
 }
 
+# Invokes notify-send to show a desktop notification.
+#
+# This implementation function also handles the optional notification actions.
+#
+# Args:
+# $@ - All arguments to be passed to notify-send.
+#
+function _show_notif_success_impl() {
+  local act;
+  act=$(notify-send "$@");
+  if [[ "$act" == "Open" ]]; then
+    nautilus --new-window "${var_project_dir}" &> /dev/null;
+  elif [[ "$act" == "Term" ]]; then
+    gnome-terminal --window \
+                   --working-directory="${var_project_dir}" &> /dev/null;
+  fi
+}
+
+# Checks if the installed version of notify-send supports notification actions.
+# Notification actions are supported in notify-send version 0.7.10 and above.
+#
+# Returns:
+# 0 - If notification actions are supported.
+# 1 - If notification actions are not supported.
+#
+function _can_add_notif_actions() {
+  local version;
+  version=$(notify-send --version |cut -d ' ' -f2);
+  if (( $? != 0 )); then
+    return 1;
+  fi
+  # The format is known to be e.g.: '0.1.2'
+  # shellcheck disable=SC2206
+  version=(${version//./ });
+  local major="${version[0]}";
+  local minor="${version[1]}";
+  local patch="${version[2]}";
+  if (( major == 0 )); then
+    if (( minor < 7 )); then
+      return 1;
+    fi
+    if (( minor == 7 )); then
+      if (( patch < 10 )); then
+        return 1;
+      fi
+    fi
+  fi
+  return 0;
+}
+
 # Shows a system notification indicating a successful operation.
 #
-# This function will try to display a desktop notification if
-# the notify-send command is available. It returns exit status 1
-# if the notify-send command is not available, otherwise it returns
-# the exit status of notify-send.
+# This function will try to display a desktop notification if the
+# notify-send command is available. It returns exit status 1 if
+# the notify-send command is not available, otherwise it returns 0 (zero).
 #
 function _show_notif_success() {
   if _command_dependency "notify-send"; then
+    local notif_args=();
     local _project_name="New Project";
     if [ -n "$var_project_name" ]; then
       _project_name="$var_project_name";
     fi
-    local _has_icon=false;
     if [ -n "${_STR_NOTIF_SUCCESS_ICON}" ]; then
       if [ -r "${_STR_NOTIF_SUCCESS_ICON}" ]; then
-        _has_icon=true;
+        notif_args+=("--icon");
+        notif_args+=("${_STR_NOTIF_SUCCESS_ICON}");
       fi
     fi
-    if [[ ${_has_icon} == true ]]; then
-      notify-send -i "${_STR_NOTIF_SUCCESS_ICON}"  \
-                  -t ${_INT_NOTIF_SUCCESS_TIMEOUT} \
-                  --app-name "Project Init"        \
-                  "${_project_name}"               \
-                  "${PROJECT_INIT_SUCCESS_MESSAGE}";
-    else
-      notify-send -t ${_INT_NOTIF_SUCCESS_TIMEOUT} \
-                  --app-name "Project Init"        \
-                  "${_project_name}"               \
-                  "${PROJECT_INIT_SUCCESS_MESSAGE}";
+    notif_args+=("--expire-time");
+    notif_args+=("${_INT_NOTIF_SUCCESS_TIMEOUT}");
+    notif_args+=("--app-name");
+    notif_args+=("$PROJECT_INIT_APPLICATION_NAME");
+    if _can_add_notif_actions; then
+      if _command_dependency "nautilus"; then
+        notif_args+=("--action");
+        notif_args+=("Open=Show Files");
+      fi
+      if _command_dependency "gnome-terminal"; then
+        notif_args+=("--action");
+        notif_args+=("Term=Open in Terminal");
+      fi
     fi
-    return $?;
+    notif_args+=("${_project_name}");
+    notif_args+=("${PROJECT_INIT_SUCCESS_MESSAGE}");
+    _show_notif_success_impl "${notif_args[@]}" &
+    return 0;
   fi
   return 1;
 }
