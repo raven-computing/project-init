@@ -375,8 +375,11 @@ function form_python_use_linter() {
 }
 
 # [API function]
-# Prompts the user to enter whether he wants to use a type checker during the
-# project development.
+# Prompts the user to enter whether he wants to use a type checker
+# during project development.
+#
+# Since:
+# 1.9.0
 #
 # Globals:
 # FORM_QUESTION_ID    - python.use.typechecker
