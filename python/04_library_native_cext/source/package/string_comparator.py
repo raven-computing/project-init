@@ -2,7 +2,7 @@ ${{VAR_COPYRIGHT_HEADER}}
 """Implementation of the Comparator ABC using strings."""
 
 try:
-    import ${{VAR_NAMESPACE_DECLARATION}}._string_comparator as internal_impl
+    import ${{VAR_NAMESPACE_DECLARATION}}._string_comparator as internal_impl # pyright: ignore [reportMissingImports]
 except ModuleNotFoundError:
     raise ImportError("C extension module must be compiled") from None
 

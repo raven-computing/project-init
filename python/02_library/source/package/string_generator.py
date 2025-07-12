@@ -11,11 +11,6 @@ class StringGenerator(Generator):
         super().__init__("${{VAR_PROJECT_SLOGAN_STRING}}")
 
     def generate(self):
-        """Generates a dummy String of this StringGenerator.
-
-        Returns:
-            A String object of this Generator
-        """
         index = self.index
         self.index += 1
-        return self.val + " " + str(index)
+        return f"{self.basis} {index}"

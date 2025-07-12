@@ -8,19 +8,18 @@ class Generator(ABC):
     """Dummy abstract base class.
 
     Attributes:
-        val (any): The base value used by the Generator.
+        basis (str): The base value used by the Generator.
         index (int): The index used by the Generator.
     """
 
-    def __init__(self, val):
-        self.val = val
-        self.index = 0
+    def __init__(self, basis: str):
+        self.basis: str = basis
+        self.index: int = 0
 
     @abstractmethod
-    def generate(self):
-        """Generates an object of the Generator.
+    def generate(self) -> str:
+        """Generates a dummy string of this Generator.
 
         Returns:
-            any: An object of the Generator
+            str: A dummy string of the Generator
         """
-        pass

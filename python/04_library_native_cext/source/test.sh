@@ -14,6 +14,7 @@ ${{VAR_SCRIPT_TEST_ISOLATED_OPT}}
 ${{VAR_SCRIPT_TEST_LINT_HELP}}
 
   [--no-virtualenv] Do not use a virtual environment for the tests.
+${{VAR_SCRIPT_TEST_TYPE_CHECK_HELP}}
 
   [-?|--help]       Show this help message.
 EOS
@@ -23,6 +24,7 @@ EOS
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGFLAG}}
 ${{VAR_SCRIPT_TEST_LINT_ARG}}
 ARG_NO_VIRTUALENV=false;
+${{VAR_SCRIPT_TEST_TYPE_CHECK_ARG}}
 ARG_SHOW_HELP=false;
 
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY}}
@@ -36,6 +38,7 @@ ${{VAR_SCRIPT_TEST_LINT_ARG_PARSE}}
     ARG_NO_VIRTUALENV=true;
     shift
     ;;
+${{VAR_SCRIPT_TEST_TYPE_CHECK_ARG_PARSE}}
     -\?|--help)
     ARG_SHOW_HELP=true;
     shift
@@ -73,6 +76,7 @@ if [[ $ARG_NO_VIRTUALENV == false ]]; then
 fi
 
 ${{VAR_SCRIPT_TEST_LINT_CODE}}
+${{VAR_SCRIPT_TEST_TYPE_CHECK_CODE}}
 
 logI "Building tests";
 ${_PYTHON_EXEC} setup.py build;

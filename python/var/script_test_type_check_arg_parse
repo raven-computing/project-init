@@ -1,0 +1,5 @@
+    -t|--types)
+    ARG_TYPE_CHECK=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;

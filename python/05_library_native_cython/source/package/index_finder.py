@@ -2,7 +2,7 @@ ${{VAR_COPYRIGHT_HEADER}}
 """Implementation of the Finder ABC using strings."""
 
 try:
-    import ${{VAR_NAMESPACE_DECLARATION}}._index_finder as internal_impl
+    import ${{VAR_NAMESPACE_DECLARATION}}._index_finder as internal_impl # pyright: ignore [reportMissingImports]
 except ModuleNotFoundError:
     raise ImportError("C extension module must be compiled with Cython") from None
 
