@@ -14,7 +14,7 @@
 
 #==============================================================================
 #
-# Contains a function for adding compile and link options to targets in
+# Contains a function for adding compiler and linker options to targets in
 # CMake-based projects to add support for sanitizers, for example address
 # and memory leak sanitizers.
 # The minimum CMake version required by this code is v3.14.
@@ -31,9 +31,6 @@
 #   target_name:
 #       The name of the target to which sanitizers will be added.
 #       This argument is mandatory.
-#
-# Usage:
-#   add_sanitizers(<target_name>)
 #
 # Example:
 #   add_sanitizers(mytarget)
