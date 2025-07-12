@@ -5,3 +5,30 @@ requires = [
 ]
 
 build-backend = "setuptools.build_meta"
+
+[tool.coverage.run]
+branch = true
+data_file = "build/coverage"
+parallel = true
+omit = [
+    "setup.py",
+    "tests/*",
+]
+
+[tool.coverage.report]
+# Regexes for lines to exclude from consideration
+exclude_also = [
+    # Don't complain about missing debug-only code:
+    "def __repr__",
+    "if self\\.debug",
+
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+
+    # Don't complain about abstract methods, they aren't run:
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.coverage.html]
+directory = "build/coverage_html_report"
