@@ -138,11 +138,6 @@ if (( $? != 0 )); then
   exit 1;
 fi
 
-# We want to run our tests like if we had pure Python modules,
-# so we get the exact same environment conditions during the tests
-# compared to when the project is installed.
-cd "$build_tests_dir";
-
 TEST_RUNNER_EXEC="${_PYTHON_EXEC}";
 if [[ $ARG_COVERAGE == true ]]; then
   if ! command -v "coverage" &> /dev/null; then
@@ -150,7 +145,13 @@ if [[ $ARG_COVERAGE == true ]]; then
     exit 1;
   fi
   TEST_RUNNER_EXEC="coverage run";
+  export COVERAGE_RCFILE="${PWD}/pyproject.toml";
 fi
+
+# We want to run our tests like if we had pure Python modules,
+# so we get the exact same environment conditions during the tests
+# compared to when the project is installed.
+cd "$build_tests_dir";
 
 logI "Running unit tests";
 ${TEST_RUNNER_EXEC} -m unittest;
@@ -159,9 +160,11 @@ if (( $? != 0 )); then
   exit 1;
 fi
 
+cd "../../";
+
 if [[ $ARG_COVERAGE == true ]]; then
   logI "Combining coverage data";
-  if ! coverage combine build/; then
+  if ! coverage combine "${build_tests_dir}/build/"; then
     logE "Failed to combine test coverage data";
     exit 1;
   fi
