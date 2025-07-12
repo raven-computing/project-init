@@ -18,10 +18,7 @@ target_include_directories(
 )
 
 if(${{VAR_PROJECT_NAME_UPPER}}_USE_SANITIZERS)
-    add_sanitizers(
-        ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE}
-        address leak undefined
-    )
+    add_sanitizers(${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE})
 endif()
 
 #==================================[ TARGET ]==================================

@@ -56,10 +56,7 @@ generate_export_header(
 )
 
 if(${{VAR_PROJECT_NAME_UPPER}}_USE_SANITIZERS)
-    add_sanitizers(
-        ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_LIB_MAIN}
-        address leak undefined
-    )
+    add_sanitizers(${${{VAR_PROJECT_NAME_UPPER}}_TARGET_LIB_MAIN})
 endif()
 
 #===================================[ TESTS ]==================================
