@@ -10,6 +10,8 @@ ${USAGE}
 
 Options:
 
+  [--coverage]      Measure and report code coverage metrics for the test runs.
+
   [--interactive]   [args]
                     Starts an Odoo instance for interactive testing.
                     All optional arguments from [args] are passed to the Odoo executable as is.
@@ -24,6 +26,7 @@ EOS
 )
 
 # Arg flags
+ARG_COVERAGE=false;
 ARG_INTERACTIVE=false;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGFLAG}}
 ARG_NO_VIRTUALENV=false;
@@ -41,6 +44,11 @@ ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     continue;
   fi
   case $arg in
+    --coverage)
+    ARG_COVERAGE=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;
     --interactive)
     ARG_INTERACTIVE=true;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
@@ -87,6 +95,11 @@ if [[ $ARG_NO_VIRTUALENV == false ]]; then
   fi
 fi
 
+if [[ $ARG_INTERACTIVE == true && $ARG_COVERAGE == true ]]; then
+  logW "Cannot measure test coverage when testing interactively";
+  ARG_COVERAGE=false;
+fi
+
 if [[ $ARG_INTERACTIVE == true ]]; then
   if ! command -v "odoo" &> /dev/null; then
     logE "Could not find the 'odoo' executable.";
@@ -98,14 +111,37 @@ ${{VAR_SCRIPT_TEST_ISOLATED_HINT1}}
   exit $?;
 fi
 
+TEST_RUNNER_EXEC="${_PYTHON_EXEC}";
+if [[ $ARG_COVERAGE == true ]]; then
+  if ! command -v "coverage" &> /dev/null; then
+    logE "Could not find requirement 'coverage'";
+    exit 1;
+  fi
+  TEST_RUNNER_EXEC="coverage run";
+fi
+
 find_odoo_modules;
 for odoo_module in ${ODOO_MODULES[@]}; do
   logI "Running unit tests for module '$odoo_module'";
-  ${_PYTHON_EXEC} -m unittest discover --start-directory $odoo_module/tests;
+  ${TEST_RUNNER_EXEC} -m unittest discover --start-directory $odoo_module/tests;
   if (( $? != 0 )); then
     logE "Tests have failed for module '$odoo_module'";
     exit 1;
   fi
 done
+
+if [[ $ARG_COVERAGE == true ]]; then
+  logI "Combining coverage data";
+  if ! coverage combine build/; then
+    logE "Failed to combine test coverage data";
+    exit 1;
+  fi
+  logI "Generating test coverage report";
+  if ! coverage html --title="${{VAR_PROJECT_NAME}} Test Coverage"; then
+    logE "Failed to generate test coverage report";
+    exit 1;
+  fi
+fi
+
 logI "All unit tests have passed";
 exit 0;

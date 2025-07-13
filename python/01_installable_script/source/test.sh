@@ -9,6 +9,8 @@ Tests the ${{VAR_PROJECT_NAME}} program.
 ${USAGE}
 
 Options:
+
+  [--coverage]      Measure and report code coverage metrics for the test runs.
 ${{VAR_SCRIPT_TEST_ISOLATED_OPT}}
 ${{VAR_SCRIPT_TEST_LINT_HELP}}
 
@@ -20,6 +22,7 @@ EOS
 )
 
 # Arg flags
+ARG_COVERAGE=false;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGFLAG}}
 ${{VAR_SCRIPT_TEST_LINT_ARG}}
 ARG_NO_VIRTUALENV=false;
@@ -31,6 +34,11 @@ ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY}}
 # Parse all arguments given to this script
 for arg in "$@"; do
   case $arg in
+    --coverage)
+    ARG_COVERAGE=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGPARSE}}
 ${{VAR_SCRIPT_TEST_LINT_ARG_PARSE}}
     --no-virtualenv)
@@ -77,10 +85,34 @@ fi
 ${{VAR_SCRIPT_TEST_LINT_CODE}}
 ${{VAR_SCRIPT_TEST_TYPE_CHECK_CODE}}
 
+TEST_RUNNER_EXEC="${_PYTHON_EXEC}";
+if [[ $ARG_COVERAGE == true ]]; then
+  if ! command -v "coverage" &> /dev/null; then
+    logE "Could not find requirement 'coverage'";
+    exit 1;
+  fi
+  TEST_RUNNER_EXEC="coverage run";
+fi
+
 logI "Running unit tests";
-${_PYTHON_EXEC} -m unittest;
+${TEST_RUNNER_EXEC} -m unittest;
 if (( $? != 0 )); then
   logE "Tests have failed";
   exit 1;
 fi
+
+if [[ $ARG_COVERAGE == true ]]; then
+  logI "Combining coverage data";
+  if ! coverage combine build/; then
+    logE "Failed to combine test coverage data";
+    exit 1;
+  fi
+  logI "Generating test coverage report";
+  if ! coverage html --title="${{VAR_PROJECT_NAME}} Test Coverage"; then
+    logE "Failed to generate test coverage report";
+    exit 1;
+  fi
+fi
+
 logI "All unit tests have passed";
+exit 0;

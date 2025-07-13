@@ -1,6 +1,7 @@
 build==1.2.2
 setuptools==80.9.0
 wheel==0.45.1
+coverage==7.9.2
 ${{VAR_REQUIREMENTS_LINT}}
 ${{VAR_REQUIREMENTS_TYPE_CHECK}}
 ${{VAR_REQUIREMENTS_DEPLOY}}
