@@ -87,6 +87,9 @@ fi
 # in a terminal, we explicitly activate colourful output.
 export GTEST_COLOR=1;
 
+# UB-Sanitizer options.
+export UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1";
+
 # Run tests with CTest
 ctest --output-on-failure --build-config "$BUILD_CONFIGURATION";
 exit $?;

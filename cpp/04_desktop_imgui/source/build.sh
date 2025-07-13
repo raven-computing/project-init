@@ -19,6 +19,8 @@ Options:
                   optimizations turned off.
 ${{VAR_SCRIPT_BUILD_DOCS_OPT}}
 
+  [--sanitizers]  Use sanitizers when building and running.
+
   [--skip-config] Skip the build configuration step. If the build tree does not
                   exist yet, then this option has no effect and the build
                   configuration step is executed.
@@ -34,6 +36,7 @@ ARG_CLEAN=false;
 ARG_CONFIG=false;
 ARG_DEBUG=false;
 ${{VAR_SCRIPT_BUILD_DOCS_ARGFLAG}}
+ARG_SANITIZERS=false;
 ARG_SKIP_CONFIG=false;
 ARG_SKIP_TESTS=false;
 ARG_SHOW_HELP=false;
@@ -54,6 +57,11 @@ for arg in "$@"; do
     shift
     ;;
 ${{VAR_SCRIPT_BUILD_DOCS_ARGPARSE}}
+    --sanitizers)
+    ARG_SANITIZERS=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;
     --skip-config)
     ARG_SKIP_CONFIG=true;
     shift
@@ -118,15 +126,20 @@ if [[ $ARG_DEBUG == true ]]; then
 fi
 
 BUILD_TESTS="ON";
+BUILD_WITH_SANITIZERS="OFF";
 
 if [[ $ARG_SKIP_TESTS == true ]]; then
   BUILD_TESTS="OFF";
+fi
+if [[ $ARG_SANITIZERS == true ]]; then
+  BUILD_WITH_SANITIZERS="ON";
 fi
 
 # CMake: Configure
 if [[ $ARG_SKIP_CONFIG == false ]]; then
   cmake -DCMAKE_BUILD_TYPE="$BUILD_CONFIGURATION" \
-        -D${{VAR_PROJECT_NAME_UPPER}}_BUILD_TESTS="$BUILD_TESTS" ..;
+        -D${{VAR_PROJECT_NAME_UPPER}}_BUILD_TESTS="$BUILD_TESTS" \
+        -D${{VAR_PROJECT_NAME_UPPER}}_USE_SANITIZERS="$BUILD_WITH_SANITIZERS" ..;
 
   config_status=$?;
   if (( config_status != 0 )); then
