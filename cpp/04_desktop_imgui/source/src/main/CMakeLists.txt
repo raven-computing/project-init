@@ -47,6 +47,10 @@ target_link_libraries(
     ${${{VAR_PROJECT_NAME_UPPER}}_PLATFORM_LINK_LIBRARIES}
 )
 
+if(${{VAR_PROJECT_NAME_UPPER}}_USE_SANITIZERS)
+    add_sanitizers(${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE})
+endif()
+
 #==================================[ TARGET ]==================================
 # Application ${{VAR_PROJECT_NAME}} main executable
 
