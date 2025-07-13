@@ -1,11 +1,11 @@
 #!/bin/bash
-# Deploy script for the ${{VAR_PROJECT_NAME}} library.
-# This will deploy the source and binary distributions to PyPI.
+# Release script for the ${{VAR_PROJECT_NAME}} library.
+# This will release the source and binary distributions to PyPI.
 
-USAGE="Usage: deploy.sh [options]";
+USAGE="Usage: release.sh [options]";
 
 HELP_TEXT=$(cat << EOS
-Deploys the ${{VAR_PROJECT_NAME}} library.
+Releases the ${{VAR_PROJECT_NAME}} library.
 
 ${USAGE}
 
@@ -38,7 +38,7 @@ for arg in "$@"; do
     echo "Unknown argument: '$arg'";
     echo "$USAGE";
     echo "";
-    echo "Run 'deploy.sh --help' for more information";
+    echo "Run 'release.sh --help' for more information";
     exit 1;
     ;;
   esac

@@ -49,7 +49,7 @@ function test_functionality_result() {
   local not_files=();
   not_files+=("LICENSE");
   not_files+=("pylintrc");
-  not_files+=("deploy.sh");
+  not_files+=("release.sh");
 
   local dirs=();
   dirs+=("raven");

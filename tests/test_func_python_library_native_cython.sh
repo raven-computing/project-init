@@ -51,7 +51,7 @@ function test_functionality_result() {
   files+=("docs/index.md");
 
   local not_files=();
-  not_files+=("deploy.sh");
+  not_files+=("release.sh");
 
   local dirs=();
   dirs+=("raven");

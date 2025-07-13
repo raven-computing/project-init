@@ -50,8 +50,6 @@
 #                      use the linter
 # VAR_REQUIREMENTS_DEPLOY: The requirements.txt item for the
 #                          deployment dependency
-# VAR_README_DEV_DEPLOY: The Readme text block for informing about how to
-#                        deploy the library to PyPI or other system
 
 
 function process_files_lvl_1() {
@@ -128,12 +126,10 @@ function process_files_lvl_1() {
   # Check usage of deployment script
   if [[ $var_use_deploy == true ]]; then
     replace_var "REQUIREMENTS_DEPLOY";
-    replace_var "README_DEV_DEPLOY";
   else
     replace_var "REQUIREMENTS_DEPLOY" "";
-    replace_var "README_DEV_DEPLOY"   "";
-    if file_exists "deploy.sh"; then
-      remove_file "deploy.sh";
+    if file_exists "release.sh"; then
+      remove_file "release.sh";
     fi
   fi
 
@@ -395,17 +391,18 @@ function form_python_use_type_checker() {
 }
 
 # [API function]
-# Prompts the user to enter whether he wants to deploy the project to PyPI.
+# Prompts the user to enter whether he wants to deploy the project through PyPI.
 #
 # Globals:
 # FORM_QUESTION_ID - python.pypi.deployment
-# var_use_deploy   - A boolean flag indicating whether to deploy project
-#                    artifacts to PyPI. Is set by this function.
+# var_use_deploy   - A boolean flag indicating whether to release project
+#                    artifacts to PyPI so that they can be deployed via PIP.
+#                    Is set by this function.
 #
 function form_python_pypi_deployment() {
   FORM_QUESTION_ID="python.pypi.deployment";
   logI "";
-  logI "Would you like to be able to deploy the build artifacts to PyPI? (y/N)";
+  logI "Would you like to be able to release the build artifacts to PyPI? (y/N)";
   read_user_input_yes_no false;
   var_use_deploy=$USER_INPUT_ENTERED_BOOL;
 }

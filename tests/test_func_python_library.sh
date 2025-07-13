@@ -34,7 +34,7 @@ function test_functionality_result() {
   files+=("setup.sh");
   files+=("setup.py");
   files+=("pyproject.toml");
-  files+=("deploy.sh");
+  files+=("release.sh");
   files+=("requirements.txt");
   files+=("pylintrc");
   files+=("raven/mylib/generator.py");

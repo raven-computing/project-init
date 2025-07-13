@@ -47,7 +47,6 @@ Execute all unit tests by running the ```test.sh``` script:
 ./test.sh
 ```
 ${{VAR_README_DEV_LINT}}
-${{VAR_README_DEV_DEPLOY}}
 
 
 ## License
