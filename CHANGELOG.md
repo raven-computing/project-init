@@ -1,3 +1,15 @@
+#### 1.9.0
+* Added the create_directory() API function. [[Issue#94]](https://github.com/raven-computing/project-init/issues/94)
+* Added actions to desktop notifications. [[Issue#83]](https://github.com/raven-computing/project-init/issues/83)
+* Added option to use type checkers in Python projects. [[Issue#98]](https://github.com/raven-computing/project-init/issues/98)
+* Added support for test coverage measurements in Python projects. [[Issue#102]](https://github.com/raven-computing/project-init/issues/102)
+* Added standard support for sanitizers in C and C++ projects. [[Issue#100]](https://github.com/raven-computing/project-init/issues/100)
+* Added the PROJECT_INIT_APPLICATION_NAME API global.
+* Changed C++ namespace validation to allow upper-case chars in namespaces.
+* Improved code formatting.
+* Improved project source templates.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.8.3...v1.9.0)
+
 #### 1.8.3
 * Deprecated the VAR_LICENSE_CLASSIFIER_SETUP_PY substitution variable.
 * Improved code formatting.
