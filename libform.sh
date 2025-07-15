@@ -193,9 +193,9 @@ function project_init_show_main_form() {
         local hint_prop_key="${COLOR_CYAN}project.license=ask${COLOR_NC}";
         local hint_prop_file="${COLOR_CYAN}project.properties${COLOR_NC}";
         failure \
-          "You have specified that new projects should use the license '$var_project_license'," \
-          "however, this license is not available. Either specify a valid license name"         \
-          "or set ${hint_prop_key} in your ${hint_prop_file} file to be able to select "        \
+          "You have specified that new projects should use the license '${var_project_license}'," \
+          "however, this license is not available. Either specify a valid license name"           \
+          "or set ${hint_prop_key} in your ${hint_prop_file} file to be able to select "          \
           "an available license from a list.";
       fi
     fi
