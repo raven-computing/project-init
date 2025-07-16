@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -62,6 +62,7 @@ function form_nodejs_version() {
 add_lang_version "18" "Node.js 18";
 add_lang_version "20" "Node.js 20";
 add_lang_version "22" "Node.js 22";
+add_lang_version "24" "Node.js 24";
 
 # Let the user choose a JavaScript project type
 select_project_type "js" "JavaScript";
