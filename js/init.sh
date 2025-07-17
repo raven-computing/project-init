@@ -59,7 +59,6 @@ function form_nodejs_version() {
 
 # Specify supported versions for Node.js
 # We use the standard API for language version specification for now
-add_lang_version "18" "Node.js 18";
 add_lang_version "20" "Node.js 20";
 add_lang_version "22" "Node.js 22";
 add_lang_version "24" "Node.js 24";
