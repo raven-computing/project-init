@@ -339,9 +339,10 @@ function project_init_show_main_form() {
   local total_number_of_langs=${#project_lang_dirs[@]};
   if (( total_number_of_langs == 0 )); then
     logE "Cannot prompt for language selection. No options available";
-    failure "You have disabled all base language selection options "          \
-            "but not provided a language via addons. Please either enable or" \
-            "provide at least one language for project initialization";
+    failure "You have disabled all base language selection options"         \
+            "but not provided any programming language support via addons." \
+            "Please either enable or provide at least one programming"      \
+            "language for project initialization.";
   fi
 
   # To differentiate between whether a base lang or a lang provided by an addon
