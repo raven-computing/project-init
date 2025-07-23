@@ -271,7 +271,7 @@ function project_init_show_main_form() {
   # Check whether the project directory already
   # exists and is not empty
   if [ -d "$var_project_dir" ]; then
-    if [ -n "$(ls $var_project_dir)" ]; then
+    if [ -n "$(ls "$var_project_dir")" ]; then
       _FLAG_PROJECT_DIR_POLLUTED=true;
       logW "Project directory is not empty. Files may get replaced";
     fi
