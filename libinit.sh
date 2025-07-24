@@ -5822,7 +5822,7 @@ function proceed_next_level() {
     for dir in "${CURRENT_LVL_PATH}"/*; do
       if [ -d "$dir" ]; then
         if [ -f "${dir}/init.sh" ]; then
-          dir_next="$(basename $dir)";
+          dir_next="$(basename "$dir")";
           logW "No next init directory specified in current" \
                "init level $CURRENT_LVL_NUMBER";
           logW "at '${CURRENT_LVL_PATH}'";
