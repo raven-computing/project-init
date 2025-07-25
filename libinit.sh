@@ -5681,7 +5681,7 @@ function select_project_type() {
       for dir in "${CURRENT_LVL_PATH}"/*; do
         if [ -d "$dir" ]; then
           if [ -n "$PROJECT_INIT_ADDONS_DIR" ]; then
-            ptype_id="$(basename $dir)";
+            ptype_id="$(basename "$dir")";
             if [ -f "${PROJECT_INIT_ADDONS_DIR}/${lang_id}/${ptype_id}/DISABLE" ]; then
               continue;
             fi
