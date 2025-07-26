@@ -3137,7 +3137,7 @@ function project_init_copy() {
     failure "Project source template directory not found";
   fi
   # Check that the source directory is not empty
-  if [ -z "$(ls $files_source)" ]; then
+  if [ -z "$(ls "$files_source")" ]; then
     logE "Project source template directory is empty:";
     logE "at: '$files_source'";
     failure "Cannot initialize new project." \
