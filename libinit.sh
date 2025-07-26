@@ -3139,7 +3139,7 @@ function project_init_copy() {
   # Check that the source directory is not empty
   if [ -z "$(ls "$files_source")" ]; then
     logE "Project source template directory is empty:";
-    logE "at: '$files_source'";
+    logE "at: '${files_source}'";
     failure "Cannot initialize new project." \
             "Project source template directory must not be empty";
   fi
@@ -3163,10 +3163,10 @@ function project_init_copy() {
   logI "Initializing project ${COLOR_CYAN}${var_project_name}${COLOR_NC}";
   # Copy all template souce files to the target dir.
   # Include hidden files
-  cp -R "$files_source/." "$var_project_dir/";
+  cp -R "${files_source}/." "${var_project_dir}/";
   if (( $? != 0 )); then
     logE "Failed to initialize the project in target directory:";
-    logE "at: '$var_project_dir'";
+    logE "at: '${var_project_dir}'";
     failure "Failed to copy project source files to the target project location";
   fi
   readonly PROJECT_INIT_USED_SOURCE="$files_source";
