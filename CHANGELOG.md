@@ -1,3 +1,12 @@
+#### 1.9.1
+* Added support for Node.js 24.
+* Added check for the value of the PROJECT_INIT_ADDONS_RES_BRANCH environment variable, disallow unwanted chars.
+* Improved stability by preventing word splitting of various path variables.
+* Improved formatting.
+* Removed support for Node.js 18.
+* Updated C++ Desktop application project source template ImGui dependency version.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.9.0...v1.9.1)
+
 #### 1.9.0
 * Added the create_directory() API function. [[Issue#94]](https://github.com/raven-computing/project-init/issues/94)
 * Added actions to desktop notifications. [[Issue#83]](https://github.com/raven-computing/project-init/issues/83)
