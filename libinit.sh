@@ -1771,9 +1771,16 @@ function _load_addons_resource_git() {
     fi
     local branch="";
     local git_branch="";
+    local re="^[0-9a-zA-Z/_.-]+$";
     if [ -n "$PROJECT_INIT_ADDONS_RES_BRANCH" ]; then
       branch="$PROJECT_INIT_ADDONS_RES_BRANCH";
       git_branch="-b $branch";
+      if ! [[ "$branch" =~ $re ]]; then
+        logE "Invalid branch name";
+        failure "Cannot fetch Project Init addons resources due to an invalid branch specified " \
+                "by the PROJECT_INIT_ADDONS_RES_BRANCH environment variable. The branch name "   \
+                "contains invalid characters.";
+      fi
     fi
     echo -n "Loading addons...";
     git clone $git_branch --depth 1 "$git_res" "${RES_CACHE_LOCATION}/${addons_res_dir}" &> /dev/null;
