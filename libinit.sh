@@ -3127,13 +3127,13 @@ function project_init_copy() {
 
   # Set source directory if arg is not given
   if [ -z "$files_source" ]; then
-    files_source="$CURRENT_LVL_PATH/source";
+    files_source="${CURRENT_LVL_PATH}/source";
   fi
   # Check if source is directory
   if ! [ -d "$files_source" ]; then
     logE "Project source template directory does not exist" \
          "or is not a directory:";
-    logE "at: '$files_source'";
+    logE "at: '${files_source}'";
     failure "Project source template directory not found";
   fi
   # Check that the source directory is not empty
