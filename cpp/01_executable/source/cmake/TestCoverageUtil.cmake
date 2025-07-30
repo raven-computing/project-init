@@ -1,0 +1,1 @@
+${{INCLUDE:c/cmake/TestCoverageUtil.cmake}}

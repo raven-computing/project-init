@@ -10,7 +10,7 @@ ${USAGE}
 
 Options:
 
-  [--coverage] Measure and report code coverage metrics for the test runs.
+  [--coverage] Report code coverage metrics for the test runs.
 ${{VAR_SCRIPT_TEST_ISOLATED_OPT}}
 
   [-?|--help]  Show this help message.
@@ -96,10 +96,13 @@ if [ -z "$(ls -A build)" ]; then
 fi
 
 COV_INCL_PATH="$PWD";
+BUILD_DIR_COV_DATA="cov";
+FILE_COV_DATA_MERGED="merged.info";
+BUILD_DIR_COV_REPORT="coverage_report";
 
 if [[ $ARG_COVERAGE == true ]]; then
   # Remove previously collected test coverage data
-  rm -rf "build/ccov/*.info" "build/coverage_report";
+  rm -rf "build/${BUILD_DIR_COV_DATA}" "build/${BUILD_DIR_COV_REPORT}";
   find . -name '*.gcda' -delete;
 fi
 
@@ -130,16 +133,17 @@ ctest_status=$?;
 if (( ctest_status == 0 )); then
   if [[ $ARG_COVERAGE == true ]]; then
     echo "Collecting coverage data";
-    if ! lcov --quiet --directory . --capture --include "${COV_INCL_PATH}"'/src/*' --output-file "ccov/merged.info"; then
+    mkdir "$BUILD_DIR_COV_DATA";
+    if ! lcov --quiet --directory . --capture --include "${COV_INCL_PATH}"'/src/*' --output-file "${BUILD_DIR_COV_DATA}/${FILE_COV_DATA_MERGED}"; then
       echo "Failed to collect test coverage data";
       exit 1;
     fi
     echo "Generating test coverage report";
-    if ! genhtml --quiet --output-directory "coverage_report" --prefix "$COV_INCL_PATH" --title "${{VAR_PROJECT_NAME}} Test Coverage" "ccov/merged.info"; then
+    if ! genhtml --quiet --output-directory "$BUILD_DIR_COV_REPORT" --prefix "$COV_INCL_PATH" --title "${{VAR_PROJECT_NAME}} Test Coverage" "${BUILD_DIR_COV_DATA}/${FILE_COV_DATA_MERGED}"; then
       echo "Failed to generate test coverage report";
       exit 1;
     fi
-    report_label="build/coverage_report/index.html";
+    report_label="build/${BUILD_DIR_COV_REPORT}/index.html";
     report_url="file://${COV_INCL_PATH}/${report_label}";
     report_link="\e]8;;${report_url}\e\\\\${report_label}\e]8;;\e\\\\";
     echo -e "Wrote HTML report to $report_link";
