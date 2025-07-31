@@ -157,6 +157,9 @@ if [[ $ARG_SANITIZERS == true ]]; then
 fi
 if [[ $ARG_COVERAGE == true ]]; then
   BUILD_WITH_COVERAGE="ON";
+  if [[ $ARG_SKIP_TESTS == true ]]; then
+    echo "Warning: Unable to automatically generate test coverage reports when not building tests";
+  fi
 fi
 
 # CMake: Configure
