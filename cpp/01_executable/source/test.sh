@@ -134,12 +134,19 @@ if (( ctest_status == 0 )); then
   if [[ $ARG_COVERAGE == true ]]; then
     echo "Collecting coverage data";
     mkdir "$BUILD_DIR_COV_DATA";
-    if ! lcov --quiet --directory . --capture --include "${COV_INCL_PATH}"'/src/*' --output-file "${BUILD_DIR_COV_DATA}/${FILE_COV_DATA_MERGED}"; then
+    if ! lcov --quiet --directory . --capture \
+              --include "${COV_INCL_PATH}"'/src/*' \
+              --output-file "${BUILD_DIR_COV_DATA}/${FILE_COV_DATA_MERGED}"; then
       echo "Failed to collect test coverage data";
       exit 1;
     fi
     echo "Generating test coverage report";
-    if ! genhtml --quiet --output-directory "$BUILD_DIR_COV_REPORT" --prefix "$COV_INCL_PATH" --title "${{VAR_PROJECT_NAME}} Test Coverage" "${BUILD_DIR_COV_DATA}/${FILE_COV_DATA_MERGED}"; then
+    if ! genhtml --quiet --output-directory "$BUILD_DIR_COV_REPORT" \
+                 --prefix "$COV_INCL_PATH" \
+                 --title "${{VAR_PROJECT_NAME}} Test Coverage" \
+                 --header-title "${{VAR_PROJECT_NAME}} Test Coverage" \
+                 --footer "Copyright © ${{VAR_COPYRIGHT_YEAR}} ${{VAR_PROJECT_ORGANISATION_NAME}}" \
+                 "${BUILD_DIR_COV_DATA}/${FILE_COV_DATA_MERGED}"; then
       echo "Failed to generate test coverage report";
       exit 1;
     fi
