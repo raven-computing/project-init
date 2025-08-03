@@ -36,6 +36,27 @@
 #   add_code_coverage(mytarget)
 #
 function(add_code_coverage target_name)
+    if(WIN32 AND CMAKE_GENERATOR MATCHES "^Visual Studio")
+        message(
+            WARNING
+            "Building with code test coverage support is not available "
+            "on Windows with the Visual Studio generator. If you want to "
+            "enable the use of code coverage metrics on Windows, please build "
+            "with GCC through MSYS2/MinGW."
+        )
+        return()
+    endif()
+    if(MSYS)
+        if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+            message(
+                WARNING
+                "When building with code test coverage support on Windows "
+                "with MSYS2/MinGW, GCC must be used as the compiler."
+            )
+            return()
+        endif()
+    endif()
+
     string(TOUPPER ${CMAKE_BUILD_TYPE} PROJECT_BUILD_TYPE)
     message(STATUS "Adding code coverage instrumentation to target ${target_name}")
     if(NOT ${PROJECT_BUILD_TYPE} STREQUAL "DEBUG")
