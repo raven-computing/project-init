@@ -14,6 +14,7 @@ project(
 option(${{VAR_PROJECT_NAME_UPPER}}_BUILD_TESTS "Enable/disable tests" OFF)
 option(${{VAR_PROJECT_NAME_UPPER}}_BUILD_SHARED_LIBS "Build shared libraries" OFF)
 option(${{VAR_PROJECT_NAME_UPPER}}_USE_SANITIZERS "Enable/disable the use of sanitizers" OFF)
+option(${{VAR_PROJECT_NAME_UPPER}}_BUILD_TEST_COVERAGE "Enable/disable test coverage instrumentation" OFF)
 
 # Set CMAKE_PREFIX_PATH from file
 if(EXISTS "${PROJECT_SOURCE_DIR}/.cmakeprefixpath")
@@ -27,6 +28,8 @@ include(Dependencies.cmake)
 
 # Enable testing project-wide
 include(cmake/TestUtil.cmake)
+
+include(cmake/TestCoverageUtil.cmake)
 
 include(cmake/SanitizerUtil.cmake)
 

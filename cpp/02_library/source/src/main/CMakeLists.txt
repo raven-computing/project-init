@@ -64,4 +64,7 @@ endif()
 
 if(${{VAR_PROJECT_NAME_UPPER}}_BUILD_TESTS)
     add_subdirectory(tests)
+    if(${{VAR_PROJECT_NAME_UPPER}}_BUILD_TEST_COVERAGE)
+        add_code_coverage(${${{VAR_PROJECT_NAME_UPPER}}_TARGET_LIB_MAIN})
+    endif()
 endif()
