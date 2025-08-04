@@ -141,11 +141,19 @@ if (( ctest_status == 0 )); then
       exit 1;
     fi
     echo "Generating test coverage report";
+    genhtml_opt_args=();
+    genhtml_version=($(genhtml --version |grep -o -e '[0-9.]'));
+    genhtml_version="${genhtml_version[0]}";
+    if (( genhtml_version >= 2 )); then
+      genhtml_opt_args+=("--header-title");
+      genhtml_opt_args+=("${{VAR_PROJECT_NAME}} Test Coverage");
+      genhtml_opt_args+=("--footer");
+      genhtml_opt_args+=("Copyright © ${{VAR_COPYRIGHT_YEAR}} ${{VAR_PROJECT_ORGANISATION_NAME}}");
+    fi
     if ! genhtml --quiet --output-directory "$BUILD_DIR_COV_REPORT" \
                  --prefix "$COV_INCL_PATH" \
                  --title "${{VAR_PROJECT_NAME}} Test Coverage" \
-                 --header-title "${{VAR_PROJECT_NAME}} Test Coverage" \
-                 --footer "Copyright © ${{VAR_COPYRIGHT_YEAR}} ${{VAR_PROJECT_ORGANISATION_NAME}}" \
+                 "${genhtml_opt_args[@]}" \
                  "${BUILD_DIR_COV_DATA}/${FILE_COV_DATA_MERGED}"; then
       echo "Failed to generate test coverage report";
       exit 1;
