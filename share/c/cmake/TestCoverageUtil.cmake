@@ -47,7 +47,8 @@ function(add_code_coverage target_name)
         return()
     endif()
     if(MSYS)
-        if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
+           OR NOT CMAKE_C_COMPILER_ID STREQUAL "GNU")
             message(
                 WARNING
                 "When building with code test coverage support on Windows "
