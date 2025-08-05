@@ -20,7 +20,8 @@ RUN apt-get -y update && apt-get -y --no-install-recommends install \
  build-essential \
  wget \
  git \
- ca-certificates
+ ca-certificates \
+ clang-tidy
 
 # Install CMake
 RUN wget -q -O /opt/cmake-installer.sh \
