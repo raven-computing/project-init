@@ -55,6 +55,12 @@ generate_export_header(
     EXPORT_FILE_NAME "${${{VAR_PROJECT_NAME_UPPER}}_EXPORT_HEADER}"
 )
 
+if(${{VAR_PROJECT_NAME_UPPER}}_SOURCE_ANALYSIS)
+    enable_source_compile_checks(
+        ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_LIB_MAIN}
+    )
+endif()
+
 if(${{VAR_PROJECT_NAME_UPPER}}_USE_SANITIZERS)
     add_sanitizers(${${{VAR_PROJECT_NAME_UPPER}}_TARGET_LIB_MAIN})
 endif()

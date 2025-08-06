@@ -17,6 +17,12 @@ target_include_directories(
     c
 )
 
+if(${{VAR_PROJECT_NAME_UPPER}}_SOURCE_ANALYSIS)
+    enable_source_compile_checks(
+        ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE}
+    )
+endif()
+
 if(${{VAR_PROJECT_NAME_UPPER}}_USE_SANITIZERS)
     add_sanitizers(${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE})
 endif()
@@ -41,6 +47,12 @@ target_link_libraries(
     ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION}
     ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE}
 )
+
+if(${{VAR_PROJECT_NAME_UPPER}}_SOURCE_ANALYSIS)
+    enable_source_compile_checks(
+        ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION}
+    )
+endif()
 
 #===================================[ TESTS ]==================================
 # Application ${{VAR_PROJECT_NAME}} main tests

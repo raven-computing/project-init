@@ -10,6 +10,9 @@ ${USAGE}
 
 Options:
 
+  [--analyze]     Enable static source code analysis checks by the compiler.
+                  This can slow down compilation time significantly.
+
   [--clean]       Remove all build-related directories and files and then exit.
 
   [--config]      Only execute the build configuration step. This option will skip
@@ -35,6 +38,7 @@ EOS
 )
 
 # Arg flags
+ARG_ANALYZE=false;
 ARG_CLEAN=false;
 ARG_CONFIG=false;
 ARG_SANITIZERS=false;
@@ -51,6 +55,11 @@ ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY}}
 # Parse all arguments given to this script
 for arg in "$@"; do
   case $arg in
+    --analyze)
+    ARG_ANALYZE=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;
     --clean)
     ARG_CLEAN=true;
     shift
@@ -146,8 +155,12 @@ if [[ $ARG_DEBUG == true ]]; then
 fi
 
 BUILD_TESTS="ON";
+BUILD_ANALYZE="OFF";
 BUILD_WITH_SANITIZERS="OFF";
 
+if [[ $ARG_ANALYZE == true ]]; then
+  BUILD_ANALYZE="ON";
+fi
 if [[ $ARG_SKIP_TESTS == true ]]; then
   BUILD_TESTS="OFF";
 fi
@@ -164,6 +177,7 @@ fi
 # CMake: Configure
 if [[ $ARG_SKIP_CONFIG == false ]]; then
   cmake -DCMAKE_BUILD_TYPE="$BUILD_CONFIGURATION" \
+        -D${{VAR_PROJECT_NAME_UPPER}}_SOURCE_ANALYSIS="$BUILD_ANALYZE" \
         -D${{VAR_PROJECT_NAME_UPPER}}_BUILD_TESTS="$BUILD_TESTS" \
         -D${{VAR_PROJECT_NAME_UPPER}}_BUILD_SHARED_LIBS="$BUILD_SHARED_LIBS" \
         -D${{VAR_PROJECT_NAME_UPPER}}_USE_SANITIZERS="$BUILD_WITH_SANITIZERS" .. ;
