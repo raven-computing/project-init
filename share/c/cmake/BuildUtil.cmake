@@ -19,6 +19,56 @@
 #
 #==============================================================================
 
+# Enables all compiler warnings for the specified target.
+#
+# Sets non-default warning flags for the given target to help identify
+# potential issues during compilation. The `inform_only` argument specifies
+# whether all warnings should be treated as errors (`OFF`) or whether warnings
+# should only be shown but the build should not fail (`ON`).
+#
+# Arguments:
+#
+#   target_name:
+#       The name of the target to enable all compiler warnings for.
+#
+#   inform_only:
+#       Whether to treat warnings as errors or only inform about them and
+#       not cause the build to fail.
+#
+# Example:
+#   enable_compiler_warnings(mytarget OFF)
+#
+function(enable_compiler_warnings target_name inform_only)
+    set(WARN_AS_ERROR ON)
+    if(inform_only STREQUAL "ON")
+        set(WARN_AS_ERROR OFF)
+    endif()
+
+    set(FLAGS_GCC "-Wall" "-Wextra" "-pedantic")
+    set(FLAGS_MSVC "/W4" "/permissive-")
+    target_compile_options(
+        ${target_name}
+        PRIVATE
+        $<$<C_COMPILER_ID:GNU>:${FLAGS_GCC}>
+        $<$<C_COMPILER_ID:MSVC>:${FLAGS_MSVC}>
+        $<$<CXX_COMPILER_ID:GNU>:${FLAGS_GCC}>
+        $<$<CXX_COMPILER_ID:MSVC>:${FLAGS_MSVC}>
+    )
+
+    if(WARN_AS_ERROR)
+        set(FLAGS_GCC "-Werror")
+        set(FLAGS_MSVC "/WX")
+        target_compile_options(
+            ${target_name}
+            PRIVATE
+            $<$<C_COMPILER_ID:GNU>:${FLAGS_GCC}>
+            $<$<C_COMPILER_ID:MSVC>:${FLAGS_MSVC}>
+            $<$<CXX_COMPILER_ID:GNU>:${FLAGS_GCC}>
+            $<$<CXX_COMPILER_ID:MSVC>:${FLAGS_MSVC}>
+        )
+    endif()
+endfunction()
+
 # Enables compile-time source code checks for a given CMake target.
 #
 # Appends the appropriate compiler flags, if available, to let the compiler
