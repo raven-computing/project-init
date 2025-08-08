@@ -13,6 +13,12 @@ project(
 
 # Options
 option(${{VAR_PROJECT_NAME_UPPER}}_BUILD_TESTS "Enable/disable tests" OFF)
+option(
+    ${{VAR_PROJECT_NAME_UPPER}}_IGNORE_WARNINGS
+    "Specifies whether compiler warnings should let the build \
+    process fail (OFF) or whether they should be ignored (ON)"
+    OFF
+)
 option(${{VAR_PROJECT_NAME_UPPER}}_BUILD_SHARED_LIBS "Build shared libraries" OFF)
 option(${{VAR_PROJECT_NAME_UPPER}}_USE_SANITIZERS "Enable/disable the use of sanitizers" OFF)
 option(${{VAR_PROJECT_NAME_UPPER}}_SOURCE_ANALYSIS "Enable/disable source code static analysis by the compiler" OFF)

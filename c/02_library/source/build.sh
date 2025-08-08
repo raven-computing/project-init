@@ -21,6 +21,10 @@ Options:
   [--debug]       Build the libraries with debug symbols and with
                   optimizations turned off.
 ${{VAR_SCRIPT_BUILD_DOCS_OPT}}
+
+  [--ignore-warnings]
+                  Ignore all warnings during the build process. Warning messages may
+                  still be shown, but will not cause the build to fail.
 ${{VAR_SCRIPT_BUILD_ISOLATED_OPT}}
 
   [--sanitizers]  Use sanitizers when building and running.
@@ -45,6 +49,7 @@ ARG_SANITIZERS=false;
 ARG_SHARED=false;
 ARG_DEBUG=false;
 ${{VAR_SCRIPT_BUILD_DOCS_ARGFLAG}}
+ARG_IGNORE_WARNINGS=false;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGFLAG}}
 ARG_SKIP_CONFIG=false;
 ARG_SKIP_TESTS=false;
@@ -81,6 +86,11 @@ ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     ;;
     --debug)
     ARG_DEBUG=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;
+    --ignore-warnings)
+    ARG_IGNORE_WARNINGS=true;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;
@@ -155,9 +165,13 @@ if [[ $ARG_DEBUG == true ]]; then
 fi
 
 BUILD_TESTS="ON";
+IGNORE_WARNINGS="OFF";
 BUILD_ANALYZE="OFF";
 BUILD_WITH_SANITIZERS="OFF";
 
+if [[ $ARG_IGNORE_WARNINGS == true ]]; then
+  IGNORE_WARNINGS="ON";
+fi
 if [[ $ARG_ANALYZE == true ]]; then
   BUILD_ANALYZE="ON";
 fi
@@ -177,6 +191,7 @@ fi
 # CMake: Configure
 if [[ $ARG_SKIP_CONFIG == false ]]; then
   cmake -DCMAKE_BUILD_TYPE="$BUILD_CONFIGURATION" \
+        -D${{VAR_PROJECT_NAME_UPPER}}_IGNORE_WARNINGS="$IGNORE_WARNINGS" \
         -D${{VAR_PROJECT_NAME_UPPER}}_SOURCE_ANALYSIS="$BUILD_ANALYZE" \
         -D${{VAR_PROJECT_NAME_UPPER}}_BUILD_TESTS="$BUILD_TESTS" \
         -D${{VAR_PROJECT_NAME_UPPER}}_BUILD_SHARED_LIBS="$BUILD_SHARED_LIBS" \
