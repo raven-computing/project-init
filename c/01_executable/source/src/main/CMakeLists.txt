@@ -53,6 +53,11 @@ target_link_libraries(
     ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE}
 )
 
+enable_compiler_warnings(
+    ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION}
+    ${${{VAR_PROJECT_NAME_UPPER}}_IGNORE_WARNINGS}
+)
+
 if(${{VAR_PROJECT_NAME_UPPER}}_SOURCE_ANALYSIS)
     enable_source_compile_checks(
         ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION}
