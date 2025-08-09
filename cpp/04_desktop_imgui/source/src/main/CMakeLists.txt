@@ -72,6 +72,11 @@ target_link_libraries(
     ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE}
 )
 
+enable_compiler_warnings(
+    ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION}
+    ${${{VAR_PROJECT_NAME_UPPER}}_IGNORE_WARNINGS}
+)
+
 #===================================[ TESTS ]==================================
 # Application ${{VAR_PROJECT_NAME}} main tests
 

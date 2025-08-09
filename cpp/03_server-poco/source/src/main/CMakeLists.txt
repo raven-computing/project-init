@@ -25,6 +25,11 @@ target_link_libraries(
     netcore
 )
 
+enable_compiler_warnings(
+    ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE}
+    ${${{VAR_PROJECT_NAME_UPPER}}_IGNORE_WARNINGS}
+)
+
 if(${{VAR_PROJECT_NAME_UPPER}}_USE_SANITIZERS)
     add_sanitizers(${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE})
 endif()
@@ -48,6 +53,11 @@ target_include_directories(
 target_link_libraries(
     ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION}
     ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE}
+)
+
+enable_compiler_warnings(
+    ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION}
+    ${${{VAR_PROJECT_NAME_UPPER}}_IGNORE_WARNINGS}
 )
 
 #===================================[ TESTS ]==================================
