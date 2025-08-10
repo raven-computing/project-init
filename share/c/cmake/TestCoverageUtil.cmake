@@ -39,10 +39,10 @@ function(add_code_coverage target_name)
     if(WIN32 AND CMAKE_GENERATOR MATCHES "^Visual Studio")
         message(
             WARNING
-            "Building with code test coverage support is not available "
-            "on Windows with the Visual Studio generator. If you want to "
-            "enable the use of code coverage metrics on Windows, please build "
-            "with GCC through MSYS2/MinGW."
+            "Building code with test coverage instrumentation "
+            "is not available on Windows with the Visual Studio generator. "
+            "If you want to enable the use of code coverage metrics "
+            "on Windows, please build with GCC via MSYS2/MinGW."
         )
         return()
     endif()
