@@ -23,8 +23,8 @@ Options:
 ${{VAR_SCRIPT_BUILD_DOCS_OPT}}
 
   [--ignore-warnings]
-                  Ignore all warnings during the build process. Warning messages may
-                  still be shown, but will not cause the build to fail.
+                  Ignore all compiler warnings during the build process. Warning messages
+                  may still be shown, but will not cause the build to fail.
 ${{VAR_SCRIPT_BUILD_ISOLATED_OPT}}
 
   [--sanitizers]  Use sanitizers when building and running.
