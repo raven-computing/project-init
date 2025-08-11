@@ -7,11 +7,11 @@ ${{VAR_C_HEADER_BEGIN}}
  *
  * @return The number 42 as an int.
  */
-int getFortyTwo();
+int getFortyTwo(void);
 
 /**
  * Prints a text string to stdout.
  */
-void printText();
+void printText(void);
 
 ${{VAR_C_HEADER_END}}
