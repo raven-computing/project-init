@@ -2,6 +2,10 @@ ${{VAR_COPYRIGHT_HEADER}}
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include "${{VAR_NAMESPACE_PATH}}/StringProcessor.h"
+
+
+using ${{VAR_NAMESPACE_COLON}}::StringProcessor;
 
 
 int main(int argc, char** argv){
@@ -12,4 +16,9 @@ int main(int argc, char** argv){
 
 TEST(ApplicationTest, TestTrivial){
     ASSERT_EQ(1, 1);
+}
+
+TEST(ApplicationTest, TestReverseString){
+    StringProcessor processor("Hello");
+    ASSERT_EQ(processor.reverse(), "olleH");
 }

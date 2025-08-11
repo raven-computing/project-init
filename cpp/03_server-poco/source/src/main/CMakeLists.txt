@@ -12,6 +12,7 @@ add_library(
     cpp/${{VAR_NAMESPACE_PATH}}/ExampleRouter.cpp
     cpp/${{VAR_NAMESPACE_PATH}}/ExampleControllerHTTP.cpp
     cpp/${{VAR_NAMESPACE_PATH}}/ExampleControllerWS.cpp
+    cpp/${{VAR_NAMESPACE_PATH}}/StringProcessor.cpp
 )
 
 target_include_directories(
@@ -22,6 +23,7 @@ target_include_directories(
 
 target_link_libraries(
     ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE}
+    PUBLIC
     netcore
 )
 
