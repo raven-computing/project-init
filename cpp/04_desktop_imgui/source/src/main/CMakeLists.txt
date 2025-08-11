@@ -43,6 +43,7 @@ endif()
 
 target_link_libraries(
     ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE}
+    PUBLIC
     glfw
     ${${{VAR_PROJECT_NAME_UPPER}}_PLATFORM_LINK_LIBRARIES}
 )
