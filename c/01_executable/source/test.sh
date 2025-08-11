@@ -138,7 +138,7 @@ if (( ctest_status == 0 )); then
     echo "Generating test coverage report";
     genhtml_opt_args=();
     genhtml_version=($(genhtml --version |grep -o -e '[0-9.]'));
-    genhtml_version="${lcov_version[0]}";
+    genhtml_version="${genhtml_version[0]}";
     if (( genhtml_version >= 2 )); then
       genhtml_opt_args+=("--header-title");
       genhtml_opt_args+=("${{VAR_PROJECT_NAME}} Test Coverage");
