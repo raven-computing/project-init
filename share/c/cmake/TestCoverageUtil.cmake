@@ -47,14 +47,17 @@ function(add_code_coverage target_name)
         return()
     endif()
     if(MSYS)
-        if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
-           OR NOT CMAKE_C_COMPILER_ID STREQUAL "GNU")
-            message(
-                WARNING
-                "When building with code test coverage support on Windows "
-                "with MSYS2/MinGW, GCC must be used as the compiler."
-            )
-            return()
+        if(DEFINED CMAKE_C_COMPILER_ID
+           AND NOT CMAKE_C_COMPILER_ID STREQUAL "GNU")
+           if(DEFINED CMAKE_CXX_COMPILER_ID
+              AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+                message(
+                    WARNING
+                    "When building with code test coverage support on Windows "
+                    "with MSYS2/MinGW, GCC must be used as the compiler."
+                )
+                return()
+            endif()
         endif()
     endif()
 
