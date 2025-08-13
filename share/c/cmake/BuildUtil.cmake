@@ -45,7 +45,7 @@ function(enable_compiler_warnings target_name inform_only)
     endif()
 
     set(FLAGS_GCC "-Wall" "-Wextra" "-pedantic" "-Wno-unused-parameter")
-    set(FLAGS_MSVC "/W4" "/permissive-")
+    set(FLAGS_MSVC "/W4" "/permissive-" "/wd4100")
     target_compile_options(
         ${target_name}
         PRIVATE
