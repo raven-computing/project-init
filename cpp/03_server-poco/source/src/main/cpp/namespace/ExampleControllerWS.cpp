@@ -2,9 +2,9 @@ ${{VAR_COPYRIGHT_HEADER}}
 
 #include <string>
 #include <exception>
-#include <algorithm>
 
 #include "${{VAR_NAMESPACE_PATH}}/ExampleControllerWS.h"
+#include "${{VAR_NAMESPACE_PATH}}/StringProcessor.h"
 #include "raven/net/Session.h"
 #include "raven/net/Message.h"
 #include "raven/util/Log.h"
@@ -32,8 +32,7 @@ void ExampleControllerWS::onMessageReceived(
     //Get the message payload
     const string& text = message.getText();
     //Create the reverse of the text message
-    string reverse(text);
-    std::reverse_copy(std::begin(text), std::end(text), std::begin(reverse));
+    string reverse = StringProcessor(text).reverse();
     //Send the reverse back to the client
     session.send(reverse);
 }

@@ -15,6 +15,8 @@ Options:
   [--config]      Only execute the build configuration step. This option will skip
                   the build step.
 
+  [--coverage]    Enable code coverage instrumentation. Should only be used with debug builds.
+
   [--debug]       Build the libraries with debug symbols and with
                   optimizations turned off.
 ${{VAR_SCRIPT_BUILD_DOCS_OPT}}
@@ -37,6 +39,7 @@ EOS
 # Arg flags
 ARG_CLEAN=false;
 ARG_CONFIG=false;
+ARG_COVERAGE=false;
 ARG_SANITIZERS=false;
 ARG_SHARED=false;
 ARG_DEBUG=false;
@@ -57,6 +60,11 @@ for arg in "$@"; do
     ;;
     --config)
     ARG_CONFIG=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;
+    --coverage)
+    ARG_COVERAGE=true;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;
@@ -147,6 +155,7 @@ fi
 
 BUILD_TESTS="ON";
 BUILD_WITH_SANITIZERS="OFF";
+BUILD_WITH_COVERAGE="OFF";
 
 if [[ $ARG_SKIP_TESTS == true ]]; then
   BUILD_TESTS="OFF";
@@ -160,13 +169,21 @@ BUILD_SHARED_LIBS="OFF";
 if [[ $ARG_SHARED == true ]]; then
   BUILD_SHARED_LIBS="ON";
 fi
+if [[ $ARG_COVERAGE == true ]]; then
+  BUILD_WITH_COVERAGE="ON";
+  if [[ $ARG_SKIP_TESTS == true ]]; then
+    echo "Warning: Unable to automatically generate test coverage reports" \
+         "when test builds are skipped";
+  fi
+fi
 
 # CMake: Configure
 if [[ $ARG_SKIP_CONFIG == false ]]; then
   cmake -DCMAKE_BUILD_TYPE="$BUILD_CONFIGURATION" \
         -D${{VAR_PROJECT_NAME_UPPER}}_BUILD_TESTS="$BUILD_TESTS" \
         -D${{VAR_PROJECT_NAME_UPPER}}_BUILD_SHARED_LIBS="$BUILD_SHARED_LIBS" \
-        -D${{VAR_PROJECT_NAME_UPPER}}_USE_SANITIZERS="$BUILD_WITH_SANITIZERS" .. ;
+        -D${{VAR_PROJECT_NAME_UPPER}}_USE_SANITIZERS="$BUILD_WITH_SANITIZERS" \
+        -D${{VAR_PROJECT_NAME_UPPER}}_BUILD_TEST_COVERAGE="$BUILD_WITH_COVERAGE" ..;
 
   config_status=$?;
   if (( config_status != 0 )); then
