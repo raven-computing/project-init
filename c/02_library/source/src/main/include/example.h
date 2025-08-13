@@ -29,6 +29,6 @@ ${{VAR_ARTIFACT_BINARY_NAME_UPPER}}_EXPORT int addFortyTwo(const int number);
  *
  * @return A really cool text string.
  */
-${{VAR_ARTIFACT_BINARY_NAME_UPPER}}_EXPORT const char* getText();
+${{VAR_ARTIFACT_BINARY_NAME_UPPER}}_EXPORT const char* getText(void);
 
 ${{VAR_C_HEADER_END}}

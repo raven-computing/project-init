@@ -12,11 +12,15 @@ Options:
 
   [--coverage] Report code coverage metrics for the test runs.
 
+  [-l|--lint]  Perform static code analysis with a linter.
+
   [-?|--help]  Show this help message.
 EOS
 )
 
 # Arg flags
+ARG_COVERAGE=false;
+ARG_LINT=false;
 ARG_SHOW_HELP=false;
 
 # Parse all arguments given to this script
@@ -24,6 +28,12 @@ for arg in "$@"; do
   case $arg in
     --coverage)
     ARG_COVERAGE=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;
+    -l|--lint)
+    ARG_LINT=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;
     -\?|--help)
@@ -84,6 +94,22 @@ if [ -z "$(ls -A build)" ]; then
   if (( $? != 0 )); then
     exit $?;
   fi
+fi
+
+if [[ $ARG_LINT == true ]]; then
+  if ! command -v "run-clang-tidy" &> /dev/null; then
+    echo "ERROR: Could not find command 'run-clang-tidy'";
+    exit 1;
+  fi
+  echo "Performing static code analysis";
+  lint_out=$(run-clang-tidy -quiet -config '' -p build "${PWD}/src");
+  tidy_stat=$?;
+  if (( tidy_stat != 0 )); then
+    echo "$lint_out";
+  else
+    echo "No issues found in source files";
+  fi
+  exit $tidy_stat;
 fi
 
 COV_INCL_PATH="$PWD";
