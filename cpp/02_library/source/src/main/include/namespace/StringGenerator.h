@@ -14,7 +14,6 @@ ${{VAR_NAMESPACE_DECL_BEGIN}}
  */
 class ${{VAR_ARTIFACT_BINARY_NAME_UPPER}}_EXPORT StringGenerator {
 
-    std::string val;
     int count;
 
 public:

@@ -9,11 +9,11 @@ ${{VAR_NAMESPACE_DECL_BEGIN}}
 using std::string;
 
 StringGenerator::StringGenerator()
-    :val("${{VAR_PROJECT_SLOGAN_STRING}}"), count(0){ }
+    :count(0){ }
 
 
 string StringGenerator::generate(){
-    return val + " " + std::to_string(count++);
+    return "${{VAR_PROJECT_SLOGAN_STRING}} " + std::to_string(count++);
 }
 
 ${{VAR_NAMESPACE_DECL_END}}
