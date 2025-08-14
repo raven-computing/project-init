@@ -1,3 +1,8 @@
+#### 1.9.2
+* Added support for linting in C and C++ projects. [[Issue#106]](https://github.com/raven-computing/project-init/issues/106)
+* Added support for test coverage in C and C++ projects. [[Issue#104]](https://github.com/raven-computing/project-init/issues/104)
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.9.1...v1.9.2)
+
 #### 1.9.1
 * Added support for Node.js 24.
 * Added check for the value of the PROJECT_INIT_ADDONS_RES_BRANCH environment variable, disallow unwanted chars.
