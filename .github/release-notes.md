@@ -1,7 +1,5 @@
 #### Release notes:
 
-* Added support for Node.js 24 and removed support for Node.js 18.
-* Updates to project source templates.
-* Stability improvements.
+* Added more capabilities to C and C++ project source templates.
 
-See [Changelog](https://github.com/raven-computing/project-init/blob/v1.9.1/CHANGELOG.md).
+See [Changelog](https://github.com/raven-computing/project-init/blob/v1.9.2/CHANGELOG.md).
