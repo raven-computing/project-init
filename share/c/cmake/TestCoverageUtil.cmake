@@ -24,7 +24,7 @@
 #
 # Appends the appropriate compiler flags to enable code test
 # coverage instrumentation for the specified target.
-# Code coverage should only be enabled for Debug builds.
+# Code coverage should only be enabled for debug builds.
 #
 # Arguments:
 #
@@ -67,7 +67,7 @@ function(add_code_coverage target_name)
         message(
             WARNING
             "Code test coverage measurements should only be performed "
-            "with a non-optimized Debug build"
+            "with a non-optimized debug build"
         )
     endif()
 
