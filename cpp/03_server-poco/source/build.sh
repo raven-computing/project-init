@@ -216,5 +216,5 @@ if [[ $ARG_SKIP_CONFIG == false ]]; then
 fi
 
 # CMake: Build
-cmake --build . $CMAKE_CONFIG_ARG;
+cmake --build . $CMAKE_CONFIG_ARG --parallel $(nproc);
 exit $?;
