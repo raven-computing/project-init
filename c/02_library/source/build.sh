@@ -20,8 +20,7 @@ Options:
 
   [--coverage]    Enable code coverage instrumentation. Should only be used with debug builds.
 
-  [--debug]       Build the libraries with debug symbols and with
-                  optimizations turned off.
+  [--debug]       Build the libraries with debug symbols and with optimizations turned off.
 ${{VAR_SCRIPT_BUILD_DOCS_OPT}}
 
   [--ignore-warnings]
