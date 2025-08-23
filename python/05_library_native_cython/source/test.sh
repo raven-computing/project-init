@@ -12,7 +12,6 @@ Options:
 
   [--coverage]      Measure and report code coverage metrics for the test runs.
 ${{VAR_SCRIPT_TEST_ISOLATED_OPT}}
-
 ${{VAR_SCRIPT_TEST_LINT_HELP}}
 
   [--no-virtualenv] Do not use a virtual environment for the tests.

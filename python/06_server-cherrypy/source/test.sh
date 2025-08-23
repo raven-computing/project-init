@@ -18,7 +18,6 @@ Options:
                     If specified, this must be the last given option as all subsequent
                     arguments will be interpreted as being part of the [args] option argument.
 ${{VAR_SCRIPT_TEST_ISOLATED_OPT}}
-
 ${{VAR_SCRIPT_TEST_LINT_HELP}}
 
   [--no-virtualenv] Do not use a virtual environment for the tests.
