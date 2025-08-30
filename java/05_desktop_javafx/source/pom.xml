@@ -77,6 +77,7 @@
           <jlinkZipName>${project.artifactId}-${project.version}</jlinkZipName>
           <launcher>${project.artifactId}</launcher>
           <mainClass>${{VAR_NAMESPACE_DECLARATION}}/${{VAR_NAMESPACE_DECLARATION_TRAILING_SEP}}Main</mainClass>
+          <commandlineArgs>${app-args}</commandlineArgs>
         </configuration>
       </plugin>
     </plugins>

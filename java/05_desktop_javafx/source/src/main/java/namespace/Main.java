@@ -15,6 +15,8 @@ import javafx.stage.Stage;
  */
 public class Main extends Application {
 
+    private static String STAGE_TITLE = "${{VAR_PROJECT_NAME}}";
+
     @Override
     public void start(Stage stage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("/layout/Scene.fxml"));
@@ -22,12 +24,15 @@ public class Main extends Application {
         Scene scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
 
-        stage.setTitle("${{VAR_PROJECT_NAME}}");
+        stage.setTitle(Main.STAGE_TITLE);
         stage.setScene(scene);
         stage.show();
     }
 
     public static void main(String[] args){
+        if(args.length >= 2 && args[0].equals("--title")){
+            Main.STAGE_TITLE = args[1];
+        }
         launch(args);
     }
 

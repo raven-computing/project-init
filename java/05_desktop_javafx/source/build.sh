@@ -1,10 +1,10 @@
 #!/bin/bash
-# Build script for the ${{VAR_PROJECT_NAME}} application.
+# Build script for the ${{VAR_PROJECT_NAME}} desktop application.
 
 USAGE="Usage: build.sh [options]";
 
 HELP_TEXT=$(cat << EOS
-Builds the ${{VAR_PROJECT_NAME}} application.
+Builds the ${{VAR_PROJECT_NAME}} desktop application.
 
 ${USAGE}
 
@@ -16,8 +16,6 @@ ${{VAR_SCRIPT_BUILD_DOCS_OPT}}
   [-i|--image] Build an application image with jlink. This will also create
                a distributable ZIP archive from that image.
 
-  [--run]      Build the application and run it.
-
   [-?|--help]  Show this help message.
 EOS
 )
@@ -26,7 +24,6 @@ EOS
 ARG_CLEAN=false;
 ${{VAR_SCRIPT_BUILD_DOCS_ARGFLAG}}
 ARG_BUILD_IMAGE=false;
-ARG_RUN=false;
 ARG_SHOW_HELP=false;
 
 # Parse all arguments given to this script
@@ -39,10 +36,6 @@ for arg in "$@"; do
 ${{VAR_SCRIPT_BUILD_DOCS_ARGPARSE}}
     -i|--image)
     ARG_BUILD_IMAGE=true;
-    shift
-    ;;
-    --run)
-    ARG_RUN=true;
     shift
     ;;
     -\?|--help)
@@ -89,10 +82,5 @@ if [[ "$ARG_BUILD_IMAGE" == true ]]; then
   cmd_mvn_args="${cmd_mvn_args} javafx:jlink";
 fi
 
-if [[ "$ARG_RUN" == true ]]; then
-  cmd_mvn_args="${cmd_mvn_args} javafx:run";
-fi
-
-# Call Maven
-mvn "package" ${cmd_mvn_args};
+mvn package ${cmd_mvn_args};
 exit $?;
