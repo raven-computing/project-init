@@ -207,7 +207,7 @@ function project_run_isolated_tests() {
     if [[ "$arg" == "--interactive" ]]; then
       run_interactive_session=true;
       break;
-   fi
+    fi
   done
 
   if [[ $run_interactive_session == true ]]; then
