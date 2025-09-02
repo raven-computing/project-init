@@ -1,3 +1,11 @@
+#### 1.9.3
+* Added --parallel option to CMake build command in project source templates.
+* Added separate test script to Java desktop application project source template.
+* Fixed some code formatting issues.
+* Refactored options and variables in build scripts in project source templates.
+* Updated versions of various dependencies in project source templates.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.9.2...v1.9.3)
+
 #### 1.9.2
 * Added support for linting in C and C++ projects. [[Issue#106]](https://github.com/raven-computing/project-init/issues/106)
 * Added support for test coverage in C and C++ projects. [[Issue#104]](https://github.com/raven-computing/project-init/issues/104)
