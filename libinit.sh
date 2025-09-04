@@ -4698,11 +4698,13 @@ function replace_var() {
     if [ -z "${_var_value}" ]; then
       # Find all line numbers of lines containing the given variable key
       # shellcheck disable=SC2013
+      local line_offset=0;
       for line_num in $(grep -n "\${{VAR_${_var_key}}}" "$f" \
                           |awk -F  ":" '{print $1}'); do
 
         # Get the line text and trim leading and trailing whitespaces
         local line="";
+        line_num=$((line_num - line_offset));
         line="$(sed -n "${line_num}p" < "$f" |xargs)";
         if [[ "$line" == "\${{VAR_${_var_key}}}" ]]; then
           # The line only contains the given variable key
@@ -4712,6 +4714,7 @@ function replace_var() {
           removed="$(awk 'NR!~/^('"$line_num"')$/' "$f")";
           # Overwrite the source file
           echo "$removed" > "$f";
+          ((++line_offset));
         fi
       done
     fi
