@@ -4697,8 +4697,8 @@ function replace_var() {
     # additional blank lines.
     if [ -z "${_var_value}" ]; then
       # Find all line numbers of lines containing the given variable key
-      # shellcheck disable=SC2013
       local line_offset=0;
+      # shellcheck disable=SC2013
       for line_num in $(grep -n "\${{VAR_${_var_key}}}" "$f" \
                           |awk -F  ":" '{print $1}'); do
 
