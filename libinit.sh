@@ -4696,13 +4696,18 @@ function replace_var() {
     # value is empty. Otherwise the handled file would contain
     # additional blank lines.
     if [ -z "${_var_value}" ]; then
-      # Find all line numbers of lines containing the given variable key
+      # Find all line numbers of lines containing the given variable key.
+      # As we iterate over the found lines and potentially remove blank ones,
+      # effective line numbers of subsequent lines are offset by one. Therefore,
+      # for every removed line the offset is incremented by one to account for that.
+      local line_offset=0;
       # shellcheck disable=SC2013
       for line_num in $(grep -n "\${{VAR_${_var_key}}}" "$f" \
                           |awk -F  ":" '{print $1}'); do
 
         # Get the line text and trim leading and trailing whitespaces
         local line="";
+        line_num=$((line_num - line_offset));
         line="$(sed -n "${line_num}p" < "$f" |xargs)";
         if [[ "$line" == "\${{VAR_${_var_key}}}" ]]; then
           # The line only contains the given variable key
@@ -4712,6 +4717,7 @@ function replace_var() {
           removed="$(awk 'NR!~/^('"$line_num"')$/' "$f")";
           # Overwrite the source file
           echo "$removed" > "$f";
+          ((++line_offset));
         fi
       done
     fi
