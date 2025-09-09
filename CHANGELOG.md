@@ -1,3 +1,8 @@
+#### 1.9.4
+* Fixed wrong line content comparisons when erasing blank variables. [[Issue#108]](https://github.com/raven-computing/project-init/issues/108)
+* Updated Doxygen dependency version.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.9.3...v1.9.4)
+
 #### 1.9.3
 * Added --parallel option to CMake build command in project source templates.
 * Added separate test script to Java desktop application project source template.
