@@ -5,6 +5,10 @@ if [[ $ARG_DOCS == true ]]; then
   ${{VAR_SCRIPT_BUILD_ISOLATED_HINT1}}
     exit 1;
   fi
+  if ! [ -d "build/_deps/doxygen-theme" ]; then
+    echo "Warning: Doxygen theme not found in build tree.";
+    echo "Warning: Execute the build configure step before building the documentation";
+  fi
   echo "Building documentation";
   doxygen "docs/Doxyfile" &> /dev/null;
   docs_status=$?;

@@ -421,10 +421,13 @@ function _project_init_process_docs_integration() {
   if [[ "$var_project_integration_docs_enabled" == "1" ]]; then
     if [[ "$var_project_lang" == "C" || "$var_project_lang" == "C++" ]]; then
       copy_shared "doxygen" "docs";
+      copy_shared "c/cmake/DocsUtil.cmake" "cmake/DocsUtil.cmake";
       load_var_from_file "SCRIPT_BUILD_DOCS_DOXYGEN_MAIN";
       var_script_build_docs_main="$VAR_FILE_VALUE";
       load_var_from_file "DOCKERFILE_BUILD_DOXYGEN";
       var_dockerfile_build_doxygen="$VAR_FILE_VALUE";
+      load_var_from_file "SCRIPT_CMAKE_DOCS_SETUP";
+      var_script_cmake_docs_setup="$VAR_FILE_VALUE";
     elif [[ "$var_project_lang" == "Java" || "$var_project_lang" == "Python" ]]; then
       copy_shared "mkdocs" "docs";
       load_var_from_file "SCRIPT_BUILD_DOCS_MKDOCS_MAIN";
@@ -448,6 +451,7 @@ function _project_init_process_docs_integration() {
   replace_var "SCRIPT_BUILD_DOCS_ARGPARSE" "$var_script_build_docs_argparse";
   replace_var "SCRIPT_BUILD_DOCS_OPT"      "$var_script_build_docs_opt";
   replace_var "SCRIPT_BUILD_DOCS_MAIN"     "$var_script_build_docs_main";
+  replace_var "SCRIPT_CMAKE_DOCS_SETUP"    "$var_script_cmake_docs_setup";
   replace_var "DOCKERFILE_BUILD_DOXYGEN"   "$var_dockerfile_build_doxygen";
   replace_var "DOCKERFILE_BUILD_MKDOCS"    "$var_dockerfile_build_mkdocs";
   # If Docker integration is generally not available for the underlying project type
