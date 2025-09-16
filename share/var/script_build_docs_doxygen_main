@@ -7,7 +7,11 @@ if [[ $ARG_DOCS == true ]]; then
   fi
   if ! [ -d "build/_deps/doxygen-theme" ]; then
     echo "Warning: Doxygen theme not found in build tree.";
-    echo "Warning: Execute the build configure step before building the documentation";
+    echo "Warning: Executing build configure step before building the documentation";
+    if ! bash build.sh --config; then
+      echo "Error: Build configure step has failed";
+      exit 1;
+    fi
   fi
   echo "Building documentation";
   doxygen "docs/Doxyfile" &> /dev/null;
