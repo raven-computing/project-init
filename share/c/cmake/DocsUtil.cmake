@@ -19,6 +19,13 @@
 #
 #==============================================================================
 
+# Performs setup for Doxygen builds.
+#
+# Downloads and configures a Doxygen theme if not already available in the
+# build tree. The theme is downloaded into a cache directory to avoid repeated
+# downloads. If the environment variable `A_CMAKE_DEPENDENCY_NO_CACHE` is set
+# to '1', then the theme will be downloaded directly into the build directory.
+#
 function(setup_doxygen_build)
     set(THEME_DEPENDENCY "doxygen-theme")
     set(THEME_VERSION "v2.3.4")
