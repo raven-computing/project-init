@@ -4069,7 +4069,7 @@ function copy_resource() {
     #----------------#
     # Copy directory #
     #----------------#
-    cp -r "$arg_src" "$arg_dest" 2>/dev/null;
+    cp -r "$arg_src" "$arg_dest" 2> /dev/null;
     if (( $? != 0 )); then
       logW "Could not copy the following directory:";
       logW "Source: '$arg_src'";
@@ -4080,7 +4080,7 @@ function copy_resource() {
     #-------------------#
     # Copy regular file #
     #-------------------#
-    cp "$arg_src" "$arg_dest" 2>/dev/null;
+    cp "$arg_src" "$arg_dest" 2> /dev/null;
     if (( $? != 0 )); then
       logW "Could not copy the following regular file:";
       logW "Source: '$arg_src'";
