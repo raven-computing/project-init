@@ -75,3 +75,7 @@ function(setup_doxygen_build)
     endif()
 
 endfunction()
+
+if(CMAKE_SCRIPT_MODE_FILE AND NOT CMAKE_PARENT_LIST_FILE)
+    setup_doxygen_build()
+endif()
