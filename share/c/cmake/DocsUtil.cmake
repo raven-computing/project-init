@@ -19,6 +19,8 @@
 #
 #==============================================================================
 
+include(FetchContent)
+
 # Performs setup for Doxygen builds.
 #
 # Downloads and configures a Doxygen theme if not already available in the
@@ -32,11 +34,15 @@ function(setup_doxygen_build)
     set(CACHE_PATH "$ENV{HOME}/.cache/cmake_deps_src")
     set(THEME_CACHE_PATH "${CACHE_PATH}/${THEME_DEPENDENCY}/${THEME_VERSION}")
     set(THEME_RESOURCE_PATH "${FETCHCONTENT_BASE_DIR}/${THEME_DEPENDENCY}")
+    set(THEME_RESOURCE_PATH_TMP "${FETCHCONTENT_BASE_DIR}/${THEME_DEPENDENCY}-tmp")
     set(THEME_DOWNLOAD OFF)
 
     if("$ENV{A_CMAKE_DEPENDENCY_NO_CACHE}" STREQUAL "1"
         OR NOT DEFINED ENV{HOME})
+
+        message(STATUS "Doxygen theme cache is disabled")
         set(THEME_DOWNLOAD ON)
+        set(THEME_CACHE_PATH "${THEME_RESOURCE_PATH}")
     else()
         if(NOT EXISTS "${THEME_RESOURCE_PATH}")
             if(NOT EXISTS "${THEME_CACHE_PATH}")
@@ -45,14 +51,21 @@ function(setup_doxygen_build)
         endif()
     endif()
 
-    if(${THEME_DOWNLOAD})
+    if(THEME_DOWNLOAD)
         message(STATUS "Downloading Doxygen theme")
-        dependency(
-            DEPENDENCY_NAME     "${THEME_DEPENDENCY}"
-            DEPENDENCY_RESOURCE jothepro/doxygen-awesome-css
-            DEPENDENCY_VERSION  "${THEME_VERSION}"
-            DEPENDENCY_QUIET
+        FetchContent_Populate(
+            ${THEME_DEPENDENCY}
+            GIT_REPOSITORY https://github.com/jothepro/doxygen-awesome-css.git
+            GIT_TAG        ${THEME_VERSION}
+            GIT_SHALLOW    ON
+            SUBBUILD_DIR   "${THEME_RESOURCE_PATH_TMP}"
+            SOURCE_DIR     "${THEME_CACHE_PATH}"
+            BINARY_DIR     "${THEME_RESOURCE_PATH_TMP}"
+            QUIET
         )
+        if(EXISTS "${THEME_RESOURCE_PATH_TMP}")
+            file(REMOVE_RECURSE "${THEME_RESOURCE_PATH_TMP}")
+        endif()
     endif()
 
     if(NOT EXISTS "${THEME_RESOURCE_PATH}")
@@ -76,6 +89,7 @@ function(setup_doxygen_build)
 
 endfunction()
 
-if(CMAKE_SCRIPT_MODE_FILE AND NOT CMAKE_PARENT_LIST_FILE)
+if(CMAKE_SCRIPT_MODE_FILE)
+    SET(FETCHCONTENT_BASE_DIR "${CMAKE_BINARY_DIR}/build/_deps")
     setup_doxygen_build()
 endif()

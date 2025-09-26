@@ -33,7 +33,6 @@ endif()
 include(Dependencies.cmake)
 
 include(cmake/BuildUtil.cmake)
-${{VAR_SCRIPT_CMAKE_DOCS_SETUP}}
 
 # Enable testing project-wide
 include(cmake/TestUtil.cmake)

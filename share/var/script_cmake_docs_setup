@@ -1,4 +1,0 @@
-
-include(cmake/DocsUtil.cmake)
-
-setup_doxygen_build()
