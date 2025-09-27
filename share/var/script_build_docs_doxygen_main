@@ -11,6 +11,7 @@ if [[ $ARG_DOCS == true ]]; then
     exit 1;
   fi
   echo "Building documentation";
+  export DOXYGEN_THEME_PATH="build/_deps/doxygen-theme";
   doxygen "docs/Doxyfile" &> /dev/null;
   docs_status=$?;
   if (( docs_status != 0 )); then
