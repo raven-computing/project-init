@@ -69,22 +69,18 @@ function(setup_doxygen_build)
     endif()
 
     if(NOT EXISTS "${THEME_RESOURCE_PATH}")
-        if(EXISTS "${THEME_RESOURCE_PATH}-src")
-            file(RENAME "${THEME_RESOURCE_PATH}-src" "${THEME_RESOURCE_PATH}")
-        else()
-            if(NOT EXISTS "${THEME_CACHE_PATH}")
-                message(WARNING "Failed to download Doxygen theme")
-                return()
-            endif()
-            file(
-                COPY "${THEME_CACHE_PATH}"
-                DESTINATION "${FETCHCONTENT_BASE_DIR}"
-            )
-            file(
-                RENAME "${FETCHCONTENT_BASE_DIR}/${THEME_VERSION}"
-                "${THEME_RESOURCE_PATH}"
-            )
+        if(NOT EXISTS "${THEME_CACHE_PATH}")
+            message(WARNING "Failed to download Doxygen theme")
+            return()
         endif()
+        file(
+            COPY "${THEME_CACHE_PATH}"
+            DESTINATION "${FETCHCONTENT_BASE_DIR}"
+        )
+        file(
+            RENAME "${FETCHCONTENT_BASE_DIR}/${THEME_VERSION}"
+            "${THEME_RESOURCE_PATH}"
+        )
     endif()
 
 endfunction()
