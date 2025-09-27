@@ -37,14 +37,14 @@ function(setup_doxygen_build)
     set(THEME_RESOURCE_PATH_TMP "${FETCHCONTENT_BASE_DIR}/${THEME_DEPENDENCY}-tmp")
     set(THEME_DOWNLOAD OFF)
 
-    if("$ENV{A_CMAKE_DEPENDENCY_NO_CACHE}" STREQUAL "1"
-        OR NOT DEFINED ENV{HOME})
+    if(NOT EXISTS "${THEME_RESOURCE_PATH}")
+        if("$ENV{A_CMAKE_DEPENDENCY_NO_CACHE}" STREQUAL "1"
+            OR NOT DEFINED ENV{HOME})
 
-        message(STATUS "Doxygen theme cache is disabled")
-        set(THEME_DOWNLOAD ON)
-        set(THEME_CACHE_PATH "${THEME_RESOURCE_PATH}")
-    else()
-        if(NOT EXISTS "${THEME_RESOURCE_PATH}")
+            message(STATUS "Doxygen theme cache is disabled")
+            set(THEME_DOWNLOAD ON)
+            set(THEME_CACHE_PATH "${THEME_RESOURCE_PATH}")
+        else()
             if(NOT EXISTS "${THEME_CACHE_PATH}")
                 set(THEME_DOWNLOAD ON)
             endif()
