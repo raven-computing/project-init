@@ -91,6 +91,6 @@ function(configure_doxygen_build)
 endfunction()
 
 if(CMAKE_SCRIPT_MODE_FILE)
-    SET(FETCHCONTENT_BASE_DIR "${CMAKE_BINARY_DIR}/build/_deps")
+    SET(FETCHCONTENT_BASE_DIR "${CMAKE_SOURCE_DIR}/build/_deps")
     configure_doxygen_build()
 endif()
