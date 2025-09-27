@@ -421,6 +421,7 @@ function _project_init_process_docs_integration() {
   if [[ "$var_project_integration_docs_enabled" == "1" ]]; then
     if [[ "$var_project_lang" == "C" || "$var_project_lang" == "C++" ]]; then
       copy_shared "doxygen" "docs";
+      copy_shared "c/cmake/DocsUtil.cmake" "cmake/DocsUtil.cmake";
       load_var_from_file "SCRIPT_BUILD_DOCS_DOXYGEN_MAIN";
       var_script_build_docs_main="$VAR_FILE_VALUE";
       load_var_from_file "DOCKERFILE_BUILD_DOXYGEN";

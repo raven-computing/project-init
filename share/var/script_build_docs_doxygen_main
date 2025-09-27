@@ -5,6 +5,11 @@ if [[ $ARG_DOCS == true ]]; then
   ${{VAR_SCRIPT_BUILD_ISOLATED_HINT1}}
     exit 1;
   fi
+  echo "Configuring documentation";
+  if ! cmake -P "cmake/DocsUtil.cmake"; then
+    echo "CMake Error: Documentation configure step has failed";
+    exit 1;
+  fi
   echo "Building documentation";
   doxygen "docs/Doxyfile" &> /dev/null;
   docs_status=$?;
