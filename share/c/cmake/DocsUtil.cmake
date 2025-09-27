@@ -28,7 +28,7 @@ include(FetchContent)
 # downloads. If the environment variable `A_CMAKE_DEPENDENCY_NO_CACHE` is set
 # to '1', then the theme will be downloaded directly into the build directory.
 #
-function(setup_doxygen_build)
+function(configure_doxygen_build)
     set(THEME_DEPENDENCY "doxygen-theme")
     set(THEME_VERSION "v2.4.0")
     set(CACHE_PATH "$ENV{HOME}/.cache/cmake_deps_src")
@@ -87,5 +87,5 @@ endfunction()
 
 if(CMAKE_SCRIPT_MODE_FILE)
     SET(FETCHCONTENT_BASE_DIR "${CMAKE_BINARY_DIR}/build/_deps")
-    setup_doxygen_build()
+    configure_doxygen_build()
 endif()
