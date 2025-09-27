@@ -15,13 +15,15 @@
 #==============================================================================
 #
 # Contains functions providing utilities for documentation resource generation.
+# This file may be run in CMake script mode, which will automatically execute
+# the configure_doxygen_build() function.
 # The minimum CMake version required by this code is v3.14.
 #
 #==============================================================================
 
 include(FetchContent)
 
-# Performs setup for Doxygen builds.
+# Performs a configuration step for Doxygen-based documentation builds.
 #
 # Downloads and configures a Doxygen theme if not already available in the
 # build tree. The theme is downloaded into a cache directory to avoid repeated
@@ -34,7 +36,10 @@ function(configure_doxygen_build)
     set(CACHE_PATH "$ENV{HOME}/.cache/cmake_deps_src")
     set(THEME_CACHE_PATH "${CACHE_PATH}/${THEME_DEPENDENCY}/${THEME_VERSION}")
     set(THEME_RESOURCE_PATH "${FETCHCONTENT_BASE_DIR}/${THEME_DEPENDENCY}")
-    set(THEME_RESOURCE_PATH_TMP "${FETCHCONTENT_BASE_DIR}/${THEME_DEPENDENCY}-tmp")
+    set(
+        THEME_RESOURCE_PATH_TMP
+        "${FETCHCONTENT_BASE_DIR}/${THEME_DEPENDENCY}-tmp"
+    )
     set(THEME_DOWNLOAD OFF)
 
     if(NOT EXISTS "${THEME_RESOURCE_PATH}")
