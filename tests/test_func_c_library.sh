@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ function test_functionality_result() {
   files+=("CMakeLists.txt");
   files+=("Dependencies.cmake");
   files+=("cmake/DependencyUtil.cmake");
+  files+=("cmake/DocsUtil.cmake");
   files+=("src/main/CMakeLists.txt");
   files+=("src/main/c/example.c");
   files+=("src/main/include/example.h");
@@ -40,6 +41,7 @@ function test_functionality_result() {
   files+=("src/main/tests/c/test_example.c");
   files+=("docs/Doxyfile");
   files+=("docs/page_main.md");
+  files+=("docs/header.html");
 
   local dirs=();
   dirs+=("src/main/resources");

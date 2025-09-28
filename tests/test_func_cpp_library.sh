@@ -44,6 +44,7 @@ function test_functionality_result() {
   files+=(".docker/entrypoint.sh");
   files+=("docs/Doxyfile");
   files+=("docs/page_main.md");
+  files+=("docs/header.html");
 
   local dirs=();
   dirs+=("src/main/cpp/raven");

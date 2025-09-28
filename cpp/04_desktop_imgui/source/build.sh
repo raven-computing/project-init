@@ -125,14 +125,14 @@ if ! [ -d "build" ]; then
   mkdir "build";
 fi
 
-${{VAR_SCRIPT_BUILD_DOCS_MAIN}}
-
 # Ensure the required executable is available
 if ! command -v "cmake" &> /dev/null; then
   echo "ERROR: Could not find the 'cmake' executable.";
   echo "Please make sure that CMake is correctly installed";
   exit 1;
 fi
+
+${{VAR_SCRIPT_BUILD_DOCS_MAIN}}
 
 cd "build";
 
