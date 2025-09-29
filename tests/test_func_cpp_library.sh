@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ function test_functionality_result() {
   files+=("CMakeLists.txt");
   files+=("Dependencies.cmake");
   files+=("cmake/DependencyUtil.cmake");
+  files+=("cmake/DocsUtil.cmake");
   files+=("src/main/CMakeLists.txt");
   files+=("src/main/cpp/raven/myns/StringGenerator.cpp");
   files+=("src/main/include/raven/myns/StringGenerator.h");
@@ -43,6 +44,7 @@ function test_functionality_result() {
   files+=(".docker/entrypoint.sh");
   files+=("docs/Doxyfile");
   files+=("docs/page_main.md");
+  files+=("docs/header.html");
 
   local dirs=();
   dirs+=("src/main/cpp/raven");

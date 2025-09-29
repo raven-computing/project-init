@@ -33,6 +33,7 @@ function test_functionality_result() {
   files+=("CMakeLists.txt");
   files+=("Dependencies.cmake");
   files+=("cmake/DependencyUtil.cmake");
+  files+=("cmake/DocsUtil.cmake");
   files+=("src/main/CMakeLists.txt");
   files+=("src/main/c/main.c");
   files+=("src/main/c/example.h");
@@ -43,6 +44,7 @@ function test_functionality_result() {
   files+=(".docker/Dockerfile-build");
   files+=(".docker/entrypoint.sh");
   files+=("docs/Doxyfile");
+  files+=("docs/header.html");
   files+=("docs/page_main.md");
 
   local dirs=();

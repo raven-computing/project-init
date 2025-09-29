@@ -136,8 +136,6 @@ fi
 
 ${{VAR_SCRIPT_BUILD_ISOLATED_MAIN}}
 
-${{VAR_SCRIPT_BUILD_DOCS_MAIN}}
-
 # Ensure the required executable is available
 if ! command -v "cmake" &> /dev/null; then
   echo "ERROR: Could not find the 'cmake' executable.";
@@ -145,6 +143,8 @@ if ! command -v "cmake" &> /dev/null; then
 ${{VAR_SCRIPT_BUILD_ISOLATED_HINT1}}
   exit 1;
 fi
+
+${{VAR_SCRIPT_BUILD_DOCS_MAIN}}
 
 cd "build";
 
