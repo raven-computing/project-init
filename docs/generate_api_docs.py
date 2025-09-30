@@ -919,7 +919,7 @@ def save_to_file(content, filename):
         content: The text content to save, as a str.
         filename: The name of the file to save, as a str.
     """
-    with open(DOCS_DIR + "/" + filename, "wt") as file:
+    with open(DOCS_DIR + "/" + filename, "wt", encoding="UTF-8") as file:
         file.write(content)
 
 def create_markdown_content(docs):
