@@ -627,7 +627,7 @@ def filter_docs(files, func, merge_files=True):
     """
     l = []
     for source in files:
-        docs = list(filter(lambda doc: func(doc), source["docs"]))
+        docs = list(filter(func, source["docs"]))
         if merge_files:
             l.extend(docs)
         else:
