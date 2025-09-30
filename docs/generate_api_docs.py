@@ -870,7 +870,7 @@ def get_project_init_version():
     version_file = project_root + "/VERSION"
     if os.path.isfile(version_file):
         version_str = ""
-        with open(version_file, "rt") as file:
+        with open(version_file, "rt", encoding="UTF-8") as file:
             version_str = file.readline()
 
         if version_str:
