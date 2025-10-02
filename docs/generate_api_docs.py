@@ -556,7 +556,7 @@ def parse_source_file(src_file):
     """
     project_root = os.path.split(DOCS_DIR)[0]
     source = ""
-    with open(project_root + "/" + src_file, "rt") as file:
+    with open(project_root + "/" + src_file, "rt", encoding="UTF-8") as file:
         source = file.read()
 
     source = source.splitlines()
