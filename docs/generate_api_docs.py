@@ -57,6 +57,9 @@ _LINK_BASE_URL = None
 # Use the get_project_init_version() function to get this value.
 _PROJECT_INIT_VERSION = "?"
 
+# The used text encoding when reading/writing files.
+_FILE_ENCODING = "UTF-8"
+
 def parse_args():
     """Parses the arguments passed to this program.
 
@@ -556,7 +559,8 @@ def parse_source_file(src_file):
     """
     project_root = os.path.split(DOCS_DIR)[0]
     source = ""
-    with open(project_root + "/" + src_file, "rt", encoding="UTF-8") as file:
+    file_path = f"{project_root}/{src_file}"
+    with open(file_path, "rt", encoding=_FILE_ENCODING) as file:
         source = file.read()
 
     source = source.splitlines()
@@ -870,7 +874,7 @@ def get_project_init_version():
     version_file = project_root + "/VERSION"
     if os.path.isfile(version_file):
         version_str = ""
-        with open(version_file, "rt", encoding="UTF-8") as file:
+        with open(version_file, "rt", encoding=_FILE_ENCODING) as file:
             version_str = file.readline()
 
         if version_str:
@@ -919,7 +923,8 @@ def save_to_file(content, filename):
         content: The text content to save, as a str.
         filename: The name of the file to save, as a str.
     """
-    with open(DOCS_DIR + "/" + filename, "wt", encoding="UTF-8") as file:
+    file_path = f"{DOCS_DIR}/{filename}"
+    with open(file_path, "wt", encoding=_FILE_ENCODING) as file:
         file.write(content)
 
 def create_markdown_content(docs):
