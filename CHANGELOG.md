@@ -1,3 +1,11 @@
+#### 1.9.5
+* Added handling for a default Doxygen theme in C and C++ project source templates. [[Issue#110]](https://github.com/raven-computing/project-init/issues/110)
+* Added -Wno-unused-function to GCC flags.
+* Improved documentation generator script.
+* Updated Doxygen template resources.
+* Updated ImGui Dependency version.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.9.4...v1.9.5)
+
 #### 1.9.4
 * Fixed wrong line content comparisons when erasing blank variables. [[Issue#108]](https://github.com/raven-computing/project-init/issues/108)
 * Updated Doxygen dependency version.
