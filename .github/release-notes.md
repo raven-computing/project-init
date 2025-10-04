@@ -1,6 +1,6 @@
 #### Release notes:
 
-* Fixed a bug when substitution variables get replaced by an empty string.
-* Updates to project source templates.
+* Added the use of a default Doxygen theme for C and C++ project source templates.
+* Minor improvements.
 
-See [Changelog](https://github.com/raven-computing/project-init/blob/v1.9.4/CHANGELOG.md).
+See [Changelog](https://github.com/raven-computing/project-init/blob/v1.9.5/CHANGELOG.md).
