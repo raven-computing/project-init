@@ -23,10 +23,7 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/.cmakeprefixpath")
     list(APPEND CMAKE_PREFIX_PATH ${_VAR_CMAKE_PREFIX_PATH})
 endif()
 
-# Process dependencies
 include(Dependencies.cmake)
-
-# Enable testing project-wide
 include(cmake/TestUtil.cmake)
 
 add_subdirectory(src/main native)
