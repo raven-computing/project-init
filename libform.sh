@@ -147,7 +147,7 @@ function project_init_show_main_form() {
       else
         logW "Base licenses are disabled but no addon is active to provide alternative licenses.";
       fi
-      logW "The project to be initialized will not be licensed.";
+      logW "The project to be initialized will not have any licensing information.";
     fi
   fi
 
