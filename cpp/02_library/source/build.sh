@@ -198,12 +198,10 @@ if [[ $ARG_SKIP_CONFIG == false ]]; then
         -D${{VAR_PROJECT_NAME_UPPER}}_USE_SANITIZERS="$BUILD_WITH_SANITIZERS" \
         -D${{VAR_PROJECT_NAME_UPPER}}_BUILD_TEST_COVERAGE="$BUILD_WITH_COVERAGE" ..;
 
-  config_status=$?;
-  if (( config_status != 0 )); then
-    exit $config_status;
-  fi
-  if [[ $ARG_CONFIG == true ]]; then
-    exit $config_status;
+  if (( $? != 0 )); then
+    exit 1;
+  elif [[ $ARG_CONFIG == true ]]; then
+    exit 0;
   fi
 fi
 
