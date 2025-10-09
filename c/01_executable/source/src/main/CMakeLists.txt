@@ -50,6 +50,7 @@ target_include_directories(
 
 target_link_libraries(
     ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION}
+    PRIVATE
     ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE}
 )
 
