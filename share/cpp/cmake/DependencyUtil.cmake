@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -134,6 +134,11 @@ include(FetchContent)
 #       to configure the dependency. This argument can optionally be used to
 #       specify a file which deviates from the convention.
 #
+#   DEPENDENCY_BUILD_FILE:
+#       The relative path to the file containing CMake instructions to be used
+#       to build the dependency. This argument can optionally be used to
+#       specify a file which deviates from the convention.
+#
 #   [options]
 #
 #   DEPENDENCY_QUIET:
@@ -181,6 +186,7 @@ function(dependency)
         DEPENDENCY_SCOPE
         DEPENDENCY_FILE_HASH
         DEPENDENCY_CONFIG_FILE
+        DEPENDENCY_BUILD_FILE
     )
     set(multiValueArgs "")
 
@@ -278,6 +284,46 @@ function(dependency)
         # Overwrite resource arg
         set(DEP_ARGS_DEPENDENCY_RESOURCE "${_DEP_BASE_URL}/${_DEP_SRC_RES}")
     endif()
+
+    # Set default conventional config and build files
+    string(
+        TOLOWER
+        ${DEP_ARGS_DEPENDENCY_NAME}
+        DEPENDENCY_NAME_LOWER
+    )
+    string(
+        SUBSTRING
+        ${DEPENDENCY_NAME_LOWER} 1 -1
+        DEPENDENCY_NAME_LOWER
+    )
+    string(
+        SUBSTRING
+        ${DEP_ARGS_DEPENDENCY_NAME} 0 1
+        DEPENDENCY_NAME_FIRST
+    )
+    string(
+        TOUPPER
+        ${DEPENDENCY_NAME_FIRST}
+        DEPENDENCY_NAME_FIRST
+    )
+    set(DEPENDENCY_DEFAULT_CONFIG_FILE "cmake/Config")
+    string(APPEND DEPENDENCY_DEFAULT_CONFIG_FILE ${DEPENDENCY_NAME_FIRST})
+    string(APPEND DEPENDENCY_DEFAULT_CONFIG_FILE ${DEPENDENCY_NAME_LOWER})
+    string(APPEND DEPENDENCY_DEFAULT_CONFIG_FILE ".cmake")
+    string(
+        PREPEND
+        DEPENDENCY_DEFAULT_CONFIG_FILE
+        "${CMAKE_CURRENT_SOURCE_DIR}" "/"
+    )
+    set(DEPENDENCY_DEFAULT_BUILD_FILE "cmake/Build")
+    string(APPEND DEPENDENCY_DEFAULT_BUILD_FILE ${DEPENDENCY_NAME_FIRST})
+    string(APPEND DEPENDENCY_DEFAULT_BUILD_FILE ${DEPENDENCY_NAME_LOWER})
+    string(APPEND DEPENDENCY_DEFAULT_BUILD_FILE ".cmake")
+    string(
+        PREPEND
+        DEPENDENCY_DEFAULT_BUILD_FILE
+        "${CMAKE_CURRENT_SOURCE_DIR}" "/"
+    )
 
     set(OPT_DEP_CACHE_SRC_PATH "")
     set(OPT_DEP_GIT_SHALLOW "GIT_SHALLOW")
@@ -393,41 +439,34 @@ function(dependency)
             endif()
         else()
             # Use the conventional file
-            string(
-                TOLOWER
-                ${DEP_ARGS_DEPENDENCY_NAME}
-                DEPENDENCY_NAME_LOWER
-            )
-            string(
-                SUBSTRING
-                ${DEPENDENCY_NAME_LOWER} 1 -1
-                DEPENDENCY_NAME_LOWER
-            )
-            string(
-                SUBSTRING
-                ${DEP_ARGS_DEPENDENCY_NAME} 0 1
-                DEPENDENCY_NAME_FIRST
-            )
-            string(
-                TOUPPER
-                ${DEPENDENCY_NAME_FIRST}
-                DEPENDENCY_NAME_FIRST
-            )
-            set(DEPENDENCY_CONFIG_FILE "cmake/Config")
-            string(APPEND DEPENDENCY_CONFIG_FILE ${DEPENDENCY_NAME_FIRST})
-            string(APPEND DEPENDENCY_CONFIG_FILE ${DEPENDENCY_NAME_LOWER})
-            string(APPEND DEPENDENCY_CONFIG_FILE ".cmake")
-            string(
-                PREPEND
-                DEPENDENCY_CONFIG_FILE
-                "${CMAKE_CURRENT_SOURCE_DIR}" "/"
-            )
-            if(EXISTS "${DEPENDENCY_CONFIG_FILE}")
-                include("${DEPENDENCY_CONFIG_FILE}")
+            if(EXISTS "${DEPENDENCY_DEFAULT_CONFIG_FILE}")
+                include("${DEPENDENCY_DEFAULT_CONFIG_FILE}")
             endif()
         endif()
     endif()
 
     FetchContent_MakeAvailable(${DEP_ARGS_DEPENDENCY_NAME})
 
+    # Check if a build file needs to be included
+    if(DEFINED DEP_ARGS_DEPENDENCY_BUILD_FILE)
+        set(DEPENDENCY_BUILD_FILE "${CMAKE_CURRENT_SOURCE_DIR}/")
+        string(
+            APPEND
+            DEPENDENCY_BUILD_FILE
+            "${DEP_ARGS_DEPENDENCY_BUILD_FILE}"
+        )
+        if(EXISTS "${DEPENDENCY_BUILD_FILE}")
+            include("${DEPENDENCY_BUILD_FILE}")
+        else()
+            message(
+                WARNING
+                "No build file found for dependency ${DEPENDENCY_BUILD_FILE}"
+            )
+        endif()
+    else()
+        # Use the conventional file
+        if(EXISTS "${DEPENDENCY_DEFAULT_BUILD_FILE}")
+            include("${DEPENDENCY_DEFAULT_BUILD_FILE}")
+        endif()
+    endif()
 endfunction()
