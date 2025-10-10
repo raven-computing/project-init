@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,7 +34,12 @@ include(FetchContent)
 # included by this function. The purpose of such a file is to configure the
 # dependency to be made available to the underlying project. The configuration
 # file can contain arbitrary CMake code. Lastly, the dependency is made
-# available by means of the CMake FetchContent_MakeAvailable() function.
+# available by means of the CMake FetchContent_MakeAvailable() function and
+# the dependency name is appended to a global cached list of processed
+# dependencies in the ${PROJECT}_DEPENDENCIES_LIST variable, where ${PROJECT}
+# is the name in all caps of the underlying project as given to the
+# CMake project() function. A dependency with "TEST" scope is never added
+# to that list.
 #
 # The configuration file for a dependency is an ordinary CMake file, i.e. it
 # must contain syntactically valid CMake code. Each dependency configuration
@@ -227,6 +232,7 @@ function(dependency)
     endif()
 
     set(DEP_ALLOWED_SCOPES ANY RELEASE TEST DEBUG)
+    set(DEP_TRACKED_SCOPES ANY RELEASE DEBUG)
 
     if(NOT "${DEPENDENCY_SCOPE}" IN_LIST DEP_ALLOWED_SCOPES)
         message(
@@ -430,4 +436,20 @@ function(dependency)
 
     FetchContent_MakeAvailable(${DEP_ARGS_DEPENDENCY_NAME})
 
+    # Append dependency name to a tracked global cached list
+    if(DEPENDENCY_SCOPE IN_LIST DEP_TRACKED_SCOPES)
+        set(PROJECT_DEPENDENCIES_LIST ${PROJECT_NAME_UPPER}_DEPENDENCIES_LIST)
+        set(_dep_list "${${PROJECT_DEPENDENCIES_LIST}}")
+        list(FIND _dep_list "${DEP_ARGS_DEPENDENCY_NAME}" _dep_idx)
+        if(_dep_idx EQUAL -1)
+            list(APPEND _dep_list "${DEP_ARGS_DEPENDENCY_NAME}")
+            set(
+                ${PROJECT_DEPENDENCIES_LIST}
+                "${_dep_list}"
+                CACHE STRING
+                "List of dependency names (scopes ANY/RELEASE/DEBUG)"
+                FORCE
+            )
+        endif()
+    endif()
 endfunction()
