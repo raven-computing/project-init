@@ -458,7 +458,9 @@ function(dependency)
         else()
             message(
                 WARNING
-                "No build file found for dependency ${DEPENDENCY_BUILD_FILE}"
+                "The specified build file for "
+                "dependency ${DEP_ARGS_DEPENDENCY_NAME} "
+                "was not found: '${DEPENDENCY_BUILD_FILE}'"
             )
         endif()
     else()
