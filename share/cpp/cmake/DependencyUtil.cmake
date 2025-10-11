@@ -449,11 +449,9 @@ function(dependency)
 
     # Check if a build file needs to be included
     if(DEFINED DEP_ARGS_DEPENDENCY_BUILD_FILE)
-        set(DEPENDENCY_BUILD_FILE "${CMAKE_CURRENT_SOURCE_DIR}/")
-        string(
-            APPEND
+        set(
             DEPENDENCY_BUILD_FILE
-            "${DEP_ARGS_DEPENDENCY_BUILD_FILE}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/${DEP_ARGS_DEPENDENCY_BUILD_FILE}"
         )
         if(EXISTS "${DEPENDENCY_BUILD_FILE}")
             include("${DEPENDENCY_BUILD_FILE}")
