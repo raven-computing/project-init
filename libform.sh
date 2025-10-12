@@ -173,7 +173,7 @@ function project_init_show_main_form() {
 
         if [[ "$var_project_license_dir" == "NONE" ]]; then
           logI "";
-          logI "The project will have no license";
+          logI "No license files will be generated for the project";
         fi
       fi
     else
