@@ -5,4 +5,4 @@ RUN apt-get -y --no-install-recommends install \
 
 RUN pip install --no-cache-dir \
  mkdocs==1.6.0 \
- mkdocs-material==9.5.30
+ mkdocs-material==9.6.21
