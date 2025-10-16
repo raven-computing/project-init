@@ -26,23 +26,29 @@ include(FetchContent)
 # either Git repositories or source archive files. It is a thin wrapper
 # around the FetchContent machinery provided by CMake. By using this function,
 # a dependency becomes available to the underlying project in a
-# declarative way. There are three steps involved in processing a dependency:
+# declarative way. There are four steps involved in processing a dependency:
 # First, the specified dependency is passed to the CMake FetchContent_Declare()
 # function. The caller does not need to take care of the different arguments
 # as used by FetchContent_Declare(), as they are handled entirely by
 # this function. Secondly, an additional configuration file is potentially
 # included by this function. The purpose of such a file is to configure the
 # dependency to be made available to the underlying project. The configuration
-# file can contain arbitrary CMake code. Lastly, the dependency is made
+# file can contain arbitrary CMake code. Thirdly, the dependency is made
 # available by means of the CMake FetchContent_MakeAvailable() function.
+# This steps makes the declared targets of the dependency available to
+# the underlying project. Lastly, an additional build file is potentially
+# included by this function. This is similar to the configuration step, but
+# it allows a project to potentially manipulate the dependency target and its
+# build directly.
 #
-# The configuration file for a dependency is an ordinary CMake file, i.e. it
-# must contain syntactically valid CMake code. Each dependency configuration
-# file is included by this function. It can be used to set variables or do any
-# other kind of processing in order to properly configure the dependency to
-# be used by the underlying project. If no concrete config file is
-# specified by the DEPENDENCY_CONFIG_FILE argument, then this function will
-# look for a dependency config file in the "cmake" directory relative
+# The configuration and build files for a dependency are ordinary CMake files,
+# i.e. it must contain syntactically valid CMake code. Each dependency
+# configuration and build file included by this function if found.
+# The configuration file can be used to set variables or do any other kind of
+# processing in order to properly configure the dependency to be used by the
+# underlying project. If no concrete config file is specified by
+# the DEPENDENCY_CONFIG_FILE argument, then this function will look for a
+# dependency config file in the "cmake" directory relative
 # to CMAKE_CURRENT_SOURCE_DIR. The corresponding config file must be
 # named "Config${DEPENDENCY_NAME}.cmake", where ${DEPENDENCY_NAME} is the
 # value of the mandatory dependency name argument. Please note that the
@@ -51,6 +57,9 @@ include(FetchContent)
 # concrete dependency is named "mydep", then the conventional config file
 # has to be named "ConfigMydep.cmake". The inclusion of any dependency config
 # file can be disabled by using the DEPENDENCY_NO_CONFIG option.
+# The same convention applies to the build file, with a varying file prefix
+# of "Build*" instead of "Config*". For example, a conventional build file
+# might be named "BuildMydep.cmake".
 #
 # Every dependency has a scope. A dependency is only used if its scope
 # is active. The following scopes are available: "ANY", "RELEASE", "TEST"
