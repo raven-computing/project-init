@@ -6,7 +6,7 @@ if [[ $ARG_DOCS == true ]]; then
     exit 1;
   fi
   logI "Building documentation";
-  mkdocs build --config-file "docs/mkdocs.yaml"
+  mkdocs build --config-file "docs/mkdocs.yaml";
   docs_status=$?;
   if (( docs_status != 0 )); then
     logE "Failed to build documentation";
