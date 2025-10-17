@@ -12,5 +12,9 @@ if [[ $ARG_DOCS == true ]]; then
     logE "Failed to build documentation";
     logE "MkDocs finished with exit status $docs_status";
   fi
+  page_label="build/site/index.html";
+  page_url="file://${PWD}/${page_label}";
+  page_link="\e]8;;${page_url}\e\\\\${page_label}\e]8;;\e\\\\";
+  logI "Documentation HTML page is available at ${page_link}";
   exit $docs_status;
 fi
