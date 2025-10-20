@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -69,6 +69,7 @@ function remove_cache_data() {
   # Check cache for base resources
   local cache_dir_pattern="pi_cache_${_EUID}_*";
   local cache_dirs=( $cache_dir_pattern );
+  local cache_dir="";
   if [[ "${cache_dirs[0]}" != "$cache_dir_pattern" ]]; then
     for cache_dir in "${cache_dirs[@]}"; do
       if [ -d "$cache_dir" ]; then
