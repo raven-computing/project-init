@@ -35,7 +35,7 @@ include(FetchContent)
 # dependency to be made available to the underlying project. The configuration
 # file can contain arbitrary CMake code. Lastly, the dependency is made
 # available by means of the CMake FetchContent_MakeAvailable() function and
-# the dependency name is appended to a global cached list of processed
+# the dependency name is appended to a cached global list of processed
 # dependencies in the ${PROJECT}_DEPENDENCIES_LIST variable, where ${PROJECT}
 # is the name in all caps of the underlying project as given to the
 # CMake project() function. A dependency with "TEST" scope is never added
