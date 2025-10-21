@@ -17,12 +17,6 @@ target_include_directories(
     c
 )
 
-target_link_libraries(
-    ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE}
-    PRIVATE
-    ${${{VAR_PROJECT_NAME_UPPER}}_DEPENDENCIES_LIST}
-)
-
 enable_compiler_warnings(
     ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE}
     ${${{VAR_PROJECT_NAME_UPPER}}_IGNORE_WARNINGS}
