@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -191,6 +191,10 @@ function(dependency)
         "${multiValueArgs}"
         ${ARGN}
     )
+
+    if(POLICY CMP0135)
+        cmake_policy(SET CMP0135 NEW)
+    endif()
 
     # The default URL to use for dependencies declared
     # with the DEPENDENCY_RESOURCE short form
