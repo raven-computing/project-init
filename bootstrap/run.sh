@@ -65,7 +65,7 @@ _EUID=$(id -u);
 
 # Removes cached data dirs in system's temporary directory.
 function remove_cache_data() {
-  cd "$PROJECT_INIT_CACHE_LOCATION";
+  cd "$PROJECT_INIT_CACHE_LOCATION" || return;
   # Check cache for base resources
   local cache_dir_pattern="pi_cache_${_EUID}_*";
   local cache_dirs=( $cache_dir_pattern );
