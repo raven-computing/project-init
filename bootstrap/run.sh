@@ -107,7 +107,7 @@ function bootstrap_project_init() {
     # No cache dir found, so create one
     base_res_dir="$(mktemp -d pi_cache_${_EUID}_XXXXXXXXXX)";
     cmd_exit_status=$?;
-    if (( $cmd_exit_status != 0 )); then
+    if (( cmd_exit_status != 0 )); then
       echo "ERROR: Command 'mktemp' returned non-zero exit status $cmd_exit_status";
       echo "ERROR: Failed to create Project Init resource cache" \
            "under $PROJECT_INIT_CACHE_LOCATION";
@@ -124,7 +124,7 @@ function bootstrap_project_init() {
     # Fetch the latest resources and store them in the cache dir
     git clone $git_tag --depth 1 "$PROJECT_INIT_PUBLIC_REPOSITORY" "$cache_dir" &> /dev/null;
     cmd_exit_status=$?;
-    if (( $cmd_exit_status != 0 )); then
+    if (( cmd_exit_status != 0 )); then
       echo "FAILURE";
       rm -rf "$base_res_dir";
       echo "ERROR: Command 'git clone' returned non-zero exit status $cmd_exit_status";
@@ -147,7 +147,7 @@ function bootstrap_project_init() {
       git pull &> /dev/null;
       cmd_exit_status=$?;
     fi
-    if (( $cmd_exit_status != 0 )); then
+    if (( cmd_exit_status != 0 )); then
       local cache_dir="$PROJECT_INIT_CACHE_LOCATION/$base_res_dir";
       echo "FAILURE";
       echo "ERROR: Command 'git pull' returned non-zero exit status $cmd_exit_status";
