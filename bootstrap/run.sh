@@ -232,7 +232,7 @@ function main() {
   bootstrap_project_init;
 
   local exit_status=$?;
-  if (( $exit_status == 0 )); then
+  if (( exit_status == 0 )); then
     export PROJECT_INIT_BOOTSTRAP="1";
     if [[ "$PROJECT_INIT_BOOTSTRAP_FETCHONLY" != "1" ]]; then
       if [ -r "$PROJECT_INIT_SCRIPT_MAIN" ]; then
