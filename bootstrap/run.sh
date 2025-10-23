@@ -220,7 +220,7 @@ function main() {
   local _USER_CWD="$PWD";
   cd "$PROJECT_INIT_CACHE_LOCATION";
   cmd_exit_status=$?;
-  if (( $cmd_exit_status != 0 )); then
+  if (( cmd_exit_status != 0 )); then
     echo "ERROR: Failed to change active working directory" \
          "to $PROJECT_INIT_CACHE_LOCATION";
     return 1;
