@@ -41,6 +41,12 @@ target_include_directories(
     cpp
 )
 
+target_link_libraries(
+    ${{VAR_PROJECT_NAME_UPPER}}_TARGET_LIB_MAIN
+    PRIVATE
+    ${${{VAR_PROJECT_NAME_UPPER}}_DEPENDENCIES_LINK_TARGETS}
+)
+
 set_target_properties(
     ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_LIB_MAIN}
     PROPERTIES
