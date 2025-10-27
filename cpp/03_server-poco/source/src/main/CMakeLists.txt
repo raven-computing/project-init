@@ -25,8 +25,6 @@ target_link_libraries(
     ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE}
     PUBLIC
     netcore
-    PRIVATE
-    ${${{VAR_PROJECT_NAME_UPPER}}_DEPENDENCIES_LINK_TARGETS}
 )
 
 enable_compiler_warnings(
