@@ -46,7 +46,6 @@ target_link_libraries(
     PUBLIC
     glfw
     ${${{VAR_PROJECT_NAME_UPPER}}_PLATFORM_LINK_LIBRARIES}
-    PRIVATE
     ${${{VAR_PROJECT_NAME_UPPER}}_DEPENDENCIES_LINK_TARGETS}
 )
 
