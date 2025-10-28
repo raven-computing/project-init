@@ -11,6 +11,7 @@ dependency(
     DEPENDENCY_NAME         glfw
     DEPENDENCY_RESOURCE     glfw/glfw
     DEPENDENCY_VERSION      3.4
+    DEPENDENCY_LINK_TARGETS glfw
 )
 
 ${{INCLUDE:cpp/cmake/DependenciesCommon.cmake}}
