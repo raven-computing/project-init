@@ -35,8 +35,12 @@ include(FetchContent)
 # dependency to be made available to the underlying project. The configuration
 # file can contain arbitrary CMake code. Thirdly, the dependency is made
 # available by means of the CMake FetchContent_MakeAvailable() function.
-# This steps makes the declared targets of the dependency available to
-# the underlying project. Lastly, an additional build file is potentially
+# This step makes the declared targets of the dependency available to the
+# underlying project. The dependency name is appended to a cached global list
+# of processed dependencies in the ${PROJECT}_DEPENDENCIES_LIST variable,
+# where ${PROJECT} is the name in all caps of the underlying project as given
+# to the CMake project() function. A dependency with "TEST" scope is never
+# added to that list. Lastly, an additional build file is potentially
 # included by this function. This is similar to the configuration step, but
 # it allows a project to potentially manipulate the dependency target and its
 # build directly.
@@ -246,6 +250,7 @@ function(dependency)
     endif()
 
     set(DEP_ALLOWED_SCOPES ANY RELEASE TEST DEBUG)
+    set(DEP_TRACKED_SCOPES ANY RELEASE DEBUG)
 
     if(NOT "${DEPENDENCY_SCOPE}" IN_LIST DEP_ALLOWED_SCOPES)
         message(
@@ -480,6 +485,23 @@ function(dependency)
         # Use the conventional file
         if(EXISTS "${DEPENDENCY_DEFAULT_BUILD_FILE}")
             include("${DEPENDENCY_DEFAULT_BUILD_FILE}")
+        endif()
+    endif()
+
+    # Append dependency name to a tracked global cached list
+    if(DEPENDENCY_SCOPE IN_LIST DEP_TRACKED_SCOPES)
+        set(PROJECT_DEPENDENCIES_LIST ${PROJECT_NAME_UPPER}_DEPENDENCIES_LIST)
+        set(_dep_list "${${PROJECT_DEPENDENCIES_LIST}}")
+        list(FIND _dep_list "${DEP_ARGS_DEPENDENCY_NAME}" _dep_idx)
+        if(_dep_idx EQUAL -1)
+            list(APPEND _dep_list "${DEP_ARGS_DEPENDENCY_NAME}")
+            set(
+                ${PROJECT_DEPENDENCIES_LIST}
+                "${_dep_list}"
+                CACHE STRING
+                "List of dependency names (scopes ANY/RELEASE/DEBUG)"
+                FORCE
+            )
         endif()
     endif()
 endfunction()
