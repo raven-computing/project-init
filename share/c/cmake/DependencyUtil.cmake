@@ -152,6 +152,18 @@ include(FetchContent)
 #       to build the dependency. This argument can optionally be used to
 #       specify a file which deviates from the convention.
 #
+#   [multiValueArgs]
+#
+#   DEPENDENCY_LINK_TARGETS:
+#       A list of target names that should be registered as link targets when
+#       consuming the dependency. This argument is optional. When specified,
+#       the provided names represent CMake targets that are made available to
+#       the underlying project by the dependency. These target names are then
+#       appended to the global variable ${PROJECT}_DEPENDENCIES_LINK_TARGETS
+#       where ${PROJECT} is the name in all caps of the underlying project as
+#       given to the CMake project() function. A dependency with "TEST" scope
+#       is never added to that list.
+#
 #   [options]
 #
 #   DEPENDENCY_QUIET:
@@ -201,7 +213,9 @@ function(dependency)
         DEPENDENCY_CONFIG_FILE
         DEPENDENCY_BUILD_FILE
     )
-    set(multiValueArgs "")
+    set(multiValueArgs
+        DEPENDENCY_LINK_TARGETS
+    )
 
     cmake_parse_arguments(
         DEP_ARGS
@@ -488,8 +502,9 @@ function(dependency)
         endif()
     endif()
 
-    # Append dependency name to a tracked global cached list
+    # Check tracked identifiers
     if(DEPENDENCY_SCOPE IN_LIST DEP_TRACKED_SCOPES)
+        # Append dependency name to a tracked global cached list
         set(PROJECT_DEPENDENCIES_LIST ${PROJECT_NAME_UPPER}_DEPENDENCIES_LIST)
         set(_dep_list "${${PROJECT_DEPENDENCIES_LIST}}")
         list(FIND _dep_list "${DEP_ARGS_DEPENDENCY_NAME}" _dep_idx)
@@ -503,5 +518,26 @@ function(dependency)
                 FORCE
             )
         endif()
+
+        # Append dependency link targets to a tracked global cached list
+        if(DEP_ARGS_DEPENDENCY_LINK_TARGETS)
+            set(PROJECT_DEPENDENCIES_LINK_TARGETS
+                ${PROJECT_NAME_UPPER}_DEPENDENCIES_LINK_TARGETS
+            )
+            set(_dep_link_list "${${PROJECT_DEPENDENCIES_LINK_TARGETS}}")
+            foreach(_link_item IN ITEMS ${DEP_ARGS_DEPENDENCY_LINK_TARGETS})
+                list(FIND _dep_link_list "${_link_item}" _dep_idx)
+                if(_dep_idx EQUAL -1)
+                    list(APPEND _dep_link_list "${_link_item}")
+                endif()
+            endforeach()
+            set(${PROJECT_DEPENDENCIES_LINK_TARGETS}
+                ${_dep_link_list}
+                CACHE STRING
+                "List of link targets of all dependencies"
+                FORCE
+            )
+        endif()
     endif()
+
 endfunction()

@@ -42,10 +42,8 @@ target_include_directories(
 
 target_link_libraries(
     ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_NET_CORE}
-    Poco::XML
-    Poco::JSON
-    Poco::Net
-    Poco::Util
+    PUBLIC
+    ${${{VAR_PROJECT_NAME_UPPER}}_DEPENDENCIES_LINK_TARGETS}
 )
 
 
