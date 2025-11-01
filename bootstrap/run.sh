@@ -108,12 +108,12 @@ function bootstrap_project_init() {
     base_res_dir="$(mktemp -d pi_cache_${_EUID}_XXXXXXXXXX)";
     cmd_exit_status=$?;
     if (( cmd_exit_status != 0 )); then
-      echo "ERROR: Command 'mktemp' returned non-zero exit status $cmd_exit_status";
+      echo "ERROR: Command 'mktemp' returned non-zero exit status ${cmd_exit_status}";
       echo "ERROR: Failed to create Project Init resource cache" \
-           "under $PROJECT_INIT_CACHE_LOCATION";
+           "under ${PROJECT_INIT_CACHE_LOCATION}";
       return 1;
     fi
-    local cache_dir="$PROJECT_INIT_CACHE_LOCATION/$base_res_dir";
+    local cache_dir="${PROJECT_INIT_CACHE_LOCATION}/${base_res_dir}";
     local git_tag="";
     if [ -n "$PROJECT_INIT_PUBLIC_REPOSITORY_TAG" ]; then
       git_tag="-b $PROJECT_INIT_PUBLIC_REPOSITORY_TAG";
@@ -127,10 +127,10 @@ function bootstrap_project_init() {
     if (( cmd_exit_status != 0 )); then
       echo "FAILURE";
       rm -rf "$base_res_dir";
-      echo "ERROR: Command 'git clone' returned non-zero exit status $cmd_exit_status";
+      echo "ERROR: Command 'git clone' returned non-zero exit status ${cmd_exit_status}";
       echo "ERROR: Failed to fetch Project Init resources from: ";
-      echo "       '$PROJECT_INIT_PUBLIC_REPOSITORY'";
-      echo "and caching them under '$cache_dir'";
+      echo "       '${PROJECT_INIT_PUBLIC_REPOSITORY}'";
+      echo "and caching them under '${cache_dir}'";
       return 1;
     fi
     cd "$base_res_dir";
@@ -148,13 +148,13 @@ function bootstrap_project_init() {
       cmd_exit_status=$?;
     fi
     if (( cmd_exit_status != 0 )); then
-      local cache_dir="$PROJECT_INIT_CACHE_LOCATION/$base_res_dir";
+      local cache_dir="${PROJECT_INIT_CACHE_LOCATION}/${base_res_dir}";
       echo "FAILURE";
-      echo "ERROR: Command 'git pull' returned non-zero exit status $cmd_exit_status";
+      echo "ERROR: Command 'git pull' returned non-zero exit status ${cmd_exit_status}";
       echo "ERROR: Failed to update cached Project Init resources: ";
-      echo "   at: '$cache_dir'";
+      echo "   at: '${cache_dir}'";
       if [[ $arg_no_cache == false ]]; then
-        echo "You could try to remove the cache directory '$cache_dir' ";
+        echo "You could try to remove the cache directory '${cache_dir}' ";
         echo "or use the '--no-cache' option and try again.";
       else
         echo "Cache cleared. Please try again.";
@@ -166,7 +166,7 @@ function bootstrap_project_init() {
     echo "OK";
   fi
   if [[ "$PROJECT_INIT_BOOTSTRAP_FETCHONLY" == "1" ]]; then
-    echo "$PROJECT_INIT_CACHE_LOCATION/$base_res_dir";
+    echo "${PROJECT_INIT_CACHE_LOCATION}/${base_res_dir}";
   fi
   return 0;
 }
@@ -246,11 +246,11 @@ function main() {
 
           exit_status=$?;
         else
-          echo "ERROR: Project init script '$PROJECT_INIT_SCRIPT_MAIN' is not executable.";
+          echo "ERROR: Project init script '${PROJECT_INIT_SCRIPT_MAIN}' is not executable.";
           exit_status=1;
         fi
       else
-        echo "ERROR: Project init script '$PROJECT_INIT_SCRIPT_MAIN' not found.";
+        echo "ERROR: Project init script '${PROJECT_INIT_SCRIPT_MAIN}' not found.";
         exit_status=1;
       fi
     fi
