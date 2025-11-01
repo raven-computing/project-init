@@ -239,7 +239,7 @@ function main() {
         if [ -x "$PROJECT_INIT_SCRIPT_MAIN" ]; then
           # Correct working paths
           local CACHE_LOCATION_BASE="$PWD";
-          cd "${_USER_CWD}";
+          cd "${_USER_CWD}" || return 1;
 
           # Run the Project Init main script
           bash "${CACHE_LOCATION_BASE}/${PROJECT_INIT_SCRIPT_MAIN}" "$@";
