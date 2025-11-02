@@ -106,7 +106,7 @@ function bootstrap_project_init() {
   if [[ "${cache_dirs[0]}" == "$cache_dir_pattern" ]]; then
     # No cache dir found, so create one
     base_res_dir="$(mktemp -d pi_cache_${_EUID}_XXXXXXXXXX)";
-    cmd_exit_status=$?;
+    local cmd_exit_status=$?;
     if (( cmd_exit_status != 0 )); then
       echo "ERROR: Command 'mktemp' returned non-zero exit status ${cmd_exit_status}";
       echo "ERROR: Failed to create Project Init resource cache" \
@@ -215,14 +215,10 @@ function main() {
     echo "Please make sure that mktemp is correctly installed.";
     return 1;
   fi
-  local cmd_exit_status=0;
   # Save the CWD and restore it before starting initmain
   local _USER_CWD="$PWD";
-  cd "$PROJECT_INIT_CACHE_LOCATION";
-  cmd_exit_status=$?;
-  if (( cmd_exit_status != 0 )); then
-    echo "ERROR: Failed to change active working directory" \
-         "to $PROJECT_INIT_CACHE_LOCATION";
+  if ! cd "$PROJECT_INIT_CACHE_LOCATION"; then
+    echo "ERROR: Failed to change active working directory to ${PROJECT_INIT_CACHE_LOCATION}";
     return 1;
   fi
   if [[ $arg_no_cache == true ]]; then
