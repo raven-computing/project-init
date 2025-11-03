@@ -174,7 +174,7 @@ function bootstrap_project_init() {
 function main() {
   # Ensure this script is not executed by the root user,
   # except when running inside a Docker container.
-  if (( ${_EUID} == 0 )); then
+  if (( _EUID == 0 )); then
     if ! [ -f "/.dockerenv" ]; then
       echo "WARNING: There is no need for this program to be executed by the root user.";
       echo "Please use a regular user instead.";
