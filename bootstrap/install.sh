@@ -189,9 +189,7 @@ function install_project_init() {
     fi
   fi
   # First download the file to a temporary directory
-  cd "/tmp";
-  cmd_exit_status=$?;
-  if (( cmd_exit_status != 0 )); then
+  if ! cd "/tmp"; then
     echo "ERROR: Failed to switch to system's temporary directory";
     return 1;
   fi
