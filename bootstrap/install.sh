@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -150,13 +150,13 @@ function is_installed() {
     return 0;
   fi
   # Search in the system installation directory
-  if [ -r "$INSTALL_PATH_SYSTEM/$INSTALL_BIN_NAME" ]; then
-    FOUND_INSTALLATION="$INSTALL_PATH_SYSTEM/$INSTALL_BIN_NAME";
+  if [ -r "${INSTALL_PATH_SYSTEM}/${INSTALL_BIN_NAME}" ]; then
+    FOUND_INSTALLATION="${INSTALL_PATH_SYSTEM}/${INSTALL_BIN_NAME}";
     return 0;
   fi
   # Search in the user's installation directory
   if [ -r "$INSTALL_PATH_USER/$INSTALL_BIN_NAME" ]; then
-    FOUND_INSTALLATION="$INSTALL_PATH_USER/$INSTALL_BIN_NAME";
+    FOUND_INSTALLATION="${INSTALL_PATH_USER}/${INSTALL_BIN_NAME}";
     return 0;
   fi
   return 1;
@@ -191,7 +191,7 @@ function install_project_init() {
   # First download the file to a temporary directory
   cd "/tmp";
   cmd_exit_status=$?;
-  if (( $cmd_exit_status != 0 )); then
+  if (( cmd_exit_status != 0 )); then
     echo "ERROR: Failed to switch to system's temporary directory";
     return 1;
   fi
@@ -204,7 +204,7 @@ function install_project_init() {
   # Fetch resource to be installed
   wget -O "$install_file_name_tmp" "$PROJECT_INIT_INSTALL_FILE" &> /dev/null;
   cmd_exit_status=$?;
-  if (( $cmd_exit_status != 0 )); then
+  if (( cmd_exit_status != 0 )); then
     echo "ERROR: Failed to fetch resources from server:" \
          "wget returned non-zero exit status $cmd_exit_status";
     return 1;
@@ -222,18 +222,18 @@ function install_project_init() {
     return 1;
   fi
   # Move the downloaded file to the target installation directory
-  local install_resource="$install_path/$INSTALL_BIN_NAME";
+  local install_resource="${install_path}/${INSTALL_BIN_NAME}";
   mv "$install_file_name_tmp" "$install_resource";
-  if (( $cmd_exit_status != 0 )); then
-    echo "ERROR: Failed to install resources under '$install_path'";
+  if (( cmd_exit_status != 0 )); then
+    echo "ERROR: Failed to install resources under '${install_path}'";
     rm "$install_file_name_tmp" &> /dev/null; # Cleanup
     return 1;
   fi
   # Set owner and group
   local _user="$(whoami)";
   chown "${_user}":"${_user}" "$install_resource";
-  if (( $cmd_exit_status != 0 )); then
-    echo "ERROR: Failed to set owner of resource '$install_resource'";
+  if (( cmd_exit_status != 0 )); then
+    echo "ERROR: Failed to set owner of resource '${install_resource}'";
     if [[ $pi_updated == false ]]; then
       rm "$install_resource" &> /dev/null; # Cleanup
     fi
@@ -241,8 +241,8 @@ function install_project_init() {
   fi
   # Set file permissions
   chmod 755 "$install_resource";
-  if (( $cmd_exit_status != 0 )); then
-    echo "ERROR: Failed to set file permissions of '$install_resource'";
+  if (( cmd_exit_status != 0 )); then
+    echo "ERROR: Failed to set file permissions of '${install_resource}'";
     if [[ $pi_updated == false ]]; then
       rm "$install_resource" &> /dev/null; # Cleanup
     fi
@@ -251,11 +251,11 @@ function install_project_init() {
   # Check command is available
   if ! command -v "$INSTALL_BIN_NAME" &> /dev/null; then
     echo "WARNING: The installation directory does not seem to be on your path:";
-    echo "         '$install_path'";
-    echo "WARNING: Could not find command '$INSTALL_BIN_NAME'";
+    echo "         '${install_path}'";
+    echo "WARNING: Could not find command '${INSTALL_BIN_NAME}'";
     echo "WARNING: Please make sure that the installation directory is on your path.";
     if [[ ${_INSTALLATION_DIR_CREATED} == true ]]; then
-      if (( ${_EUID} != 0 )); then
+      if (( _EUID != 0 )); then
         if [ -n "$HOME" ] && [ -f "${HOME}/.profile" ]; then
           echo "Hint: You could try to source your shell startup file. Found '~/.profile'";
         fi
@@ -290,7 +290,7 @@ function uninstall_project_init() {
     fi
     # Check that file exists and can be removed
     if ! [ -w "$FOUND_INSTALLATION" ]; then
-      echo "ERROR: Unable to remove installed file '$FOUND_INSTALLATION'";
+      echo "ERROR: Unable to remove installed file '${FOUND_INSTALLATION}'";
       if [ -f "$FOUND_INSTALLATION" ]; then
         echo "Do you have the necessary privileges?";
       fi
@@ -298,8 +298,8 @@ function uninstall_project_init() {
     fi
     # Remove installed file
     rm "$FOUND_INSTALLATION";
-    if (( $cmd_exit_status != 0 )); then
-      echo "ERROR: Failed to remove file '$FOUND_INSTALLATION'";
+    if (( cmd_exit_status != 0 )); then
+      echo "ERROR: Failed to remove file '${FOUND_INSTALLATION}'";
       return 1;
     fi
     echo "Successfully uninstalled";
@@ -316,7 +316,7 @@ function main() {
 
   # Prepare installation path
   local install_path="";
-  if (( ${_EUID} == 0 )); then
+  if (( _EUID == 0 )); then
     install_path="$INSTALL_PATH_SYSTEM";
   else
     if [ -z "$HOME" ]; then
