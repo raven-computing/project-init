@@ -295,8 +295,7 @@ function uninstall_project_init() {
       return 1;
     fi
     # Remove installed file
-    rm "$FOUND_INSTALLATION";
-    if (( cmd_exit_status != 0 )); then
+    if ! rm "$FOUND_INSTALLATION"; then
       echo "ERROR: Failed to remove file '${FOUND_INSTALLATION}'";
       return 1;
     fi
