@@ -221,16 +221,14 @@ function install_project_init() {
   fi
   # Move the downloaded file to the target installation directory
   local install_resource="${install_path}/${INSTALL_BIN_NAME}";
-  mv "$install_file_name_tmp" "$install_resource";
-  if (( cmd_exit_status != 0 )); then
+  if ! mv "$install_file_name_tmp" "$install_resource"; then
     echo "ERROR: Failed to install resources under '${install_path}'";
     rm "$install_file_name_tmp" &> /dev/null; # Cleanup
     return 1;
   fi
   # Set owner and group
   local _user="$(whoami)";
-  chown "${_user}":"${_user}" "$install_resource";
-  if (( cmd_exit_status != 0 )); then
+  if ! chown "${_user}":"${_user}" "$install_resource"; then
     echo "ERROR: Failed to set owner of resource '${install_resource}'";
     if [[ $pi_updated == false ]]; then
       rm "$install_resource" &> /dev/null; # Cleanup
@@ -238,8 +236,7 @@ function install_project_init() {
     return 1;
   fi
   # Set file permissions
-  chmod 755 "$install_resource";
-  if (( cmd_exit_status != 0 )); then
+  if ! chmod 755 "$install_resource"; then
     echo "ERROR: Failed to set file permissions of '${install_resource}'";
     if [[ $pi_updated == false ]]; then
       rm "$install_resource" &> /dev/null; # Cleanup
