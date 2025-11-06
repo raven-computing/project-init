@@ -215,7 +215,7 @@ function install_project_init() {
   # Sanity check: Downloaded file has shebang
   local first_line="$(head -n 1 $install_file_name_tmp)";
   if [[ "$first_line" != "#!/bin/bash" ]]; then
-    echo "ERROR: Failed to download resources. Is not a shell script";
+    echo "ERROR: Failed to download resources. Unexpected shebang";
     rm "$install_file_name_tmp" &> /dev/null; # Cleanup
     return 1;
   fi
