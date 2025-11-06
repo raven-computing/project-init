@@ -144,7 +144,8 @@ function confirm_action() {
 #
 function is_installed() {
   # First, see if the corresponding command is available.
-  local cmd_path="$(command -v $INSTALL_BIN_NAME)";
+  local cmd_path;
+  cmd_path="$(command -v $INSTALL_BIN_NAME)";
   if [ -n "$cmd_path" ]; then
     FOUND_INSTALLATION="$cmd_path";
     return 0;
@@ -213,7 +214,8 @@ function install_project_init() {
     return 1;
   fi
   # Sanity check: Downloaded file has shebang
-  local first_line="$(head -n 1 $install_file_name_tmp)";
+  local first_line;
+  first_line="$(head -n 1 $install_file_name_tmp)";
   if [[ "$first_line" != "#!/bin/bash" ]]; then
     echo "ERROR: Failed to download resources. Unexpected shebang";
     rm "$install_file_name_tmp" &> /dev/null; # Cleanup
@@ -227,7 +229,8 @@ function install_project_init() {
     return 1;
   fi
   # Set owner and group
-  local _user="$(whoami)";
+  local _user;
+  _user="$(whoami)";
   if ! chown "${_user}":"${_user}" "$install_resource"; then
     echo "ERROR: Failed to set owner of resource '${install_resource}'";
     if [[ $pi_updated == false ]]; then
