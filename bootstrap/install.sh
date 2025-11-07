@@ -322,8 +322,7 @@ function main() {
     install_path="${HOME}/${INSTALL_PATH_USER}";
     if ! [ -d "$install_path" ]; then
       # Create user-wide installation directory
-      mkdir -p "$install_path";
-      if (( $? != 0 )); then
+      if ! mkdir -p "$install_path"; then
         echo "ERROR: Failed to create user-wide installation directory '${install_path}'";
         return 1;
       fi
