@@ -276,7 +276,6 @@ function install_project_init() {
 # nz - Non-zero otherwise.
 #
 function uninstall_project_init() {
-  local cmd_exit_status=0;
   local question="Are you sure that you want to UNINSTALL the Project Init system? (y/N): ";
   if is_installed; then
     # Ask for confirmation unless '--yes' option was specified
