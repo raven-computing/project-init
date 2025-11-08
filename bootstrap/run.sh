@@ -133,11 +133,11 @@ function bootstrap_project_init() {
       echo "and caching them under '${cache_dir}'";
       return 1;
     fi
-    cd "$base_res_dir";
+    cd "$base_res_dir" || return 1;
   else
     # At least one cache dir found
     base_res_dir="${cache_dirs[0]}";
-    cd "$base_res_dir";
+    cd "$base_res_dir" || return 1;
     if [[ $arg_version_str == false ]]; then
       echo -n "Loading...";
     fi
