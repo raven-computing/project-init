@@ -103,7 +103,7 @@ function parse_args() {
 #     entered an invalid answer or nothing at all
 #
 function confirm_action() {
-  read -p "$1" entered_yes_no;
+  read -r -p "$1" entered_yes_no;
   # Validate user input
   if [ -z "$entered_yes_no" ]; then
     entered_yes_no="no";
