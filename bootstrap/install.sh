@@ -123,9 +123,8 @@ function confirm_action() {
   esac
   if [[ $entered_yes_no == true ]]; then
     return 0;
-  else
-    return 1;
   fi
+  return 1;
 }
 
 # Indicates whether the Project Init system is currently
