@@ -81,6 +81,7 @@ function remove_cache_data() {
   fi
   # Check cache for addons resources
   cache_dir_pattern="piar_cache_${_EUID}_*";
+  # shellcheck disable=SC2206
   cache_dirs=( $cache_dir_pattern );
   if [[ "${cache_dirs[0]}" != "$cache_dir_pattern" ]]; then
     for cache_dir in "${cache_dirs[@]}"; do
