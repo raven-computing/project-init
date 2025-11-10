@@ -103,6 +103,8 @@ function remove_cache_data() {
 function bootstrap_project_init() {
   # Find suitable cache dir
   local cache_dir_pattern="pi_cache_${_EUID}_*";
+  # Globbing is intentional
+  # shellcheck disable=SC2206
   local cache_dirs=( $cache_dir_pattern );
   local base_res_dir="";
   # Check if a cache dir already exists
