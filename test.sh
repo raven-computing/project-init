@@ -164,6 +164,8 @@ if [[ $ARG_LINT == true ]]; then
   files_to_lint+=("libform.sh");
   files_to_lint+=("initmain.sh");
   files_to_lint+=("quickstart.sh");
+  files_to_lint+=("bootstrap/run.sh");
+  files_to_lint+=("bootstrap/install.sh");
   shopt -s globstar;
   # Add init.sh files.
   for initfile in **/init.sh; do
