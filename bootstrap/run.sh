@@ -68,6 +68,8 @@ function remove_cache_data() {
   cd "$PROJECT_INIT_CACHE_LOCATION" || return;
   # Check cache for base resources
   local cache_dir_pattern="pi_cache_${_EUID}_*";
+  # Globbing is intentional
+  # shellcheck disable=SC2206
   local cache_dirs=( $cache_dir_pattern );
   local cache_dir="";
   if [[ "${cache_dirs[0]}" != "$cache_dir_pattern" ]]; then
