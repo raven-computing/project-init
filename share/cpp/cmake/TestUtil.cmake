@@ -19,7 +19,7 @@
 # making a call to the add_test() function provided by CTest. The utility
 # function in this file takes care of the boilerplate setup required
 # to register a new test. The minimum CMake version required by
-# this code is v3.14.
+# this code is 3.22.
 #
 #==============================================================================
 

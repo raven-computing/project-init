@@ -17,7 +17,7 @@
 # Contains a function for adding compiler and linker options to targets in
 # CMake-based projects to add support for sanitizers, for example address
 # and memory leak sanitizers.
-# The minimum CMake version required by this code is v3.14.
+# The minimum CMake version required by this code is 3.22.
 #
 #==============================================================================
 

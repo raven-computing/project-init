@@ -15,7 +15,7 @@
 #==============================================================================
 #
 # Contains functions providing build utilities.
-# The minimum CMake version required by this code is v3.14.
+# The minimum CMake version required by this code is 3.22.
 #
 #==============================================================================
 

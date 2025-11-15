@@ -16,7 +16,7 @@
 #
 # This file contains a function for specifying dependencies in CMake-based
 # projects. It is a thin wrapper around the FetchContent machinery provided
-# by CMake. The minimum CMake version required by this code is v3.14.
+# by CMake. The minimum CMake version required by this code is 3.22.
 #
 #==============================================================================
 

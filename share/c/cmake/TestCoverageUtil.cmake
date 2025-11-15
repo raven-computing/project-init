@@ -16,7 +16,7 @@
 #
 # Contains a function for adding compiler options to targets in CMake-based
 # projects to add support for code test coverage instrumentation.
-# The minimum CMake version required by this code is v3.14.
+# The minimum CMake version required by this code is 3.22.
 #
 #==============================================================================
 

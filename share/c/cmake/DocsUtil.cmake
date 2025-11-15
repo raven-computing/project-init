@@ -17,7 +17,7 @@
 # Contains functions providing utilities for documentation resource generation.
 # This file may be run in CMake script mode, which will automatically execute
 # the configure_doxygen_build() function.
-# The minimum CMake version required by this code is v3.14.
+# The minimum CMake version required by this code is 3.22.
 #
 #==============================================================================
 
