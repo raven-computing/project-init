@@ -190,9 +190,9 @@ include(FetchContent)
 # Example usage:
 #
 # dependency(
-#     DEPENDENCY_NAME         unity
-#     DEPENDENCY_RESOURCE     https://github.com/ThrowTheSwitch/Unity.git
-#     DEPENDENCY_VERSION      v2.5.2
+#     DEPENDENCY_NAME         gtest
+#     DEPENDENCY_RESOURCE     https://github.com/google/googletest.git
+#     DEPENDENCY_VERSION      release-1.10.0
 #     DEPENDENCY_SCOPE        TEST
 # )
 #

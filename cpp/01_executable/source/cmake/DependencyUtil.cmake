@@ -1,1 +1,1 @@
-${{INCLUDE:cpp/cmake/DependencyUtil.cmake}}
+${{INCLUDE:c/cmake/DependencyUtil.cmake}}
