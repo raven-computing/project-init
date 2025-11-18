@@ -1,3 +1,18 @@
+#### 1.9.6
+* Added dependency link targets list variable in C and C++ projects. [[Issue#118]](https://github.com/raven-computing/project-init/issues/118)
+* Added processed dependencies list variable in C and C++ projects. [[Issue#112]](https://github.com/raven-computing/project-init/issues/112)
+* Added CMake dependency build instructions handling in C and C++ projects. [[Issue#113]](https://github.com/raven-computing/project-init/issues/113)
+* Added handling for CMake Policy CMP0135. [[Issue#114]](https://github.com/raven-computing/project-init/issues/114)
+* Changed the minimum required CMake version from 3.14 to 3.22 in all C and C++ project source templates.
+* Improved warning messages.
+* Improved build scripts.
+* Improved bootstrap install and run scripts.
+* Improved CMake script files in C and C++ project source templates.
+* Removed a redundant utility CMake file in C and C++ project source templates.
+* Updated dependency versions in Python project source templates.
+* Updated dependency versions in C++ project source templates.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.9.5...v1.9.6)
+
 #### 1.9.5
 * Added handling for a default Doxygen theme in C and C++ project source templates. [[Issue#110]](https://github.com/raven-computing/project-init/issues/110)
 * Added -Wno-unused-function to GCC flags.
