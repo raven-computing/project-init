@@ -3,7 +3,7 @@
 #     Docker image to build and test the ${{VAR_PROJECT_NAME}} project
 #                                                                             #
 ###############################################################################
-FROM python:3.13-bookworm
+FROM python:3.14-bookworm
 
 # Arguments
 ARG UID=0

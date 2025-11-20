@@ -431,6 +431,7 @@ add_lang_version "3.10" "3.10";
 add_lang_version "3.11" "3.11";
 add_lang_version "3.12" "3.12";
 add_lang_version "3.13" "3.13";
+add_lang_version "3.14" "3.14";
 
 # Let the user choose a Python project type
 select_project_type "python" "Python";
