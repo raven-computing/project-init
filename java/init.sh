@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2025 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -215,6 +215,7 @@ add_lang_version "1.8" "Java 8";
 add_lang_version "11" "Java 11";
 add_lang_version "17" "Java 17";
 add_lang_version "21" "Java 21";
+add_lang_version "25" "Java 25";
 
 select_project_type "java" "Java";
 selected_name="$FORM_PROJECT_TYPE_NAME";
