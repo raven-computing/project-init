@@ -66,7 +66,7 @@ function execute_test_run() {
     test_run_status=$?;
   else
     logE "Test file '${testfile}' does not define function 'test_functionality()'";
-    test_run_status=3;
+    test_run_status=21;
   fi
   unset -f test_functionality;
   unset -f test_functionality_result;
