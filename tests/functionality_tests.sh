@@ -532,12 +532,16 @@ function main() {
     fi
   fi
 
-  if (( exit_status != 0 )); then
-    logE "Testing of ${addon_mention}functionality has not completed";
-    logE "An error has occurred during a functionality test";
-  else
+  if (( exit_status == 0 )); then
     logI "Testing of ${addon_mention}functionality has completed";
     printt_ok "All functionality tests have passed:";
+  else
+    logE "Testing of ${addon_mention}functionality has not completed";
+    if (( exit_status == 3 )); then
+      logE "A test failure has occurred during a functionality test";
+    else
+      logE "An error has occurred during a functionality test";
+    fi
   fi
 
   if [[ $arg_keep_output == false ]]; then
