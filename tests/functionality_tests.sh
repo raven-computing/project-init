@@ -140,7 +140,7 @@ function _test_functionality_driver() {
       logE "There was output captured from stderr (see below)";
     fi
     if (( test_status == 3 )); then
-      logE "The test run itself seems to have finished without critical failures, but";
+      logE "The test run itself seems to have finished without critical errors, but";
       logE "there are missing or adverse project files in the generated output (see below)";
     fi
     logE "";
