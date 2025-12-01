@@ -32,8 +32,8 @@
 
 
 function process_files_lvl_1() {
-  replace_var "R_VERSION"        "$var_r_version";
-  replace_var "R_VERSION_LABEL"  "$var_r_version_label";
+  replace_var "R_VERSION"       "$var_r_version";
+  replace_var "R_VERSION_LABEL" "$var_r_version_label";
 
   if [ -n "$var_r_library_package_name" ]; then
     replace_var "R_LIBRARY_PACKAGE_NAME" "$var_r_library_package_name";
