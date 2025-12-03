@@ -35,6 +35,7 @@ for arg in "$@"; do
   case $arg in
     --clean)
     ARG_CLEAN=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;
     --docs)
@@ -76,16 +77,6 @@ if ! source ".global.sh"; then
   exit 1;
 fi
 
-# Check clean flag
-if [[ $ARG_CLEAN == true ]]; then
-  if [ -d "build" ]; then
-    rm -rf "build";
-  fi
-  # Remove compiled files
-  run_R_cmd "clean_dll()";
-  exit 0;
-fi
-
 if ! [ -d "build" ]; then
   mkdir "build";
 fi
@@ -109,6 +100,16 @@ function build_docs() {
   fi
   return 0;
 }
+
+# Check clean flag
+if [[ $ARG_CLEAN == true ]]; then
+  if [ -d "build" ]; then
+    rm -rf "build";
+  fi
+  # Remove compiled files
+  run_R_cmd "clean_dll()";
+  exit 0;
+fi
 
 # Generate code bindings with Rcpp
 logI "Generating C++ bindings";
