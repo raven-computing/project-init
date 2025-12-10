@@ -1,7 +1,7 @@
 
 ### Linting
 
-To perform static code analysis of the source code, specify the *--lint* argument:
+To perform static code analysis of the source code, run:
 ```
 ./test.sh --lint
 ```
