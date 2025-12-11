@@ -29,10 +29,10 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/.cmakeprefixpath")
     list(APPEND CMAKE_PREFIX_PATH ${_VAR_CMAKE_PREFIX_PATH})
 endif()
 
-include(Dependencies.cmake)
 include(cmake/BuildUtil.cmake)
 include(cmake/TestUtil.cmake)
 include(cmake/TestCoverageUtil.cmake)
 include(cmake/SanitizerUtil.cmake)
+include(Dependencies.cmake)
 
 add_subdirectory(src/main main)
