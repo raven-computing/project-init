@@ -46,19 +46,23 @@ function(add_code_coverage target_name)
         )
         return()
     endif()
-    if(MSYS)
-        if(DEFINED CMAKE_C_COMPILER_ID
-           AND NOT CMAKE_C_COMPILER_ID STREQUAL "GNU")
-           if(DEFINED CMAKE_CXX_COMPILER_ID
-              AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-                message(
-                    WARNING
-                    "When building with code test coverage support on Windows "
-                    "with MSYS2/MinGW, GCC must be used as the compiler."
-                )
-                return()
-            endif()
+    if((DEFINED CMAKE_C_COMPILER_ID AND NOT CMAKE_C_COMPILER_ID STREQUAL "GNU")
+        OR (DEFINED CMAKE_CXX_COMPILER_ID
+            AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU"))
+        if(MSYS)
+            message(
+                WARNING
+                "When building with code test coverage support on Windows "
+                "with MSYS2/MinGW, GCC must be used as the compiler."
+            )
+        else()
+            message(
+                WARNING
+                "When building with code test coverage support, "
+                "only GCOV via GCC is currently supported."
+            )
         endif()
+        return()
     endif()
 
     string(TOUPPER ${CMAKE_BUILD_TYPE} PROJECT_BUILD_TYPE)
