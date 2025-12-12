@@ -66,7 +66,9 @@ function(add_code_coverage target_name)
     endif()
 
     string(TOUPPER ${CMAKE_BUILD_TYPE} PROJECT_BUILD_TYPE)
-    message(STATUS "Adding code coverage instrumentation to target ${target_name}")
+    message(
+        STATUS "Adding code coverage instrumentation to target ${target_name}"
+    )
     if(NOT ${PROJECT_BUILD_TYPE} STREQUAL "DEBUG")
         message(
             WARNING
