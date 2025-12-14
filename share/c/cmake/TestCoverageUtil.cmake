@@ -14,8 +14,9 @@
 
 #==============================================================================
 #
-# Contains a function for adding compiler options to targets in CMake-based
-# projects to add support for code test coverage instrumentation.
+# Defines functions for creating targets to support code test coverage and
+# adding compiler options to targets in CMake-based projects to add support
+# for code test coverage instrumentation.
 # The minimum CMake version required by this code is 3.22.
 #
 #==============================================================================
@@ -24,7 +25,7 @@
 #
 # Appends the appropriate compiler flags to enable code test
 # coverage instrumentation for the specified target.
-# Code coverage should only be enabled for debug builds.
+# Code coverage should only be enabled for Debug builds.
 #
 # Arguments:
 #
@@ -87,6 +88,80 @@ function(add_code_coverage target_name)
         ${target_name}
         PRIVATE
         gcov
+    )
+
+endfunction()
+
+# Creates CMake targets to clean, collect and merge coverage data with lcov.
+#
+# Adds the following targets to the current CMake project:
+#
+#   - clean_coverage_data: Cleans up old coverage data files
+#   - collect_coverage_data: Collects & merges coverage data into a single file
+#
+# The targets will only be added if the build is performed with GCC and
+# the lcov tool is available on the system.
+#
+# Usage:
+#   add_code_coverage_collection_targets()
+#
+function(add_code_coverage_collection_targets)
+    set(output_dir "${CMAKE_BINARY_DIR}/cov")
+    set(output_file "${output_dir}/merged.info")
+    set(include_glob "${CMAKE_SOURCE_DIR}/src/*")
+    set(cov_clean_script "${CMAKE_BINARY_DIR}/CMakeFiles/clean-cov-gcda.cmake")
+
+    message(
+        CHECK_START
+        "Checking if test coverage collection targets can be added"
+    )
+
+    if(DEFINED CMAKE_C_COMPILER_ID AND NOT CMAKE_C_COMPILER_ID STREQUAL "GNU")
+        message(CHECK_FAIL "Not available")
+        message(
+            WARNING
+            "When building with code test coverage support, "
+            "only GCOV via GCC is currently supported."
+        )
+        return()
+    endif()
+
+    find_program(LCOV_EXEC lcov)
+    if(NOT LCOV_EXEC)
+        message(CHECK_FAIL "Not available")
+        message(
+            WARNING
+            "Could not find the 'lcov' command. "
+            "Please install lcov to collect test coverage data."
+        )
+        return()
+    endif()
+
+    message(CHECK_PASS "Available")
+    file(
+        COPY_FILE
+        "${CMAKE_SOURCE_DIR}/cmake/TestCoverageCleanupUtil.cmake"
+        "${cov_clean_script}"
+    )
+    add_custom_target(
+        clean_coverage_data
+        COMMAND ${CMAKE_COMMAND} -P "${cov_clean_script}"
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+        COMMENT "Cleaning up old coverage data (*.gcda files)"
+        VERBATIM
+    )
+    add_custom_target(
+        collect_coverage_data
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}"
+        COMMAND ${LCOV_EXEC} --quiet
+                             --directory "${CMAKE_BINARY_DIR}"
+                             --capture
+                             --include "${include_glob}"
+                             --output-file "${output_file}"
+                             --rc geninfo_unexecuted_blocks=1
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+        COMMENT "Collecting coverage data into ${output_file}"
+        VERBATIM
     )
 
 endfunction()
