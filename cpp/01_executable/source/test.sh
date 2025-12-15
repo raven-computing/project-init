@@ -124,15 +124,12 @@ BUILD_DIR_COV_DATA="cov";
 FILE_COV_DATA_MERGED="merged.info";
 BUILD_DIR_COV_REPORT="coverage_report";
 
-if [[ $ARG_COVERAGE == true ]]; then
-  # Remove previously collected test coverage data
-  rm -rf "build/${BUILD_DIR_COV_DATA}" "build/${BUILD_DIR_COV_REPORT}";
-  find . -name '*.gcda' -delete;
-fi
+cd "build" || exit 1;
 
-cd "build";
-if (( $? != 0 )); then
-  exit $?;
+if [[ $ARG_COVERAGE == true ]]; then
+  if ! cmake --build . --target clean_coverage_data 1>/dev/null; then
+    echo "Warning: Failed to clean existing coverage data files";
+  fi
 fi
 
 BUILD_CONFIGURATION="";
@@ -157,10 +154,7 @@ ctest_status=$?;
 if (( ctest_status == 0 )); then
   if [[ $ARG_COVERAGE == true ]]; then
     echo "Collecting coverage data";
-    mkdir "$BUILD_DIR_COV_DATA";
-    if ! lcov --quiet --directory . --capture \
-              --include "${COV_INCL_PATH}"'/src/*' \
-              --output-file "${BUILD_DIR_COV_DATA}/${FILE_COV_DATA_MERGED}"; then
+    if ! cmake --build . --target collect_coverage_data 1>/dev/null; then
       echo "Failed to collect test coverage data";
       exit 1;
     fi

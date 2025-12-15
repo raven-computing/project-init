@@ -40,3 +40,7 @@ include(cmake/SanitizerUtil.cmake)
 include(Dependencies.cmake)
 
 add_subdirectory(src/main main)
+
+if(${{VAR_PROJECT_NAME_UPPER}}_BUILD_TEST_COVERAGE)
+    add_code_coverage_collection_targets()
+endif()
