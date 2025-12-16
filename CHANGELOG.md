@@ -1,3 +1,14 @@
+#### 1.9.7
+* Added support for Java 25.
+* Added support for Python 3.14.
+* Changed R version labels.
+* Improved testing utilities.
+* Improved various project source templates.
+* Improved CMake scripts.
+* Removed support for Python 3.9.
+* Removed support for R 3.6.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.9.6...v1.9.7)
+
 #### 1.9.6
 * Added dependency link targets list variable in C and C++ projects. [[Issue#118]](https://github.com/raven-computing/project-init/issues/118)
 * Added processed dependencies list variable in C and C++ projects. [[Issue#112]](https://github.com/raven-computing/project-init/issues/112)
