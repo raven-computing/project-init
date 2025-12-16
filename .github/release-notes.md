@@ -1,8 +1,7 @@
 #### Release notes:
 
-* Various improvements for the CMake scripts that are generated for all new C and C++ projects.
-* The minimum CMake version was incremented to 3.22 for all generated scripts. This change reflects the minimum CMake version that is available by default on supported operating systems.
-* Miscellaneous improvements.
-* Updates to project source templates.
+* Added support for Java 25 and Python 3.14 projects.
+* Removed support for Python 3.9 and R 3.6 projects.
+* Improvements to project source templates.
 
-See [Changelog](https://github.com/raven-computing/project-init/blob/v1.9.6/CHANGELOG.md).
+See [Changelog](https://github.com/raven-computing/project-init/blob/v1.9.7/CHANGELOG.md).
