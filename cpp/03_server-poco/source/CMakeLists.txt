@@ -1,7 +1,7 @@
 # Copyright (C) ${{VAR_COPYRIGHT_YEAR}} ${{VAR_COPYRIGHT_HOLDER}}
 # ${{VAR_PROJECT_NAME}}: ${{VAR_PROJECT_DESCRIPTION}}
 
-cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.22 FATAL_ERROR)
 
 project(
     ${{VAR_PROJECT_NAME_LOWER}}
