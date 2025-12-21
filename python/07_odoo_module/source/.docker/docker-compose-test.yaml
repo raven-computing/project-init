@@ -1,7 +1,7 @@
 name: ${{VAR_PROJECT_NAME_LOWER}}
 services:
   web:
-    image: odoo:18
+    image: odoo:19
     container_name: ${{VAR_PROJECT_NAME_LOWER}}-web
     depends_on:
       - db
