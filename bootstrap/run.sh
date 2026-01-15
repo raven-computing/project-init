@@ -221,7 +221,7 @@ function main() {
     return 1;
   fi
   # Save the CWD and restore it before starting initmain
-  local _USER_CWD="$PWD";
+  local _user_cwd="$PWD";
   if ! cd "$PROJECT_INIT_CACHE_LOCATION"; then
     echo "ERROR: Failed to change active working directory to ${PROJECT_INIT_CACHE_LOCATION}";
     return 1;
@@ -240,7 +240,7 @@ function main() {
         if [ -x "$PROJECT_INIT_SCRIPT_MAIN" ]; then
           # Correct working paths
           local cache_location_base="$PWD";
-          cd "${_USER_CWD}" || return 1;
+          cd "${_user_cwd}" || return 1;
 
           # Run the Project Init main script
           bash "${cache_location_base}/${PROJECT_INIT_SCRIPT_MAIN}" "$@";
