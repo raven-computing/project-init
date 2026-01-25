@@ -1,4 +1,4 @@
-# Copyright (C) 2025 Raven Computing
+# Copyright (C) 2026 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,7 +24,9 @@
 # Adds sanitizer support to a given CMake target.
 #
 # Appends the appropriate compiler and linker flags to enable sanitizers for
-# the specified target.
+# the specified target. Supported platforms are GNU/Linux and Windows.
+# Sanitizers can be used for release build variants but preferably are only
+# enabled for debug builds to get the most informative output.
 #
 # Arguments:
 #
@@ -42,10 +44,11 @@ function(add_sanitizers target_name)
         "-fno-omit-frame-pointer"
     )
     set(
-        SAN_LINK_FLAGS
+        SAN_LINK_FLAGS_LINUX
         "-fsanitize=address" "-fsanitize=leak" "-fsanitize=undefined"
     )
-    set(SAN_COMPILE_FLAGS_WINDOWS "/fsanitize=address" "/Oy-")
+    set(SAN_COMPILE_FLAGS_WINDOWS "/fsanitize=address" "/Oy-" "/Zi")
+    set(SAN_LINK_FLAGS_WINDOWS "/INCREMENTAL:NO")
 
     target_compile_options(
         ${target_name}
@@ -56,7 +59,8 @@ function(add_sanitizers target_name)
     target_link_options(
         ${target_name}
         PUBLIC
-        $<$<NOT:$<PLATFORM_ID:Windows>>:${SAN_LINK_FLAGS}>
+        $<$<PLATFORM_ID:Linux>:${SAN_LINK_FLAGS_LINUX}>
+        $<$<PLATFORM_ID:Windows>:${SAN_LINK_FLAGS_WINDOWS}>
     )
 
 endfunction()
