@@ -2,27 +2,24 @@ ${{VAR_COPYRIGHT_HEADER}}
 
 #define PY_SSIZE_T_CLEAN
 
-//Python.h must be the first header to include
+// Python.h must be the first header to include
 #include <Python.h>
+#include <string.h>
 
-//Here we could include <string.h> to use strcmp() but
-//this is already done by the Python.h header
-
-
-/*
+/**
  * Dummy function comparing two strings using the strcmp() function.
  */
-static PyObject* compare(PyObject* self, PyObject* args){
+static PyObject* compare(PyObject* self, PyObject* args) {
     const char* str1;
     const char* str2;
-    if(!PyArg_ParseTuple(args, "ss", &str1, &str2)){
+    if (!PyArg_ParseTuple(args, "ss", &str1, &str2)) {
         return NULL;
     }
     const int res = strcmp(str1, str2);
     return PyLong_FromLong(res);
 }
 
-/*
+/**
  * Module method table
  */
 static PyMethodDef scMethods[] = {
@@ -31,7 +28,7 @@ static PyMethodDef scMethods[] = {
     {NULL, NULL, 0, NULL}  //Sentinel
 };
 
-/*
+/**
  * Module definition
  */
 static struct PyModuleDef scModule = {
@@ -42,9 +39,9 @@ static struct PyModuleDef scModule = {
     scMethods  //Method table
 };
 
-/*
+/**
  * Module initialization function
  */
-PyMODINIT_FUNC PyInit__string_comparator(void){
+PyMODINIT_FUNC PyInit__string_comparator(void) {
     return PyModule_Create(&scModule);
 }

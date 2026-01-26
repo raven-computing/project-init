@@ -1,5 +1,5 @@
 ${{VAR_COPYRIGHT_HEADER}}
-"""Unit tests for the StringComparator implementation."""
+"""Unit tests for the `StringComparator` implementation."""
 
 import unittest
 
@@ -7,7 +7,7 @@ from ${{VAR_NAMESPACE_DECLARATION}}.string_comparator import StringComparator
 
 
 class TestStringComparator(unittest.TestCase):
-    """Tests the functionality of the StringComparator class."""
+    """Tests the functionality of the `StringComparator` class."""
 
     def setUp(self):
         self.dummy = StringComparator("TEST")
