@@ -7,15 +7,14 @@ def find_index(data, val):
     specified string data object.
 
     Args:
-        data: The data object to search in, as a str. Must not be None
-        val: The character to find the index for, as a str of length one.
-            Must not be None
+        data (str): The data object to search in. Must not be `None`.
+        val (str): The character to find the index for, as a `str` of
+            length one. Must not be `None`.
 
     Returns:
-        The index of the specified character as an int or -1 if the
-        set string of this IndexFinder instance does not contain
-        the specified character.
-        Never returns None.
+        int: The index of the specified character. Returns -1 if the
+            set string of this `IndexFinder` instance does not contain
+            the specified character. Never `None`.
     """
     # This is a kinda pointless example for Cython as we are
     # heavily relying on interpreter calls

@@ -1,5 +1,5 @@
 ${{VAR_COPYRIGHT_HEADER}}
-"""Unit tests for the IndexFinder implementation."""
+"""Unit tests for the `IndexFinder` implementation."""
 
 import unittest
 
@@ -34,7 +34,10 @@ class TestIndexFinder(unittest.TestCase):
         self.dummy.find("a")
         self.dummy.find("t")
         val = self.dummy.ncalls
-        self.assertTrue(isinstance(val, int), "Attribute 'ncalls' should be an int")
+        self.assertTrue(
+            isinstance(val, int),
+            "Attribute 'ncalls' should be an int"
+        )
         self.assertTrue(val == 3, "Attribute 'ncalls' should be 6")
 
 

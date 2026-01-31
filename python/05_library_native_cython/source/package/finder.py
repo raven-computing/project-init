@@ -1,5 +1,5 @@
 ${{VAR_COPYRIGHT_HEADER}}
-"""This module provides an abstract Finder class."""
+"""This module provides an abstract `Finder` class."""
 
 from abc import ABC, abstractmethod
 
@@ -8,14 +8,14 @@ class Finder(ABC):
     """Dummy abstract base class.
 
     Attributes:
-        data (any): The base value used by the Finder.
-        ncalls (int): The number of calls to the find() method of
+        data (any): The base value used by the `Finder`.
+        ncalls (int): The number of calls to the `find()` method of
             the Finder instance.
     """
 
     def __init__(self, data):
         self.data = data
-        self.ncalls = 0
+        self.ncalls: int = 0
 
     @abstractmethod
     def find(self, val):
@@ -27,4 +27,3 @@ class Finder(ABC):
         Returns:
             any: The found result.
         """
-        pass
