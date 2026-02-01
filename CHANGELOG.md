@@ -1,7 +1,7 @@
 #### 1.9.8
 * Improved various project source templates.
 * Improved CMake scripts.
-+ Updated version of used dependencies in project source templates.
+* Updated version of used dependencies in project source templates.
 * See [full changelog](https://github.com/raven-computing/project-init/compare/v1.9.7...v1.9.8)
 
 #### 1.9.7
