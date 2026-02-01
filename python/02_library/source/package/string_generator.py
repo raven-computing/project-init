@@ -1,11 +1,11 @@
 ${{VAR_COPYRIGHT_HEADER}}
-"""Implementation of the Generator ABC using strings."""
+"""Implementation of the `Generator` ABC using strings."""
 
 from ${{VAR_NAMESPACE_DECLARATION}}.generator import Generator
 
 
 class StringGenerator(Generator):
-    """A dummy implementation of the Generator ABC."""
+    """A dummy implementation of the `Generator` ABC."""
 
     def __init__(self):
         super().__init__("${{VAR_PROJECT_SLOGAN_STRING}}")
