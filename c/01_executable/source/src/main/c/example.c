@@ -5,10 +5,10 @@ ${{VAR_COPYRIGHT_HEADER}}
 #include "example.h"
 
 
-int getFortyTwo(void){
+int getFortyTwo(void) {
     return 42;
 }
 
-void printText(void){
+void printText(void) {
     printf("${{VAR_PROJECT_SLOGAN_STRING}}\n");
 }

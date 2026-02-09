@@ -4,13 +4,12 @@ ${{VAR_COPYRIGHT_HEADER}}
 
 #include "example.h"
 
-
 static const char* const TEXT = "${{VAR_PROJECT_SLOGAN_STRING}}\n";
 
-int addFortyTwo(const int number){
+int addFortyTwo(const int number) {
     return number + 42;
 }
 
-const char* getText(void){
+const char* getText(void) {
     return TEXT;
 }

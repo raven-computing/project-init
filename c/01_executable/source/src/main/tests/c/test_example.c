@@ -4,20 +4,19 @@ ${{VAR_COPYRIGHT_HEADER}}
 
 #include "example.h"
 
+void setUp(void) { }
 
-void setUp(){ }
+void tearDown(void) { }
 
-void tearDown(){ }
-
-void testTrivial(){
+void testTrivial(void) {
     TEST_ASSERT_EQUAL(1, 1);
 }
 
-void testApplicationGetFortyTwo(){
+void testApplicationGetFortyTwo(void) {
     TEST_ASSERT_EQUAL(42, getFortyTwo());
 }
 
-int main(void){
+int main(void) {
     UNITY_BEGIN();
     RUN_TEST(testTrivial);
     RUN_TEST(testApplicationGetFortyTwo);

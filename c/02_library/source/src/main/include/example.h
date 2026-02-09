@@ -14,7 +14,6 @@ ${{VAR_C_HEADER_BEGIN}}
 
 #include "${{VAR_ARTIFACT_BINARY_NAME}}_export.h"
 
-
 /**
  * Adds the number 42 to the specified number.
  *
