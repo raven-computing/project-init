@@ -15,14 +15,14 @@ app.use(cookieParser());
 app.use(express.static("public"));
 
 // Example API endpoint
-app.get("/hello", function(req, res){
+app.get("/hello", function(req, res) {
     res.statusCode = 200;
     res.setHeader("Content-Type", "text/plain");
     res.send("${{VAR_PROJECT_SLOGAN_STRING}}");
 });
 
 // Create the server
-var server = app.listen(8080, function(){
+var server = app.listen(8080, function() {
     const port = server.address().port;
     console.log("Listening on port %s", port);
 })
