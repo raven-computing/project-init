@@ -6,8 +6,7 @@ ${{VAR_COPYRIGHT_HEADER}}
 
 using ${{VAR_NAMESPACE_COLON}}::Application;
 
-
-int main(int argc, char** argv){
+int main(int argc, char** argv) {
     std::cout << Application::getTitle() << std::endl;
     return Application::run();
 }

@@ -6,27 +6,26 @@ ${{VAR_COPYRIGHT_HEADER}}
 #include "${{VAR_NAMESPACE_PATH}}/Application.h"
 #include "${{VAR_NAMESPACE_PATH}}/Window.h"
 
-
 ${{VAR_NAMESPACE_DECL_BEGIN}}
 using std::string;
 using std::unique_ptr;
 using std::make_unique;
 
-string Application::getTitle(){
+string Application::getTitle() {
     return "${{VAR_PROJECT_SLOGAN_STRING}}";
 }
 
-int Application::run(){
+int Application::run() {
 
     unique_ptr<Window> window = make_unique<Window>("Demo Window");
 
     int statSetup = window->setup();
-    if(statSetup != 0){
+    if (statSetup != 0) {
         return statSetup;
     }
 
     int statCreate = window->create();
-    if(statCreate != 0){
+    if (statCreate != 0) {
         return statCreate;
     }
 

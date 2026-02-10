@@ -6,7 +6,6 @@ ${{VAR_CPP_HEADER_BEGIN}}
 #include "${{VAR_NAMESPACE_PATH}}/ExampleControllerHTTP.h"
 #include "${{VAR_NAMESPACE_PATH}}/ExampleControllerWS.h"
 
-
 ${{VAR_NAMESPACE_DECL_BEGIN}}
 /**
  * Example router for routing HTTP requests.

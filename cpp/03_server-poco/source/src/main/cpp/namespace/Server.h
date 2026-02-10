@@ -7,7 +7,6 @@ ${{VAR_CPP_HEADER_BEGIN}}
 #include "raven/net/ServerTCP.h"
 #include "raven/net/RouterHTTP.h"
 
-
 ${{VAR_NAMESPACE_DECL_BEGIN}}
 /**
  * Example TCP server usage.

@@ -11,22 +11,21 @@ ${{VAR_COPYRIGHT_HEADER}}
 
 #include "${{VAR_NAMESPACE_PATH}}/Window.h"
 
-
 ${{VAR_NAMESPACE_DECL_BEGIN}}
 using std::string;
 
-static void glfwErrorCallback(int error, const char* description){
+static void glfwErrorCallback(int error, const char* description) {
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
-Window::Window(string title){
+Window::Window(string title) {
     this->title = title;
 }
 
-int Window::setup(){
+int Window::setup() {
     // Setup error callback and init GLFW
     glfwSetErrorCallback(glfwErrorCallback);
-    if (!glfwInit()){
+    if (!glfwInit()) {
         return 127;
     }
     // GL 3.0
@@ -36,7 +35,7 @@ int Window::setup(){
     return 0;
 }
 
-int Window::create(){
+int Window::create() {
     // Create GLFW window with graphics context
     int width = 1280;
     int height = 800;
@@ -45,7 +44,7 @@ int Window::create(){
         this->title.c_str(),
         NULL, NULL
     );
-    if(window == NULL){
+    if (window == NULL) {
         return 1;
     }
     this->glfwWindow = window;
@@ -69,12 +68,12 @@ int Window::create(){
     return 0;
 }
 
-void Window::show(){
+void Window::show() {
     bool showDemoWindow = true;
     ImVec4 colors = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Main loop
-    while(!glfwWindowShouldClose(this->glfwWindow)){
+    while (!glfwWindowShouldClose(this->glfwWindow)) {
         glfwPollEvents();
 
         // Start ImGUI frame
@@ -109,7 +108,7 @@ void Window::show(){
     }
 }
 
-void Window::terminate(){
+void Window::terminate() {
     // ImGUI backend
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();

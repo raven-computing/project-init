@@ -9,7 +9,6 @@ ${{VAR_COPYRIGHT_HEADER}}
 #include "raven/net/Message.h"
 #include "raven/util/Log.h"
 
-
 ${{VAR_NAMESPACE_DECL_BEGIN}}
 using std::string;
 using std::exception;
@@ -17,17 +16,18 @@ using raven::net::Session;
 using raven::net::Message;
 using raven::util::Log;
 
-void ExampleControllerWS::onConnect(Session& session){
+void ExampleControllerWS::onConnect(Session& session) {
     Log::info("ExampleControllerWS: Web socket CONNECTED");
 }
 
-void ExampleControllerWS::onDisconnect(Session& session){
+void ExampleControllerWS::onDisconnect(Session& session) {
     Log::info("ExampleControllerWS: Web socket DISCONNECTED");
 }
 
 void ExampleControllerWS::onMessageReceived(
-    Session& session, Message& message){
-
+    Session& session,
+    Message& message
+){
     Log::info("ExampleControllerWS: Web socket MESSAGE received");
     //Get the message payload
     const string& text = message.getText();
@@ -37,7 +37,7 @@ void ExampleControllerWS::onMessageReceived(
     session.send(reverse);
 }
 
-void ExampleControllerWS::onError(Session& session, const exception& ex){
+void ExampleControllerWS::onError(Session& session, const exception& ex) {
     Log::info("ExampleControllerWS: Web socket ERROR");
 }
 

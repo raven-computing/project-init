@@ -7,23 +7,21 @@ ${{VAR_COPYRIGHT_HEADER}}
 
 #include "${{VAR_NAMESPACE_PATH}}/StringGenerator.h"
 
-
 using std::string;
 using ::testing::StartsWith;
 using ${{VAR_NAMESPACE_COLON}}::StringGenerator;
 
-
-int main(int argc, char** argv){
+int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     ::testing::InitGoogleMock(&argc, argv);
     return RUN_ALL_TESTS();
 }
 
-TEST(StringGeneratorTest, TestTrivial){
+TEST(StringGeneratorTest, TestTrivial) {
     ASSERT_EQ(1, 1);
 }
 
-TEST(StringGeneratorTest, TestGenerate){
+TEST(StringGeneratorTest, TestGenerate) {
     StringGenerator dummy;
     string val = dummy.generate();
     ASSERT_FALSE(val.empty());

@@ -6,7 +6,6 @@ ${{VAR_CPP_HEADER_BEGIN}}
 
 #include "${{VAR_ARTIFACT_BINARY_NAME}}_export.h"
 
-
 ${{VAR_NAMESPACE_DECL_BEGIN}}
 /**
  * A dummy implementation of an object generating strings.

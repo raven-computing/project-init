@@ -4,7 +4,6 @@ ${{VAR_CPP_HEADER_BEGIN}}
 
 #include <string>
 
-
 ${{VAR_NAMESPACE_DECL_BEGIN}}
 /**
  * An object that processes strings.

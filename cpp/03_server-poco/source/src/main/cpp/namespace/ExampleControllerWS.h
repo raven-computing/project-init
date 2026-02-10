@@ -8,7 +8,6 @@ ${{VAR_CPP_HEADER_BEGIN}}
 #include "raven/net/Session.h"
 #include "raven/net/Message.h"
 
-
 ${{VAR_NAMESPACE_DECL_BEGIN}}
 /**
  * Example controller for handling Web socket connections.
@@ -23,7 +22,8 @@ public:
 
     virtual void onMessageReceived(
         raven::net::Session& session,
-        raven::net::Message& message);
+        raven::net::Message& message
+    );
 
     virtual void onError(raven::net::Session& session, const std::exception& ex);
 

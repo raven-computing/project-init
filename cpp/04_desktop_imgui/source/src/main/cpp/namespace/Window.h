@@ -6,7 +6,6 @@ ${{VAR_CPP_HEADER_BEGIN}}
 
 #include "GLFW/glfw3.h"
 
-
 ${{VAR_NAMESPACE_DECL_BEGIN}}
 /**
  * Main Window class.
