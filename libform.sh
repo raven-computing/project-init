@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2025 Raven Computing
+# Copyright (C) 2026 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -163,7 +163,7 @@ function project_init_show_main_form() {
       # Check whether to set default text
       if [ -z "$USER_INPUT_ENTERED_INDEX" ]; then
         logI "";
-        logI "You have not selected a license. The project will not be licensed";
+        logI "You have not selected a license";
         var_project_license_dir="NONE";
         var_project_license="None";
       else
