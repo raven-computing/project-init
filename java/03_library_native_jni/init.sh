@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2025 Raven Computing
+# Copyright (C) 2026 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -55,9 +55,7 @@ function process_files_lvl_2() {
   if [[ "$var_java_lib_jni_native_lang" == "C" ]]; then
     c_or_cpp="c";
     remove_file "cmake/ConfigGtest.cmake";
-    remove_file "cmake/cpp_DependencyUtil.cmake";
     remove_file "cmake/cpp_TestUtil.cmake";
-    move_file "cmake/c_DependencyUtil.cmake" "cmake/DependencyUtil.cmake";
     move_file "cmake/c_TestUtil.cmake" "cmake/TestUtil.cmake";
     remove_file "src/main/cpp";
     remove_file "src/test/cpp";
@@ -76,9 +74,7 @@ function process_files_lvl_2() {
   else
     c_or_cpp="cpp";
     remove_file "cmake/ConfigUnity.cmake";
-    remove_file "cmake/c_DependencyUtil.cmake";
     remove_file "cmake/c_TestUtil.cmake";
-    move_file "cmake/cpp_DependencyUtil.cmake" "cmake/DependencyUtil.cmake";
     move_file "cmake/cpp_TestUtil.cmake" "cmake/TestUtil.cmake";
     remove_file "src/main/c";
     remove_file "src/test/c";
@@ -94,6 +90,9 @@ function process_files_lvl_2() {
     replace_var "CMAKE_ADD_LIBRARY_FILE"    "StringComparator.cpp";
     replace_var "CMAKE_TEST_SOURCE_FILE"    "StringComparatorTest.cpp";
   fi
+
+  # Common for both C and C++
+  move_file "cmake/c_DependencyUtil.cmake" "cmake/DependencyUtil.cmake";
 
   # Set the namespace variables for the C++ part of the project
   # shellcheck disable=SC2154
