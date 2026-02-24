@@ -15,6 +15,13 @@ ${{VAR_CMAKE_LANG_SPEC}}
 
 # Options
 option(${{VAR_PROJECT_NAME_UPPER}}_BUILD_TESTS "Enable/disable tests" ON)
+option(${{VAR_PROJECT_NAME_UPPER}}_SOURCE_ANALYSIS "Enable/disable source code static analysis by the compiler" OFF)
+option(
+    ${{VAR_PROJECT_NAME_UPPER}}_IGNORE_WARNINGS
+    "Specifies whether compiler warnings should let the build \
+    process fail (OFF) or whether they should be ignored (ON)"
+    OFF
+)
 
 # Set CMAKE_PREFIX_PATH from file
 if(EXISTS "${PROJECT_SOURCE_DIR}/.cmakeprefixpath")
@@ -25,5 +32,6 @@ endif()
 
 include(Dependencies.cmake)
 include(cmake/TestUtil.cmake)
+include(cmake/BuildUtil.cmake)
 
 add_subdirectory(src/main native)
