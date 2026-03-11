@@ -4,7 +4,6 @@ ${{VAR_COPYRIGHT_HEADER}}
 
 #include "${{VAR_NAMESPACE_PATH}}/StringComparator.h"
 
-
 ${{VAR_NAMESPACE_DECL_BEGIN}}
 
 StringComparator::StringComparator(){ }

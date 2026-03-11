@@ -11,7 +11,6 @@ ${{VAR_COPYRIGHT_HEADER}}
 
 using ${{VAR_NAMESPACE_COLON}}::StringComparator;
 
-
 JNIEXPORT void JNICALL
 Java_${{VAR_NAMESPACE_UNDERSCORE}}_StringComparator_printTextNative0
 (JNIEnv* env, jobject self){
