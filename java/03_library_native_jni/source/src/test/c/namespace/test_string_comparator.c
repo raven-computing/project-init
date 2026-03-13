@@ -4,21 +4,20 @@ ${{VAR_COPYRIGHT_HEADER}}
 
 #include "${{VAR_NAMESPACE_PATH}}/string_comparator.h"
 
-
 void setUp(){ }
 
 void tearDown(){ }
 
-void testTrivial(){
+void testTrivial() {
     TEST_ASSERT_EQUAL(1, 1);
 }
 
-void testCompareEqual(){
+void testCompareEqual() {
     int result = compare_strings("TEST-1", "TEST-1");
     TEST_ASSERT_EQUAL(0, result);
 }
 
-int main(void){
+int main(void) {
     UNITY_BEGIN();
     RUN_TEST(testTrivial);
     RUN_TEST(testCompareEqual);

@@ -6,9 +6,9 @@ ${{VAR_COPYRIGHT_HEADER}}
 
 ${{VAR_NAMESPACE_DECL_BEGIN}}
 
-StringComparator::StringComparator(){ }
+StringComparator::StringComparator() { }
 
-int StringComparator::compare(const char* str1, const char* str2){
+int StringComparator::compare(const char* str1, const char* str2) {
     return strcmp(str1, str2);
 }
 

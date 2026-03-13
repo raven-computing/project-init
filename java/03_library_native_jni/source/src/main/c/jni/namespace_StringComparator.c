@@ -7,17 +7,16 @@ ${{VAR_COPYRIGHT_HEADER}}
 
 #include "${{VAR_NAMESPACE_PATH}}/string_comparator.h"
 
-
 JNIEXPORT void JNICALL
 Java_${{VAR_NAMESPACE_UNDERSCORE}}_StringComparator_printTextNative0
-(JNIEnv* env, jobject self){
+(JNIEnv* env, jobject self) {
 
     printf("${{VAR_PROJECT_SLOGAN_STRING}}\n");
 }
 
 JNIEXPORT jint JNICALL
 Java_${{VAR_NAMESPACE_UNDERSCORE}}_StringComparator_compareNative0
-(JNIEnv* env, jobject self, jstring val2){
+(JNIEnv* env, jobject self, jstring val2) {
 
     jclass cls = (*env)->GetObjectClass(env, self);
     jfieldID field = (*env)->GetFieldID(env, cls, "val", "Ljava/lang/String;");

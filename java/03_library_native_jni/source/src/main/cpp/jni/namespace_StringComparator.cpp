@@ -13,14 +13,14 @@ using ${{VAR_NAMESPACE_COLON}}::StringComparator;
 
 JNIEXPORT void JNICALL
 Java_${{VAR_NAMESPACE_UNDERSCORE}}_StringComparator_printTextNative0
-(JNIEnv* env, jobject self){
+(JNIEnv* env, jobject self) {
 
     std::cout << "${{VAR_PROJECT_SLOGAN_STRING}}" << std::endl;
 }
 
 JNIEXPORT jint JNICALL
 Java_${{VAR_NAMESPACE_UNDERSCORE}}_StringComparator_compareNative0
-(JNIEnv* env, jobject self, jstring val2){
+(JNIEnv* env, jobject self, jstring val2) {
 
     jclass cls = env->GetObjectClass(self);
     jfieldID field = env->GetFieldID(cls, "val", "Ljava/lang/String;");
