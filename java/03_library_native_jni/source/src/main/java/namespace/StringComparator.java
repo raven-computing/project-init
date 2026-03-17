@@ -21,14 +21,14 @@ public class StringComparator implements Comparator<String> {
     *
     * @param val The first String object to compare. Must not be null.
     */
-    public StringComparator(final String val){
+    public StringComparator(String val) {
         this.val = val;
     }
 
    /**
     * Prints some example text on stdout.
     */
-    public void printText(){
+    public void printText() {
         printTextNative0();
     }
 
@@ -39,7 +39,7 @@ public class StringComparator implements Comparator<String> {
     * @return An int as specified by the <code>Comparator</code> interface.
     */
     @Override
-    public int compare(final String val){
+    public int compare(String val) {
         if(this.val == null){
             throw new RuntimeException("Value of StringComparator is null");
         }
