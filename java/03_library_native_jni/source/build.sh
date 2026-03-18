@@ -129,6 +129,8 @@ else
   fi
 fi
 
+export JDK_JAVA_OPTIONS="--enable-native-access=ALL-UNNAMED";
+
 # Call Maven
 mvn "package" ${cmd_mvn_args};
 exit $?;
