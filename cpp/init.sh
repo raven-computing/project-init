@@ -241,8 +241,8 @@ function form_cpp_namespace() {
   fi
   var_namespace_path=$(echo "$var_namespace" |tr "." "/");
   var_namespace_colon="${var_namespace//./::}";
-  var_namespace_include_guard=$(echo "$var_namespace"         \
-                                |tr "." "_"                   \
+  var_namespace_include_guard=$(echo "$var_namespace" \
+                                |tr "." "_"           \
                                 |tr '[:lower:]' '[:upper:]');
 
   var_namespace_decl_begin="";
