@@ -98,8 +98,8 @@ function process_files_lvl_2() {
   # shellcheck disable=SC2154
   var_namespace_colon="${var_namespace//./::}";
   var_namespace_underscore="${var_namespace//./_}";
-  var_namespace_include_guard=$(echo "$var_namespace"         \
-                                |tr "." "_"                   \
+  var_namespace_include_guard=$(echo "$var_namespace" \
+                                |tr "." "_"           \
                                 |tr '[:lower:]' '[:upper:]');
 
   var_namespace_decl_begin="";
