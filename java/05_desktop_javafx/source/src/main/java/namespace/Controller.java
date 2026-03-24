@@ -8,7 +8,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Button;
 
-
 /**
  * Dummy controller class.
  *
@@ -35,16 +34,16 @@ public class Controller {
 
     private int counter;
 
-    public void initialize(){ }
+    public void initialize() { }
 
     @FXML
-    private void onButtonClick(ActionEvent event){
+    private void onButtonClick(ActionEvent event) {
         ++counter;
 
         final String countValue = "(" + counter + ")";
         labelTxtCounter.setText(countValue);
 
-        if(checkboxLog.isSelected()){
+        if(checkboxLog.isSelected()) {
             System.out.println("You clicked me!  " + countValue);
         }
 
