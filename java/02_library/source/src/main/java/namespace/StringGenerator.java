@@ -14,7 +14,7 @@ public class StringGenerator implements Generator<String> {
     /**
      * Constructs a new <code>StringGenerator</code> for generating dummy strings
      */
-    public StringGenerator(){
+    public StringGenerator() {
         this.val = "${{VAR_PROJECT_SLOGAN_STRING}}";
     }
 
@@ -24,7 +24,7 @@ public class StringGenerator implements Generator<String> {
      * @return A String object of this Generator
      */
     @Override
-    public String generate(){
+    public String generate() {
         return this.val + " " + (n++);
     }
 

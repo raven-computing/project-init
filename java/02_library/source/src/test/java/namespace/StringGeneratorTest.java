@@ -17,19 +17,19 @@ import org.junit.Test;
 public class StringGeneratorTest {
 
     @BeforeClass
-    public static void setUpBeforeClass(){ }
+    public static void setUpBeforeClass() { }
 
     @AfterClass
-    public static void tearDownAfterClass(){ }
+    public static void tearDownAfterClass() { }
 
     @Before
-    public void setUp(){ }
+    public void setUp() { }
 
     @After
-    public void tearDown(){ }
+    public void tearDown() { }
 
     @Test
-    public void testStringIsNotEmpty() throws Exception{
+    public void testStringIsNotEmpty() throws Exception {
         Generator<String> dummy = new StringGenerator();
         String val = dummy.generate();
         assertNotNull(val);
