@@ -17,19 +17,19 @@ import org.junit.Test;
 public class MainTest {
 
     @BeforeClass
-    public static void setUpBeforeClass(){ }
+    public static void setUpBeforeClass() { }
 
     @AfterClass
-    public static void tearDownAfterClass(){ }
+    public static void tearDownAfterClass() { }
 
     @Before
-    public void setUp(){ }
+    public void setUp() { }
 
     @After
-    public void tearDown(){ }
+    public void tearDown() { }
 
     @Test
-    public void testTrivial() throws Exception{
+    public void testTrivial() throws Exception {
         assertTrue(true);
     }
 
