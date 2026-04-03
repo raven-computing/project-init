@@ -4,8 +4,7 @@
 
 #include <iostream>
 
-
-int main(int argc, char** argv){
+int main(int argc, char** argv) {
     std::cout << "${{VAR_PROJECT_SLOGAN_STRING}}" << std::endl;
     return 0;
 }
