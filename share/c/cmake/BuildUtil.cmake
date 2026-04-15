@@ -19,6 +19,8 @@
 #
 #==============================================================================
 
+include(CheckIPOSupported)
+
 # Enables all compiler warnings for the specified target.
 #
 # Sets non-default warning flags for the given target to help identify
