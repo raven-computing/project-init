@@ -1,4 +1,4 @@
-# Copyright (C) 2025 Raven Computing
+# Copyright (C) 2026 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -105,6 +105,32 @@ function(enable_source_compile_checks target_name)
         ${target_name}
         PRIVATE
         $<$<COMPILE_LANGUAGE:C>:-fanalyzer>
+    )
+
+endfunction()
+
+# Sets a target to be stripped when building on Unix-like systems.
+#
+# Appends the appropriate linker options to strip the given target.
+#
+# Arguments:
+#
+#   target_name:
+#       The name of the target that should be stripped when building.
+#       This argument is mandatory.
+#
+# Example:
+#   set_stripped_executable(mytarget)
+#
+function(set_stripped_executable target_name)
+    set(platform "$<BOOL:${UNIX}>")
+    set(variant "$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>")
+    set(compiler "$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>")
+    set(strip_opt "-Wl,--strip-all")
+    target_link_options(
+        ${target_name}
+        PRIVATE
+        "$<$<AND:${platform},${variant},${compiler}>:${strip_opt}>"
     )
 
 endfunction()
