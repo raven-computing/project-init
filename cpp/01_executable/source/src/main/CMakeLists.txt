@@ -48,6 +48,8 @@ target_include_directories(
     cpp
 )
 
+set_stripped_executable(${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION})
+
 enable_compiler_warnings(
     ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION}
     ${${{VAR_PROJECT_NAME_UPPER}}_IGNORE_WARNINGS}
