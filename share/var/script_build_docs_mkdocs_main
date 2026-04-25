@@ -5,6 +5,8 @@ if [[ $ARG_DOCS == true ]]; then
   ${{VAR_SCRIPT_BUILD_ISOLATED_HINT1}}
     exit 1;
   fi
+  # See https://squidfunk.github.io/mkdocs-material/blog/2026/02/18/mkdocs-2.0
+  export NO_MKDOCS_2_WARNING="1";
   logI "Building documentation";
   mkdocs build --config-file "docs/mkdocs.yaml";
   mkdocs_status=$?;
