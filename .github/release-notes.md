@@ -1,5 +1,6 @@
 #### Release notes:
 
-* Updates and improvements to project source templates.
+* Added support for R 4.6.0 in all R projects.
+* Updates to project source templates.
 
-See [Changelog](https://github.com/raven-computing/project-init/blob/v1.9.9/CHANGELOG.md).
+See [Changelog](https://github.com/raven-computing/project-init/blob/v1.9.10/CHANGELOG.md).
