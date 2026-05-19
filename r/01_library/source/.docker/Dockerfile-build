@@ -23,6 +23,7 @@ RUN apt-get -y update && apt-get -y install \
  zlib1g-dev \
  libbz2-dev \
  liblzma-dev \
+ libuv1-dev \
  libcairo-gobject2 \
  libpng-dev \
  libtiff5-dev \
