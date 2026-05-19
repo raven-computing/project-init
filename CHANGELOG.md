@@ -1,3 +1,8 @@
+#### 1.9.10
+* Added support for R 4.6.0
+* Updates to default dependencies in project source templates.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.9.9...v1.9.10)
+
 #### 1.9.9
 * Added build utility functions in CMake scripts of project source templates.
 * Improved project source templates.
