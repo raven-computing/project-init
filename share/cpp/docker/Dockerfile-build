@@ -26,8 +26,8 @@ RUN apt-get -y update && apt-get -y --no-install-recommends install \
 
 # Install CMake
 RUN wget -q -O /opt/cmake-installer.sh \
- https://cmake.org/files/v3.31/cmake-3.31.10-linux-x86_64.sh && \
- echo 52bf502e0b68e60cdf7a966669dc02fc6c3e0a016d161a5b312d1ed03ac23056 \
+ https://cmake.org/files/v4.3/cmake-4.3.3-linux-x86_64.sh && \
+ echo c4aff42ccac97da02e0bf1b2b4dcfd618da65955af9ee0faea65a1c08a9fd679 \
  /opt/cmake-installer.sh | sha256sum --check --quiet && \
  mkdir /opt/cmake && \
  bash /opt/cmake-installer.sh --prefix=/opt/cmake --exclude-subdir && \
