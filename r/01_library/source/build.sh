@@ -123,10 +123,6 @@ if [[ $ARG_SKIP_TESTS == false ]]; then
   fi
 fi
 
-if ! build_docs; then
-  exit 1;
-fi
-
 # Build
 logI "Building distribution package";
 run_R_cmd "build(path=\"build\")";
