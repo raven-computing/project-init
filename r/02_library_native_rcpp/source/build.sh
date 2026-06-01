@@ -143,7 +143,7 @@ if [[ $ARG_SKIP_TESTS == false ]]; then
   # Execute the test script
   bash test.sh;
   if (( $? != 0 )); then
-    exit $?;
+    exit 1;
   fi
 fi
 
