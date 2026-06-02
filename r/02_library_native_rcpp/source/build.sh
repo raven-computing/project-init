@@ -54,7 +54,6 @@ ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;
     *)
-    # Unknown Argument
     echo "Unknown argument: '$arg'";
     echo "$USAGE";
     echo "";
@@ -64,13 +63,11 @@ ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
   esac
 done
 
-# Check if help is triggered
 if [[ $ARG_SHOW_HELP == true ]]; then
   echo "$HELP_TEXT";
   exit 0;
 fi
 
-# Source configurations
 if ! source ".global.sh"; then
   echo "ERROR: Failed to source globals.";
   echo "Are you in the project root directory?";
@@ -101,7 +98,6 @@ function build_docs() {
   return 0;
 }
 
-# Check clean flag
 if [[ $ARG_CLEAN == true ]]; then
   if [ -d "build" ]; then
     rm -rf "build";
@@ -111,7 +107,6 @@ if [[ $ARG_CLEAN == true ]]; then
   exit 0;
 fi
 
-# Generate code bindings with Rcpp
 logI "Generating C++ bindings";
 run_R_cmd "compileAttributes()";
 if (( $? != 0 )); then
@@ -119,13 +114,11 @@ if (( $? != 0 )); then
   exit 1;
 fi
 
-# Check docs flag
 if [[ $ARG_DOCS == true ]]; then
   build_docs;
   exit $?;
 fi
 
-# Compile and check if code can be loaded
 logI "Compiling and loading code";
 run_R_cmd "load_all()";
 if (( $? != 0 )); then
@@ -134,16 +127,13 @@ if (( $? != 0 )); then
   exit $build_status;
 fi
 
-# Check skip-tests flag
 if [[ $ARG_SKIP_TESTS == false ]]; then
-  # Execute the test script
   bash test.sh;
   if (( $? != 0 )); then
     exit 1;
   fi
 fi
 
-# Build
 logI "Creating distribution packages";
 
 logI "Building source distribution package";
@@ -164,4 +154,3 @@ fi
 
 logI "Build successful";
 exit 0;
-
