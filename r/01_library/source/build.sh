@@ -93,19 +93,13 @@ ${{VAR_SCRIPT_BUILD_ISOLATED_HINT1}}
   exit 1;
 fi
 
-function build_docs() {
-  logI "Building documentation";
-  run_R_cmd "document()";
-  if (( $? != 0)); then
-    logE "Failed to build documentation";
-    return 1;
-  fi
-  return 0;
-}
-
 if [[ $ARG_DOCS == true ]]; then
-  build_docs;
-  exit $?;
+  logI "Building documentation";
+  if ! run_R_cmd "document()"; then
+    logE "Failed to build documentation";
+    exit 1;
+  fi
+  exit 0;
 fi
 
 if [[ $ARG_SKIP_TESTS == false ]]; then
