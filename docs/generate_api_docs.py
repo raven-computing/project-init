@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2025 Raven Computing
+# Copyright (C) 2026 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -59,6 +59,9 @@ _PROJECT_INIT_VERSION = "?"
 
 # The used text encoding when reading/writing files.
 _FILE_ENCODING = "UTF-8"
+
+def _strip_dash(text):
+    return text.strip().strip("-").strip()
 
 def parse_args():
     """Parses the arguments passed to this program.
@@ -312,16 +315,13 @@ def parse_obj_key_list_args(key_lines):
     if len(iargs) > 0:
         for argname_idx in iargs[:-1]:
             argname = tokens[argname_idx]
-            argtext = tokens[argname_idx+1].strip()     \
-                                           .strip("-")  \
-                                           .strip()     \
-                                           .strip("\n")
+            argtext = _strip_dash(tokens[argname_idx+1]).strip("\n")
 
             key_list.append([argname, argtext])
 
         last = iargs[-1]
         argname = tokens[last]
-        argtext = tokens[last+1].strip().strip("-").strip().strip("\n")
+        argtext = _strip_dash(tokens[last+1]).strip("\n")
         key_list.append([argname, argtext])
 
     return key_list
@@ -367,7 +367,7 @@ def parse_obj_key_list_returns(key_lines):
         line = lines[begin_idx]
         tokens = line.split(" - ")
         retval = tokens[0].strip()
-        rettext = tokens[1].strip().strip("-").strip()
+        rettext = _strip_dash(tokens[1])
         sfrom = begin_idx+1
         suntil = len(lines) if (i == len(begins)-1) else begins[i+1]
         to_append = " ".join(lines[sfrom:suntil])
@@ -400,7 +400,7 @@ def parse_obj_key_list_globals(key_lines):
         line = lines[begin_idx]
         tokens = line.split(" - ")
         globalname = tokens[0].strip()
-        globaltext = tokens[1].strip().strip("-").strip()
+        globaltext = _strip_dash(tokens[1])
         sfrom = begin_idx+1
         suntil = len(lines) if (i == len(begins)-1) else begins[i+1]
         to_append = " ".join(lines[sfrom:suntil])
