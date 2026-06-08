@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2025 Raven Computing
+# Copyright (C) 2026 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -202,6 +202,10 @@ function form_python_odoo_create_wizard() {
   var_odoo_create_wizard=$USER_INPUT_ENTERED_BOOL;
 }
 
+logW "";
+logW "The project source template for Odoo modules is deprecated.";
+logW "It will be removed in a future version.";
+logW "";
 
 # Form questions
 
