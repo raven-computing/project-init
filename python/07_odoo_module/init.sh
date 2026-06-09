@@ -206,6 +206,7 @@ logW "";
 logW "The project source template for Odoo modules is deprecated.";
 logW "It will be removed in a future version.";
 logW "";
+_N_WARNINGS=$((_N_WARNINGS-4));
 
 # Form questions
 
