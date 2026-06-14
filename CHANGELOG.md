@@ -1,3 +1,9 @@
+#### 1.9.11
+* Deprecated Odoo module project source template.
+* Minor internal improvements.
+* Updates to default dependencies in project source templates.
+* See [full changelog](https://github.com/raven-computing/project-init/compare/v1.9.10...v1.9.11)
+
 #### 1.9.10
 * Added support for R 4.6.0
 * Updates to default dependencies in project source templates.
