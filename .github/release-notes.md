@@ -1,6 +1,6 @@
 #### Release notes:
 
-* Added support for R 4.6.0 in all R projects.
+* The Python Odoo module project source template is now deprecated. It will be removed in a future version.
 * Updates to project source templates.
 
-See [Changelog](https://github.com/raven-computing/project-init/blob/v1.9.10/CHANGELOG.md).
+See [Changelog](https://github.com/raven-computing/project-init/blob/v1.9.11/CHANGELOG.md).
