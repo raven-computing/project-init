@@ -5,6 +5,6 @@
 #include <stdio.h>
 
 int main(int argc, char** argv) {
-    printf("${{VAR_PROJECT_SLOGAN_STRING}}\n");
+    printf("%s\n", "${{VAR_PROJECT_SLOGAN_STRING}}");
     return 0;
 }
