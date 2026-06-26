@@ -10,5 +10,5 @@ int getFortyTwo(void) {
 }
 
 void printText(void) {
-    printf("${{VAR_PROJECT_SLOGAN_STRING}}\n");
+    printf("%s\n", "${{VAR_PROJECT_SLOGAN_STRING}}");
 }
