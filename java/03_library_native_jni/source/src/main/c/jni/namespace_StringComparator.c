@@ -11,7 +11,7 @@ JNIEXPORT void JNICALL
 Java_${{VAR_NAMESPACE_UNDERSCORE}}_StringComparator_printTextNative0
 (JNIEnv* env, jobject self) {
 
-    printf("${{VAR_PROJECT_SLOGAN_STRING}}\n");
+    printf("%s\n", "${{VAR_PROJECT_SLOGAN_STRING}}");
 }
 
 JNIEXPORT jint JNICALL
