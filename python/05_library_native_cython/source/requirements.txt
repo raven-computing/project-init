@@ -1,2 +1,2 @@
 ${{INCLUDE:python/requirements.txt}}
-Cython==3.2.5
+Cython==3.2.6
