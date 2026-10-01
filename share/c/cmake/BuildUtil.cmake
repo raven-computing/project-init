@@ -129,6 +129,64 @@ function(enable_source_compile_checks target_name)
 
 endfunction()
 
+# Sets the output directories for all build artifacts.
+#
+# Sets the global CMAKE_*_OUTPUT_DIRECTORY variables to default locations
+# within the build directory, unless they have already been defined.
+# Also applies the same for multi-configuration generators by setting the
+# CMAKE_*_OUTPUT_DIRECTORY_<CONFIG> variables. The variables are set in the
+# scope of the caller.
+#
+function(set_output_directories)
+    # Multi-configuration generators
+    foreach(OUTPUT_CONFIG ${CMAKE_CONFIGURATION_TYPES})
+        string(TOUPPER ${OUTPUT_CONFIG} OUTPUT_CONFIG_UPPER)
+        if(NOT DEFINED CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUT_CONFIG_UPPER})
+            set(
+                CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUT_CONFIG_UPPER}
+                "${CMAKE_BINARY_DIR}/lib/${OUTPUT_CONFIG}"
+                PARENT_SCOPE
+            )
+        endif()
+        if(NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUT_CONFIG_UPPER})
+            set(
+                CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUT_CONFIG_UPPER}
+                "${CMAKE_BINARY_DIR}/lib/${OUTPUT_CONFIG}"
+                PARENT_SCOPE
+            )
+        endif()
+        if(NOT DEFINED CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUT_CONFIG_UPPER})
+            set(
+                CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUT_CONFIG_UPPER}
+                "${CMAKE_BINARY_DIR}/bin/${OUTPUT_CONFIG}"
+                PARENT_SCOPE
+            )
+        endif()
+    endforeach()
+    # Global settings
+    if(NOT DEFINED CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
+        set(
+            CMAKE_ARCHIVE_OUTPUT_DIRECTORY
+            "${CMAKE_BINARY_DIR}/lib"
+            PARENT_SCOPE
+        )
+    endif()
+    if(NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+        set(
+            CMAKE_LIBRARY_OUTPUT_DIRECTORY
+            "${CMAKE_BINARY_DIR}/lib"
+            PARENT_SCOPE
+        )
+    endif()
+    if(NOT DEFINED CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+        set(
+            CMAKE_RUNTIME_OUTPUT_DIRECTORY
+            "${CMAKE_BINARY_DIR}/bin"
+            PARENT_SCOPE
+        )
+    endif()
+endfunction()
+
 # Sets a target to be stripped when building on Unix-like systems.
 #
 # Appends the appropriate linker options to strip the given target.
