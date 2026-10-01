@@ -18,12 +18,21 @@ Options:
   [--coverage]    Enable code coverage instrumentation. Should only be used with debug builds.
 
   [--debug]       Build the application with debug symbols and with optimizations turned off.
+
+  [--disable-LTO] Disable link-time optimization. LTO is enabled by default for release build
+                  variants but can be explicitly disabled with this option.
 ${{VAR_SCRIPT_BUILD_DOCS_OPT}}
 
   [--ignore-warnings]
                   Ignore all compiler warnings during the build process. Warning messages
                   may still be shown, but will not cause the build to fail.
 ${{VAR_SCRIPT_BUILD_ISOLATED_OPT}}
+
+  [--optimize-native]
+                  Compile with all optimizations that are natively available for the system the
+                  build is executed on. This might produce more performant code but the built
+                  program might not run on other machines. Do not use this option if you intend
+                  to redistribute the built program.
 
   [--sanitizers]  Use sanitizers when building and running.
 
@@ -32,6 +41,10 @@ ${{VAR_SCRIPT_BUILD_ISOLATED_OPT}}
                   configuration step is executed.
 
   [--skip-tests]  Do not build any tests.
+
+  [--thread-sanitizer]
+                  Use a thread sanitizer (TSAN) instead of the default set of sanitizers when
+                  building and running. Implies --sanitizers.
 
   [-?|--help]     Show this help message.
 EOS
@@ -42,12 +55,15 @@ ARG_CLEAN=false;
 ARG_CONFIG=false;
 ARG_COVERAGE=false;
 ARG_DEBUG=false;
+ARG_DISABLE_LTO=false;
 ${{VAR_SCRIPT_BUILD_DOCS_ARGFLAG}}
 ARG_IGNORE_WARNINGS=false;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGFLAG}}
+ARG_OPTIMIZE_NATIVE=false;
 ARG_SANITIZERS=false;
 ARG_SKIP_CONFIG=false;
 ARG_SKIP_TESTS=false;
+ARG_THREAD_SANITIZER=false;
 ARG_SHOW_HELP=false;
 
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY}}
@@ -74,6 +90,11 @@ ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;
+    --disable-LTO)
+    ARG_DISABLE_LTO=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;
     --ignore-warnings)
     ARG_IGNORE_WARNINGS=true;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
@@ -85,6 +106,11 @@ ${{VAR_SCRIPT_BUILD_DOCS_ARGPARSE}}
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;
+    --optimize-native)
+    ARG_OPTIMIZE_NATIVE=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;
     --skip-config)
     ARG_SKIP_CONFIG=true;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
@@ -92,6 +118,12 @@ ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     ;;
     --skip-tests)
     ARG_SKIP_TESTS=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;
+    --thread-sanitizer)
+    ARG_THREAD_SANITIZER=true;
+    ARG_SANITIZERS=true;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;
@@ -150,7 +182,10 @@ cd "build";
 
 BUILD_CONFIGURATION="Release";
 BUILD_TESTS="ON";
+BUILD_WITH_LTO="ON";
+BUILD_OPTIMIZE_NATIVE="OFF";
 BUILD_WITH_SANITIZERS="OFF";
+BUILD_WITH_THREAD_SANITIZER="OFF";
 BUILD_WITH_COVERAGE="OFF";
 IGNORE_WARNINGS="OFF";
 
@@ -160,11 +195,20 @@ fi
 if [[ $ARG_IGNORE_WARNINGS == true ]]; then
   IGNORE_WARNINGS="ON";
 fi
+if [[ $ARG_DISABLE_LTO == true ]]; then
+  BUILD_WITH_LTO="OFF";
+fi
 if [[ $ARG_SKIP_TESTS == true ]]; then
   BUILD_TESTS="OFF";
 fi
+if [[ $ARG_OPTIMIZE_NATIVE == true ]]; then
+  BUILD_OPTIMIZE_NATIVE="ON";
+fi
 if [[ $ARG_SANITIZERS == true ]]; then
   BUILD_WITH_SANITIZERS="ON";
+fi
+if [[ $ARG_THREAD_SANITIZER == true ]]; then
+  BUILD_WITH_THREAD_SANITIZER="ON";
 fi
 if [[ $ARG_COVERAGE == true ]]; then
   BUILD_WITH_COVERAGE="ON";
@@ -180,8 +224,11 @@ if [[ $ARG_SKIP_CONFIG == false ]]; then
         -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
         -D${{VAR_PROJECT_NAME_UPPER}}_IGNORE_WARNINGS="$IGNORE_WARNINGS" \
         -D${{VAR_PROJECT_NAME_UPPER}}_BUILD_TESTS="$BUILD_TESTS" \
+        -D${{VAR_PROJECT_NAME_UPPER}}_OPTIMIZE_NATIVE="$BUILD_OPTIMIZE_NATIVE" \
         -D${{VAR_PROJECT_NAME_UPPER}}_USE_SANITIZERS="$BUILD_WITH_SANITIZERS" \
-        -D${{VAR_PROJECT_NAME_UPPER}}_BUILD_TEST_COVERAGE="$BUILD_WITH_COVERAGE" ..;
+        -D${{VAR_PROJECT_NAME_UPPER}}_USE_THREAD_SANITIZER="$BUILD_WITH_THREAD_SANITIZER" \
+        -D${{VAR_PROJECT_NAME_UPPER}}_BUILD_TEST_COVERAGE="$BUILD_WITH_COVERAGE" \
+        -D${{VAR_PROJECT_NAME_UPPER}}_ENABLE_LTO="$BUILD_WITH_LTO" ..;
 
   if (( $? != 0 )); then
     exit 1;

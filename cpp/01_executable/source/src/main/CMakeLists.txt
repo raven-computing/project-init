@@ -28,8 +28,15 @@ enable_compiler_warnings(
     ${${{VAR_PROJECT_NAME_UPPER}}_IGNORE_WARNINGS}
 )
 
+if(${{VAR_PROJECT_NAME_UPPER}}_OPTIMIZE_NATIVE)
+    enable_native_optimizations(${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE})
+endif()
+
 if(${{VAR_PROJECT_NAME_UPPER}}_USE_SANITIZERS)
-    add_sanitizers(${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE})
+    add_sanitizers(
+        ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE}
+        ${${{VAR_PROJECT_NAME_UPPER}}_USE_THREAD_SANITIZER}
+    )
 endif()
 
 #==================================[ TARGET ]==================================

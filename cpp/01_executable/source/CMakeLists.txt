@@ -22,7 +22,16 @@ option(
     process fail (OFF) or whether they should be ignored (ON)"
     OFF
 )
+option(${{VAR_PROJECT_NAME_UPPER}}_OPTIMIZE_NATIVE "Optimize build for the native host" OFF)
 option(${{VAR_PROJECT_NAME_UPPER}}_USE_SANITIZERS "Enable/disable the use of sanitizers" OFF)
+option(
+    ${{VAR_PROJECT_NAME_UPPER}}_USE_THREAD_SANITIZER
+    "Enable/disable the use of the thread sanitizer (TSAN). \
+    Implies ${{VAR_PROJECT_NAME_UPPER}}_USE_SANITIZERS=ON. When enabled, a thread sanitizer \
+    will be used instead of the default set of sanitizers."
+    OFF
+)
+option(${{VAR_PROJECT_NAME_UPPER}}_ENABLE_LTO "Enable/disable link-time optimization (LTO)" ON)
 option(${{VAR_PROJECT_NAME_UPPER}}_BUILD_TEST_COVERAGE "Enable/disable test coverage instrumentation" OFF)
 
 # Set CMAKE_PREFIX_PATH from file
@@ -36,6 +45,16 @@ include(cmake/BuildUtil.cmake)
 include(cmake/TestUtil.cmake)
 include(cmake/TestCoverageUtil.cmake)
 include(cmake/SanitizerUtil.cmake)
+
+if(${{VAR_PROJECT_NAME_UPPER}}_USE_THREAD_SANITIZER)
+    set(${{VAR_PROJECT_NAME_UPPER}}_USE_SANITIZERS ON)
+    set(${{VAR_PROJECT_NAME_UPPER}}_USE_THREAD_SANITIZER "USE_THREAD_SANITIZER")
+endif()
+
+if(${{VAR_PROJECT_NAME_UPPER}}_ENABLE_LTO)
+    set_link_time_optimization(ON)
+endif()
+
 include(Dependencies.cmake)
 
 add_subdirectory(src/main main)
