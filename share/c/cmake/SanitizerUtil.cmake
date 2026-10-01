@@ -34,33 +34,68 @@
 #       The name of the target to which sanitizers will be added.
 #       This argument is mandatory.
 #
+#   USE_THREAD_SANITIZER:
+#       Optional argument. If specified, enables thread sanitizer (TSAN)
+#       instead of the default Address/Leak/Undefined sanitizers.
+#       This option can only be used on Linux.
+#
 # Example:
 #   add_sanitizers(mytarget)
+#   add_sanitizers(mytarget USE_THREAD_SANITIZER)
 #
 function(add_sanitizers target_name)
-    set(
-        SAN_COMPILE_FLAGS_LINUX
-        "-fsanitize=address" "-fsanitize=leak" "-fsanitize=undefined"
-        "-fno-omit-frame-pointer"
-    )
-    set(
-        SAN_LINK_FLAGS_LINUX
-        "-fsanitize=address" "-fsanitize=leak" "-fsanitize=undefined"
-    )
-    set(SAN_COMPILE_FLAGS_WINDOWS "/fsanitize=address" "/Oy-" "/Zi")
-    set(SAN_LINK_FLAGS_WINDOWS "/INCREMENTAL:NO")
+
+    cmake_parse_arguments(ARG "USE_THREAD_SANITIZER" "" "" ${ARGN})
+
+    if(ARG_USE_THREAD_SANITIZER)
+        if(MSVC)
+            message(
+                WARNING
+                "Thread sanitizer is not supported when using MSVC. "
+                "Falling back to default sanitizers."
+            )
+            set(ARG_USE_THREAD_SANITIZER FALSE)
+        endif()
+    endif()
+
+    if(ARG_USE_THREAD_SANITIZER)
+        set(
+            COMP_FLAGS_GNU
+            "-fsanitize=thread"
+            "-fno-omit-frame-pointer"
+        )
+        set(
+            LINK_FLAGS_GNU
+            "-fsanitize=thread"
+        )
+    else()
+        set(
+            COMP_FLAGS_GNU
+            "-fsanitize=address" "-fsanitize=leak" "-fsanitize=undefined"
+            "-fno-omit-frame-pointer"
+        )
+        set(
+            LINK_FLAGS_GNU
+            "-fsanitize=address" "-fsanitize=leak" "-fsanitize=undefined"
+        )
+    endif()
+
+    set(COMP_FLAGS_MSVC "/fsanitize=address" "/Oy-" "/Zi")
+    set(LINK_FLAGS_MSVC "/INCREMENTAL:NO")
 
     target_compile_options(
         ${target_name}
         PUBLIC
-        $<$<PLATFORM_ID:Linux>:${SAN_COMPILE_FLAGS_LINUX}>
-        $<$<PLATFORM_ID:Windows>:${SAN_COMPILE_FLAGS_WINDOWS}>
+        $<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:${COMP_FLAGS_GNU}>
+        $<$<C_COMPILER_ID:MSVC>:${COMP_FLAGS_MSVC}>
     )
     target_link_options(
         ${target_name}
         PUBLIC
-        $<$<PLATFORM_ID:Linux>:${SAN_LINK_FLAGS_LINUX}>
-        $<$<PLATFORM_ID:Windows>:${SAN_LINK_FLAGS_WINDOWS}>
+        $<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:${LINK_FLAGS_GNU}>
+        $<$<C_COMPILER_ID:MSVC>:${LINK_FLAGS_MSVC}>
     )
+
+    message(STATUS "Sanitizer support enabled for target ${target_name}")
 
 endfunction()
