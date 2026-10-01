@@ -75,6 +75,24 @@ function(enable_compiler_warnings target_name inform_only)
     endif()
 endfunction()
 
+# Disables all compiler warnings for the specified target.
+#
+# Arguments:
+#
+#   target_name:
+#       The name of the target to disable all compiler warnings for.
+#
+# Example:
+#   disable_compiler_warnings(mytarget)
+#
+function(disable_compiler_warnings target_name)
+    if(MSVC)
+        target_compile_options(${target_name} PRIVATE /W0)
+    else()
+        target_compile_options(${target_name} PRIVATE -w)
+    endif()
+endfunction()
+
 # Enables compile-time source code checks for a given CMake target.
 #
 # Appends the appropriate compiler flags, if available, to let the compiler
