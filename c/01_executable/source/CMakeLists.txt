@@ -55,6 +55,10 @@ if(${{VAR_PROJECT_NAME_UPPER}}_USE_THREAD_SANITIZER)
     set(${{VAR_PROJECT_NAME_UPPER}}_USE_THREAD_SANITIZER "USE_THREAD_SANITIZER")
 endif()
 
+if(NOT DEFINED ${{VAR_PROJECT_NAME_UPPER}}_DO_NOT_OVERWRITE_OUTPUT_DIRECTORY)
+    set_output_directories()
+endif()
+
 if(${{VAR_PROJECT_NAME_UPPER}}_ENABLE_LTO)
     set_link_time_optimization(ON)
 endif()
