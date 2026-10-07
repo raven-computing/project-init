@@ -20,6 +20,7 @@ target_include_directories(
 target_link_libraries(
     ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE}
     PRIVATE
+    Threads::Threads
     ${${{VAR_PROJECT_NAME_UPPER}}_DEPENDENCIES_LINK_TARGETS}
 )
 
