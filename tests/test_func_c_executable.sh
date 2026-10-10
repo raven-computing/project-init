@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2025 Raven Computing
+# Copyright (C) 2026 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,7 +39,9 @@ function test_functionality_result() {
   files+=("src/main/c/example.h");
   files+=("src/main/c/example.c");
   files+=("src/main/tests/CMakeLists.txt");
-  files+=("src/main/tests/c/test_example.c");
+  files+=("src/main/tests/unit/c/test_example.c");
+  files+=("src/main/tests/functionality/driver.sh");
+  files+=("src/main/tests/functionality/test_example.sh");
   files+=(".docker/controls.sh");
   files+=(".docker/Dockerfile-build");
   files+=(".docker/entrypoint.sh");
@@ -48,8 +50,8 @@ function test_functionality_result() {
   files+=("docs/page_main.md");
 
   local dirs=();
-  dirs+=("src/main/resources");
-  dirs+=("src/main/tests/resources");
+  dirs+=("src/main/res");
+  dirs+=("src/main/tests/res");
   dirs+=(".docker");
   dirs+=("docs");
 
