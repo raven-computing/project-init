@@ -30,6 +30,7 @@ function test_functionality_result() {
   files+=("README.md");
   files+=("LICENSE");
   files+=(".gitignore");
+  files+=(".clang-tidy");
   files+=("CMakeLists.txt");
   files+=("Dependencies.cmake");
   files+=("cmake/DependencyUtil.cmake");
