@@ -10,19 +10,35 @@ ${USAGE}
 
 Options:
 
-  [--coverage] Report code coverage metrics for the test runs.
+  [--all]              Execute the entire test suite and all automated checks.
+
+  [--check]            Execute various consistency checks.
+
+  [--coverage]         Report code coverage metrics for the test runs.
+
+  [-f|--functionality] Execute functionality tests.
 ${{VAR_SCRIPT_TEST_ISOLATED_OPT}}
 
-  [-l|--lint]  Perform static code analysis with a linter.
+  [-l|--lint]          Perform static code analysis with a linter.
 
-  [-?|--help]  Show this help message.
+  [--stop-on-failure]  Stop the test execution immediately after the
+                       first failure is encountered.
+
+  [-u|--unit]          Execute unit tests.
+
+  [-?|--help]          Show this help message.
 EOS
 )
 
 # Arg flags
+ARG_ALL=false;
+ARG_CHECK=false;
 ARG_COVERAGE=false;
+ARG_FUNCTIONALITY=false;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGFLAG}}
 ARG_LINT=false;
+ARG_STOP_ON_FAILURE=false;
+ARG_UNIT=false;
 ARG_SHOW_HELP=false;
 
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY}}
@@ -30,14 +46,41 @@ ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY}}
 # Parse all arguments given to this script
 for arg in "$@"; do
   case $arg in
+    --all)
+    ARG_ALL=true;
+    ARG_CHECK=true;
+    ARG_LINT=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;
+    --check)
+    ARG_CHECK=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;
     --coverage)
     ARG_COVERAGE=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;
+    -f|--functionality)
+    ARG_FUNCTIONALITY=true;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGPARSE}}
     -l|--lint)
     ARG_LINT=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;
+    --stop-on-failure)
+    ARG_STOP_ON_FAILURE=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;
+    -u|--unit)
+    ARG_UNIT=true;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;
@@ -93,12 +136,49 @@ if [[ $ARG_COVERAGE == true ]]; then
   fi
 fi
 
+if [[ $ARG_CHECK == true ]]; then
+  echo "Performing source code checks";
+  check_failed=false;
+  check_found_files=false;
+  while IFS= read -r file; do
+    check_found_files=true;
+    pattern='^[[:space:]]*void[[:space:]]+test[[:alnum:]_]*'\
+'[[:space:]]*\([[:space:]]*void[[:space:]]*\)';
+    defs="$(grep -Eo "$pattern" "$file" |wc -l)";
+    pattern='RUN_TEST[[:space:]]*\([[:space:]]*test[[:alnum:]'\
+'_]*[[:space:]]*\)[[:space:]]*;';
+    runs="$(grep -Eo "$pattern" "$file" |wc -l)";
+    if [[ "$defs" != "$runs" ]]; then
+      echo -n "Error: Test consistency: ";
+      echo -n "'${file}' defines ${defs} test function(s) ";
+      echo "but has ${runs} RUN_TEST() usage(s)";
+      check_failed=true;
+    fi
+  done < <(find . -type f -name 'test_*.c' -path '*/tests/*');
+
+  if [[ $check_found_files == false ]]; then
+    echo "Note: C test consistency: no matching files found (*/tests/*/test_*.c)";
+  fi
+  if [[ $check_failed == true ]]; then
+    echo "Did you forget to register test functions via the RUN_TEST() macro?";
+    exit 1;
+  fi
+  echo "Consistency of test code: OK";
+  if [[ $ARG_ALL == false ]]; then
+    exit 0;
+  fi
+fi
+
 # Check if the build dir is empty
 if [ -z "$(ls -A build)" ]; then
   # Build the tests first
+  build_args=();
+  if [[ $ARG_COVERAGE == true ]]; then
+    build_args+=("--debug");
+    build_args+=("--coverage");
+  fi
   echo "Building project before test run execution";
-  bash build.sh;
-  if (( $? != 0 )); then
+  if ! bash build.sh "${build_args[@]}"; then
     exit $?;
   fi
 fi
@@ -109,20 +189,30 @@ if [[ $ARG_LINT == true ]]; then
     exit 1;
   fi
   echo "Performing static code analysis";
-  lint_out=$(run-clang-tidy -quiet -config '' -p build "${PWD}/src");
+  lint_out=$(run-clang-tidy -quiet -config '' -p build "${PWD}/src" 2> /dev/null);
   tidy_stat=$?;
   if (( tidy_stat != 0 )); then
+    echo "Static code analysis found the following issues:";
+    lint_out="$(echo "$lint_out" |grep --invert-match '^clang-tidy-')";
     echo "$lint_out";
+    exit $tidy_stat;
   else
     echo "No issues found in source files";
   fi
-  exit $tidy_stat;
+  if [[ $ARG_ALL == false ]]; then
+    exit $tidy_stat;
+  fi
 fi
 
 COV_INCL_PATH="$PWD";
 BUILD_DIR_COV_DATA="cov";
 FILE_COV_DATA_MERGED="merged.info";
 BUILD_DIR_COV_REPORT="coverage_report";
+
+VERSION="$(cat VERSION)";
+if [[ "$VERSION" == *"-dev" ]]; then
+  VERSION+=" (Development Version)";
+fi
 
 cd "build" || exit 1;
 
@@ -133,17 +223,84 @@ if [[ $ARG_COVERAGE == true ]]; then
 fi
 
 BUILD_CONFIGURATION="";
+TSAN_ENABLED=false;
 # Determine the build configuration of the last build.
 if [ -f "CMakeCache.txt" ]; then
   BUILD_CONFIGURATION="$(grep --max-count=1 CMAKE_BUILD_TYPE CMakeCache.txt \
                          | cut  --delimiter='=' --fields=2)";
+
+  TSAN_CONFIG_VALUE="$(grep --max-count=1 RECKON_USE_THREAD_SANITIZER CMakeCache.txt \
+                         | cut  --delimiter='=' --fields=2)";
+
+  if [[ "$TSAN_CONFIG_VALUE" == "ON" ]]; then
+    TSAN_ENABLED=true;
+  fi
+fi
+if [ -z "$BUILD_CONFIGURATION" ]; then
+  if [ -d "bin/Debug" ]; then
+    BUILD_CONFIGURATION="Debug";
+  fi
+  if [ -d "bin/Release" ]; then
+    if [[ "$BUILD_CONFIGURATION" == "Debug" ]]; then
+      echo "Warning: Multiple build configurations found. Using 'Release' for testing.";
+    fi
+    BUILD_CONFIGURATION="Release";
+  fi
+fi
+if [ -z "$BUILD_CONFIGURATION" ]; then
+  echo "Error: No build configuration found.";
+  exit 1;
+fi
+
+CTEST_LABEL_OPT="";
+CTEST_LABEL_OPT_ARG="(";
+if [[ $ARG_UNIT == true ]]; then
+  CTEST_LABEL_OPT_ARG+="Unit";
+fi
+if [[ $ARG_INTEGRATION == true ]]; then
+  if [[ "$CTEST_LABEL_OPT_ARG" != "(" ]]; then
+    CTEST_LABEL_OPT_ARG+="|";
+  fi
+  CTEST_LABEL_OPT_ARG+="Integration";
+fi
+if [[ $ARG_FUNCTIONALITY == true ]]; then
+  if [[ "$CTEST_LABEL_OPT_ARG" != "(" ]]; then
+    CTEST_LABEL_OPT_ARG+="|";
+  fi
+  CTEST_LABEL_OPT_ARG+="Functionality";
+fi
+if [[ "$CTEST_LABEL_OPT_ARG" != "(" ]]; then
+  CTEST_LABEL_OPT="--label-regex";
+  CTEST_LABEL_OPT_ARG+=")";
+else
+  CTEST_LABEL_OPT_ARG="";
+fi
+
+CTEST_ARG_STOP_ON_FAILURE="";
+if [[ $ARG_STOP_ON_FAILURE == true ]]; then
+  CTEST_ARG_STOP_ON_FAILURE="--stop-on-failure";
 fi
 
 # UB-Sanitizer options.
 export UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1";
 
+# If TSAN was enabled for the build, ASLR is disabled for the test run
+# otherwise on certain compiler versions there will be crashes.
+set_aslr="";
+if [[ $TSAN_ENABLED == true ]]; then
+  if command -v "setarch" &> /dev/null; then
+    set_aslr="setarch $(uname -m) --addr-no-randomize";
+  else
+    echo "Warning: Command 'setarch' was not found. Cannot disable ASLR for TSAN.";
+  fi
+fi
+
 # Run tests with CTest
-ctest --output-on-failure --build-config "$BUILD_CONFIGURATION";
+$set_aslr ctest --output-on-failure \
+      --build-config "$BUILD_CONFIGURATION" \
+      $CTEST_ARG_STOP_ON_FAILURE \
+      $CTEST_LABEL_OPT $CTEST_LABEL_OPT_ARG;
+
 ctest_status=$?;
 
 if (( ctest_status == 0 )); then
@@ -161,7 +318,7 @@ if (( ctest_status == 0 )); then
       genhtml_opt_args+=("--header-title");
       genhtml_opt_args+=("${{VAR_PROJECT_NAME}} Test Coverage");
       genhtml_opt_args+=("--footer");
-      genhtml_opt_args+=("Copyright © ${{VAR_COPYRIGHT_YEAR}} ${{VAR_PROJECT_ORGANISATION_NAME}}");
+      genhtml_opt_args+=("${{VAR_PROJECT_NAME}} - ${VERSION}");
     fi
     if ! genhtml --quiet --output-directory "$BUILD_DIR_COV_REPORT" \
                  --prefix "$COV_INCL_PATH" \
@@ -172,8 +329,12 @@ if (( ctest_status == 0 )); then
       exit 1;
     fi
     report_label="build/${BUILD_DIR_COV_REPORT}/index.html";
-    report_url="file://${COV_INCL_PATH}/${report_label}";
-    report_link="\e]8;;${report_url}\e\\\\${report_label}\e]8;;\e\\\\";
+    if tty --silent; then
+      report_url="file://${COV_INCL_PATH}/${report_label}";
+      report_link="\e]8;;${report_url}\e\\\\${report_label}\e]8;;\e\\\\";
+    else
+      report_link="$report_label";
+    fi
     echo -e "Wrote HTML report to $report_link";
   fi
 fi
