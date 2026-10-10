@@ -5,3 +5,4 @@
 # An entry must be constructed according to the pattern "<sourceExt> => <targetExt>"
 fxml => xml
 pyx => py
+bash => sh
