@@ -43,6 +43,10 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/.cmakeprefixpath")
     list(APPEND CMAKE_PREFIX_PATH ${_VAR_CMAKE_PREFIX_PATH})
 endif()
 
+if(EXISTS "${PROJECT_SOURCE_DIR}/VERSION")
+    file(READ "${PROJECT_SOURCE_DIR}/VERSION" APP_VERSION)
+endif()
+
 include(cmake/BuildUtil.cmake)
 include(cmake/TestUtil.cmake)
 include(cmake/TestCoverageUtil.cmake)

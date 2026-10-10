@@ -27,6 +27,8 @@
 # Define here all exit status codes as defined by the app under test
 readonly EXIT_SUCCESS=0;
 readonly EXIT_FAILURE=1;
+readonly EXIT_INVALID_ARGUMENT=2;
+readonly EXIT_PROG_IO_ERROR=3;
 
 # The exit status code of this script if a test failure occurs, e.g. a failed assertion
 readonly EXIT_TEST_FAILURE=1;

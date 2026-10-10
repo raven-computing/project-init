@@ -37,12 +37,12 @@ function test_functionality_result() {
   files+=("cmake/DocsUtil.cmake");
   files+=("src/main/CMakeLists.txt");
   files+=("src/main/c/main.c");
-  files+=("src/main/c/example.h");
-  files+=("src/main/c/example.c");
+  files+=("src/main/c/app.h");
+  files+=("src/main/c/app.c");
   files+=("src/main/tests/CMakeLists.txt");
   files+=("src/main/tests/unit/c/test_example.c");
   files+=("src/main/tests/functionality/driver.sh");
-  files+=("src/main/tests/functionality/test_example.sh");
+  files+=("src/main/tests/functionality/test_app.sh");
   files+=(".docker/controls.sh");
   files+=(".docker/Dockerfile-build");
   files+=(".docker/entrypoint.sh");

@@ -2,7 +2,7 @@ ${{VAR_COPYRIGHT_HEADER}}
 
 #include "unity.h"
 
-#include "example.h"
+#include "app.h"
 
 void setUp(void) { }
 

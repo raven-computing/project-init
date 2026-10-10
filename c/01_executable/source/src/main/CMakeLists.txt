@@ -8,7 +8,9 @@ set(${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE ${{VAR_ARTIFACT_BINARY_N
 add_library(
     ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE}
     STATIC
-    c/example.c
+    c/app.c
+    c/arguments.c
+    c/logging.c
 )
 
 target_include_directories(
@@ -22,6 +24,12 @@ target_link_libraries(
     PRIVATE
     Threads::Threads
     ${${{VAR_PROJECT_NAME_UPPER}}_DEPENDENCIES_LINK_TARGETS}
+)
+
+target_compile_definitions(
+    ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE}
+    PRIVATE
+    APP_VERSION="${APP_VERSION}"
 )
 
 enable_compiler_warnings(
