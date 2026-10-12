@@ -4671,8 +4671,20 @@ function replace_var() {
     fi
     # Check if a specific file extension was specified
     if [ -n "${_var_file_ext}" ]; then
-      # Skip all file which do not have the specified extension
-      if [[ "$f" != *${_var_file_ext} ]]; then
+      # Match either exact file name or exact trailing file extension
+      local fbase="";
+      local fext="";
+      local is_match=false;
+      fbase="$(basename "$f")";
+      if [[ "${fbase}" == "${_var_file_ext}" ]]; then
+        is_match=true;
+      elif [[ "${fbase}" == *.* ]]; then
+        fext="${fbase##*.}";
+        if [[ "${fext}" == "${_var_file_ext}" ]]; then
+          is_match=true;
+        fi
+      fi
+      if [[ $is_match == false ]]; then
         continue;
       fi
     fi
