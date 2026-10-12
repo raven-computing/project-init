@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2025 Raven Computing
+# Copyright (C) 2026 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -3379,7 +3379,7 @@ function _read_license_extension_map() {
     logE "Programming error: No file specified in call to _read_license_extension_map()";
     return 2;
   fi
-  if [ -r "$ext_path" ]; then
+  if [ -r "$ext_file" ]; then
     local ext_key="";
     local ext_val="";
     local line="";
@@ -3407,7 +3407,7 @@ function _read_license_extension_map() {
   fi
   if [[ $invalid_format == true ]]; then
     logW "The license header extension map file is incorrectly formatted:";
-    logW "at: '$ext_path'";
+    logW "at: '${ext_file}'";
     return 1;
   fi
   return 0;
