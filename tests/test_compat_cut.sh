@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2022 Raven Computing
+# Copyright (C) 2026 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,6 +40,26 @@ function test_cut_delimiter_second_item() {
   return $?;
 }
 
+# @CMD: echo "TEST_C=VALUE-3-WITH=CHAR" |cut -d= -f2
+function test_cut_second_item_value_is_truncated_after_delimiter() {
+  local expected="VALUE-3-WITH";
+  local x="TEST_C=VALUE-3-WITH=CHAR";
+  local actual;
+  actual=$(echo "$x" |cut -d= -f2);
+  assert_equal "$expected" "$actual" $?;
+  return $?;
+}
+
+# @CMD: echo "TEST_D=VALUE-4=WITH=CHAR" |cut -d= -f2-
+function test_cut_second_item_value_containing_delimiter_is_fully_included() {
+  local expected="VALUE-4=WITH=CHAR";
+  local x="TEST_D=VALUE-4=WITH=CHAR";
+  local actual;
+  actual=$(echo "$x" |cut -d= -f2-);
+  assert_equal "$expected" "$actual" $?;
+  return $?;
+}
+
 # @CMD: echo "/some/file/path/with?file_name" |cut -d? -f2
 function test_cut_delimiter_qstmark_second_item() {
   local expected="file_name";
@@ -51,8 +71,10 @@ function test_cut_delimiter_qstmark_second_item() {
 }
 
 function test_command() {
-  test_cut_delimiter_first_item          &&
-  test_cut_delimiter_second_item         &&
+  test_cut_delimiter_first_item                                     &&
+  test_cut_delimiter_second_item                                    &&
+  test_cut_second_item_value_is_truncated_after_delimiter           &&
+  test_cut_second_item_value_containing_delimiter_is_fully_included &&
   test_cut_delimiter_qstmark_second_item;
   return $?;
 }

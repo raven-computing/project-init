@@ -2164,7 +2164,7 @@ function _read_properties() {
         # Check that the line is a key-value pair
         if [[ "$line" == *"="* ]]; then
           p_key=$(echo "$line" |cut -d= -f1);
-          p_val=$(echo "$line" |cut -d= -f2);
+          p_val=$(echo "$line" |cut -d= -f2-);
           if (( $? != 0 )); then
             logW "Failed to process properties file:";
             logW "at: '$properties_file'";
