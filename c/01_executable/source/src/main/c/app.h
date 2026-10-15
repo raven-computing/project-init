@@ -20,19 +20,19 @@ typedef enum ExitStatus {
     APP_EXIT_SUCCESS = 0,
     APP_EXIT_FAILURE = 1,
     APP_EXIT_INVALID_ARGUMENT = 2,
-    APP_EXIT_PROG_IO_ERROR = 3,
+    APP_EXIT_PROG_IO_ERROR = 3
 } ExitStatus;
 
 /**
  * Structure holding all parsed application arguments.
  */
 typedef struct AppArgs {
-    char* errorMessage; // Error message in case of invalid input
-    int indexUnknown;   // Index into `argv` when unknown arg found, or zero
-    int verbose;        // Option: `--verbose`
-    int version;        // Option: `-#|--version`
-    int versionShort;   // Option: `-#`
-    int help;           // Option: `-?`|`--help`
+    char* errorMessage; /* Error message in case of invalid input */
+    int indexUnknown;   /* Index into `argv` when unknown arg found, or zero */
+    int verbose;        /* Option: `--verbose` */
+    int version;        /* Option: `-#|--version` */
+    int versionShort;   /* Option: `-#` */
+    int help;           /* Option: `-?`|`--help` */
 } AppArgs;
 
 /**
@@ -43,7 +43,7 @@ typedef enum LogLevel {
     LOG_LEVEL_ERROR,
     LOG_LEVEL_WARNING,
     LOG_LEVEL_INFO,
-    LOG_LEVEL_VERBOSE,
+    LOG_LEVEL_VERBOSE
 } LogLevel;
 
 /**

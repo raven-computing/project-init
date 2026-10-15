@@ -5,9 +5,9 @@ ${{VAR_COPYRIGHT_HEADER}}
 #include "app.h"
 
 int getFortyTwo(void) {
-    // NOLINTBEGIN(readability-magic-numbers)
+    /* NOLINTBEGIN(readability-magic-numbers) */
     return 42;
-    // NOLINTEND(readability-magic-numbers)
+    /* NOLINTEND(readability-magic-numbers) */
 }
 
 ExitStatus printText(void) {

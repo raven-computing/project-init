@@ -11,7 +11,8 @@ ${{VAR_COPYRIGHT_HEADER}}
 
 AppArgs parseArgs(int argc, char** argv) {
     AppArgs args = {0};
-    for (int i = 1; i < argc; ++i) {
+    int i = 1;
+    for (i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "--verbose") == 0) {
             args.verbose = 1;
         } else if (strcmp(argv[i], "--help") == 0
@@ -33,14 +34,16 @@ void showUsage(void) {
 }
 
 void showVersion(AppArgs args) {
+    const char* version = APP_VERSION;
+    const char* devHint = "";
+    char* hyphen = NULL;
+
     if (args.versionShort) {
         logStdout(APP_VERSION);
         logStdout("\n");
         return;
     }
-    const char* version = APP_VERSION;
-    const char* devHint = "";
-    char* hyphen = strrchr(version, '-');
+    hyphen = strrchr(version, '-');
     if (hyphen && !strcmp(hyphen, "-dev")) {
         devHint = " (DEVELOPMENT VERSION)";
     }

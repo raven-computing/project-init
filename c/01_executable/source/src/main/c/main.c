@@ -6,6 +6,8 @@ ${{VAR_COPYRIGHT_HEADER}}
 
 int main(int argc, char** argv) {
     AppArgs args = parseArgs(argc, argv);
+    ExitStatus status = APP_EXIT_SUCCESS;
+
     initLogging(
         stdout,
         stderr,
@@ -23,7 +25,7 @@ int main(int argc, char** argv) {
         logE("Unknown option: '%s'", argv[args.indexUnknown]);
         return APP_EXIT_INVALID_ARGUMENT;
     }
-    ExitStatus status = printText();
+    status = printText();
     if (LOG_IO_ERROR_DETECTED) {
         status = APP_EXIT_PROG_IO_ERROR;
     }
