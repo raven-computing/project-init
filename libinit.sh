@@ -3034,7 +3034,7 @@ function _find_files_impl() {
   local file_args=();
   local isfirst=true;
   local f="";
-  if (( ${#file_args[@]} > 0 )); then
+  if (( ${#match_ext_list[@]} > 0 )); then
     find_args+=("(");
     for f in "${match_ext_list[@]}"; do
       if [[ $isfirst == true ]]; then
