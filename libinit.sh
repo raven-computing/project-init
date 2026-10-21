@@ -3011,9 +3011,8 @@ function _find_files_impl() {
   local type_args=();
   local t="";
   if [[ "$file_types" == *","* ]]; then
-    local IFS_TYPES=",";
     local type_list=();
-    read -r -a type_list <<< "$file_types";
+    IFS="," read -r -a type_list <<< "$file_types";
     type_args+=("(");
     local isfirst=true;
     for t in "${type_list[@]}"; do
