@@ -54,6 +54,10 @@ if(${{VAR_PROJECT_NAME_UPPER}}_USE_SANITIZERS)
     )
 endif()
 
+if(${{VAR_PROJECT_NAME_UPPER}}_USE_PERF_PROFILING)
+    add_performance_profiling(${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION_CORE})
+endif()
+
 #==================================[ TARGET ]==================================
 # Application ${{VAR_PROJECT_NAME}} main executable
 
@@ -87,6 +91,10 @@ if(${{VAR_PROJECT_NAME_UPPER}}_SOURCE_ANALYSIS)
     enable_source_compile_checks(
         ${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION}
     )
+endif()
+
+if(${{VAR_PROJECT_NAME_UPPER}}_USE_PERF_PROFILING)
+    add_performance_profiling(${${{VAR_PROJECT_NAME_UPPER}}_TARGET_APPLICATION})
 endif()
 
 #===================================[ TESTS ]==================================
