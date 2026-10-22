@@ -3005,24 +3005,46 @@ function _find_files_impl() {
   local file_types="$2";
   shift 2;
   local match_ext_list=("$@");
-  # Build arg string for find command
+
+  local find_args=();
+  # Build type predicate. Supports 'f' and 'f,d' etc.
+  local type_args=();
+  local t="";
+  if [[ "$file_types" == *","* ]]; then
+    local type_list=();
+    IFS="," read -r -a type_list <<< "$file_types";
+    type_args+=("(");
+    local isfirst=true;
+    for t in "${type_list[@]}"; do
+      if [[ $isfirst == true ]]; then
+        isfirst=false;
+      else
+        type_args+=("-o");
+      fi
+      type_args+=("-type" "$t");
+    done
+    type_args+=(")");
+  else
+    type_args+=("-type" "$file_types");
+  fi
+  find_args+=("${type_args[@]}");
+
+  # Build grouped name predicate
   local file_args=();
   local isfirst=true;
   local f="";
-  for f in "${match_ext_list[@]}"; do
-    if [[ $isfirst == true ]]; then
-      isfirst=false;
-      # The first item does not have an '-o' option
-      file_args+=(-name "$f");
-    else
-      file_args+=( -o -name "$f");
-    fi
-  done
-
-  local find_args=("-type");
-  find_args+=("$file_types");
-  if (( ${#file_args[@]} > 0 )); then
-    find_args+=("${file_args[@]}");
+  if (( ${#match_ext_list[@]} > 0 )); then
+    find_args+=("(");
+    for f in "${match_ext_list[@]}"; do
+      if [[ $isfirst == true ]]; then
+        isfirst=false;
+        # The first item does not have an '-o' option
+        file_args+=("-name" "$f");
+      else
+        file_args+=("-o" "-name" "$f");
+      fi
+    done
+    find_args+=("${file_args[@]}" ")");
   fi
 
   _FOUND_FILES=();
