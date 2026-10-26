@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2025 Raven Computing
+# Copyright (C) 2026 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -71,10 +71,11 @@ function process_files_lvl_1() {
   fi
 
   if [ -n "$var_namespace_path" ]; then
-    expand_namespace_directories "$var_namespace_path"        \
-                                 "src/main/cpp/namespace"     \
-                                 "src/main/include/namespace" \
-                                 "src/main/tests/cpp/namespace";
+    expand_namespace_directories "$var_namespace_path"          \
+                                 "src/main/cpp/namespace"       \
+                                 "src/main/include/namespace"   \
+                                 "src/main/tests/cpp/namespace" \
+                                 "src/main/tests/unit/cpp/namespace";
   fi
 }
 

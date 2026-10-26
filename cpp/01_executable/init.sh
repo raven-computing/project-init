@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2026 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,6 +37,6 @@ form_docker_integration;
 
 project_init_copy;
 
-project_init_license "h" "cpp";
+project_init_license "h" "cpp" "sh";
 
 project_init_process;

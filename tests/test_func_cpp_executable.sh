@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Raven Computing
+# Copyright (C) 2026 Raven Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,7 +38,9 @@ function test_functionality_result() {
   files+=("src/main/cpp/raven/mynsa/mynsb/Application.h");
   files+=("src/main/cpp/raven/mynsa/mynsb/Application.cpp");
   files+=("src/main/tests/CMakeLists.txt");
-  files+=("src/main/tests/cpp/raven/mynsa/mynsb/ApplicationTest.cpp");
+  files+=("src/main/tests/unit/cpp/raven/mynsa/mynsb/ApplicationTest.cpp");
+  files+=("src/main/tests/functionality/driver.sh");
+  files+=("src/main/tests/functionality/test_app.sh");
   files+=(".docker/controls.sh");
   files+=(".docker/Dockerfile-build");
   files+=(".docker/entrypoint.sh");
@@ -51,16 +53,16 @@ function test_functionality_result() {
   dirs+=("src/main/cpp/raven");
   dirs+=("src/main/cpp/raven/mynsa");
   dirs+=("src/main/cpp/raven/mynsa/mynsb");
-  dirs+=("src/main/resources");
-  dirs+=("src/main/tests/cpp/raven");
-  dirs+=("src/main/tests/cpp/raven/mynsa");
-  dirs+=("src/main/tests/cpp/raven/mynsa/mynsb");
-  dirs+=("src/main/tests/resources");
+  dirs+=("src/main/res");
+  dirs+=("src/main/tests/unit/cpp/raven");
+  dirs+=("src/main/tests/unit/cpp/raven/mynsa");
+  dirs+=("src/main/tests/unit/cpp/raven/mynsa/mynsb");
+  dirs+=("src/main/tests/res");
   dirs+=(".docker");
 
   local not_dirs=();
   not_dirs+=("src/main/cpp/namespace");
-  not_dirs+=("src/main/tests/cpp/namespace");
+  not_dirs+=("src/main/tests/unit/cpp/namespace");
   not_dirs+=("docs");
 
   assert_files_exist "${files[@]}"         &&

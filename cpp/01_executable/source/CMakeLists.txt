@@ -31,6 +31,11 @@ option(
     will be used instead of the default set of sanitizers."
     OFF
 )
+option(
+    ${{VAR_PROJECT_NAME_UPPER}}_USE_PERF_PROFILING
+    "Enable/disable performance profiling support"
+    OFF
+)
 option(${{VAR_PROJECT_NAME_UPPER}}_ENABLE_LTO "Enable/disable link-time optimization (LTO)" ON)
 option(${{VAR_PROJECT_NAME_UPPER}}_BUILD_TEST_COVERAGE "Enable/disable test coverage instrumentation" OFF)
 
@@ -45,6 +50,7 @@ include(cmake/BuildUtil.cmake)
 include(cmake/TestUtil.cmake)
 include(cmake/TestCoverageUtil.cmake)
 include(cmake/SanitizerUtil.cmake)
+include(cmake/PerfProfilingUtil.cmake)
 
 find_package(Threads REQUIRED)
 
@@ -67,4 +73,8 @@ add_subdirectory(src/main main)
 
 if(${{VAR_PROJECT_NAME_UPPER}}_BUILD_TEST_COVERAGE)
     add_code_coverage_collection_targets()
+endif()
+
+if(${{VAR_PROJECT_NAME_UPPER}}_USE_PERF_PROFILING)
+    configure_performance_profiling_dependency()
 endif()

@@ -10,34 +10,97 @@ ${USAGE}
 
 Options:
 
-  [--coverage] Report code coverage metrics for the test runs.
+  [--all]              Execute the entire test suite and all automated checks.
+
+  [--coverage]         Report code coverage metrics for the test runs.
+
+  [-f|--functionality] Execute functionality tests.
 ${{VAR_SCRIPT_TEST_ISOLATED_OPT}}
 
-  [-l|--lint]  Perform static code analysis with a linter.
+  [-l|--lint]          Perform static code analysis with a linter.
 
-  [-?|--help]  Show this help message.
+  [--profile-performance] <PROG> [args...]
+                       Run the program denoted by name <PROG> to profile its performance.
+                       Arguments specified by [args...] are passed to the invoked
+                       program as is. The program must have been built to support
+                       performance profiling. This option cannot be used together with
+                       any other option. Uses the perf record command to collect performance
+                       data, so this option can only be used on Linux systems. Requires
+                       superuser privileges, if prompted for a password, enter your sudo-password.
+
+  [--stop-on-failure]  Stop the test execution immediately after the
+                       first failure is encountered.
+
+  [-u|--unit]          Execute unit tests.
+
+  [-?|--help]          Show this help message.
 EOS
 )
 
 # Arg flags
+ARG_ALL=false;
 ARG_COVERAGE=false;
+ARG_FUNCTIONALITY=false;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGFLAG}}
 ARG_LINT=false;
+ARG_PROFILE_PERF=false;
+ARG_STOP_ON_FAILURE=false;
+ARG_UNIT=false;
 ARG_SHOW_HELP=false;
+
+PROG_NAME="";
+PROG_ARGS=();
 
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY}}
 
 # Parse all arguments given to this script
 for arg in "$@"; do
   case $arg in
+    --all)
+    ARG_ALL=true;
+    ARG_LINT=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;
     --coverage)
     ARG_COVERAGE=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;
+    -f|--functionality)
+    ARG_FUNCTIONALITY=true;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGPARSE}}
     -l|--lint)
     ARG_LINT=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;
+    --profile-performance)
+    ARG_PROFILE_PERF=true;
+    shift;
+    if (( $# == 0 )); then
+      echo "ERROR: Missing option argument <PROG>";
+      exit 1;
+    fi
+    if (( $# > 1 )); then
+      PROG_NAME="$1";
+      shift;
+      PROG_ARGS=("$@");
+    else
+      PROG_NAME="$1";
+    fi
+    break
+    ;;
+    --stop-on-failure)
+    ARG_STOP_ON_FAILURE=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;
+    -u|--unit)
+    ARG_UNIT=true;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;
@@ -96,9 +159,16 @@ fi
 # Check if the build dir is empty
 if [ -z "$(ls -A build)" ]; then
   # Build the tests first
+  build_args=();
+  if [[ $ARG_COVERAGE == true ]]; then
+    build_args+=("--debug");
+    build_args+=("--coverage");
+  fi
+  if [[ $ARG_PROFILE_PERF == true ]]; then
+    build_args+=("--profile-performance");
+  fi
   echo "Building project before test run execution";
-  bash build.sh;
-  if (( $? != 0 )); then
+  if ! bash build.sh "${build_args[@]}"; then
     exit $?;
   fi
 fi
@@ -109,14 +179,19 @@ if [[ $ARG_LINT == true ]]; then
     exit 1;
   fi
   echo "Performing static code analysis";
-  lint_out=$(run-clang-tidy -quiet -config '' -p build "${PWD}/src");
+  lint_out=$(run-clang-tidy -quiet -config '' -p build "${PWD}/src" 2> /dev/null);
   tidy_stat=$?;
   if (( tidy_stat != 0 )); then
+    echo "Static code analysis found the following issues:";
+    lint_out="$(echo "$lint_out" |grep --invert-match '^clang-tidy-')";
     echo "$lint_out";
+    exit $tidy_stat;
   else
     echo "No issues found in source files";
   fi
-  exit $tidy_stat;
+  if [[ $ARG_ALL == false ]]; then
+    exit $tidy_stat;
+  fi
 fi
 
 COV_INCL_PATH="$PWD";
@@ -124,6 +199,12 @@ BUILD_DIR_COV_DATA="cov";
 FILE_COV_DATA_MERGED="merged.info";
 BUILD_DIR_COV_REPORT="coverage_report";
 
+VERSION="$(cat VERSION)";
+if [[ "$VERSION" == *"-dev" ]]; then
+  VERSION+=" (Development Version)";
+fi
+
+PROJECT_SRC_ROOT="$PWD";
 cd "build" || exit 1;
 
 if [[ $ARG_COVERAGE == true ]]; then
@@ -133,22 +214,160 @@ if [[ $ARG_COVERAGE == true ]]; then
 fi
 
 BUILD_CONFIGURATION="";
+TSAN_ENABLED=false;
 # Determine the build configuration of the last build.
 if [ -f "CMakeCache.txt" ]; then
   BUILD_CONFIGURATION="$(grep --max-count=1 CMAKE_BUILD_TYPE CMakeCache.txt \
                          | cut  --delimiter='=' --fields=2)";
+
+  TSAN_CONFIG_VALUE="$(grep --max-count=1 RECKON_USE_THREAD_SANITIZER CMakeCache.txt \
+                         | cut  --delimiter='=' --fields=2)";
+
+  if [[ "$TSAN_CONFIG_VALUE" == "ON" ]]; then
+    TSAN_ENABLED=true;
+  fi
+fi
+if [ -z "$BUILD_CONFIGURATION" ]; then
+  if [ -d "bin/Debug" ]; then
+    BUILD_CONFIGURATION="Debug";
+  fi
+  if [ -d "bin/Release" ]; then
+    if [[ "$BUILD_CONFIGURATION" == "Debug" ]]; then
+      echo "Warning: Multiple build configurations found. Using 'Release' for testing.";
+    fi
+    BUILD_CONFIGURATION="Release";
+  fi
+fi
+if [ -z "$BUILD_CONFIGURATION" ]; then
+  echo "Error: No build configuration found.";
+  exit 1;
 fi
 
-# By default, GTest does not use colourful output when logging
-# the test results to a file. But as we also show the tests
-# in a terminal, we explicitly activate colourful output.
-export GTEST_COLOR=1;
+if [[ $ARG_PROFILE_PERF == true ]]; then
+  if [[ "$BUILD_CONFIGURATION" != "RelWithDebInfo" ]]; then
+    echo "ERROR: Target was built with build configuration '${BUILD_CONFIGURATION}'";
+    echo "which is not suitable for performance profiling.";
+    echo "Please build the targets with the --profile-performance option and try again.";
+    exit 1;
+  fi
+  if ! command -v "perf" &> /dev/null; then
+    echo "ERROR: Could not find command 'perf'";
+    exit 1;
+  fi
+  if ! command -v "perl" &> /dev/null; then
+    echo "ERROR: Could not find command 'perl'";
+    exit 1;
+  fi
+
+  subdir="perf_prof";
+  perf_data_file="${subdir}/perf.data";
+  perf_folded_file="${subdir}/perf-folded.txt";
+  perf_flamegraph_file="${subdir}/flamegraph.svg";
+
+  if [ -d "$subdir" ]; then
+    rm -r "$subdir";
+  fi
+  mkdir -p "$subdir";
+
+  prog_path="./bin/${PROG_NAME}";
+  if ! [ -x "$prog_path" ]; then
+    echo "ERROR: Specified program '${PROG_NAME}' not found";
+    exit 1;
+  fi
+
+  sudo setpriv \
+      --reuid="$(id --user --name)" \
+      --regid="$(id --group)" \
+      --init-groups \
+      --inh-caps=+perfmon,+sys_ptrace \
+      --ambient-caps=+perfmon,+sys_ptrace \
+      perf record --output="${perf_data_file}" \
+      --event=cycles:u -g \
+      "$prog_path" "${PROG_ARGS[@]}";
+
+  if (( $? != 0 )); then
+    echo "ERROR: An error has occurred while running program ${PROG_NAME}";
+    exit 1;
+  fi
+
+  fg_path="./_deps/perf-flamegraph";
+  if ! [ -x "${fg_path}/flamegraph.pl" ]; then
+    echo "ERROR: Required dependency not found: ${fg_path}/flamegraph.pl";
+    exit 1;
+  fi
+
+  perf script --input="${perf_data_file}" \
+      | "${fg_path}/stackcollapse-perf.pl" > "$perf_folded_file";
+
+  "${fg_path}/flamegraph.pl" \
+      --title "Flame Graph of ${PROG_NAME}" \
+      < "$perf_folded_file" \
+      > "${perf_flamegraph_file}";
+
+  if (( $? != 0 )); then
+    echo "ERROR: An error has occurred while generating flamegraph";
+    exit 1;
+  fi
+  fg_label="build/${perf_flamegraph_file}";
+  if tty --silent; then
+    fg_url="file://${PROJECT_SRC_ROOT}/${fg_label}";
+    fg_link="\e]8;;${fg_url}\e\\\\${fg_label}\e]8;;\e\\\\";
+  else
+    fg_link="$fg_label";
+  fi
+  echo -e "Performance profiling flame graph is available at ${fg_link}";
+  exit 0;
+fi
+
+CTEST_LABEL_OPT="";
+CTEST_LABEL_OPT_ARG="(";
+if [[ $ARG_UNIT == true ]]; then
+  CTEST_LABEL_OPT_ARG+="Unit";
+fi
+if [[ $ARG_INTEGRATION == true ]]; then
+  if [[ "$CTEST_LABEL_OPT_ARG" != "(" ]]; then
+    CTEST_LABEL_OPT_ARG+="|";
+  fi
+  CTEST_LABEL_OPT_ARG+="Integration";
+fi
+if [[ $ARG_FUNCTIONALITY == true ]]; then
+  if [[ "$CTEST_LABEL_OPT_ARG" != "(" ]]; then
+    CTEST_LABEL_OPT_ARG+="|";
+  fi
+  CTEST_LABEL_OPT_ARG+="Functionality";
+fi
+if [[ "$CTEST_LABEL_OPT_ARG" != "(" ]]; then
+  CTEST_LABEL_OPT="--label-regex";
+  CTEST_LABEL_OPT_ARG+=")";
+else
+  CTEST_LABEL_OPT_ARG="";
+fi
+
+CTEST_ARG_STOP_ON_FAILURE="";
+if [[ $ARG_STOP_ON_FAILURE == true ]]; then
+  CTEST_ARG_STOP_ON_FAILURE="--stop-on-failure";
+fi
 
 # UB-Sanitizer options.
 export UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1";
 
+# If TSAN was enabled for the build, ASLR is disabled for the test run
+# otherwise on certain compiler versions there will be crashes.
+set_aslr="";
+if [[ $TSAN_ENABLED == true ]]; then
+  if command -v "setarch" &> /dev/null; then
+    set_aslr="setarch $(uname -m) --addr-no-randomize";
+  else
+    echo "Warning: Command 'setarch' was not found. Cannot disable ASLR for TSAN.";
+  fi
+fi
+
 # Run tests with CTest
-ctest --output-on-failure --build-config "$BUILD_CONFIGURATION";
+$set_aslr ctest --output-on-failure \
+      --build-config "$BUILD_CONFIGURATION" \
+      $CTEST_ARG_STOP_ON_FAILURE \
+      $CTEST_LABEL_OPT $CTEST_LABEL_OPT_ARG;
+
 ctest_status=$?;
 
 if (( ctest_status == 0 )); then
@@ -166,7 +385,7 @@ if (( ctest_status == 0 )); then
       genhtml_opt_args+=("--header-title");
       genhtml_opt_args+=("${{VAR_PROJECT_NAME}} Test Coverage");
       genhtml_opt_args+=("--footer");
-      genhtml_opt_args+=("Copyright © ${{VAR_COPYRIGHT_YEAR}} ${{VAR_PROJECT_ORGANISATION_NAME}}");
+      genhtml_opt_args+=("${{VAR_PROJECT_NAME}} - ${VERSION}");
     fi
     if ! genhtml --quiet --output-directory "$BUILD_DIR_COV_REPORT" \
                  --prefix "$COV_INCL_PATH" \
@@ -177,8 +396,12 @@ if (( ctest_status == 0 )); then
       exit 1;
     fi
     report_label="build/${BUILD_DIR_COV_REPORT}/index.html";
-    report_url="file://${COV_INCL_PATH}/${report_label}";
-    report_link="\e]8;;${report_url}\e\\\\${report_label}\e]8;;\e\\\\";
+    if tty --silent; then
+      report_url="file://${COV_INCL_PATH}/${report_label}";
+      report_link="\e]8;;${report_url}\e\\\\${report_label}\e]8;;\e\\\\";
+    else
+      report_link="$report_label";
+    fi
     echo -e "Wrote HTML report to $report_link";
   fi
 fi

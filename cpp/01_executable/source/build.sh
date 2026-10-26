@@ -34,6 +34,11 @@ ${{VAR_SCRIPT_BUILD_ISOLATED_OPT}}
                   program might not run on other machines. Do not use this option if you intend
                   to redistribute the built program.
 
+  [--profile-performance]
+                  Add support for performance profiling. This will compile with optimizations
+                  enabled but keep some debug information to allow profiling tools to
+                  work effectively.
+
   [--sanitizers]  Use sanitizers when building and running.
 
   [--skip-config] Skip the build configuration step. If the build tree does not
@@ -60,6 +65,7 @@ ${{VAR_SCRIPT_BUILD_DOCS_ARGFLAG}}
 ARG_IGNORE_WARNINGS=false;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGFLAG}}
 ARG_OPTIMIZE_NATIVE=false;
+ARG_PROFILE_PERF=false;
 ARG_SANITIZERS=false;
 ARG_SKIP_CONFIG=false;
 ARG_SKIP_TESTS=false;
@@ -101,13 +107,18 @@ ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;
 ${{VAR_SCRIPT_BUILD_DOCS_ARGPARSE}}
-    --sanitizers)
-    ARG_SANITIZERS=true;
+    --optimize-native)
+    ARG_OPTIMIZE_NATIVE=true;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;
-    --optimize-native)
-    ARG_OPTIMIZE_NATIVE=true;
+    --profile-performance)
+    ARG_PROFILE_PERF=true;
+${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
+    shift
+    ;;
+    --sanitizers)
+    ARG_SANITIZERS=true;
 ${{VAR_SCRIPT_BUILD_ISOLATED_ARGARRAY_ADD}}
     shift
     ;;
@@ -187,10 +198,14 @@ BUILD_OPTIMIZE_NATIVE="OFF";
 BUILD_WITH_SANITIZERS="OFF";
 BUILD_WITH_THREAD_SANITIZER="OFF";
 BUILD_WITH_COVERAGE="OFF";
+BUILD_WITH_PERF_PROFILING="OFF";
 IGNORE_WARNINGS="OFF";
 
 if [[ $ARG_DEBUG == true ]]; then
   BUILD_CONFIGURATION="Debug";
+fi
+if [[ $ARG_PROFILE_PERF == true ]]; then
+  BUILD_CONFIGURATION="RelWithDebInfo";
 fi
 if [[ $ARG_IGNORE_WARNINGS == true ]]; then
   IGNORE_WARNINGS="ON";
@@ -210,6 +225,9 @@ fi
 if [[ $ARG_THREAD_SANITIZER == true ]]; then
   BUILD_WITH_THREAD_SANITIZER="ON";
 fi
+if [[ $ARG_PROFILE_PERF == true ]]; then
+  BUILD_WITH_PERF_PROFILING="ON";
+fi
 if [[ $ARG_COVERAGE == true ]]; then
   BUILD_WITH_COVERAGE="ON";
   if [[ $ARG_SKIP_TESTS == true ]]; then
@@ -228,6 +246,7 @@ if [[ $ARG_SKIP_CONFIG == false ]]; then
         -D${{VAR_PROJECT_NAME_UPPER}}_USE_SANITIZERS="$BUILD_WITH_SANITIZERS" \
         -D${{VAR_PROJECT_NAME_UPPER}}_USE_THREAD_SANITIZER="$BUILD_WITH_THREAD_SANITIZER" \
         -D${{VAR_PROJECT_NAME_UPPER}}_BUILD_TEST_COVERAGE="$BUILD_WITH_COVERAGE" \
+        -D${{VAR_PROJECT_NAME_UPPER}}_USE_PERF_PROFILING="$BUILD_WITH_PERF_PROFILING" \
         -D${{VAR_PROJECT_NAME_UPPER}}_ENABLE_LTO="$BUILD_WITH_LTO" ..;
 
   if (( $? != 0 )); then
